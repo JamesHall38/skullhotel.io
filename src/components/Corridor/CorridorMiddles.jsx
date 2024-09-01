@@ -64,19 +64,49 @@ const InstancedModels = ({ children }) => {
 };
 
 export default function CorridorMiddles(props) {
-	const { nodes, materials } = useGLTF('/models/corridor/corridorMiddle.glb');
+	const { nodes, materials } = useGLTF('/models/corridor.glb');
 	return (
 		<group position={[2.925, 0, -6.2]} {...props} dispose={null}>
 			<InstancedModels>
-				<mesh geometry={nodes.Plane003.geometry} material={materials.Walls} />
-				<mesh geometry={nodes.Plane003_1.geometry} material={materials.Floor} />
 				<mesh
+					castShadow
+					receiveShadow
+					geometry={nodes.Plane003.geometry}
+					material={materials.Walls}
+				/>
+				<mesh
+					castShadow
+					receiveShadow
+					geometry={nodes.Plane003_1.geometry}
+					material={materials.Floor}
+				/>
+				<mesh
+					castShadow
+					receiveShadow
 					geometry={nodes.Plane003_2.geometry}
 					material={materials.DarkWood}
+				/>
+				<mesh
+					castShadow
+					receiveShadow
+					geometry={nodes.Vert001.geometry}
+					material={materials['LUMINARIA.001']}
+				/>
+				<mesh
+					castShadow
+					receiveShadow
+					geometry={nodes.Vert001_1.geometry}
+					material={materials['LAMP.001']}
+				/>
+				<mesh
+					castShadow
+					receiveShadow
+					geometry={nodes.Plane003_3.geometry}
+					material={materials.Frame}
 				/>
 			</InstancedModels>
 		</group>
 	);
 }
 
-useGLTF.preload('/models/corridor/corridorMiddle.glb');
+useGLTF.preload('/models/corridor.glb');

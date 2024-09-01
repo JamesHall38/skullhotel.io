@@ -63,7 +63,6 @@ const Door = () => {
 };
 
 export default function ReceptionDoors() {
-	const { nodes, materials } = useGLTF('/models/doors/door.glb');
 	const tutorialDoor = useDoor((state) => state.tutorial);
 	const setTutorialDoor = useDoor((state) => state.setTutorial);
 	const exitDoor = useDoor((state) => state.exit);
@@ -74,15 +73,8 @@ export default function ReceptionDoors() {
 
 	return (
 		<group>
-			<mesh
-				castShadow
-				receiveShadow
-				geometry={nodes.DoorFrame.geometry}
-				material={materials.Frame}
-				position={[3.9, 1, 0.645]}
-			/>
 			<DoorWrapper
-				offset={[3.9, 1, 0.645]}
+				offset={[3.9, 0.965, 0.66]}
 				rotate
 				isOpen={corridorDoor}
 				setOpen={(value) => {
@@ -92,15 +84,8 @@ export default function ReceptionDoors() {
 			>
 				<Door />
 			</DoorWrapper>
-			<mesh
-				castShadow
-				receiveShadow
-				geometry={nodes.DoorFrame.geometry}
-				material={materials.Frame}
-				position={[6.5, 1, 2]}
-			/>
 			<DoorWrapper
-				offset={[6.5, 1, 2]}
+				offset={[6.582, 0.965, 3.2]}
 				isOpen={tutorialDoor}
 				setOpen={(value) => {
 					setTutorialDoor(value);
@@ -109,15 +94,8 @@ export default function ReceptionDoors() {
 			>
 				<Door />
 			</DoorWrapper>
-			<mesh
-				castShadow
-				receiveShadow
-				geometry={nodes.DoorFrame.geometry}
-				material={materials.Frame}
-				position={[10.025 + 1.33, 1, -3.85]}
-			/>
 			<DoorWrapper
-				offset={[10.025, 1, -3.85]}
+				offset={[10.025, 0.965, -3.85]}
 				isOpen={exitDoor}
 				setOpen={(value) => setExitDoor(value)}
 			>

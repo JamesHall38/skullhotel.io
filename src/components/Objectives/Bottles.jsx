@@ -14,6 +14,7 @@ const offset = [9.53, 0.83, 1.6];
 export default function Bottles() {
 	const roomNumber = useGame((state) => state.playerPositionRoom);
 	const roomTotal = useGame((state) => state.roomTotal);
+	const playerPositionRoom = useGame((state) => state.playerPositionRoom);
 	const group = useRef();
 	const { nodes, materials, animations } = useGLTF(
 		'/models/objectives/bottles.glb'
@@ -41,21 +42,32 @@ export default function Bottles() {
 	}, [bathroomCurtain]);
 
 	const position = useMemo(() => {
-		if (roomNumber >= roomTotal / 2)
-			return [
+		let calculatedPosition;
+
+		if (playerPositionRoom >= roomTotal / 2) {
+			calculatedPosition = [
 				offset[0] -
 					CORRIDORLENGTH -
-					(roomNumber - roomTotal / 2) * CORRIDORLENGTH,
+					(playerPositionRoom - roomTotal / 2) * CORRIDORLENGTH,
 				offset[1],
 				-offset[2],
 			];
-		else
-			return [
-				-(offset[0] - 5.91) - roomNumber * CORRIDORLENGTH,
+		} else {
+			calculatedPosition = [
+				-(offset[0] - 5.91) - playerPositionRoom * CORRIDORLENGTH,
 				offset[1],
 				offset[2],
 			];
-	}, [roomNumber, roomTotal]);
+		}
+
+		if (camera.position.x > 8) {
+			calculatedPosition = [14.5, 0, 14.5];
+		} else if (camera.position.x <= 8 && camera.position.x > 4.4) {
+			calculatedPosition = [2.32, 0 + offset[1], 3.28];
+		}
+
+		return calculatedPosition;
+	}, [playerPositionRoom, roomTotal, camera]);
 
 	const checkDistanceAndAngle = useCallback(() => {
 		const objectPosition = new THREE.Vector3(...position);
@@ -137,35 +149,40 @@ export default function Bottles() {
 				<group name="BottleRight">
 					<mesh
 						name="Cylinder013"
+						castShadow
+						receiveShadow
 						geometry={nodes.Cylinder013.geometry}
-						material={materials['Material.001']}
+						material={materials['1.003']}
 					/>
 					<mesh
 						name="Cylinder013_1"
+						castShadow
+						receiveShadow
 						geometry={nodes.Cylinder013_1.geometry}
-						material={materials['Material.008']}
-					/>
-					<mesh
-						name="Cylinder013_2"
-						geometry={nodes.Cylinder013_2.geometry}
-						material={materials['Material.010']}
+						material={materials.g1}
 					/>
 				</group>
-				<group name="BottleLeft">
+				<group name="BottleLeft" rotation={[-Math.PI / 2, 0.056, 0]}>
 					<mesh
 						name="Cylinder008"
+						castShadow
+						receiveShadow
 						geometry={nodes.Cylinder008.geometry}
-						material={materials['Material.001']}
+						material={materials['89']}
 					/>
 					<mesh
 						name="Cylinder008_1"
+						castShadow
+						receiveShadow
 						geometry={nodes.Cylinder008_1.geometry}
-						material={materials['Material.004']}
+						material={materials['3-1']}
 					/>
 					<mesh
 						name="Cylinder008_2"
+						castShadow
+						receiveShadow
 						geometry={nodes.Cylinder008_2.geometry}
-						material={materials['Material.008']}
+						material={materials['2-2.001']}
 					/>
 				</group>
 			</group>

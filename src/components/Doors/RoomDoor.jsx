@@ -44,13 +44,13 @@ export default function RoomDoor({ roomNumber }) {
 
 	return (
 		<group dispose={null}>
-			<mesh
+			{/* <mesh
 				castShadow
 				receiveShadow
 				geometry={nodes.DoorFrame.geometry}
 				material={materials.Frame}
 				position={position}
-			/>
+			/> */}
 			<DoorWrapper
 				roomNumber={roomNumber}
 				offset={[5.28, 0.97, 1.51]}

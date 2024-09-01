@@ -1,7 +1,7 @@
 import { useGLTF } from '@react-three/drei';
 
 export default function Metal(props) {
-	const { nodes, materials } = useGLTF('/models/reception/receptionMetal.glb');
+	const { nodes, materials } = useGLTF('/models/reception/reception_metal.glb');
 	return (
 		<group {...props} dispose={null}>
 			<mesh
@@ -14,10 +14,10 @@ export default function Metal(props) {
 				castShadow
 				receiveShadow
 				geometry={nodes.metal.geometry}
-				material={materials['aluminiu.003']}
+				material={materials['Metal']}
 			/>
 		</group>
 	);
 }
 
-useGLTF.preload('/models/reception/receptionMetal.glb');
+useGLTF.preload('/models/reception/reception_metal.glb');

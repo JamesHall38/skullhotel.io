@@ -13,6 +13,7 @@ const offset = [8.8, -0.02, 6.2];
 export default function Bedsheets() {
 	const roomNumber = useGame((state) => state.playerPositionRoom);
 	const roomTotal = useGame((state) => state.roomTotal);
+	const playerPositionRoom = useGame((state) => state.playerPositionRoom);
 	const group = useRef();
 	const { nodes, materials, animations } = useGLTF(
 		'/models/objectives/bedsheets.glb'
@@ -34,21 +35,32 @@ export default function Bedsheets() {
 	}, [nodes]);
 
 	const position = useMemo(() => {
-		if (roomNumber >= roomTotal / 2)
-			return [
+		let calculatedPosition;
+
+		if (playerPositionRoom >= roomTotal / 2) {
+			calculatedPosition = [
 				offset[0] -
 					CORRIDORLENGTH -
-					(roomNumber - roomTotal / 2) * CORRIDORLENGTH,
+					(playerPositionRoom - roomTotal / 2) * CORRIDORLENGTH,
 				offset[1],
 				-offset[2],
 			];
-		else
-			return [
-				-(offset[0] - 5.91) - roomNumber * CORRIDORLENGTH,
+		} else {
+			calculatedPosition = [
+				-(offset[0] - 5.91) - playerPositionRoom * CORRIDORLENGTH,
 				offset[1],
 				offset[2],
 			];
-	}, [roomNumber, roomTotal]);
+		}
+
+		if (camera.position.x > 8) {
+			calculatedPosition = [14.5, 0, 14.5];
+		} else if (camera.position.x <= 8 && camera.position.x > 4.4) {
+			calculatedPosition = [3.02, 0, 7.9];
+		}
+
+		return calculatedPosition;
+	}, [playerPositionRoom, roomTotal, camera]);
 
 	const checkDistanceAndAngle = useCallback(() => {
 		const objectPosition = new THREE.Vector3(...position);

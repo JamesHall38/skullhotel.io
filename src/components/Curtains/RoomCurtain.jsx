@@ -13,11 +13,8 @@ export default function RoomCurtain() {
 	const roomNumber = useGame((state) => state.playerPositionRoom);
 	const roomTotal = useGame((state) => state.roomTotal);
 	const group = useRef();
-	const { nodes: rightNodes, animations: rightAnimations } = useGLTF(
-		'/models/doors/roomCurtainRight.glb'
-	);
-	const { nodes: leftNodes, animations: leftAnimations } = useGLTF(
-		'/models/doors/roomCurtainLeft.glb'
+	const { nodes: rightNodes, animations } = useGLTF(
+		'/models/doors/room_curtain.glb'
 	);
 	const mixerRightRef = useRef(new THREE.AnimationMixer(null));
 	const mixerLeftRef = useRef(new THREE.AnimationMixer(null));
@@ -25,6 +22,7 @@ export default function RoomCurtain() {
 	const roomCurtains = useDoor((state) => state.roomCurtains);
 	const setRoomCurtain = useDoor((state) => state.setRoomCurtain);
 	const setRoomCurtains = useDoor((state) => state.setRoomCurtains);
+	const playerPositionRoom = useGame((state) => state.playerPositionRoom);
 	const { camera } = useThree();
 	const curtainSoundRef = useRef();
 	const roomNumberRef = useRef();
@@ -32,31 +30,44 @@ export default function RoomCurtain() {
 	const mesh0Ref = useRef();
 	const mesh1Ref = useRef();
 
-	const animationMeshCloneLeft = useMemo(
-		() => leftNodes.Grid004.clone(),
-		[leftNodes]
-	);
+	const animationMeshCloneLeft = useMemo(() => {
+		const clone = rightNodes.Grid005.clone();
+		clone.applyMatrix4(new THREE.Matrix4().makeScale(-1, 1, 1));
+		return clone;
+	}, [rightNodes]);
+
 	const animationMeshCloneRight = useMemo(
 		() => rightNodes.Grid005.clone(),
 		[rightNodes]
 	);
 
 	const position = useMemo(() => {
-		if (roomNumber >= roomTotal / 2)
-			return [
+		let calculatedPosition;
+
+		if (playerPositionRoom >= roomTotal / 2) {
+			calculatedPosition = [
 				offset[0] -
 					CORRIDORLENGTH -
-					(roomNumber - roomTotal / 2) * CORRIDORLENGTH,
+					(playerPositionRoom - roomTotal / 2) * CORRIDORLENGTH,
 				offset[1],
 				-offset[2],
 			];
-		else
-			return [
-				-(offset[0] - 5.91) - roomNumber * CORRIDORLENGTH,
+		} else {
+			calculatedPosition = [
+				-(offset[0] - 5.91) - playerPositionRoom * CORRIDORLENGTH,
 				offset[1],
 				offset[2],
 			];
-	}, [roomNumber, roomTotal]);
+		}
+
+		if (camera.position.x > 8) {
+			calculatedPosition = [14.5, 0, 14.5];
+		} else if (camera.position.x <= 8 && camera.position.x > 4.4) {
+			calculatedPosition = [3.02, 0, 7.9];
+		}
+
+		return calculatedPosition;
+	}, [playerPositionRoom, roomTotal, camera]);
 
 	const mixer = useMemo(
 		() => new THREE.AnimationMixer(animationMeshCloneRight),
@@ -82,37 +93,35 @@ export default function RoomCurtain() {
 
 		setRoomCurtains(roomNumberRef.current, true);
 
-		rightAnimations.forEach((clip) => {
-			const action = mixer.clipAction(clip);
-			action.clampWhenFinished = true;
-			action.timeScale = 4;
-			action.loop = THREE.LoopOnce;
-			action.repetitions = 1;
+		animations.forEach((clip) => {
+			const actionRight = mixer.clipAction(clip);
+			const actionLeft = mixerSecond.clipAction(clip);
 
-			if (action.time < 7 || action.time > 12) {
-				action.reset();
-				action.time = 6;
+			actionRight.clampWhenFinished = true;
+			actionRight.timeScale = 4;
+			actionRight.loop = THREE.LoopOnce;
+			actionRight.repetitions = 1;
+
+			actionLeft.clampWhenFinished = true;
+			actionLeft.timeScale = 4;
+			actionLeft.loop = THREE.LoopOnce;
+			actionLeft.repetitions = 1;
+
+			if (actionRight.time < 7 || actionRight.time > 12) {
+				actionRight.reset();
+				actionRight.time = 6;
 			}
-			action.play();
-		});
-
-		leftAnimations.forEach((clip) => {
-			const action = mixerSecond.clipAction(clip);
-			action.clampWhenFinished = true;
-			action.timeScale = 4;
-			action.loop = THREE.LoopOnce;
-			action.repetitions = 1;
-
-			if (action.time < 7 || action.time > 12) {
-				action.reset();
-				action.time = 6;
+			if (actionLeft.time < 7 || actionLeft.time > 12) {
+				actionLeft.reset();
+				actionLeft.time = 6;
 			}
-			action.play();
+			actionRight.play();
+			actionLeft.play();
 		});
 
 		mixerRightRef.current = mixer;
 		mixerLeftRef.current = mixerSecond;
-	}, [mixer, mixerSecond, rightAnimations, leftAnimations, setRoomCurtains]);
+	}, [mixer, mixerSecond, animations, setRoomCurtains]);
 
 	const closeWindow = useCallback(() => {
 		setTimeout(() => {
@@ -122,37 +131,35 @@ export default function RoomCurtain() {
 
 		setRoomCurtains(roomNumberRef.current, false);
 
-		rightAnimations.forEach((clip) => {
-			const action = mixer.clipAction(clip);
-			action.clampWhenFinished = true;
-			action.timeScale = -4;
-			action.loop = THREE.LoopOnce;
-			action.repetitions = 1;
+		animations.forEach((clip) => {
+			const actionRight = mixer.clipAction(clip);
+			const actionLeft = mixerSecond.clipAction(clip);
 
-			if (action.time < 7 || action.time > 12) {
-				action.reset();
-				action.time = 12.9;
+			actionRight.clampWhenFinished = true;
+			actionRight.timeScale = -4;
+			actionRight.loop = THREE.LoopOnce;
+			actionRight.repetitions = 1;
+
+			actionLeft.clampWhenFinished = true;
+			actionLeft.timeScale = -4;
+			actionLeft.loop = THREE.LoopOnce;
+			actionLeft.repetitions = 1;
+
+			if (actionRight.time < 7 || actionRight.time > 12) {
+				actionRight.reset();
+				actionRight.time = 12.9;
 			}
-			action.play();
-		});
-
-		leftAnimations.forEach((clip) => {
-			const action = mixerSecond.clipAction(clip);
-			action.clampWhenFinished = true;
-			action.timeScale = -4;
-			action.loop = THREE.LoopOnce;
-			action.repetitions = 1;
-
-			if (action.time < 7 || action.time > 12) {
-				action.reset();
-				action.time = 12.9;
+			if (actionLeft.time < 7 || actionLeft.time > 12) {
+				actionLeft.reset();
+				actionLeft.time = 12.9;
 			}
-			action.play();
+			actionRight.play();
+			actionLeft.play();
 		});
 
 		mixerRightRef.current = mixer;
 		mixerLeftRef.current = mixerSecond;
-	}, [mixer, mixerSecond, rightAnimations, leftAnimations, setRoomCurtains]);
+	}, [mixer, mixerSecond, animations, setRoomCurtains]);
 
 	useEffect(() => {
 		if (roomCurtain) {
@@ -166,26 +173,25 @@ export default function RoomCurtain() {
 		if (roomCurtainsRef.current[roomNumber]) {
 			setRoomCurtain(true);
 
-			rightAnimations.forEach((clip) => {
-				const action = mixer.clipAction(clip);
-				action.clampWhenFinished = true;
-				action.timeScale = 4;
-				action.loop = THREE.LoopOnce;
-				action.repetitions = 1;
-				action.reset();
-				action.time = 12;
-				action.play();
-			});
+			animations.forEach((clip) => {
+				const actionRight = mixer.clipAction(clip);
+				const actionLeft = mixerSecond.clipAction(clip);
 
-			leftAnimations.forEach((clip) => {
-				const action = mixerSecond.clipAction(clip);
-				action.clampWhenFinished = true;
-				action.timeScale = 4;
-				action.loop = THREE.LoopOnce;
-				action.repetitions = 1;
-				action.reset();
-				action.time = 12;
-				action.play();
+				actionRight.clampWhenFinished = true;
+				actionRight.timeScale = 4;
+				actionRight.loop = THREE.LoopOnce;
+				actionRight.repetitions = 1;
+				actionRight.reset();
+				actionRight.time = 12;
+				actionRight.play();
+
+				actionLeft.clampWhenFinished = true;
+				actionLeft.timeScale = 4;
+				actionLeft.loop = THREE.LoopOnce;
+				actionLeft.repetitions = 1;
+				actionLeft.reset();
+				actionLeft.time = 12;
+				actionLeft.play();
 			});
 
 			mixerRightRef.current = mixer;
@@ -193,39 +199,31 @@ export default function RoomCurtain() {
 		} else {
 			setRoomCurtain(false);
 
-			rightAnimations.forEach((clip) => {
-				const action = mixer.clipAction(clip);
-				action.clampWhenFinished = true;
-				action.timeScale = -4;
-				action.loop = THREE.LoopOnce;
-				action.repetitions = 1;
-				action.reset();
-				action.time = 7;
-				action.play();
-			});
+			animations.forEach((clip) => {
+				const actionRight = mixer.clipAction(clip);
+				const actionLeft = mixerSecond.clipAction(clip);
 
-			leftAnimations.forEach((clip) => {
-				const action = mixerSecond.clipAction(clip);
-				action.clampWhenFinished = true;
-				action.timeScale = -4;
-				action.loop = THREE.LoopOnce;
-				action.repetitions = 1;
-				action.reset();
-				action.time = 7;
-				action.play();
+				actionRight.clampWhenFinished = true;
+				actionRight.timeScale = -4;
+				actionRight.loop = THREE.LoopOnce;
+				actionRight.repetitions = 1;
+				actionRight.reset();
+				actionRight.time = 7;
+				actionRight.play();
+
+				actionLeft.clampWhenFinished = true;
+				actionLeft.timeScale = -4;
+				actionLeft.loop = THREE.LoopOnce;
+				actionLeft.repetitions = 1;
+				actionLeft.reset();
+				actionLeft.time = 7;
+				actionLeft.play();
 			});
 
 			mixerRightRef.current = mixer;
 			mixerLeftRef.current = mixerSecond;
 		}
-	}, [
-		roomNumber,
-		setRoomCurtain,
-		rightAnimations,
-		leftAnimations,
-		mixer,
-		mixerSecond,
-	]);
+	}, [roomNumber, setRoomCurtain, animations, mixer, mixerSecond]);
 
 	const checkProximity = useCallback(() => {
 		return Math.abs(camera.position.z) > 9;
@@ -290,8 +288,18 @@ export default function RoomCurtain() {
 			dispose={null}
 		>
 			<group name="Scene">
-				<primitive castShadow receiveShadow object={animationMeshCloneLeft} />
-				<primitive castShadow receiveShadow object={animationMeshCloneRight} />
+				<primitive
+					position={[2.67, 0, 0.05]}
+					castShadow
+					receiveShadow
+					object={animationMeshCloneLeft}
+				/>
+				<primitive
+					position={[0.08, 0, -0.05]}
+					castShadow
+					receiveShadow
+					object={animationMeshCloneRight}
+				/>
 			</group>
 			<PositionalAudio
 				ref={curtainSoundRef}
@@ -324,5 +332,4 @@ export default function RoomCurtain() {
 	);
 }
 
-useGLTF.preload('/models/doors/roomCurtainRight.glb');
-useGLTF.preload('/models/doors/roomCurtainLeft.glb');
+useGLTF.preload('/models/doors/room_curtain.glb');

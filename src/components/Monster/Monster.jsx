@@ -50,7 +50,7 @@ const Monster = (props) => {
 	const type = seedData[playerPositionRoom]?.type;
 	const number = seedData[playerPositionRoom]?.number;
 
-	const jumpScareSoundRef = useRef(new Audio('/sounds/jumpScare.ogg'));
+	const jumpScareSoundRef = useRef(new Audio('/sounds/jump_scare.ogg'));
 
 	const position = useMemo(() => {
 		if (playerPositionRoom >= roomTotal / 2)

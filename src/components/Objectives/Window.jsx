@@ -57,21 +57,32 @@ export default function Window() {
 	);
 
 	const position = useMemo(() => {
-		if (roomNumber >= roomTotal / 2)
-			return [
+		let calculatedPosition;
+
+		if (playerPositionRoom >= roomTotal / 2) {
+			calculatedPosition = [
 				offset[0] -
 					CORRIDORLENGTH -
-					(roomNumber - roomTotal / 2) * CORRIDORLENGTH,
+					(playerPositionRoom - roomTotal / 2) * CORRIDORLENGTH,
 				offset[1],
 				-offset[2],
 			];
-		else
-			return [
-				-(offset[0] - 5.91) - roomNumber * CORRIDORLENGTH,
+		} else {
+			calculatedPosition = [
+				-(offset[0] - 5.91) - playerPositionRoom * CORRIDORLENGTH,
 				offset[1],
 				offset[2],
 			];
-	}, [roomNumber, roomTotal]);
+		}
+
+		if (camera.position.x > 8) {
+			calculatedPosition = [14.5, 0, 14.5];
+		} else if (camera.position.x <= 8 && camera.position.x > 4.4) {
+			calculatedPosition = [3.4, 1.2, 13.24];
+		}
+
+		return calculatedPosition;
+	}, [playerPositionRoom, roomTotal, camera]);
 
 	const checkProximity = useCallback(() => {
 		return Math.abs(camera.position.z) > 9;

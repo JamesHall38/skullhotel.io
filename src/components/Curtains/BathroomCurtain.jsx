@@ -13,18 +13,14 @@ export default function BathbathroomCurtain({ positionOffset }) {
 	const roomNumber = useGame((state) => state.playerPositionRoom);
 	const roomTotal = useGame((state) => state.roomTotal);
 	const group = useRef();
-	const { nodes: leftNodes, animations: leftAnimations } = useGLTF(
-		'/models/doors/bathroomCurtainLeft.glb'
-	);
-	const { nodes: rightNodes, animations: rightAnimations } = useGLTF(
-		'/models/doors/bathroomCurtainRight.glb'
-	);
+	const { nodes, animations } = useGLTF('/models/doors/bathroom_curtain.glb');
 	const mixerRightRef = useRef(new THREE.AnimationMixer(null));
 	const mixerLeftRef = useRef(new THREE.AnimationMixer(null));
 	const bathroomCurtain = useDoor((state) => state.bathroomCurtain);
 	const bathroomCurtains = useDoor((state) => state.bathroomCurtains);
 	const setBathroomCurtain = useDoor((state) => state.setBathroomCurtain);
 	const setBathroomCurtains = useDoor((state) => state.setBathroomCurtains);
+	const playerPositionRoom = useGame((state) => state.playerPositionRoom);
 	const curtainSoundRef = useRef();
 	const bathroomCurtainsRef = useRef();
 	const bathroomNumberRef = useRef();
@@ -32,31 +28,41 @@ export default function BathbathroomCurtain({ positionOffset }) {
 	const mesh0Ref = useRef();
 	const mesh1Ref = useRef();
 
-	const animationMeshCloneLeft = useMemo(
-		() => leftNodes._.clone(),
-		[leftNodes]
-	);
-	const animationMeshCloneRight = useMemo(
-		() => rightNodes.Grid004.clone(),
-		[rightNodes]
-	);
+	const animationMeshCloneLeft = useMemo(() => {
+		const clone = nodes._.clone();
+		clone.applyMatrix4(new THREE.Matrix4().makeScale(-1, 1, 1));
+		return clone;
+	}, [nodes]);
+
+	const animationMeshCloneRight = useMemo(() => nodes._.clone(), [nodes]);
 
 	const position = useMemo(() => {
-		if (roomNumber >= roomTotal / 2)
-			return [
+		let calculatedPosition;
+
+		if (playerPositionRoom >= roomTotal / 2) {
+			calculatedPosition = [
 				offset[0] -
 					CORRIDORLENGTH -
-					(roomNumber - roomTotal / 2) * CORRIDORLENGTH,
+					(playerPositionRoom - roomTotal / 2) * CORRIDORLENGTH,
 				offset[1],
 				-offset[2],
 			];
-		else
-			return [
-				-(offset[0] - 5.91) - roomNumber * CORRIDORLENGTH,
+		} else {
+			calculatedPosition = [
+				-(offset[0] - 5.91) - playerPositionRoom * CORRIDORLENGTH,
 				offset[1],
 				offset[2],
 			];
-	}, [roomNumber, roomTotal]);
+		}
+
+		if (camera.position.x > 8) {
+			calculatedPosition = [14.5, 0, 14.5];
+		} else if (camera.position.x <= 8 && camera.position.x > 4.4) {
+			calculatedPosition = [3.02, 0, 7.9];
+		}
+
+		return calculatedPosition;
+	}, [playerPositionRoom, roomTotal, camera]);
 
 	const mixer = useMemo(
 		() => new THREE.AnimationMixer(animationMeshCloneLeft),
@@ -84,43 +90,35 @@ export default function BathbathroomCurtain({ positionOffset }) {
 
 		setBathroomCurtains(bathroomNumberRef.current, true);
 
-		leftAnimations.forEach((clip) => {
-			const action = mixer.clipAction(clip);
-			action.clampWhenFinished = true;
-			action.timeScale = 4;
-			action.loop = THREE.LoopOnce;
-			action.repetitions = 1;
+		animations.forEach((clip) => {
+			const actionLeft = mixer.clipAction(clip);
+			const actionRight = mixerSecond.clipAction(clip);
 
-			if (action.time < 0.1 || action.time > 4) {
-				action.reset();
-				action.time = 0;
+			actionLeft.clampWhenFinished = true;
+			actionLeft.timeScale = 4;
+			actionLeft.loop = THREE.LoopOnce;
+			actionLeft.repetitions = 1;
+
+			actionRight.clampWhenFinished = true;
+			actionRight.timeScale = 4;
+			actionRight.loop = THREE.LoopOnce;
+			actionRight.repetitions = 1;
+
+			if (actionLeft.time < 0.1 || actionLeft.time > 4) {
+				actionLeft.reset();
+				actionLeft.time = 0;
 			}
-			action.play();
-		});
-
-		rightAnimations.forEach((clip) => {
-			const action = mixerSecond.clipAction(clip);
-			action.clampWhenFinished = true;
-			action.timeScale = 4;
-			action.loop = THREE.LoopOnce;
-			action.repetitions = 1;
-
-			if (action.time < 0.1 || action.time > 4) {
-				action.reset();
-				action.time = 0;
+			if (actionRight.time < 0.1 || actionRight.time > 4) {
+				actionRight.reset();
+				actionRight.time = 0;
 			}
-			action.play();
+			actionLeft.play();
+			actionRight.play();
 		});
 
 		mixerRightRef.current = mixer;
 		mixerLeftRef.current = mixerSecond;
-	}, [
-		mixer,
-		mixerSecond,
-		leftAnimations,
-		rightAnimations,
-		setBathroomCurtains,
-	]);
+	}, [mixer, mixerSecond, animations, setBathroomCurtains]);
 
 	const closeWindow = useCallback(() => {
 		curtainSoundRef.current.stop();
@@ -129,43 +127,35 @@ export default function BathbathroomCurtain({ positionOffset }) {
 
 		setBathroomCurtains(bathroomNumberRef.current, false);
 
-		leftAnimations.forEach((clip) => {
-			const action = mixer.clipAction(clip);
-			action.clampWhenFinished = true;
-			action.timeScale = -4;
-			action.loop = THREE.LoopOnce;
-			action.repetitions = 1;
+		animations.forEach((clip) => {
+			const actionLeft = mixer.clipAction(clip);
+			const actionRight = mixerSecond.clipAction(clip);
 
-			if (action.time < 0.1 || action.time > 4) {
-				action.reset();
-				action.time = 4;
+			actionLeft.clampWhenFinished = true;
+			actionLeft.timeScale = -4;
+			actionLeft.loop = THREE.LoopOnce;
+			actionLeft.repetitions = 1;
+
+			actionRight.clampWhenFinished = true;
+			actionRight.timeScale = -4;
+			actionRight.loop = THREE.LoopOnce;
+			actionRight.repetitions = 1;
+
+			if (actionLeft.time < 0.1 || actionLeft.time > 4) {
+				actionLeft.reset();
+				actionLeft.time = 4;
 			}
-			action.play();
-		});
-
-		rightAnimations.forEach((clip) => {
-			const action = mixerSecond.clipAction(clip);
-			action.clampWhenFinished = true;
-			action.timeScale = -4;
-			action.loop = THREE.LoopOnce;
-			action.repetitions = 1;
-
-			if (action.time < 0.1 || action.time > 4) {
-				action.reset();
-				action.time = 4;
+			if (actionRight.time < 0.1 || actionRight.time > 4) {
+				actionRight.reset();
+				actionRight.time = 4;
 			}
-			action.play();
+			actionLeft.play();
+			actionRight.play();
 		});
 
 		mixerRightRef.current = mixer;
 		mixerLeftRef.current = mixerSecond;
-	}, [
-		mixer,
-		mixerSecond,
-		leftAnimations,
-		rightAnimations,
-		setBathroomCurtains,
-	]);
+	}, [mixer, mixerSecond, animations, setBathroomCurtains]);
 
 	useEffect(() => {
 		if (bathroomCurtain) {
@@ -178,70 +168,64 @@ export default function BathbathroomCurtain({ positionOffset }) {
 	useEffect(() => {
 		if (bathroomCurtainsRef.current[roomNumber]) {
 			setBathroomCurtain(true);
-			leftAnimations.forEach((clip) => {
-				const action = mixer.clipAction(clip);
-				action.clampWhenFinished = true;
-				action.timeScale = 4;
-				action.loop = THREE.LoopOnce;
-				action.repetitions = 1;
-				action.reset();
-				action.time = 4;
-				action.play();
-			});
+			animations.forEach((clip) => {
+				const actionLeft = mixer.clipAction(clip);
+				const actionRight = mixerSecond.clipAction(clip);
 
-			rightAnimations.forEach((clip) => {
-				const action = mixerSecond.clipAction(clip);
-				action.clampWhenFinished = true;
-				action.timeScale = 4;
-				action.loop = THREE.LoopOnce;
-				action.repetitions = 1;
-				action.reset();
-				action.time = 4;
-				action.play();
+				actionLeft.clampWhenFinished = true;
+				actionLeft.timeScale = 4;
+				actionLeft.loop = THREE.LoopOnce;
+				actionLeft.repetitions = 1;
+				actionLeft.reset();
+				actionLeft.time = 4;
+				actionLeft.play();
+
+				actionRight.clampWhenFinished = true;
+				actionRight.timeScale = 4;
+				actionRight.loop = THREE.LoopOnce;
+				actionRight.repetitions = 1;
+				actionRight.reset();
+				actionRight.time = 4;
+				actionRight.play();
 			});
 
 			mixerRightRef.current = mixer;
 			mixerLeftRef.current = mixerSecond;
 		} else {
 			setBathroomCurtain(false);
-			leftAnimations.forEach((clip) => {
-				const action = mixer.clipAction(clip);
-				action.clampWhenFinished = true;
-				action.timeScale = -4;
-				action.loop = THREE.LoopOnce;
-				action.repetitions = 1;
-				action.reset();
-				action.time = 0;
-				action.play();
-			});
+			animations.forEach((clip) => {
+				const actionLeft = mixer.clipAction(clip);
+				const actionRight = mixerSecond.clipAction(clip);
 
-			rightAnimations.forEach((clip) => {
-				const action = mixerSecond.clipAction(clip);
-				action.clampWhenFinished = true;
-				action.timeScale = -4;
-				action.loop = THREE.LoopOnce;
-				action.repetitions = 1;
-				action.reset();
-				action.time = 0;
-				action.play();
+				actionLeft.clampWhenFinished = true;
+				actionLeft.timeScale = -4;
+				actionLeft.loop = THREE.LoopOnce;
+				actionLeft.repetitions = 1;
+				actionLeft.reset();
+				actionLeft.time = 0;
+				actionLeft.play();
+
+				actionRight.clampWhenFinished = true;
+				actionRight.timeScale = -4;
+				actionRight.loop = THREE.LoopOnce;
+				actionRight.repetitions = 1;
+				actionRight.reset();
+				actionRight.time = 0;
+				actionRight.play();
 			});
 
 			mixerRightRef.current = mixer;
 			mixerLeftRef.current = mixerSecond;
 		}
-	}, [
-		roomNumber,
-		setBathroomCurtain,
-		leftAnimations,
-		rightAnimations,
-		mixer,
-		mixerSecond,
-	]);
+	}, [roomNumber, setBathroomCurtain, animations, mixer, mixerSecond]);
 
 	const checkProximity = useCallback(() => {
 		const isInGoodXRange =
 			Math.abs(camera.position.x) - Math.abs(position[0]) > -1;
-		const isInGoodZRange = Math.abs(camera.position.z) < 3.8;
+		let isInGoodZRange = Math.abs(camera.position.z) < 3.8;
+		if (camera.position.x > 2.2 && camera.position.x < 4) {
+			isInGoodZRange = true;
+		}
 		return isInGoodXRange && isInGoodZRange;
 	}, [camera, position]);
 
@@ -315,8 +299,18 @@ export default function BathbathroomCurtain({ positionOffset }) {
 			dispose={null}
 		>
 			<group name="Scene">
-				<primitive castShadow receiveShadow object={animationMeshCloneLeft} />
-				<primitive castShadow receiveShadow object={animationMeshCloneRight} />
+				<primitive
+					position={[-1.36, 0, 0]}
+					castShadow
+					receiveShadow
+					object={animationMeshCloneLeft}
+				/>
+				<primitive
+					position={[0.02, 0, 0]}
+					castShadow
+					receiveShadow
+					object={animationMeshCloneRight}
+				/>
 			</group>
 			<PositionalAudio
 				ref={curtainSoundRef}
@@ -349,5 +343,4 @@ export default function BathbathroomCurtain({ positionOffset }) {
 	);
 }
 
-useGLTF.preload('/models/doors/bathroomCurtainLeft.glb');
-useGLTF.preload('/models/doors/bathroomCurtainRight.glb');
+useGLTF.preload('/models/doors/bathroom_curtain.glb');

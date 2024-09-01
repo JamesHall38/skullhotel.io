@@ -3,19 +3,15 @@ import { KeyboardControls, PointerLockControls } from '@react-three/drei';
 import { Canvas, useThree } from '@react-three/fiber';
 import {
 	EffectComposer,
-	// Bloom,
 	ChromaticAberration,
 	Vignette,
 	Noise,
 	Glitch,
-	// Pixelation,
-	// DepthOfField,
 } from '@react-three/postprocessing';
 import { Physics } from '@react-three/rapier';
 import Interface from './components/Interface/Interface';
 import './style.css';
 import useGame from './hooks/useGame';
-// import * as THREE from 'three';
 
 // Models
 import Reception from './components/Reception/Reception';
@@ -91,14 +87,12 @@ function App() {
 			<PointerLockControls />
 
 			<Sound />
-
 			<Monster />
 			<Triggers />
 			<Events />
 
-			<Reception rotation={[0, Math.PI / 2, 0]} position={[9.805, 0, -0.15]} />
-
 			{/* Models */}
+			<Reception rotation={[0, Math.PI / 2, 0]} position={[9.805, 0, -0.15]} />
 			<Room roomNumber={0} />
 			<group position={position}>
 				<CorridorStart position={[1.07, 0, 0]} />
@@ -123,10 +117,7 @@ function App() {
 				<Ground />
 				<ReceptionPhysics />
 				<ReceptionDoors />
-				{/* {duplicateComponents(RoomPhysics)} */}
 				<RoomPhysics />
-				{/* <RoomPhysics /> */}
-
 				{duplicateComponents(RoomDoor)}
 				<BathroomDoor />
 				<NightstandDoor />
@@ -151,22 +142,10 @@ export default function AppCanvas() {
 				>
 					<App />
 					<EffectComposer>
-						{/* <Bloom
-						luminanceThreshold={0.1}
-						luminanceSmoothing={0.3}
-						height={100}
-					/> */}
 						<ChromaticAberration offset={[0.001, 0.001]} />
 						<Vignette eskil={false} offset={0.05} darkness={1.2} />
 						<Noise opacity={0.1} />
-						<Glitch
-							active={shakeIntensity}
-							// delay={[5, 5]} // min and max glitch delay
-							// duration={[1, 1.0]} // min and max glitch duration
-							strength={shakeIntensity * 0.05} // intensity of the glitch effect
-							// ratio={0} // Threshold for strong glitches, 0 - no weak glitches, 1 - no strong glitches.
-						/>
-						{/* <Pixelation granularity={6} /> */}
+						<Glitch active={shakeIntensity} strength={shakeIntensity * 0.05} />
 					</EffectComposer>
 				</Canvas>
 			</Suspense>

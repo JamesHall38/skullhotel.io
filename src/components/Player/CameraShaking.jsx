@@ -64,7 +64,9 @@ export default function CameraShaking() {
 		}
 	}, [roomTotal, playerPositionRoom]);
 
-	const jumpScareSoundRef = useRef(new Audio('/sounds/jumpScareAmbiance.ogg'));
+	const jumpScareSoundRef = useRef(
+		new Audio('/sounds/jump_scare_ambiance.ogg')
+	);
 
 	useEffect(() => {
 		jumpScareSoundRef.current.loop = true;

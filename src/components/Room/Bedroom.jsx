@@ -4,10 +4,10 @@ import * as THREE from 'three';
 
 export default function Bedroom() {
 	const { scene } = useGLTF('/models/room/bedroom.glb');
-	const bakedTexture = useTexture('/textures/bedroom/bakedBedroom.webp');
-	const bumpMap = useTexture('/textures/bedroom/bumpBedroom.webp');
-	const roughnessMap = useTexture('/textures/bedroom/roughnessBedroom.webp');
-	const lightMap = useTexture('/textures/bedroom/lightBedroom.webp');
+	const bakedTexture = useTexture('/textures/bedroom/baked_bedroom.webp');
+	const bumpMap = useTexture('/textures/bedroom/bump_bedroom.webp');
+	const roughnessMap = useTexture('/textures/bedroom/roughness_bedroom.webp');
+	const lightMap = useTexture('/textures/bedroom/light_bedroom.webp');
 
 	bakedTexture.flipY = false;
 	bumpMap.flipY = false;
@@ -27,7 +27,7 @@ export default function Bedroom() {
 					bumpMap,
 					roughnessMap,
 					lightMap,
-					bumpScale: 15,
+					bumpScale: 8,
 					lightMapIntensity: 1.0,
 				});
 
@@ -43,7 +43,7 @@ export default function Bedroom() {
 }
 
 useGLTF.preload('/models/room/bedroom.glb');
-useTexture.preload('/textures/bedroom/bakedBedroom.webp');
-useTexture.preload('/textures/bedroom/bumpBedroom.webp');
-useTexture.preload('/textures/bedroom/roughnessBedroom.webp');
-useTexture.preload('/textures/bedroom/lightBedroom.webp');
+useTexture.preload('/textures/bedroom/baked_bedroom.webp');
+useTexture.preload('/textures/bedroom/bump_bedroom.webp');
+useTexture.preload('/textures/bedroom/roughness_bedroom.webp');
+useTexture.preload('/textures/bedroom/light_bedroom.webp');

@@ -16,6 +16,7 @@ export default function DoorWrapper({
 	reverse,
 	rotate,
 	offset,
+	tutorialRoomOffset,
 	instantChange,
 	closet = false,
 }) {
@@ -34,9 +35,9 @@ export default function DoorWrapper({
 	const doorSpeed = 2;
 
 	const position = useMemo(() => {
-		if (!roomNumber && roomNumber !== 0) return offset;
+		let calculatedPosition = null;
 		if (roomNumber >= roomTotal / 2)
-			return [
+			calculatedPosition = [
 				offset[0] -
 					CORRIDORLENGTH -
 					(roomNumber - roomTotal / 2) * CORRIDORLENGTH,
@@ -44,12 +45,18 @@ export default function DoorWrapper({
 				-offset[2],
 			];
 		else
-			return [
+			calculatedPosition = [
 				-(offset[0] - 5.91) - roomNumber * CORRIDORLENGTH,
 				offset[1],
 				offset[2],
 			];
-	}, [roomNumber, roomTotal, offset]);
+
+		if (tutorialRoomOffset) {
+			calculatedPosition = tutorialRoomOffset;
+		}
+
+		return !roomNumber && roomNumber !== 0 ? offset : calculatedPosition;
+	}, [roomNumber, roomTotal, offset, tutorialRoomOffset]);
 
 	useEffect(() => {
 		if (hasInitialized) {
@@ -147,7 +154,7 @@ export default function DoorWrapper({
 			>
 				<PositionalAudio
 					ref={openRef}
-					url={closet ? '/sounds/closetOpen.ogg' : '/sounds/open.ogg'}
+					url={closet ? '/sounds/closet_open.ogg' : '/sounds/open.ogg'}
 					loop={false}
 					distance={1}
 					refDistance={1}
@@ -156,7 +163,7 @@ export default function DoorWrapper({
 				/>
 				<PositionalAudio
 					ref={closeRef}
-					url={closet ? '/sounds/closetClose.ogg' : '/sounds/close.ogg'}
+					url={closet ? '/sounds/closet_close.ogg' : '/sounds/close.ogg'}
 					loop={false}
 					distance={1}
 					refDistance={1}

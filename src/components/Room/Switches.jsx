@@ -15,8 +15,8 @@ export default function Switches(props) {
 	const [rotationSwitch1, setRotationSwitch1] = useState(0);
 	const [rotationSwitch2, setRotationSwitch2] = useState(0);
 
-	const switchOnSoundRef = useRef(new Audio('/sounds/switchON.ogg'));
-	const switchOffSoundRef = useRef(new Audio('/sounds/switchOFF.ogg'));
+	const switchOnSoundRef = useRef(new Audio('/sounds/switch_on.ogg'));
+	const switchOffSoundRef = useRef(new Audio('/sounds/switch_off.ogg'));
 
 	const handleClickSwitch1 = () => {
 		setRotationSwitch1(rotationSwitch1 + Math.PI / 8);

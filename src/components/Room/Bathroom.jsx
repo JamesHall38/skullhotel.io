@@ -6,10 +6,10 @@ import * as THREE from 'three';
 export default function Bathroom({ invert, ...props }) {
 	const { scene: originalScene } = useGLTF('/models/room/bathroom.glb');
 	const bathroomLight = useGame((state) => state.bathroomLight);
-	const bakedTexture = useTexture('/textures/bathroom/bakedBathroom.webp');
-	const bumpMap = useTexture('/textures/bathroom/bumpBathroom.webp');
-	const roughnessMap = useTexture('/textures/bathroom/roughnessBathroom.webp');
-	const lightMap = useTexture('/textures/bathroom/lightBathroom.webp');
+	const bakedTexture = useTexture('/textures/bathroom/baked_bathroom.webp');
+	const bumpMap = useTexture('/textures/bathroom/bump_bathroom.webp');
+	const roughnessMap = useTexture('/textures/bathroom/roughness_bathroom.webp');
+	const lightMap = useTexture('/textures/bathroom/light_bathroom.webp');
 
 	const materialsRef = useRef([]);
 
@@ -35,7 +35,7 @@ export default function Bathroom({ invert, ...props }) {
 					bumpMap,
 					roughnessMap,
 					lightMap,
-					bumpScale: 15,
+					bumpScale: 8,
 					lightMapIntensity: 0,
 				});
 
@@ -65,7 +65,7 @@ export default function Bathroom({ invert, ...props }) {
 }
 
 useGLTF.preload('/models/room/bathroom.glb');
-useTexture.preload('/textures/bathroom/bakedBathroom.webp');
-useTexture.preload('/textures/bathroom/bumpBathroom.webp');
-useTexture.preload('/textures/bathroom/roughnessBathroom.webp');
-useTexture.preload('/textures/bathroom/lightBathroom.webp');
+useTexture.preload('/textures/bathroom/baked_bathroom.webp');
+useTexture.preload('/textures/bathroom/bump_bathroom.webp');
+useTexture.preload('/textures/bathroom/roughness_bathroom.webp');
+useTexture.preload('/textures/bathroom/light_bathroom.webp');

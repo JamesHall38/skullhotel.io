@@ -6,7 +6,7 @@ import useGame from '../../hooks/useGame';
 
 export default function Model(props) {
 	const roomLight = useGame((state) => state.roomLight);
-	const { nodes, materials } = useGLTF('/models/room/ceilingFan.glb');
+	const { nodes, materials } = useGLTF('/models/room/ceiling_fan.glb');
 	const groupRef = useRef();
 
 	useFrame((_, delta) => {
@@ -15,7 +15,7 @@ export default function Model(props) {
 
 	return (
 		<group {...props} dispose={null}>
-			<group ref={groupRef} position={[1.436, 3.12, -0.115]}>
+			<group ref={groupRef} position={[1.436, 3.05, -0.115]}>
 				<mesh
 					castShadow
 					receiveShadow
@@ -45,4 +45,4 @@ export default function Model(props) {
 	);
 }
 
-useGLTF.preload('/models/room/ceilingFan.glb');
+useGLTF.preload('/models/room/ceiling_fan.glb');

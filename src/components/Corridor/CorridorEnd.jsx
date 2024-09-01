@@ -2,7 +2,7 @@ import React from 'react';
 import { useGLTF } from '@react-three/drei';
 
 export default function CorridorEnd(props) {
-	const { nodes, materials } = useGLTF('/models/corridor/corridorEnd.glb');
+	const { nodes, materials } = useGLTF('/models/corridor.glb');
 	return (
 		<group {...props} dispose={null}>
 			<mesh geometry={nodes.Plane.geometry} material={materials.Walls} />
@@ -12,4 +12,4 @@ export default function CorridorEnd(props) {
 	);
 }
 
-useGLTF.preload('/models/corridor/corridorEnd.glb');
+useGLTF.preload('/models/corridor.glb');

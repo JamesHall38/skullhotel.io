@@ -1,17 +1,17 @@
-import { useEffect } from 'react';
-import { useGLTF, useTexture } from '@react-three/drei';
-import Metal from './Metal';
+import { useEffect, useMemo } from 'react';
+import { useGLTF, useTexture, Text } from '@react-three/drei';
 import * as THREE from 'three';
+import Metal from './Metal';
 import Receptionist from './Receptionist';
 
 export default function Reception() {
 	const { scene } = useGLTF('/models/reception/reception.glb');
-	const bakedTexture = useTexture('/textures/reception/bakedReception.webp');
-	const bumpMap = useTexture('/textures/reception/bumpReception.webp');
+	const bakedTexture = useTexture('/textures/reception/baked_reception.webp');
+	const bumpMap = useTexture('/textures/reception/bump_reception.webp');
 	const roughnessMap = useTexture(
-		'/textures/reception/roughnessreception.webp'
+		'/textures/reception/roughness_reception.webp'
 	);
-	const lightMap = useTexture('/textures/reception/lightReception.webp');
+	const lightMap = useTexture('/textures/reception/light_reception.webp');
 
 	bakedTexture.flipY = false;
 	bumpMap.flipY = false;
@@ -31,7 +31,7 @@ export default function Reception() {
 					bumpMap,
 					roughnessMap,
 					lightMap,
-					bumpScale: 15,
+					bumpScale: 8,
 					lightMapIntensity: 4.0,
 				});
 
@@ -43,17 +43,39 @@ export default function Reception() {
 		});
 	}, [scene, bakedTexture, lightMap, bumpMap, roughnessMap]);
 
+	const textMaterial = useMemo(() => {
+		return new THREE.MeshStandardMaterial({ color: '#8A0303' });
+	}, []);
+
 	return (
 		<group rotation={[0, Math.PI / 2, 0]} position={[9.8, 0, -0.15]}>
 			<Receptionist />
 			<Metal />
 			<primitive object={scene} />
+			<Text
+				font={'/Redrum.otf'}
+				position={[0, 2, 3.65]}
+				material={textMaterial}
+				scale={0.2}
+				rotation={[0, Math.PI, 0]}
+			>
+				If you see or hear one of them
+			</Text>
+			<Text
+				font={'/Redrum.otf'}
+				position={[0, 1.75, 3.65]}
+				material={textMaterial}
+				scale={0.2}
+				rotation={[0, Math.PI, 0]}
+			>
+				turn around
+			</Text>
 		</group>
 	);
 }
 
 useGLTF.preload('/models/reception/reception.glb');
-useTexture.preload('/textures/reception/bakedReception.webp');
-useTexture.preload('/textures/reception/lightReception.webp');
-useTexture.preload('/textures/reception/bumpReception.webp');
-useTexture.preload('/textures/reception/roughnessreception.webp');
+useTexture.preload('/textures/reception/baked_reception.webp');
+useTexture.preload('/textures/reception/light_reception.webp');
+useTexture.preload('/textures/reception/bump_reception.webp');
+useTexture.preload('/textures/reception/roughness_reception.webp');
