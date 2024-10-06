@@ -5,11 +5,12 @@ import { useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import useGame from '../../hooks/useGame';
 import useDoor from '../../hooks/useDoor';
+import useInterface from '../../hooks/useInterface';
 
 const CORRIDORLENGTH = 5.95;
 const offset = [8.84, 0, 6.2];
 
-export default function BathbathroomCurtain({ positionOffset }) {
+export default function BathroomCurtain({ positionOffset }) {
 	const roomNumber = useGame((state) => state.playerPositionRoom);
 	const roomTotal = useGame((state) => state.roomTotal);
 	const group = useRef();
@@ -21,12 +22,20 @@ export default function BathbathroomCurtain({ positionOffset }) {
 	const setBathroomCurtain = useDoor((state) => state.setBathroomCurtain);
 	const setBathroomCurtains = useDoor((state) => state.setBathroomCurtains);
 	const playerPositionRoom = useGame((state) => state.playerPositionRoom);
+	const {
+		camera,
+		// , scene
+	} = useThree();
 	const curtainSoundRef = useRef();
 	const bathroomCurtainsRef = useRef();
 	const bathroomNumberRef = useRef();
-	const { camera } = useThree();
 	const mesh0Ref = useRef();
 	const mesh1Ref = useRef();
+	const setCursor = useInterface((state) => state.setCursor);
+	const cursor = useInterface((state) => state.cursor);
+	const prevDetectedRef = useRef(false);
+	const cursorStateRef = useRef(null);
+	const isInitial = useRef(true);
 
 	const animationMeshCloneLeft = useMemo(() => {
 		const clone = nodes._.clone();
@@ -81,7 +90,7 @@ export default function BathbathroomCurtain({ positionOffset }) {
 		bathroomCurtainsRef.current = bathroomCurtains;
 	}, [bathroomCurtains]);
 
-	const openWindow = useCallback(() => {
+	const openCurtain = useCallback(() => {
 		setTimeout(() => {
 			curtainSoundRef.current.stop();
 			curtainSoundRef.current.currentTime = 0;
@@ -120,7 +129,7 @@ export default function BathbathroomCurtain({ positionOffset }) {
 		mixerLeftRef.current = mixerSecond;
 	}, [mixer, mixerSecond, animations, setBathroomCurtains]);
 
-	const closeWindow = useCallback(() => {
+	const closeCurtain = useCallback(() => {
 		curtainSoundRef.current.stop();
 		curtainSoundRef.current.currentTime = 0;
 		curtainSoundRef.current.play();
@@ -158,12 +167,16 @@ export default function BathbathroomCurtain({ positionOffset }) {
 	}, [mixer, mixerSecond, animations, setBathroomCurtains]);
 
 	useEffect(() => {
-		if (bathroomCurtain) {
-			openWindow();
-		} else {
-			closeWindow();
+		if (bathroomCurtain && Math.abs(camera.position.z) > 0.4) {
+			openCurtain();
+		} else if (!bathroomCurtain && Math.abs(camera.position.z) > 0.4) {
+			if (isInitial.current) {
+				isInitial.current = false;
+			} else {
+				closeCurtain();
+			}
 		}
-	}, [bathroomCurtain, openWindow, closeWindow]);
+	}, [bathroomCurtain, openCurtain, closeCurtain, camera]);
 
 	useEffect(() => {
 		if (bathroomCurtainsRef.current[roomNumber]) {
@@ -219,21 +232,76 @@ export default function BathbathroomCurtain({ positionOffset }) {
 		}
 	}, [roomNumber, setBathroomCurtain, animations, mixer, mixerSecond]);
 
-	const checkProximity = useCallback(() => {
-		const isInGoodXRange =
-			Math.abs(camera.position.x) - Math.abs(position[0]) > -1;
-		let isInGoodZRange = Math.abs(camera.position.z) < 3.8;
-		if (camera.position.x > 2.2 && camera.position.x < 4) {
-			isInGoodZRange = true;
-		}
-		return isInGoodXRange && isInGoodZRange;
-	}, [camera, position]);
+	const checkProximityAndVisibility = useCallback(() => {
+		const cameraPosition = new THREE.Vector3();
+		camera.getWorldPosition(cameraPosition);
 
-	const handleClick = () => {
-		if (checkProximity()) {
-			setBathroomCurtain(!bathroomCurtain);
+		const checkMesh = (meshRef) => {
+			if (!meshRef.current) return false;
+
+			const meshPosition = new THREE.Vector3();
+			meshRef.current.getWorldPosition(meshPosition);
+
+			const distanceFromMesh = cameraPosition.distanceTo(meshPosition);
+
+			if (distanceFromMesh > 2) return false;
+
+			const raycaster = new THREE.Raycaster();
+			const cameraDirection = new THREE.Vector3();
+			camera.getWorldDirection(cameraDirection);
+
+			raycaster.set(cameraPosition, cameraDirection);
+
+			const intersects = raycaster.intersectObjects([
+				mesh0Ref.current,
+				mesh1Ref.current,
+			]);
+
+			return intersects.some(
+				(intersect) => intersect.object === meshRef.current
+			);
+		};
+
+		return checkMesh(mesh0Ref) || checkMesh(mesh1Ref);
+	}, [
+		camera,
+		// , scene
+	]);
+
+	useFrame(() => {
+		const detected = checkProximityAndVisibility();
+		if (detected !== prevDetectedRef.current) {
+			prevDetectedRef.current = detected;
+			const newCursorState = detected
+				? 'door'
+				: cursor !== 'door'
+				? cursor
+				: null;
+
+			if (cursorStateRef.current !== newCursorState) {
+				cursorStateRef.current = newCursorState;
+				setCursor(newCursorState);
+			}
 		}
-	};
+	});
+
+	useEffect(() => {
+		const handleDocumentClick = () => {
+			if (checkProximityAndVisibility()) {
+				setBathroomCurtain(!bathroomCurtain);
+			}
+		};
+
+		document.addEventListener('click', handleDocumentClick);
+		return () => {
+			document.removeEventListener('click', handleDocumentClick);
+		};
+	}, [
+		checkProximityAndVisibility,
+		setBathroomCurtain,
+		bathroomCurtain,
+		camera,
+	]);
 
 	const easeInQuad = (t) => t * t;
 	let time0 = 0;
@@ -245,7 +313,7 @@ export default function BathbathroomCurtain({ positionOffset }) {
 		const easedTime = easeInQuad(time0);
 
 		const targetX = bathroomCurtain ? -1.3 : -1.15;
-		const targetScaleX = bathroomCurtain ? 0.4 : 0.8;
+		const targetScaleX = bathroomCurtain ? 0.6 : 0.8;
 
 		const currentX = mesh0Ref.current?.position.x;
 		const currentScaleX = mesh0Ref.current?.scale.x;
@@ -261,8 +329,8 @@ export default function BathbathroomCurtain({ positionOffset }) {
 		if (time1 > 1) time1 = 1;
 		const easedTime = easeInQuad(time1);
 
-		const targetX = bathroomCurtain ? 0.1 : -0.2;
-		const targetScaleX = bathroomCurtain ? 0.4 : 0.8;
+		const targetX = bathroomCurtain ? -0.05 : -0.2;
+		const targetScaleX = bathroomCurtain ? 0.6 : 0.8;
 
 		const currentX = mesh1Ref.current?.position.x;
 		const currentScaleX = mesh1Ref.current?.scale.x;
@@ -322,19 +390,11 @@ export default function BathbathroomCurtain({ positionOffset }) {
 				volume={0.25}
 			/>
 			<group>
-				<mesh
-					ref={mesh0Ref}
-					position={[-2.55, 1.45, -3.8]}
-					onPointerDown={() => handleClick(new THREE.Vector3())}
-				>
+				<mesh ref={mesh0Ref} position={[-2.55, 1.45, -3.8]}>
 					<boxGeometry args={[1.2, 1.8, 0.2]} />
 					<meshBasicMaterial color="red" visible={false} />
 				</mesh>
-				<mesh
-					ref={mesh1Ref}
-					position={[-0.4, 1.45, -3.8]}
-					onPointerDown={() => handleClick()}
-				>
+				<mesh ref={mesh1Ref} position={[-0.4, 1.45, -3.8]}>
 					<boxGeometry args={[1.2, 1.8, 0.2]} />
 					<meshBasicMaterial color="blue" visible={false} />
 				</mesh>

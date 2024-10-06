@@ -5,9 +5,8 @@ import useGame from '../../hooks/useGame';
 import useInterface from '../../hooks/useInterface';
 import useDoor from '../../hooks/useDoor';
 import * as THREE from 'three';
+import DetectableCube from '../DetectableCube';
 
-const MAX_DISTANCE = 2;
-const MAX_ANGLE = Math.PI / 4;
 const CORRIDORLENGTH = 5.95;
 const offset = [9.53, 0.83, 1.6];
 
@@ -22,6 +21,10 @@ export default function Bottles() {
 	const { actions } = useAnimations(animations, group);
 	const { camera } = useThree();
 	const bathroomCurtain = useDoor((state) => state.bathroomCurtain);
+	const tutorialObjectives = useInterface((state) => state.tutorialObjectives);
+	const setTutorialObjectives = useInterface(
+		(state) => state.setTutorialObjectives
+	);
 	const objective = useInterface(
 		(state) => state.interfaceObjectives[roomNumber]?.[0]
 	);
@@ -30,6 +33,8 @@ export default function Bottles() {
 	);
 	const [delayedBathroomCurtain, setDelayedBathroomCurtain] =
 		useState(bathroomCurtain);
+	const [isDetected, setIsDetected] = useState(false);
+	const setCursor = useInterface((state) => state.setCursor);
 
 	const bottleSoundRef = useRef();
 
@@ -69,25 +74,32 @@ export default function Bottles() {
 		return calculatedPosition;
 	}, [playerPositionRoom, roomTotal, camera]);
 
-	const checkDistanceAndAngle = useCallback(() => {
-		const objectPosition = new THREE.Vector3(...position);
-		const cameraPosition = camera.position;
-		const distance = cameraPosition.distanceTo(objectPosition);
+	const handleDetection = useCallback(() => {
+		if (!tutorialObjectives.every((value) => value === true)) {
+			if (Math.abs(camera.position.z) > 0.4 && bathroomCurtain) {
+				setCursor('clean');
 
-		const objectDirection = new THREE.Vector3()
-			.subVectors(objectPosition, cameraPosition)
-			.normalize();
-		const cameraDirection = new THREE.Vector3(0, 0, -1)
-			.applyQuaternion(camera.quaternion)
-			.normalize();
-		const angle = objectDirection.angleTo(cameraDirection);
+				setIsDetected(true);
+			}
+		} else {
+			if (Math.abs(camera.position.z) > 0.4 && bathroomCurtain && !objective) {
+				setCursor('clean');
 
-		return distance < MAX_DISTANCE && angle < MAX_ANGLE;
-	}, [camera, position]);
+				setIsDetected(true);
+			}
+		}
+	}, [setCursor, camera, bathroomCurtain, objective, tutorialObjectives]);
+
+	const handleDetectionEnd = useCallback(() => {
+		if (Math.abs(camera.position.z) > 0.4 && bathroomCurtain) {
+			setCursor(null);
+			setIsDetected(false);
+		}
+	}, [setCursor, camera, bathroomCurtain]);
 
 	useEffect(() => {
 		const onClick = () => {
-			if (checkDistanceAndAngle() && delayedBathroomCurtain) {
+			if (isDetected && delayedBathroomCurtain) {
 				Object.values(actions).forEach((action) => {
 					if (!action.isRunning()) {
 						if (action && action.time !== action.getClip().duration) {
@@ -95,7 +107,6 @@ export default function Bottles() {
 							action.loop = THREE.LoopOnce;
 							action.repetitions = 1;
 
-							// Play the bottle sound
 							setTimeout(() => {
 								if (bottleSoundRef.current) {
 									bottleSoundRef.current.play();
@@ -103,7 +114,15 @@ export default function Bottles() {
 							}, 600);
 
 							action.play();
-							setInterfaceObjectives(0, roomNumber);
+							if (!tutorialObjectives.every((value) => value === true)) {
+								setTutorialObjectives([
+									true,
+									tutorialObjectives[1],
+									tutorialObjectives[2],
+								]);
+							} else {
+								setInterfaceObjectives(0, roomNumber);
+							}
 						}
 					}
 				});
@@ -117,10 +136,11 @@ export default function Bottles() {
 	}, [
 		actions,
 		delayedBathroomCurtain,
-		camera,
-		checkDistanceAndAngle,
+		isDetected,
 		setInterfaceObjectives,
 		roomNumber,
+		setTutorialObjectives,
+		tutorialObjectives,
 	]);
 
 	const isInit = useRef(false);
@@ -138,6 +158,19 @@ export default function Bottles() {
 		}
 	}, [objective, actions]);
 
+	useEffect(() => {
+		if (tutorialObjectives[0] === false && isInit.current === true) {
+			Object.values(actions).forEach((action) => {
+				if (action) {
+					action.stop();
+					action.reset();
+				}
+			});
+		} else {
+			isInit.current = true;
+		}
+	}, [tutorialObjectives, actions]);
+
 	return (
 		<group
 			ref={group}
@@ -145,6 +178,15 @@ export default function Bottles() {
 			rotation={[0, position[2] < 0 ? Math.PI : 0, 0]}
 			dispose={null}
 		>
+			<DetectableCube
+				position={[0, 0.2, 0.1]}
+				scale={[0.5, 0.5, 0.05]}
+				distance={2}
+				number={1}
+				onDetect={handleDetection}
+				onDetectEnd={handleDetectionEnd}
+				key={bathroomCurtain}
+			/>
 			<group name="Scene">
 				<group name="BottleRight">
 					<mesh

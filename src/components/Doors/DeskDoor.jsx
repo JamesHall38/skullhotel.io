@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useGLTF } from '@react-three/drei';
 import useGame from '../../hooks/useGame';
 import useDoor from '../../hooks/useDoor';
+import useInterface from '../../hooks/useInterface';
 import DoorWrapper from './DoorWrapper';
 import { useThree } from '@react-three/fiber';
 
@@ -18,6 +19,7 @@ export default function DeskDoor() {
 	const setOpen = useDoor((state) => state.setDesk);
 	const [instantChange, setInstantChange] = useState(false);
 	const [tutorialRoomOffset, setTutorialRoomOffset] = useState(null);
+	const setCursor = useInterface((state) => state.setCursor);
 	const { camera } = useThree();
 
 	useEffect(() => {
@@ -65,6 +67,7 @@ export default function DeskDoor() {
 					receiveShadow
 					geometry={nodes.Cube001.geometry}
 					material={materials['Walnut Wood.001']}
+					onPointerOut={() => setCursor(null)}
 				/>
 				<mesh
 					castShadow

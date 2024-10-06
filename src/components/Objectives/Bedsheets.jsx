@@ -4,22 +4,27 @@ import { useFrame, useThree } from '@react-three/fiber';
 import useGame from '../../hooks/useGame';
 import useInterface from '../../hooks/useInterface';
 import * as THREE from 'three';
+import DetectableCube from '../DetectableCube';
 
-const MAX_DISTANCE = 2;
-const MAX_ANGLE = Math.PI / 4;
 const CORRIDORLENGTH = 5.95;
 const offset = [8.8, -0.02, 6.2];
 
 export default function Bedsheets() {
 	const roomNumber = useGame((state) => state.playerPositionRoom);
 	const roomTotal = useGame((state) => state.roomTotal);
+	const setCursor = useInterface((state) => state.setCursor);
 	const playerPositionRoom = useGame((state) => state.playerPositionRoom);
+	const [isDetected, setIsDetected] = useState(false);
 	const group = useRef();
 	const { nodes, materials, animations } = useGLTF(
 		'/models/objectives/bedsheets.glb'
 	);
 	const mixerRef = useRef(new THREE.AnimationMixer(null));
 	const [visibleMesh, setVisibleMesh] = useState('Plane005');
+	const tutorialObjectives = useInterface((state) => state.tutorialObjectives);
+	const setTutorialObjectives = useInterface(
+		(state) => state.setTutorialObjectives
+	);
 	const objective = useInterface(
 		(state) => state.interfaceObjectives[roomNumber]?.[1]
 	);
@@ -56,67 +61,62 @@ export default function Bedsheets() {
 		if (camera.position.x > 8) {
 			calculatedPosition = [14.5, 0, 14.5];
 		} else if (camera.position.x <= 8 && camera.position.x > 4.4) {
-			calculatedPosition = [3.02, 0, 7.9];
+			calculatedPosition = [3.02, -0.02, 7.9];
 		}
 
 		return calculatedPosition;
 	}, [playerPositionRoom, roomTotal, camera]);
 
-	const checkDistanceAndAngle = useCallback(() => {
-		const objectPosition = new THREE.Vector3(...position);
-		const cameraPosition = camera.position;
-		const distance = cameraPosition.distanceTo(objectPosition);
-
-		const objectDirection = new THREE.Vector3()
-			.subVectors(objectPosition, cameraPosition)
-			.normalize();
-		const cameraDirection = new THREE.Vector3(0, 0, -1)
-			.applyQuaternion(camera.quaternion)
-			.normalize();
-		const angle = objectDirection.angleTo(cameraDirection);
-
-		return distance < MAX_DISTANCE && angle < MAX_ANGLE;
-	}, [camera, position]);
-
 	useEffect(() => {
-		const mixer = new THREE.AnimationMixer(animationMeshClone);
-		animations.forEach((clip) => {
-			if (clip.name === 'Bedsheets') {
-				const action = mixer.clipAction(clip);
-				action.clampWhenFinished = true;
-				action.timeScale = 4;
-				action.loop = THREE.LoopOnce;
-				action.repetitions = 1;
-				action.play();
-			}
-		});
-		mixerRef.current = mixer;
+		const handleInteraction = () => {
+			if (isDetected) {
+				const mixer = new THREE.AnimationMixer(animationMeshClone);
+				animations.forEach((clip) => {
+					if (clip.name === 'Bedsheets') {
+						const action = mixer.clipAction(clip);
+						action.clampWhenFinished = true;
+						action.timeScale = 4;
+						action.loop = THREE.LoopOnce;
+						action.repetitions = 1;
+						action.time = 1.25;
+						action.play();
+					}
+				});
+				mixerRef.current = mixer;
+				if (visibleMesh === 'Plane005') {
+					setVisibleMesh('Plane004');
 
-		const onClick = () => {
-			if (visibleMesh === 'Plane005' && checkDistanceAndAngle()) {
-				setVisibleMesh('Plane004');
+					if (bedsheetsSoundRef.current) {
+						bedsheetsSoundRef.current.play();
+					}
 
-				// Play the bedsheets sound
-				if (bedsheetsSoundRef.current) {
-					bedsheetsSoundRef.current.play();
+					setTimeout(() => {
+						if (tutorialObjectives[1] === false) {
+							setTutorialObjectives([
+								tutorialObjectives[0],
+								true,
+								tutorialObjectives[2],
+							]);
+						} else {
+							setInterfaceObjectives(1, roomNumber);
+						}
+					}, 500);
 				}
-
-				setTimeout(() => {
-					setInterfaceObjectives(1, roomNumber);
-				}, 2000);
 			}
 		};
 
-		document.addEventListener('click', onClick);
-		return () => document.removeEventListener('click', onClick);
+		document.addEventListener('click', handleInteraction);
+		return () => document.removeEventListener('click', handleInteraction);
 	}, [
 		animations,
 		animationMeshClone,
 		visibleMesh,
 		camera,
-		checkDistanceAndAngle,
 		roomNumber,
+		tutorialObjectives,
+		setTutorialObjectives,
 		setInterfaceObjectives,
+		isDetected,
 	]);
 
 	const isInit = useRef(false);
@@ -125,7 +125,7 @@ export default function Bedsheets() {
 		if (objective === false && isInit.current === true) {
 			setVisibleMesh('Plane005');
 			mixerRef.current.stopAllAction();
-			mixerRef.current.setTime(0);
+			mixerRef.current.setTime(1);
 		} else {
 			isInit.current = true;
 			if (objective) {
@@ -133,6 +133,21 @@ export default function Bedsheets() {
 			}
 		}
 	}, [objective, roomNumber]);
+
+	// const tutorialInit = useRef(false);
+
+	// useEffect(() => {
+	// 	if (tutorialObjectives[1] === false && tutorialInit.current === true) {
+	// 		setVisibleMesh('Plane005');
+	// 		mixerRef.current.stopAllAction();
+	// 		mixerRef.current.setTime(1);
+	// 	} else {
+	// 		tutorialInit.current = true;
+	// 		if (tutorialObjectives[1] === true) {
+	// 			setVisibleMesh('Plane006');
+	// 		}
+	// 	}
+	// }, [tutorialObjectives, roomNumber]);
 
 	useFrame((_, delta) => {
 		if (mixerRef.current) {
@@ -148,6 +163,21 @@ export default function Bedsheets() {
 		}
 	});
 
+	const handleDetection = useCallback(() => {
+		if (!objective) {
+			setCursor('clean');
+		}
+		if (tutorialObjectives[1] === false) {
+			setCursor('clean');
+		}
+		setIsDetected(true);
+	}, [setCursor, objective, tutorialObjectives]);
+
+	const handleDetectionEnd = useCallback(() => {
+		setCursor(null);
+		setIsDetected(false);
+	}, [setCursor]);
+
 	return (
 		<group
 			ref={group}
@@ -155,6 +185,14 @@ export default function Bedsheets() {
 			rotation={[0, position[2] < 0 ? Math.PI : 0, 0]}
 			dispose={null}
 		>
+			<DetectableCube
+				position={[-0.5, -0.2, 0]}
+				scale={2}
+				distance={3}
+				onDetect={handleDetection}
+				onDetectEnd={handleDetectionEnd}
+			/>
+
 			<group name="Scene">
 				<mesh
 					visible={visibleMesh === 'Plane006'}

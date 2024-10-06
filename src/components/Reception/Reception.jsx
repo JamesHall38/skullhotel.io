@@ -3,6 +3,7 @@ import { useGLTF, useTexture, Text } from '@react-three/drei';
 import * as THREE from 'three';
 import Metal from './Metal';
 import Receptionist from './Receptionist';
+import ExitSign from './ExitSign';
 
 export default function Reception() {
 	const { scene } = useGLTF('/models/reception/reception.glb');
@@ -51,6 +52,7 @@ export default function Reception() {
 		<group rotation={[0, Math.PI / 2, 0]} position={[9.8, 0, -0.15]}>
 			<Receptionist />
 			<Metal />
+			<ExitSign />
 			<primitive object={scene} />
 			<Text
 				font={'/Redrum.otf'}
@@ -70,6 +72,7 @@ export default function Reception() {
 			>
 				turn around
 			</Text>
+			{/* <pointLight intensity={100} color={'#4a7b6e'} position={[0, 2, 0]} /> */}
 		</group>
 	);
 }

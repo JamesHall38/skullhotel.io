@@ -269,9 +269,11 @@ const Monster = (props) => {
 				);
 
 				if (!resetTriggered.current) {
+					resetTriggered.current = true;
 					setTimeout(() => {
 						regenerateData();
 						resetGame();
+						resetTriggered.current = false;
 					}, 1200);
 				}
 			}

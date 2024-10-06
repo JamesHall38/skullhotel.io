@@ -1,3 +1,3 @@
-const dialogues = ['welcome to the skull hotel'];
+const dialogues = ["It's locked"];
 
 export default dialogues;

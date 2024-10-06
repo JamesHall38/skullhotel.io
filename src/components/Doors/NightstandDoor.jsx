@@ -3,6 +3,7 @@ import { useGLTF } from '@react-three/drei';
 import DoorWrapper from './DoorWrapper';
 import useGame from '../../hooks/useGame';
 import useDoor from '../../hooks/useDoor';
+import useInterface from '../../hooks/useInterface';
 import { useThree } from '@react-three/fiber';
 
 const tutorialRoomCenter = [2.05, 0.51, 6.28];
@@ -17,6 +18,7 @@ export default function NightstandDoor() {
 	const setOpen = useDoor((state) => state.setNightStand);
 	const [instantChange, setInstantChange] = useState(false);
 	const playerPositionRoom = useGame((state) => state.playerPositionRoom);
+	const setCursor = useInterface((state) => state.setCursor);
 	const [tutorialRoomOffset, setTutorialRoomOffset] = useState(null);
 	const { camera } = useThree();
 
@@ -65,6 +67,7 @@ export default function NightstandDoor() {
 					receiveShadow
 					geometry={nodes.Mesh.geometry}
 					material={materials.Wood}
+					onPointerOut={() => setCursor(null)}
 				/>
 				<mesh
 					castShadow

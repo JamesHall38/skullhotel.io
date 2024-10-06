@@ -1,9 +1,11 @@
 import { useEffect, useRef, useMemo } from 'react';
 import useInterface from '../hooks/useInterface';
+import useGame from '../hooks/useGame';
 import { roomNumber } from '../utils/config';
 
 const Sound = () => {
 	const objectives = useInterface((state) => state.interfaceObjectives);
+	const end = useGame((state) => state.end);
 
 	const ambiant1Ref = useRef(new Audio('/sounds/ambiant1.ogg'));
 	const boomRef = useRef(new Audio('/sounds/boom.ogg'));
@@ -23,7 +25,7 @@ const Sound = () => {
 		};
 
 		setupAudio(ambiant1Ref, 0.7);
-		setupAudio(boomRef, 0.6);
+		setupAudio(boomRef, 0.9);
 		setupAudio(ambiant2Ref, 0.4);
 		setupAudio(tenseRef, 0.4);
 	}, []);
@@ -39,6 +41,20 @@ const Sound = () => {
 			ambiant1Ref.current.play();
 		}
 	}, [objectives, doneObjectives]);
+
+	useEffect(() => {
+		const resetAudio = (audioRef) => {
+			audioRef.current.pause();
+			audioRef.current.currentTime = 0;
+		};
+
+		if (end) {
+			resetAudio(ambiant1Ref);
+			resetAudio(boomRef);
+			resetAudio(ambiant2Ref);
+			resetAudio(tenseRef);
+		}
+	}, [end]);
 
 	return null;
 };

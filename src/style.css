@@ -19,6 +19,11 @@ body,
 	width: 100%;
 	height: 100%;
 	overflow: hidden;
+	cursor: pointer;
+	touch-action: none;
+	-webkit-tap-highlight-color: transparent;
+	user-select: none;
+	-webkit-user-select: none;
 }
 
 .interface {
@@ -53,4 +58,41 @@ body,
 
 .done {
 	text-decoration: line-through;
+}
+
+html {
+	font-size: 16px; /* 1rem = 16px */
+}
+@media (min-width: 1200px) {
+	html {
+		font-size: 18px; /* 1rem = 18px */
+	}
+}
+@media (min-width: 992px) and (max-width: 1199px) {
+	html {
+		font-size: 16px; /* 1rem = 16px */
+	}
+}
+@media (min-width: 768px) and (max-width: 991px) {
+	html {
+		font-size: 15px; /* 1rem = 15px */
+	}
+}
+@media (min-width: 576px) and (max-width: 767px) {
+	html {
+		font-size: 14px; /* 1rem = 14px */
+	}
+}
+@media (max-width: 575px) {
+	html {
+		font-size: 12px; /* 1rem = 12px */
+		overflow: hidden;
+		position: fixed;
+		width: 100%;
+		height: 100%;
+	}
+}
+
+canvas {
+	touch-action: none;
 }

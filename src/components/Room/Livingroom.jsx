@@ -9,15 +9,15 @@ export default function Livingroom() {
 	const roughnessMap = useTexture(
 		'/textures/livingroom/roughness_livingroom.webp'
 	);
-	const lightMap = useTexture('/textures/livingroom/light_livingroom.webp');
+	// const lightMap = useTexture('/textures/livingroom/light_livingroom.webp');
 
 	bakedTexture.flipY = false;
 	bumpMap.flipY = false;
 	roughnessMap.flipY = false;
-	lightMap.flipY = false;
+	// lightMap.flipY = false;
 
 	bakedTexture.colorSpace = THREE.SRGBColorSpace;
-	lightMap.colorSpace = THREE.SRGBColorSpace;
+	// lightMap.colorSpace = THREE.SRGBColorSpace;
 
 	useEffect(() => {
 		scene.traverse((child) => {
@@ -28,18 +28,18 @@ export default function Livingroom() {
 					map: bakedTexture,
 					bumpMap,
 					roughnessMap,
-					lightMap,
+					// lightMap,
 					bumpScale: 8,
-					lightMapIntensity: 4.0,
+					// lightMapIntensity: 4.0,
 				});
 
-				child.castShadow = true;
-				child.receiveShadow = true;
+				// child.castShadow = true;
+				// child.receiveShadow = true;
 				child.material = material;
 				child.material.needsUpdate = true;
 			}
 		});
-	}, [scene, bakedTexture, lightMap, roughnessMap, bumpMap]);
+	}, [scene, bakedTexture, roughnessMap, bumpMap]);
 
 	return <primitive object={scene} />;
 }
@@ -48,4 +48,4 @@ useGLTF.preload('/models/room/livingroom.glb');
 useTexture.preload('/textures/livingroom/baked_livingroom.webp');
 useTexture.preload('/textures/livingroom/light_livingroom.webp');
 useTexture.preload('/textures/livingroom/bump_livingroom.webp');
-useTexture.preload('/textures/livingroom/roughness_livingroom.webp');
+// useTexture.preload('/textures/livingroom/roughness_livingroom.webp');

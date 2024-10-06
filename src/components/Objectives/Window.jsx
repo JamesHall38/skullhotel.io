@@ -6,6 +6,7 @@ import useInterface from '../../hooks/useInterface';
 import useDoor from '../../hooks/useDoor';
 import * as THREE from 'three';
 import levelData from '../../data/levelData';
+import DetectableCube from '../DetectableCube';
 
 const CORRIDORLENGTH = 5.95;
 const offset = [8.43, 1.2, 11.52];
@@ -16,10 +17,13 @@ export default function Window() {
 	const roomTotal = useGame((state) => state.roomTotal);
 	const playerPositionRoom = useGame((state) => state.playerPositionRoom);
 	const group = useRef();
-	const meshRef = useRef();
 	const { nodes, animations } = useGLTF('/models/objectives/window.glb');
 	const { actions } = useAnimations(animations, group);
 	const { camera } = useThree();
+	const tutorialObjectives = useInterface((state) => state.tutorialObjectives);
+	const setTutorialObjectives = useInterface(
+		(state) => state.setTutorialObjectives
+	);
 	const objective = useInterface(
 		(state) => state.interfaceObjectives[roomNumber]?.[2]
 	);
@@ -27,6 +31,8 @@ export default function Window() {
 		(state) => state.setInterfaceObjectives
 	);
 	const [delayedRoomCurtain, setDelayedRoomCurtain] = useState(roomCurtain);
+	const [isDetected, setIsDetected] = useState(false);
+	const setCursor = useInterface((state) => state.setCursor);
 
 	const windowSoundRef = useRef();
 
@@ -84,16 +90,29 @@ export default function Window() {
 		return calculatedPosition;
 	}, [playerPositionRoom, roomTotal, camera]);
 
-	const checkProximity = useCallback(() => {
-		return Math.abs(camera.position.z) > 9;
-	}, [camera]);
+	const handleDetection = useCallback(() => {
+		if (tutorialObjectives[2] === false) {
+			if (roomCurtain) {
+				setCursor('clean');
+				setIsDetected(true);
+			}
+		} else {
+			if (roomCurtain && !objective) {
+				setCursor('clean');
+				setIsDetected(true);
+			}
+		}
+	}, [setCursor, roomCurtain, objective, tutorialObjectives]);
 
-	const handleClick = () => {
-		if (
-			checkProximity() &&
-			delayedRoomCurtain &&
-			!(type === 3 && number === 0)
-		) {
+	const handleDetectionEnd = useCallback(() => {
+		if (roomCurtain) {
+			setCursor(null);
+			setIsDetected(false);
+		}
+	}, [setCursor, roomCurtain]);
+
+	const handleClick = useCallback(() => {
+		if (isDetected && delayedRoomCurtain && !(type === 3 && number === 0)) {
 			Object.values(actions).forEach((action) => {
 				if (!action.isRunning()) {
 					if (action && action.time !== action.getClip().duration) {
@@ -102,18 +121,40 @@ export default function Window() {
 						action.loop = THREE.LoopOnce;
 						action.repetitions = 1;
 
-						// Play the window sound
 						if (windowSoundRef.current) {
 							windowSoundRef.current.play();
 						}
 
 						action.play();
-						setInterfaceObjectives(2, roomNumber);
+						if (tutorialObjectives[2] === false) {
+							setTutorialObjectives([
+								tutorialObjectives[0],
+								tutorialObjectives[1],
+								true,
+							]);
+						} else {
+							setInterfaceObjectives(2, roomNumber);
+						}
 					}
 				}
 			});
 		}
-	};
+	}, [
+		isDetected,
+		delayedRoomCurtain,
+		type,
+		number,
+		actions,
+		setInterfaceObjectives,
+		roomNumber,
+		tutorialObjectives,
+		setTutorialObjectives,
+	]);
+
+	useEffect(() => {
+		document.addEventListener('click', handleClick);
+		return () => document.removeEventListener('click', handleClick);
+	}, [handleClick]);
 
 	const isInit = useRef(false);
 
@@ -144,6 +185,33 @@ export default function Window() {
 		}
 	}, [objective, actions]);
 
+	useEffect(() => {
+		if (tutorialObjectives[2] === false && isInit.current === true) {
+			Object.values(actions).forEach((action) => {
+				if (action) {
+					action.stop();
+					action.reset();
+				}
+			});
+		} else {
+			isInit.current = true;
+			if (tutorialObjectives[2]) {
+				Object.values(actions).forEach((action) => {
+					if (!action.isRunning()) {
+						if (action && action.time !== action.getClip().duration) {
+							action.clampWhenFinished = true;
+							action.timeScale = 2;
+							action.loop = THREE.LoopOnce;
+							action.repetitions = 1;
+							action.play();
+							action.time = 10;
+						}
+					}
+				});
+			}
+		}
+	}, [tutorialObjectives, actions]);
+
 	return (
 		<group
 			ref={group}
@@ -151,15 +219,15 @@ export default function Window() {
 			rotation={[0, position[2] < 0 ? Math.PI : 0, 0]}
 			dispose={null}
 		>
+			<DetectableCube
+				position={[1, 0, 0]}
+				scale={[1.2, 1.8, 0.2]}
+				distance={3}
+				onDetect={handleDetection}
+				onDetectEnd={handleDetectionEnd}
+				key={roomCurtain}
+			/>
 			<group name="Scene">
-				<mesh
-					ref={meshRef}
-					position={[1, 0, 0]}
-					onPointerDown={() => handleClick()}
-				>
-					<boxGeometry args={[1.2, 1.8, 0.2]} />
-					<meshBasicMaterial color="green" visible={false} />
-				</mesh>
 				<mesh
 					name="Window"
 					geometry={nodes.Window.geometry}

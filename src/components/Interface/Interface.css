@@ -1,3 +1,10 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;800;900&display=swap');
+
+@font-face {
+	font-family: 'Redrum';
+	src: url('../../../public/Redrum.otf') format('opentype');
+}
+
 .interface {
 	position: relative;
 	height: 100%;
@@ -6,6 +13,28 @@
 	flex-direction: column;
 	justify-content: flex-end;
 	align-items: center;
+	overflow: hidden;
+}
+
+.interface::before {
+	content: '';
+	position: absolute;
+	top: -50%;
+	left: -50%;
+	right: -50%;
+	bottom: -50%;
+	width: 200%;
+	height: 200%;
+	opacity: 0.1;
+	z-index: 1;
+	pointer-events: none;
+}
+
+.animated::before {
+	background: transparent
+		url('data:image/svg+xml,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noiseFilter"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%" height="100%" filter="url(%23noiseFilter)"%3E%3C/rect%3E%3C/svg%3E');
+	background-repeat: repeat;
+	animation: noise 0.2s infinite;
 }
 
 .dialogue-container {
@@ -28,4 +57,386 @@
 	text-align: center;
 	transition: transform 0.5s ease, opacity 0.25s ease;
 	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+}
+
+/* cursor */
+
+.cursor-container {
+	position: fixed;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	pointer-events: none;
+	z-index: 9999;
+}
+
+.simple-cursor {
+	width: 1rem;
+	height: 1rem;
+	border-radius: 50%;
+	border: 0.2rem solid rgba(255, 255, 255, 0.4);
+	z-index: 9999;
+}
+
+.custom-cursor.interactive {
+	background-repeat: no-repeat;
+	width: 2rem;
+	height: 2rem;
+}
+
+svg {
+	width: 2.5rem;
+	height: 2.5rem;
+}
+
+.cursor-container svg path {
+	fill: rgba(255, 255, 255, 0.4);
+}
+
+.help-cursor {
+	& > path:first-child {
+		fill: none;
+	}
+}
+
+.objectives li.completed {
+	text-decoration: line-through;
+	opacity: 0.6;
+}
+
+.end-screen {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background: #0b0b0b;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	animation: fadeIn 1s ease-in-out;
+	z-index: 10000;
+	pointer-events: auto;
+	cursor: auto;
+	gap: 1rem;
+}
+
+.end-screen > svg {
+	width: 40dvw;
+	height: 40dvh;
+}
+
+.end-screen > svg > path {
+	fill: #c1c1c1;
+}
+
+.end-message {
+	color: #c1c1c1;
+	font-size: 2rem;
+	text-align: center;
+}
+
+.end-screen-button {
+	width: calc(10dvw - 2px);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	text-align: center;
+	border: 1px solid #c1c1c1;
+	border-radius: 0.5rem;
+	cursor: pointer;
+	color: #c1c1c1;
+	padding: 0.5rem;
+}
+
+.end-screen-button:hover {
+	background: #c1c1c1;
+	color: #0b0b0b;
+}
+
+@keyframes fadeIn {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
+}
+
+.loading-page {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	height: 100dvh;
+	width: 100dvw;
+	background: black;
+	color: #c1c1c1;
+	position: relative;
+	overflow: hidden;
+	cursor: auto;
+
+	svg {
+		width: 30dvw;
+		height: 30dvh;
+		path {
+			fill: #8b0000;
+		}
+	}
+}
+
+.ready {
+	cursor: pointer;
+}
+
+@keyframes noise {
+	0% {
+		transform: translate(0, 0);
+	}
+	10% {
+		transform: translate(-5%, -5%);
+	}
+	20% {
+		transform: translate(-10%, 5%);
+	}
+	30% {
+		transform: translate(5%, -10%);
+	}
+	40% {
+		transform: translate(-5%, 15%);
+	}
+	50% {
+		transform: translate(-10%, 5%);
+	}
+	60% {
+		transform: translate(15%, 0);
+	}
+	70% {
+		transform: translate(0, 10%);
+	}
+	80% {
+		transform: translate(-15%, 0);
+	}
+	90% {
+		transform: translate(10%, 5%);
+	}
+	100% {
+		transform: translate(5%, 0);
+	}
+}
+
+.title {
+	font-family: 'Redrum', sans-serif;
+	font-size: 2rem;
+	color: #8b0000;
+	position: relative;
+	z-index: 2;
+}
+
+.flex {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.io {
+	padding: 0.25rem;
+	border-radius: 0.15rem;
+	font-size: 1.5rem;
+	font-weight: 800;
+	background: #4a7b6e;
+	position: relative;
+	color: black;
+	z-index: 2;
+	transform: scale(0.5) translateY(20%);
+}
+
+.full-screen-button {
+	background: rgba(255, 255, 255, 0.1);
+	border: none;
+	color: #c1c1c1;
+	font-size: 1rem;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 1rem;
+	padding: 0.5rem 1rem;
+	border-radius: 0.5rem;
+	margin: 1rem 0;
+	cursor: pointer;
+	font-family: 'Merriweather', serif;
+}
+
+.full-screen-button:hover {
+	background: rgba(255, 255, 255, 0.2);
+}
+
+.full-screen-button svg {
+	width: 1.25rem;
+	height: 1.25rem;
+}
+
+.full-screen-button svg path {
+	fill: #c1c1c1;
+}
+
+.start {
+	animation: blink 2s ease-in-out infinite;
+}
+
+@keyframes blink {
+	0%,
+	100% {
+		opacity: 1;
+	}
+	50% {
+		opacity: 0;
+	}
+}
+
+.joystick {
+	position: absolute;
+	width: 100px;
+	height: 100px;
+	bottom: 20px;
+}
+
+.joystick.left {
+	left: 20px;
+}
+
+.joystick.right {
+	right: 20px;
+}
+
+.joystick-base {
+	width: 100%;
+	height: 100%;
+	border-radius: 50%;
+	background-color: rgba(255, 255, 255, 0.2);
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.joystick-handle {
+	width: 50px;
+	height: 50px;
+	border-radius: 50%;
+	background-color: rgba(255, 255, 255, 0.5);
+	position: relative;
+}
+
+/* Reception panel */
+
+.reception-panel {
+	width: 700px;
+	transform: translate(75px, 100px);
+	padding: 1rem;
+	border-radius: 0.5rem;
+	color: #c1c1c1;
+	display: flex;
+	gap: 94px;
+}
+
+.reception-panel > p {
+	margin: 0;
+	padding: 16px;
+	border-radius: 8px;
+	background-color: rgba(0, 0, 0, 0.8);
+}
+
+.controls {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+	background-color: rgba(0, 0, 0, 0.8);
+	height: fit-content;
+	padding: 16px;
+	border-radius: 8px;
+}
+
+.main-controls {
+	width: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 16px;
+}
+
+.keyboard-controls {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 4px;
+}
+.row {
+	display: flex;
+	gap: 4px;
+}
+.bind {
+	display: flex;
+	width: 100%;
+	align-items: center;
+	justify-content: space-between;
+	border-top: 1px solid #c1c1c1;
+	padding: 8px 0 4px 0;
+}
+.bind > .row {
+	width: 100px;
+}
+.key {
+	padding: 4px 6px;
+	height: 18px;
+	min-width: 16px;
+	border: 1px solid #c1c1c1;
+	border-radius: 4px;
+	color: #c1c1c1;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+.keys {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+
+.keys svg {
+	width: 24px;
+	height: 24px;
+}
+
+.mouse-click-icon > svg > path {
+	fill: #c1c1c1;
+}
+
+.gamepad-controls {
+	display: flex;
+	gap: 4px;
+}
+
+.gamepad-controls > svg > path {
+	fill: #c1c1c1;
+}
+
+.joystick-icon {
+	position: relative;
+	color: #c1c1c1;
+	background: #c1c1c1;
+	width: 15px;
+	height: 15px;
+
+	border-radius: 50%;
+	color: black;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-family: 'Roboto', sans-serif;
+	font-weight: 800;
 }

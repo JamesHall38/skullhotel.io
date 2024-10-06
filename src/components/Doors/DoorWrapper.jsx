@@ -7,6 +7,7 @@ import useInterface from '../../hooks/useInterface';
 import * as THREE from 'three';
 
 const CORRIDORLENGTH = 5.95;
+const DOOR_SPEED = 2;
 
 export default function DoorWrapper({
 	children,
@@ -19,6 +20,7 @@ export default function DoorWrapper({
 	tutorialRoomOffset,
 	instantChange,
 	closet = false,
+	doubleRotate = false,
 }) {
 	const doorRef = useRef();
 	const group = useRef();
@@ -26,13 +28,18 @@ export default function DoorWrapper({
 	const closeRef = useRef();
 	const beepRef = useRef();
 	const roomTotal = useGame((state) => state.roomTotal);
-	const setInterfaceAction = useInterface((state) => state.setInterfaceAction);
+	const cursor = useInterface((state) => state.cursor);
+	const setCursor = useInterface((state) => state.setCursor);
 	const [canOpen, setCanOpen] = useState(false);
 	const [hasInitialized, setHasInitialized] = useState(false);
 	const rotationAngleRef = useRef(0);
 	const animationProgressRef = useRef(0);
-	const targetAngle = reverse ? -Math.PI / 2 : Math.PI / 2;
-	const doorSpeed = 2;
+	const hasLookedAtGroup = useRef(false);
+
+	const targetAngle = useMemo(() => {
+		let angle = reverse ? -Math.PI / 2 : Math.PI / 2;
+		return angle;
+	}, [reverse]);
 
 	const position = useMemo(() => {
 		let calculatedPosition = null;
@@ -57,6 +64,14 @@ export default function DoorWrapper({
 
 		return !roomNumber && roomNumber !== 0 ? offset : calculatedPosition;
 	}, [roomNumber, roomTotal, offset, tutorialRoomOffset]);
+
+	const initialRotationY = useMemo(() => {
+		let rotation = rotate ? Math.PI : position[2] < 0 ? Math.PI : 0;
+		if (doubleRotate) {
+			rotation += Math.PI / 2;
+		}
+		return rotation;
+	}, [rotate, position, doubleRotate]);
 
 	useEffect(() => {
 		if (hasInitialized) {
@@ -87,16 +102,26 @@ export default function DoorWrapper({
 		return () => window.removeEventListener('click', handleClick);
 	}, [canOpen, isOpen, setOpen]);
 
-	const initialRotationY = useMemo(
-		() => (rotate ? -Math.PI / 2 : position[2] < 0 ? Math.PI : 0),
-		[rotate, position]
-	);
+	useEffect(() => {
+		if (doorRef.current) {
+			const newPosition = new THREE.Vector3(
+				position[0],
+				position[1],
+				position[2]
+			);
+			doorRef.current.setNextKinematicTranslation(newPosition);
+		}
+	}, [position]);
 
 	useFrame(({ camera }, delta) => {
-		if (!group.current || !doorRef.current) return;
+		if (!doorRef.current) return;
 
-		const doorPosition = group.current.position;
-		const distance = doorPosition.distanceTo(camera.position);
+		const doorPosition = doorRef.current.translation();
+		const distance = new THREE.Vector3(
+			doorPosition.x,
+			doorPosition.y,
+			doorPosition.z
+		).distanceTo(camera.position);
 
 		if (distance < 3) {
 			const raycaster = new THREE.Raycaster();
@@ -104,14 +129,23 @@ export default function DoorWrapper({
 			const intersects = raycaster.intersectObject(group.current, true);
 
 			if (intersects.length > 0) {
-				setInterfaceAction('Click to open');
+				setCursor('door');
 				setCanOpen(true);
+				hasLookedAtGroup.current = true;
 			} else {
+				if (cursor === 'door' && hasLookedAtGroup.current) {
+					setCursor(null);
+					hasLookedAtGroup.current = false;
+				}
 				setCanOpen(false);
-				setInterfaceAction('');
 			}
 		} else {
 			setCanOpen(false);
+
+			if (hasLookedAtGroup.current) {
+				setCursor(null);
+				hasLookedAtGroup.current = false;
+			}
 		}
 
 		const directionMultiplier = reverse ? -1 : 1;
@@ -119,7 +153,7 @@ export default function DoorWrapper({
 
 		animationProgressRef.current = Math.min(
 			animationProgressRef.current +
-				delta * doorSpeed * (instantChange ? 20 : 1),
+				delta * DOOR_SPEED * (instantChange ? 20 : 1),
 			1
 		);
 		const easeInOut = (t) => t * t * (3 - 2 * t) * 0.05;
@@ -140,17 +174,13 @@ export default function DoorWrapper({
 	});
 
 	return (
-		<group
-			ref={group}
-			position={position}
-			rotation={[0, rotate ? -Math.PI / 2 : position[2] < 0 ? Math.PI : 0, 0]}
-			dispose={null}
-		>
+		<group dispose={null}>
 			<RigidBody
 				friction={0}
 				restitution={0.2}
 				type="kinematicPosition"
 				ref={doorRef}
+				colliders="cuboid"
 			>
 				<PositionalAudio
 					ref={openRef}
@@ -181,7 +211,9 @@ export default function DoorWrapper({
 						volume={0.5}
 					/>
 				)}
-				{children}
+				<group ref={group} dispose={null}>
+					{children}
+				</group>
 			</RigidBody>
 		</group>
 	);

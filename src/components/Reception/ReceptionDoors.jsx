@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useGLTF } from '@react-three/drei';
 import DoorWrapper from '../Doors/DoorWrapper';
 import * as THREE from 'three';
 import useDoor from '../../hooks/useDoor';
 import useGame from '../../hooks/useGame';
+import useInterface from '../../hooks/useInterface';
 
 const Door = () => {
 	const { nodes, materials } = useGLTF('/models/doors/door.glb');
@@ -70,6 +71,21 @@ export default function ReceptionDoors() {
 	const corridorDoor = useDoor((state) => state.corridor);
 	const setCorridorDoor = useDoor((state) => state.setCorridor);
 	const setPlayerPositionRoom = useGame((state) => state.setPlayerPositionRoom);
+	const isMobile = useGame((state) => state.isMobile);
+	const currentDialogueIndex = useInterface(
+		(state) => state.currentDialogueIndex
+	);
+	const setCurrentDialogueIndex = useInterface(
+		(state) => state.setCurrentDialogueIndex
+	);
+	const objectives = useInterface((state) => state.interfaceObjectives);
+	const tutorialObjectives = useInterface((state) => state.tutorialObjectives);
+
+	const doneObjectives = useMemo(() => {
+		return objectives.filter((subArray) =>
+			subArray.every((value) => value === true)
+		).length;
+	}, [objectives]);
 
 	return (
 		<group>
@@ -78,29 +94,61 @@ export default function ReceptionDoors() {
 				rotate
 				isOpen={corridorDoor}
 				setOpen={(value) => {
-					setCorridorDoor(value);
-					setPlayerPositionRoom(Math.random());
+					if (isMobile) {
+						if (doneObjectives === 10) {
+							setCorridorDoor(value);
+						} else {
+							if (currentDialogueIndex !== 0) {
+								setCurrentDialogueIndex(0);
+								setTimeout(() => setCurrentDialogueIndex(null), 3000);
+							}
+						}
+					} else {
+						if (tutorialObjectives.every((value) => value === true)) {
+							setCorridorDoor(value);
+							setPlayerPositionRoom(Math.random());
+						} else {
+							if (currentDialogueIndex !== 0) {
+								setCurrentDialogueIndex(0);
+								setTimeout(() => setCurrentDialogueIndex(null), 3000);
+							}
+						}
+					}
 				}}
+				doubleRotate
 			>
 				<Door />
 			</DoorWrapper>
-			<DoorWrapper
-				offset={[6.582, 0.965, 3.2]}
-				isOpen={tutorialDoor}
-				setOpen={(value) => {
-					setTutorialDoor(value);
-					setPlayerPositionRoom(Math.random());
-				}}
-			>
-				<Door />
-			</DoorWrapper>
-			<DoorWrapper
-				offset={[10.025, 0.965, -3.85]}
-				isOpen={exitDoor}
-				setOpen={(value) => setExitDoor(value)}
-			>
-				<Door />
-			</DoorWrapper>
+			{!isMobile && (
+				<group>
+					<DoorWrapper
+						offset={[6.582, 0.965, 3.2]}
+						isOpen={tutorialDoor}
+						setOpen={(value) => {
+							setTutorialDoor(value);
+							setPlayerPositionRoom(Math.random());
+						}}
+					>
+						<Door />
+					</DoorWrapper>
+					<DoorWrapper
+						offset={[10.025, 0.965, -3.85]}
+						isOpen={exitDoor}
+						setOpen={(value) => {
+							if (doneObjectives === 10) {
+								setExitDoor(value);
+							} else {
+								if (currentDialogueIndex !== 0) {
+									setCurrentDialogueIndex(0);
+									setTimeout(() => setCurrentDialogueIndex(null), 3000);
+								}
+							}
+						}}
+					>
+						<Door />
+					</DoorWrapper>
+				</group>
+			)}
 		</group>
 	);
 }

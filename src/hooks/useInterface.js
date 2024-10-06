@@ -4,9 +4,16 @@ import { roomNumber } from '../utils/config';
 
 const useInterfaceStore = create(
 	subscribeWithSelector((set) => ({
+		cursor: null,
+		setCursor: (cursor) => set(() => ({ cursor })),
+
 		// Objectives
+		tutorialObjectives: [false, false, false],
+		setTutorialObjectives: (objective) =>
+			set(() => ({ tutorialObjectives: objective })),
 		interfaceObjectives: [...Array(roomNumber)].map(() => [
 			false,
+
 			false,
 			false,
 		]),
@@ -35,6 +42,7 @@ const useInterfaceStore = create(
 					false,
 					false,
 				]),
+				cursor: null,
 			}));
 		},
 	}))

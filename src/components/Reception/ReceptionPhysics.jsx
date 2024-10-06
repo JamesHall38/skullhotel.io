@@ -3,17 +3,16 @@ import { RigidBody } from '@react-three/rapier';
 import * as THREE from 'three';
 
 const boxGeometry = new THREE.BoxGeometry(1, 1, 1);
+const visible = false;
 
 export default function ReceptionPhysics() {
-	const visible = false;
-
 	const wallMaterial = useMemo(() => {
 		return new THREE.MeshStandardMaterial({
 			color: 'slategrey',
 			opacity: visible ? 0.8 : 0,
 			transparent: true,
 		});
-	}, [visible]);
+	}, []);
 
 	return (
 		<group>
@@ -55,10 +54,10 @@ export default function ReceptionPhysics() {
 				/>
 				{/* clocks right */}
 				<mesh
-					position={[7.9, 1, 3]}
+					position={[7.25, 1, 2.4]}
 					geometry={boxGeometry}
 					material={wallMaterial}
-					scale={[0.2, 4, 3.6]}
+					scale={[1.3, 4, 2.4]}
 				/>
 				{/* left chair 1 */}
 				<mesh
@@ -147,6 +146,27 @@ export default function ReceptionPhysics() {
 					geometry={boxGeometry}
 					material={wallMaterial}
 					scale={[3, 4, 0.05]}
+				/>
+				{/* corridor door ceiling */}
+				<mesh
+					position={[4, 3, 0]}
+					geometry={boxGeometry}
+					material={wallMaterial}
+					scale={[0.05, 1, 2]}
+				/>
+				{/* tutorial corridor right wall */}
+				<mesh
+					position={[4.6, 2, 2.15]}
+					geometry={boxGeometry}
+					material={wallMaterial}
+					scale={[1.4, 4, 1.9]}
+				/>
+				{/* tutorial corridor ceiling */}
+				<mesh
+					position={[5.95, 3, 2]}
+					geometry={boxGeometry}
+					material={wallMaterial}
+					scale={[1.5, 1, 1.7]}
 				/>
 			</RigidBody>
 		</group>

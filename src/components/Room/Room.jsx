@@ -17,6 +17,7 @@ const CORRIDORLENGTH = 5.95;
 const offset = [8.83, 0, 6.2];
 
 export default function Room() {
+	const isMobile = useGame((state) => state.isMobile);
 	const seedData = useGame((state) => state.seedData);
 	const roomTotal = useGame((state) => state.roomTotal);
 	const playerPositionRoom = useGame((state) => state.playerPositionRoom);
@@ -145,22 +146,26 @@ export default function Room() {
 			position={position}
 			rotation={[0, playerPositionRoom >= roomTotal / 2 ? Math.PI : 0, 0]}
 		>
-			<pointLight
-				position={[1.5, 2, 0]}
-				intensity={roomLight ? 4 : 0}
-				castShadow
-				shadow-mapSize-width={1024}
-				shadow-mapSize-height={1024}
-				shadow-camera-near={0.1}
-				shadow-camera-far={50}
-			/>
-			<pointLight
-				position={[-1, 2, -3.2]}
-				intensity={bathroomLight ? 0.4 : 0}
-				castShadow
-				shadow-camera-near={0.1}
-				shadow-camera-far={50}
-			/>
+			{!isMobile && (
+				<group>
+					<pointLight
+						position={[1.5, 2, 0]}
+						intensity={roomLight ? 4 : 0}
+						castShadow
+						shadow-mapSize-width={1024}
+						shadow-mapSize-height={1024}
+						shadow-camera-near={0.1}
+						shadow-camera-far={50}
+					/>
+					<pointLight
+						position={[-1, 2, -3.2]}
+						intensity={bathroomLight ? 0.4 : 0}
+						castShadow
+						shadow-camera-near={0.1}
+						shadow-camera-far={50}
+					/>
+				</group>
+			)}
 			<PositionalAudio
 				ref={neonSoundRef}
 				url="/sounds/neon.ogg"
@@ -191,7 +196,9 @@ export default function Room() {
 			</mesh>
 			<Bedroom />
 			<Livingroom />
-			<CeilingFan />
+
+			{!isMobile && <CeilingFan />}
+
 			<Switches />
 			<Radio />
 			<Painting />

@@ -8,6 +8,18 @@ const useGeneralStore = create(
 		eventData: events,
 		deaths: 0,
 
+		isMobile: false,
+		setIsMobile: (value) => set({ isMobile: value }),
+
+		deviceMode: 'keyboard',
+		setDeviceMode: (mode) => set(() => ({ deviceMode: mode })),
+
+		isLocked: false,
+		setIsLocked: (locked) => set({ isLocked: locked }),
+
+		end: false,
+		setEnd: (state) => set(() => ({ end: state })),
+
 		// Room
 		roomTotal: roomNumber,
 		playerPositionRoom: null,

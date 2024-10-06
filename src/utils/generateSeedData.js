@@ -19,64 +19,64 @@ function getRandomRoom(levels, categoryIndex) {
 	return { ...levels[lastIndex], type: categoryIndex, number: lastIndex };
 }
 
-// function getEveryRoomInSingle() {
-// 	let selectedRooms = [];
-// 	for (let i = 0; i < 20; i++) {
-// 		if (levelData[0][i]?.probability > 0) {
-// 			selectedRooms.push({ ...levelData[0][i], number: i, type: 0 });
-// 		}
-// 	}
-// 	for (let i = 0; i < 20; i++) {
-// 		if (levelData[1][i]?.probability > 0) {
-// 			selectedRooms.push({ ...levelData[1][i], number: i, type: 1 });
-// 		}
-// 	}
-// 	for (let i = 0; i < 20; i++) {
-// 		if (levelData[2][i]?.probability > 0) {
-// 			selectedRooms.push({ ...levelData[2][i], number: i, type: 2 });
-// 		}
-// 	}
-// 	for (let i = 0; i < 20; i++) {
-// 		if (levelData[3][i]?.probability > 0) {
-// 			selectedRooms.push({ ...levelData[3][i], number: i, type: 3 });
-// 		}
-// 	}
-// 	for (let i = 0; i < 20; i++) {
-// 		if (levelData[4][i]?.probability > 0) {
-// 			selectedRooms.push({ ...levelData[4][i], number: i, type: 4 });
-// 		}
-// 	}
-// 	for (let i = 0; i < 20; i++) {
-// 		if (levelData[5][i]?.probability > 0) {
-// 			selectedRooms.push({ ...levelData[5][i], number: i, type: 5 });
-// 		}
-// 	}
-// 	return selectedRooms;
-// }
+function getEveryRoomInSingle() {
+	let selectedRooms = [];
+	for (let i = 0; i < 20; i++) {
+		if (levelData[0][i]?.probability > 0) {
+			selectedRooms.push({ ...levelData[0][i], number: i, type: 0 });
+		}
+	}
+	for (let i = 0; i < 20; i++) {
+		if (levelData[1][i]?.probability > 0) {
+			selectedRooms.push({ ...levelData[1][i], number: i, type: 1 });
+		}
+	}
+	for (let i = 0; i < 20; i++) {
+		if (levelData[2][i]?.probability > 0) {
+			selectedRooms.push({ ...levelData[2][i], number: i, type: 2 });
+		}
+	}
+	for (let i = 0; i < 20; i++) {
+		if (levelData[3][i]?.probability > 0) {
+			selectedRooms.push({ ...levelData[3][i], number: i, type: 3 });
+		}
+	}
+	for (let i = 0; i < 20; i++) {
+		if (levelData[4][i]?.probability > 0) {
+			selectedRooms.push({ ...levelData[4][i], number: i, type: 4 });
+		}
+	}
+	for (let i = 0; i < 20; i++) {
+		if (levelData[5][i]?.probability > 0) {
+			selectedRooms.push({ ...levelData[5][i], number: i, type: 5 });
+		}
+	}
+	return selectedRooms;
+}
 
-// function getEveryRoomInDouble() {
-// 	let selectedRooms = [];
-// 	selectedRooms.push(...getEveryRoomInSingle());
-// 	selectedRooms.push(...getEveryRoomInSingle());
-// 	return selectedRooms;
-// }
+function getEveryRoomInDouble() {
+	let selectedRooms = [];
+	selectedRooms.push(...getEveryRoomInSingle());
+	selectedRooms.push(...getEveryRoomInSingle());
+	return selectedRooms;
+}
 
-// function getTypeRoomsInSingle(type) {
-// 	let selectedRooms = [];
-// 	for (let i = 0; i < 20; i++) {
-// 		if (levelData[type][i]?.probability > 0) {
-// 			selectedRooms.push({ ...levelData[type][i], type: type, number: i });
-// 		}
-// 	}
-// 	return selectedRooms;
-// }
+function getTypeRoomsInSingle(type) {
+	let selectedRooms = [];
+	for (let i = 0; i < 20; i++) {
+		if (levelData[type][i]?.probability > 0) {
+			selectedRooms.push({ ...levelData[type][i], type: type, number: i });
+		}
+	}
+	return selectedRooms;
+}
 
-// function getTypeRoomsInDouble(type) {
-// 	let selectedRooms = [];
-// 	selectedRooms.push(...getTypeRoomsInSingle(type));
-// 	selectedRooms.push(...getTypeRoomsInSingle(type));
-// 	return selectedRooms;
-// }
+function getTypeRoomsInDouble(type) {
+	let selectedRooms = [];
+	selectedRooms.push(...getTypeRoomsInSingle(type));
+	selectedRooms.push(...getTypeRoomsInSingle(type));
+	return selectedRooms;
+}
 
 // TEST VERSION
 // export default function generateSeedData() {
@@ -114,8 +114,7 @@ export default function generateSeedData() {
 	});
 
 	for (let i = 0; i < numberOfFilledRooms; i++) {
-		const categoryIndex = Math.floor(Math.random() * levelData.length);
-		selectedRooms.push(getRandomRoom(levelData[categoryIndex], categoryIndex));
+		selectedRooms.push(allNonEmptyRooms[i]);
 	}
 
 	for (let i = 0; i < numberOfEmptyRooms; i++) {

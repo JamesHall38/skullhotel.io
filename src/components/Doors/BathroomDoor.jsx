@@ -4,9 +4,10 @@ import { useGLTF } from '@react-three/drei';
 import DoorWrapper from './DoorWrapper';
 import useDoor from '../../hooks/useDoor';
 import useGame from '../../hooks/useGame';
+import useInterface from '../../hooks/useInterface';
 
-const tutorialRoomCenter = [4.57, 0.93, 5.78];
-const doorOffset = [7.3, 0.93, 4.08];
+const tutorialRoomCenter = [4.53, 1.11, 5.78];
+const doorOffset = [7.31, 1.11, 4.08];
 
 export default function BathroomDoor() {
 	const roomNumber = useGame((state) => state.playerPositionRoom);
@@ -18,6 +19,7 @@ export default function BathroomDoor() {
 	const setOpen = useDoor((state) => state.setBathroomDoor);
 	const [instantChange, setInstantChange] = useState(false);
 	const playerPositionRoom = useGame((state) => state.playerPositionRoom);
+	const setCursor = useInterface((state) => state.setCursor);
 	const [tutorialRoomOffset, setTutorialRoomOffset] = useState(null);
 	const { camera } = useThree();
 
@@ -55,26 +57,26 @@ export default function BathroomDoor() {
 				setOpen(value);
 			}}
 			rotate={roomNumber >= roomTotal / 2}
+			doubleRotate={true}
 			instantChange={instantChange}
 			setInstantChange={setInstantChange}
 			tutorialRoomOffset={tutorialRoomOffset}
 			closet
 		>
 			<group>
-				<group rotation={[-Math.PI, -1.571, 0]}>
-					<mesh
-						castShadow
-						receiveShadow
-						geometry={nodes.Cube050.geometry}
-						material={materials['metal.011']}
-					/>
-					<mesh
-						castShadow
-						receiveShadow
-						geometry={nodes.Cube050_1.geometry}
-						material={materials['wood.005']}
-					/>
-				</group>
+				<mesh
+					castShadow
+					receiveShadow
+					geometry={nodes.Cube050.geometry}
+					material={materials['metal.011']}
+				/>
+				<mesh
+					castShadow
+					receiveShadow
+					geometry={nodes.Cube050_1.geometry}
+					material={materials['wood.005']}
+					onPointerOut={() => setCursor(null)}
+				/>
 			</group>
 		</DoorWrapper>
 	);

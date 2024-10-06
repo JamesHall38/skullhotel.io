@@ -5,9 +5,10 @@ import { useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import useGame from '../../hooks/useGame';
 import useDoor from '../../hooks/useDoor';
+import useInterface from '../../hooks/useInterface';
 
 const CORRIDORLENGTH = 5.95;
-const offset = [8.84, 0, 6.2];
+const offset = [8.9, 0, 6.1];
 
 export default function RoomCurtain() {
 	const roomNumber = useGame((state) => state.playerPositionRoom);
@@ -23,12 +24,20 @@ export default function RoomCurtain() {
 	const setRoomCurtain = useDoor((state) => state.setRoomCurtain);
 	const setRoomCurtains = useDoor((state) => state.setRoomCurtains);
 	const playerPositionRoom = useGame((state) => state.playerPositionRoom);
-	const { camera } = useThree();
+	const setCursor = useInterface((state) => state.setCursor);
+	const cursor = useInterface((state) => state.cursor);
+	const {
+		camera,
+		// , scene
+	} = useThree();
 	const curtainSoundRef = useRef();
 	const roomNumberRef = useRef();
 	const roomCurtainsRef = useRef();
 	const mesh0Ref = useRef();
 	const mesh1Ref = useRef();
+	const prevDetectedRef = useRef(false);
+	const cursorStateRef = useRef(null);
+	const isInitial = useRef(true);
 
 	const animationMeshCloneLeft = useMemo(() => {
 		const clone = rightNodes.Grid005.clone();
@@ -86,7 +95,7 @@ export default function RoomCurtain() {
 		roomCurtainsRef.current = roomCurtains;
 	}, [roomCurtains]);
 
-	const openWindow = useCallback(() => {
+	const openCurtain = useCallback(() => {
 		setTimeout(() => {
 			curtainSoundRef.current.play();
 		}, 500);
@@ -123,7 +132,7 @@ export default function RoomCurtain() {
 		mixerLeftRef.current = mixerSecond;
 	}, [mixer, mixerSecond, animations, setRoomCurtains]);
 
-	const closeWindow = useCallback(() => {
+	const closeCurtain = useCallback(() => {
 		setTimeout(() => {
 			curtainSoundRef.current.currentTime = 0;
 			curtainSoundRef.current.play();
@@ -162,12 +171,16 @@ export default function RoomCurtain() {
 	}, [mixer, mixerSecond, animations, setRoomCurtains]);
 
 	useEffect(() => {
-		if (roomCurtain) {
-			openWindow();
-		} else {
-			closeWindow();
+		if (roomCurtain && Math.abs(camera.position.z) > 0.4) {
+			openCurtain();
+		} else if (!roomCurtain && Math.abs(camera.position.z) > 0.4) {
+			if (isInitial.current) {
+				isInitial.current = false;
+			} else {
+				closeCurtain();
+			}
 		}
-	}, [roomCurtain, openWindow, closeWindow]);
+	}, [roomCurtain, openCurtain, closeCurtain, camera]);
 
 	useEffect(() => {
 		if (roomCurtainsRef.current[roomNumber]) {
@@ -225,15 +238,71 @@ export default function RoomCurtain() {
 		}
 	}, [roomNumber, setRoomCurtain, animations, mixer, mixerSecond]);
 
-	const checkProximity = useCallback(() => {
-		return Math.abs(camera.position.z) > 9;
-	}, [camera]);
+	const checkProximityAndVisibility = useCallback(() => {
+		const cameraPosition = new THREE.Vector3();
+		camera.getWorldPosition(cameraPosition);
 
-	const handleClick = () => {
-		if (checkProximity()) {
-			setRoomCurtain(!roomCurtain);
+		const checkMesh = (meshRef) => {
+			if (!meshRef.current) return false;
+
+			const meshPosition = new THREE.Vector3();
+			meshRef.current.getWorldPosition(meshPosition);
+
+			const distanceFromMesh = cameraPosition.distanceTo(meshPosition);
+
+			if (distanceFromMesh > 2) return false;
+
+			const raycaster = new THREE.Raycaster();
+			const cameraDirection = new THREE.Vector3();
+			camera.getWorldDirection(cameraDirection);
+
+			raycaster.set(cameraPosition, cameraDirection);
+
+			const intersects = raycaster.intersectObjects([
+				mesh0Ref.current,
+				mesh1Ref.current,
+			]);
+
+			return intersects.some(
+				(intersect) => intersect.object === meshRef.current
+			);
+		};
+
+		return checkMesh(mesh0Ref) || checkMesh(mesh1Ref);
+	}, [
+		camera,
+		// , scene
+	]);
+
+	useFrame(() => {
+		const detected = checkProximityAndVisibility();
+		if (detected !== prevDetectedRef.current) {
+			prevDetectedRef.current = detected;
+			const newCursorState = detected
+				? 'door'
+				: cursor !== 'door'
+				? cursor
+				: null;
+
+			if (cursorStateRef.current !== newCursorState) {
+				cursorStateRef.current = newCursorState;
+				setCursor(newCursorState);
+			}
 		}
-	};
+	});
+
+	useEffect(() => {
+		const handleDocumentClick = () => {
+			if (checkProximityAndVisibility()) {
+				setRoomCurtain(!roomCurtain);
+			}
+		};
+
+		document.addEventListener('click', handleDocumentClick);
+		return () => {
+			document.removeEventListener('click', handleDocumentClick);
+		};
+	}, [checkProximityAndVisibility, setRoomCurtain, roomCurtain, camera]);
 
 	const easeInQuad = (t) => t * t;
 	let time0 = 0;
@@ -295,7 +364,8 @@ export default function RoomCurtain() {
 					object={animationMeshCloneLeft}
 				/>
 				<primitive
-					position={[0.08, 0, -0.05]}
+					position={[-0.6, 0, 0.22]}
+					rotation={[0, 0.15, 0]}
 					castShadow
 					receiveShadow
 					object={animationMeshCloneRight}
@@ -311,19 +381,11 @@ export default function RoomCurtain() {
 				volume={0.25}
 			/>
 			<group>
-				<mesh
-					ref={mesh0Ref}
-					position={[3.45, 1.05, 5]}
-					onPointerDown={() => handleClick()}
-				>
+				<mesh ref={mesh0Ref} position={[3.45, 1.05, 5]}>
 					<boxGeometry args={[1.2, 1.8, 0.2]} />
 					<meshBasicMaterial color="red" visible={false} />
 				</mesh>
-				<mesh
-					ref={mesh1Ref}
-					position={[4.6, 1.05, 5]}
-					onPointerDown={() => handleClick()}
-				>
+				<mesh ref={mesh1Ref} position={[4.6, 1.05, 5]}>
 					<boxGeometry args={[1.2, 1.8, 0.2]} />
 					<meshBasicMaterial color="blue" visible={false} />
 				</mesh>

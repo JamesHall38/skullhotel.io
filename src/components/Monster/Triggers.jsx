@@ -10,7 +10,7 @@ const boxGeometry = new THREE.BoxGeometry(1, 1, 1);
 const CORRIDORLENGTH = 5.95;
 const offset = [8.84, 0, 6.2];
 const monsterBoxScale = 2.5;
-const visible = false;
+const visible = true;
 
 function getAdjustedPosition(initialPosition, isFacingRoom) {
 	if (!isFacingRoom) return initialPosition;
