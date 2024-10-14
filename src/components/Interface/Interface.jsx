@@ -2,12 +2,22 @@ import { useState, useEffect, useCallback, memo, useMemo, useRef } from 'react';
 import { useProgress } from '@react-three/drei';
 import { ReactComponent as SkullHotelLogo } from './logo.svg';
 import { ReactComponent as FullSreenIcon } from './fullscreen.svg';
+import useDoor from '../../hooks/useDoor';
+import useMonster from '../../hooks/useMonster';
 import dialogues from '../../data/dialogues';
 import useInterface from '../../hooks/useInterface';
 import useGame from '../../hooks/useGame';
-import useJoysticksStore from '../../hooks/useJoysticks';
+import useJoysticks from '../../hooks/useJoysticks';
 import Cursor from './Cursor';
+import { regenerateData } from '../../utils/config';
 import './Interface.css';
+
+function resetGame() {
+	useGame.getState().restart();
+	useInterface.getState().restart();
+	useDoor.getState().restart();
+	useMonster.getState().restart();
+}
 
 const SPEED = 0.01;
 
@@ -139,8 +149,8 @@ export default function Interface() {
 	const { setIsLocked } = useGame();
 	const isMobile = useGame((state) => state.isMobile);
 	const setIsMobile = useGame((state) => state.setIsMobile);
-	const leftStickRef = useJoysticksStore((state) => state.leftStickRef);
-	const rightStickRef = useJoysticksStore((state) => state.rightStickRef);
+	const leftStickRef = useJoysticks((state) => state.leftStickRef);
+	const rightStickRef = useJoysticks((state) => state.rightStickRef);
 	const setTutorialObjectives = useInterface(
 		(state) => state.setTutorialObjectives
 	);
@@ -175,7 +185,12 @@ export default function Interface() {
 	const tutorialObjectives = useInterface((state) => state.tutorialObjectives);
 	const setEnd = useGame((state) => state.setEnd);
 	const end = useGame((state) => state.end);
-	const [loading, setLoading] = useState(true);
+	const loading = useGame((state) => state.loading);
+	const setLoading = useGame((state) => state.setLoading);
+	const openDeathScreen = useGame((state) => state.openDeathScreen);
+	const setOpenDeathScreen = useGame((state) => state.setOpenDeathScreen);
+	const playerPositionRoom = useGame((state) => state.playerPositionRoom);
+	const seedData = useGame((state) => state.seedData);
 
 	const doneObjectives = useMemo(() => {
 		return objectives.filter((subArray) =>
@@ -231,6 +246,7 @@ export default function Interface() {
 		},
 		[leftStickRef, rightStickRef]
 	);
+
 	return (
 		<div className={`interface ${loading ? 'animated' : ''}`}>
 			{loading ? (
@@ -349,6 +365,22 @@ export default function Interface() {
 						className="end-screen-button"
 					>
 						Play again
+					</div>
+				</div>
+			)}
+			{openDeathScreen && (
+				<div
+					className="death-screen"
+					onClick={(e) => {
+						regenerateData();
+						resetGame();
+						setOpenDeathScreen(false);
+					}}
+				>
+					<div className="title">You died</div>
+					{seedData[playerPositionRoom]?.deathReason}
+					<div className="restart">
+						<div className="start">click to start</div>
 					</div>
 				</div>
 			)}

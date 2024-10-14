@@ -9,11 +9,11 @@ const useInterfaceStore = create(
 
 		// Objectives
 		tutorialObjectives: [false, false, false],
+		// tutorialObjectives: [true, true, true],
 		setTutorialObjectives: (objective) =>
 			set(() => ({ tutorialObjectives: objective })),
 		interfaceObjectives: [...Array(roomNumber)].map(() => [
 			false,
-
 			false,
 			false,
 		]),

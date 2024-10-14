@@ -23,6 +23,7 @@ export default function CameraShaking() {
 	const dangerZoneBox = useRef();
 	const seedData = useGame((state) => state.seedData);
 	const playerPositionRoom = useGame((state) => state.playerPositionRoom);
+	// const loading = useGame((state) => state.loading);
 	const roomTotal = useGame((state) => state.roomTotal);
 	const cameraShakingWhenLookingAtMonster = useGame(
 		(state) => state.cameraShakingWhenLookingAtMonster
@@ -64,15 +65,17 @@ export default function CameraShaking() {
 		}
 	}, [roomTotal, playerPositionRoom]);
 
-	const jumpScareSoundRef = useRef(
-		new Audio('/sounds/jump_scare_ambiance.ogg')
-	);
+	// const jumpScareSoundRef = useRef(
+	// 	new Audio('/sounds/jump_scare_ambiance.ogg')
+	// );
 
-	useEffect(() => {
-		jumpScareSoundRef.current.loop = true;
-		jumpScareSoundRef.current.volume = 0;
-		jumpScareSoundRef.current.play();
-	}, []);
+	// useEffect(() => {
+	// 	if (!loading) {
+	// 		jumpScareSoundRef.current.loop = true;
+	// 		jumpScareSoundRef.current.volume = 0;
+	// 		jumpScareSoundRef.current.play();
+	// 	}
+	// }, [loading]);
 
 	// Generate box3 to detect collisions
 	useEffect(() => {
@@ -163,10 +166,10 @@ export default function CameraShaking() {
 				camera.position.y += shakeY;
 			}
 
-			jumpScareSoundRef.current.volume = Math.min(
-				shakeIntensity / maxShakeIntensity,
-				1
-			);
+			// jumpScareSoundRef.current.volume = Math.min(
+			// 	shakeIntensity / maxShakeIntensity,
+			// 	1
+			// );
 
 			if (shakeIntensity > 1) {
 				if (shakeStartTime === null) {
@@ -180,10 +183,10 @@ export default function CameraShaking() {
 				shakeStartTime = null;
 			}
 		} else {
-			jumpScareSoundRef.current.volume = Math.max(
-				jumpScareSoundRef.current.volume - 0.01,
-				0
-			);
+			// jumpScareSoundRef.current.volume = Math.max(
+			// 	jumpScareSoundRef.current.volume - 0.01,
+			// 	0
+			// );
 		}
 	});
 

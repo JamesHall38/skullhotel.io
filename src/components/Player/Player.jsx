@@ -8,6 +8,7 @@ import useGame from '../../hooks/useGame';
 import useMonster from '../../hooks/useMonster';
 import useGamepadControls from '../../hooks/useGamepadControls';
 import useJoysticksStore from '../../hooks/useJoysticks';
+import Flashlight from './Flashlight';
 
 const WALK_SPEED = 2;
 const RUN_SPEED = 4;
@@ -22,7 +23,7 @@ const floor = 0.26;
 
 export default function Player() {
 	const isMobile = useGame((state) => state.isMobile);
-	const { scene, camera } = useThree();
+	const { camera } = useThree();
 	const [isJumping, setIsJumping] = useState(false);
 	const [isRunning, setIsRunning] = useState(false);
 	const [isCrouching, setIsCrouching] = useState(false);
@@ -32,11 +33,11 @@ export default function Player() {
 	const deaths = useGame((state) => state.deaths);
 	const playerPositionRoom = useGame((state) => state.playerPositionRoom);
 	const deviceMode = useGame((state) => state.deviceMode);
+	const loading = useGame((state) => state.loading);
 	const monsterState = useMonster((state) => state.monsterState);
 	const footstepIndexRef = useRef(0);
 	const lastStepPosition = useRef(new THREE.Vector3());
 	const ref = useRef();
-	const spotLightRef = useRef();
 	const { world } = useRapier();
 	const isLocked = useGame((state) => state.isLocked);
 	const [subscribeKeys, getKeys] = useKeyboardControls();
@@ -72,11 +73,6 @@ export default function Player() {
 		useRef(new Audio('/sounds/hurt3.ogg')),
 		useRef(new Audio('/sounds/hurt4.ogg')),
 	];
-
-	useEffect(() => {
-		spotLightRef.current.angle = Math.PI / 6;
-		spotLightRef.current.penumbra = 0.5;
-	}, [camera]);
 
 	const reset = useCallback(() => {
 		if (isMobile) {
@@ -189,16 +185,6 @@ export default function Player() {
 		return true;
 	}, [world]);
 
-	useEffect(() => {
-		const targetObject = new THREE.Object3D();
-		scene.add(targetObject);
-		spotLightRef.current.target = targetObject;
-
-		return () => {
-			scene.remove(targetObject);
-		};
-	}, [scene]);
-
 	const [forcedCrouch, setForcedCrouch] = useState(false);
 	const forcedCrouchTimer = useRef(null);
 
@@ -231,188 +217,176 @@ export default function Player() {
 		}
 	});
 
-	useFrame((state) => {
-		if (!ref.current || !isLocked) return;
+	useFrame(
+		(state) => {
+			if (!ref.current || !isLocked) return;
 
-		const {
-			forward: keyForward,
-			backward: keyBackward,
-			left: keyLeft,
-			right: keyRight,
-			jump: keyJump,
-		} = getKeys();
-		const gamepadControls = getGamepadControls();
+			const {
+				forward: keyForward,
+				backward: keyBackward,
+				left: keyLeft,
+				right: keyRight,
+				jump: keyJump,
+			} = getKeys();
+			const gamepadControls = getGamepadControls();
 
-		const leftStick = leftStickRef.current;
-		const rightStick = rightStickRef.current;
+			const leftStick = leftStickRef.current;
+			const rightStick = rightStickRef.current;
 
-		let forward = keyForward || gamepadControls.forward;
-		let backward = keyBackward || gamepadControls.backward;
-		let left = keyLeft || gamepadControls.left;
-		let right = keyRight || gamepadControls.right;
+			let forward = keyForward || gamepadControls.forward;
+			let backward = keyBackward || gamepadControls.backward;
+			let left = keyLeft || gamepadControls.left;
+			let right = keyRight || gamepadControls.right;
 
-		if (Math.abs(leftStick.y) > 0.1) {
-			forward = leftStick.y < 0;
-			backward = leftStick.y > 0;
-		}
+			if (Math.abs(leftStick.y) > 0.1) {
+				forward = leftStick.y < 0;
+				backward = leftStick.y > 0;
+			}
 
-		if (Math.abs(leftStick.x) > 0.1) {
-			left = leftStick.x < 0;
-			right = leftStick.x > 0;
-		}
+			if (Math.abs(leftStick.x) > 0.1) {
+				left = leftStick.x < 0;
+				right = leftStick.x > 0;
+			}
 
-		let jump = keyJump || gamepadControls.jump;
+			let jump = keyJump || gamepadControls.jump;
 
-		frontVector.set(0, 0, Number(forward) - Number(backward));
-		sideVector.set(Number(right) - Number(left), 0, 0);
+			frontVector.set(0, 0, Number(forward) - Number(backward));
+			sideVector.set(Number(right) - Number(left), 0, 0);
 
-		const cameraQuaternion = state.camera.quaternion.clone();
-		const movementDirection = new THREE.Vector3(0, 0, -1).applyQuaternion(
-			cameraQuaternion
-		);
-		movementDirection.y = 0;
-		movementDirection.normalize();
-
-		const cameraRight = new THREE.Vector3(1, 0, 0).applyQuaternion(
-			cameraQuaternion
-		);
-		cameraRight.y = 0;
-		cameraRight.normalize();
-
-		direction.set(0, 0, 0);
-		direction.addScaledVector(movementDirection, frontVector.z);
-		direction.addScaledVector(cameraRight, sideVector.x);
-		direction
-			.normalize()
-			.multiplyScalar(
-				isRunning ? RUN_SPEED : isCrouching ? CROUCH_SPEED : WALK_SPEED
+			const cameraQuaternion = state.camera.quaternion.clone();
+			const movementDirection = new THREE.Vector3(0, 0, -1).applyQuaternion(
+				cameraQuaternion
 			);
+			movementDirection.y = 0;
+			movementDirection.normalize();
 
-		const position = ref.current.translation();
-		state.camera.position.set(position.x, position.y + 0.2, position.z);
+			const cameraRight = new THREE.Vector3(1, 0, 0).applyQuaternion(
+				cameraQuaternion
+			);
+			cameraRight.y = 0;
+			cameraRight.normalize();
 
-		if (monsterState !== 'run') {
-			ref.current.setLinvel({ x: 0, y: ref.current.linvel().y, z: 0 }, true);
+			direction.set(0, 0, 0);
+			direction.addScaledVector(movementDirection, frontVector.z);
+			direction.addScaledVector(cameraRight, sideVector.x);
+			direction
+				.normalize()
+				.multiplyScalar(
+					isRunning ? RUN_SPEED : isCrouching ? CROUCH_SPEED : WALK_SPEED
+				);
 
-			ref.current.setLinvel({
-				x: direction.x,
-				y: ref.current.linvel().y,
-				z: direction.z,
-			});
+			const position = ref.current.translation();
+			state.camera.position.set(position.x, position.y + 0.2, position.z);
 
-			if (!jump && isGrounded() && isJumping) {
-				if (position.y > 1.7 && position.y < 1.8) {
-					bedSound.current.volume = 0.8;
-					bedSound.current.currentTime = 0;
-					bedSound.current.play();
+			if (monsterState !== 'run') {
+				ref.current.setLinvel({ x: 0, y: ref.current.linvel().y, z: 0 }, true);
 
-					if (seedData[playerPositionRoom]?.hurt) {
-						const randomHurtSound =
-							hurtSounds[Math.floor(Math.random() * hurtSounds.length)].current;
-						randomHurtSound.volume = 0.8;
-						randomHurtSound.current.time = 0;
-						randomHurtSound.play();
-					}
-				}
-				setIsJumping(false);
-			}
-			if (jump && isGrounded() && !isJumping) {
-				setIsJumping(true);
-				const jumpForce = isCrouching ? CROUCH_JUMP_IMPULSE : JUMP_IMPULSE;
-				ref.current.applyImpulse({ x: 0, y: jumpForce, z: 0 }, true);
-			}
-
-			if (isCrouching) {
-				const currentPosition = ref.current.translation();
-				ref.current.setTranslation({
-					x: currentPosition.x,
-					y: floor,
-					z: currentPosition.z,
+				ref.current.setLinvel({
+					x: direction.x,
+					y: ref.current.linvel().y,
+					z: direction.z,
 				});
+
+				if (!jump && isGrounded() && isJumping && !loading) {
+					if (position.y > 1.7 && position.y < 1.8) {
+						bedSound.current.volume = 0.8;
+						bedSound.current.currentTime = 0;
+						bedSound.current.play();
+
+						if (seedData[playerPositionRoom]?.hurt) {
+							const randomHurtSound =
+								hurtSounds[Math.floor(Math.random() * hurtSounds.length)]
+									.current;
+							randomHurtSound.volume = 0.8;
+							randomHurtSound.currentTime = 0;
+							randomHurtSound.play();
+						}
+					}
+					setIsJumping(false);
+				}
+				if (jump && isGrounded() && !isJumping) {
+					setIsJumping(true);
+					const jumpForce = isCrouching ? CROUCH_JUMP_IMPULSE : JUMP_IMPULSE;
+					ref.current.applyImpulse({ x: 0, y: jumpForce, z: 0 }, true);
+				}
+
+				if (isCrouching) {
+					const currentPosition = ref.current.translation();
+					ref.current.setTranslation({
+						x: currentPosition.x,
+						y: floor,
+						z: currentPosition.z,
+					});
+				}
+
+				const hasHeadSpace = checkHeadSpace();
+				setCanStandUp(hasHeadSpace);
+
+				if (isCrouching && hasHeadSpace && wantsToStandUp) {
+					setIsCrouching(false);
+					setWantsToStandUp(false);
+				}
+			} else {
+				ref.current.setLinvel({ x: 0, y: ref.current.linvel().y, z: 0 }, true);
 			}
 
-			const hasHeadSpace = checkHeadSpace();
-			setCanStandUp(hasHeadSpace);
+			if (isGrounded() && !isJumping && !loading) {
+				const distanceTraveled = lastStepPosition.current.distanceTo(position);
 
-			if (isCrouching && hasHeadSpace && wantsToStandUp) {
-				setIsCrouching(false);
-				setWantsToStandUp(false);
-			}
-		} else {
-			ref.current.setLinvel({ x: 0, y: ref.current.linvel().y, z: 0 }, true);
-		}
+				if (distanceTraveled > STEP_DISTANCE) {
+					const sound = footstepSounds[footstepIndexRef.current].current;
+					sound.volume = 0.8;
+					sound.currentTime = 0;
+					sound.play();
 
-		const cameraDirection = new THREE.Vector3(0, 0, -1).applyQuaternion(
-			state.camera.quaternion
-		);
-		const distance = 10;
-		const backwardDistance = 0.7;
+					footstepIndexRef.current =
+						(footstepIndexRef.current + 1) % footstepSounds.length;
 
-		const lightPosition = new THREE.Vector3(
-			position.x - cameraDirection.x * backwardDistance,
-			position.y + 0.15,
-			position.z - cameraDirection.z * backwardDistance
-		);
-
-		spotLightRef.current.position.set(
-			lightPosition.x,
-			lightPosition.y,
-			lightPosition.z
-		);
-
-		const targetPosition = new THREE.Vector3(
-			position.x + cameraDirection.x * distance,
-			position.y + cameraDirection.y * distance,
-			position.z + cameraDirection.z * distance
-		);
-		spotLightRef.current.target.position.copy(targetPosition);
-
-		if (isGrounded() && !isJumping) {
-			const distanceTraveled = lastStepPosition.current.distanceTo(position);
-
-			if (distanceTraveled > STEP_DISTANCE) {
-				const sound = footstepSounds[footstepIndexRef.current].current;
-				sound.volume = 0.8;
-				sound.currentTime = 0;
-				sound.play();
-
-				footstepIndexRef.current =
-					(footstepIndexRef.current + 1) % footstepSounds.length;
-
-				lastStepPosition.current.copy(position);
-			}
-		}
-
-		if ((deviceMode === 'gamepad' || isMobile) && monsterState !== 'run') {
-			const rotationSpeed = 0.03;
-
-			if (Math.abs(rightStick.x) > 0.1) {
-				yaw.current -= rightStick.x * rotationSpeed;
+					lastStepPosition.current.copy(position);
+				}
 			}
 
-			if (Math.abs(rightStick.y) > 0.1) {
-				pitch.current -= rightStick.y * rotationSpeed;
+			if ((deviceMode === 'gamepad' || isMobile) && monsterState !== 'run') {
+				const rotationSpeed = 0.03;
+
+				if (Math.abs(rightStick.x) > 0.1) {
+					yaw.current -= rightStick.x * rotationSpeed;
+				}
+
+				if (Math.abs(rightStick.y) > 0.1) {
+					pitch.current -= rightStick.y * rotationSpeed;
+				}
+
+				const maxPitch = Math.PI / 2 - 0.01;
+				const minPitch = -Math.PI / 2 + 0.01;
+				pitch.current = Math.max(minPitch, Math.min(maxPitch, pitch.current));
+
+				state.camera.rotation.order = 'YXZ';
+				state.camera.rotation.y = yaw.current;
+				state.camera.rotation.x = pitch.current;
+				state.camera.rotation.z = 0;
 			}
 
-			const maxPitch = Math.PI / 2 - 0.01;
-			const minPitch = -Math.PI / 2 + 0.01;
-			pitch.current = Math.max(minPitch, Math.min(maxPitch, pitch.current));
-
-			state.camera.rotation.order = 'YXZ';
-			state.camera.rotation.y = yaw.current;
-			state.camera.rotation.x = pitch.current;
-			state.camera.rotation.z = 0;
-		}
-	});
+			return () => {
+				if (forcedCrouchTimer.current) {
+					clearTimeout(forcedCrouchTimer.current);
+				}
+			};
+		},
+		[
+			getKeys,
+			getGamepadControls,
+			monsterState,
+			isCrouching,
+			isJumping,
+			deviceMode,
+			isMobile,
+		]
+	);
 
 	return (
 		<>
-			<spotLight
-				shadow-normalBias={0.04}
-				intensity={12}
-				castShadow={!isMobile}
-				ref={spotLightRef}
-			/>
+			<Flashlight playerRef={ref} />
 			<RigidBody
 				ref={ref}
 				restitution={0}

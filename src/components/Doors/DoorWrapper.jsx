@@ -182,34 +182,38 @@ export default function DoorWrapper({
 				ref={doorRef}
 				colliders="cuboid"
 			>
-				<PositionalAudio
-					ref={openRef}
-					url={closet ? '/sounds/closet_open.ogg' : '/sounds/open.ogg'}
-					loop={false}
-					distance={1}
-					refDistance={1}
-					rolloffFactor={1}
-					volume={closet ? 1 : 0.5}
-				/>
-				<PositionalAudio
-					ref={closeRef}
-					url={closet ? '/sounds/closet_close.ogg' : '/sounds/close.ogg'}
-					loop={false}
-					distance={1}
-					refDistance={1}
-					rolloffFactor={1}
-					volume={closet ? 1 : 0.5}
-				/>
-				{!closet && (
-					<PositionalAudio
-						ref={beepRef}
-						url="/sounds/beep.ogg"
-						loop={false}
-						distance={1}
-						refDistance={1}
-						rolloffFactor={1}
-						volume={0.5}
-					/>
+				{hasInitialized && (
+					<group>
+						<PositionalAudio
+							ref={openRef}
+							url={closet ? '/sounds/closet_open.ogg' : '/sounds/open.ogg'}
+							loop={false}
+							distance={1}
+							refDistance={1}
+							rolloffFactor={1}
+							volume={closet ? 1 : 0.5}
+						/>
+						<PositionalAudio
+							ref={closeRef}
+							url={closet ? '/sounds/closet_close.ogg' : '/sounds/close.ogg'}
+							loop={false}
+							distance={1}
+							refDistance={1}
+							rolloffFactor={1}
+							volume={closet ? 1 : 0.5}
+						/>
+						{!closet && (
+							<PositionalAudio
+								ref={beepRef}
+								url="/sounds/beep.ogg"
+								loop={false}
+								distance={1}
+								refDistance={1}
+								rolloffFactor={1}
+								volume={0.5}
+							/>
+						)}
+					</group>
 				)}
 				<group ref={group} dispose={null}>
 					{children}

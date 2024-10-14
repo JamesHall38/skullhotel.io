@@ -3,7 +3,7 @@ import { useGLTF, Html } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import useInterface from '../../hooks/useInterface';
-import DetectableCube from '../DetectableCube';
+import DetectionZone from '../DetectionZone';
 import { ReactComponent as LeftJoystickIcon } from './icons/left.svg';
 import { ReactComponent as RightJoystickIcon } from './icons/right.svg';
 import { ReactComponent as AButtonIcon } from './icons/a_filled.svg';
@@ -113,7 +113,7 @@ const Receptionist = () => {
 	return (
 		<>
 			<group ref={group} position={[-2.5, 0, 0.95]} scale={0.9} dispose={null}>
-				<DetectableCube
+				<DetectionZone
 					position={[0, 1, 0]}
 					scale={[1, 2, 1]}
 					distance={3}

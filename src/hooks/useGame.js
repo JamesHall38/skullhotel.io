@@ -2,11 +2,17 @@ import { create } from 'zustand';
 import { subscribeWithSelector } from 'zustand/middleware';
 import { seed, roomNumber, events } from '../utils/config';
 
-const useGeneralStore = create(
+const useGameStore = create(
 	subscribeWithSelector((set) => ({
 		seedData: seed,
 		eventData: events,
 		deaths: 0,
+
+		openDeathScreen: false,
+		setOpenDeathScreen: (state) => set(() => ({ openDeathScreen: state })),
+
+		loading: true,
+		setLoading: (state) => set(() => ({ loading: state })),
 
 		isMobile: false,
 		setIsMobile: (value) => set({ isMobile: value }),
@@ -20,11 +26,40 @@ const useGeneralStore = create(
 		end: false,
 		setEnd: (state) => set(() => ({ end: state })),
 
+		isFlickering: false,
+		setIsFlickering: (state) => set(() => ({ isFlickering: state })),
+
 		// Room
 		roomTotal: roomNumber,
 		playerPositionRoom: null,
 		setPlayerPositionRoom: (position) =>
 			set(() => ({ playerPositionRoom: position })),
+		activeRadios: [],
+		setActiveRadios: (radio) =>
+			set((state) => {
+				if (radio === null) return { activeRadios: [] };
+				const newActiveRadios = [...state.activeRadios];
+				const index = newActiveRadios.indexOf(radio);
+				if (index !== -1) {
+					newActiveRadios.splice(index, 1);
+				} else {
+					newActiveRadios.push(radio);
+				}
+				return { activeRadios: newActiveRadios };
+			}),
+		activeTvs: [],
+		setActiveTvs: (tv) =>
+			set((state) => {
+				if (tv === null) return { activeTvs: [] };
+				const newActiveTvs = [...state.activeTvs];
+				const index = newActiveTvs.indexOf(tv);
+				if (index !== -1) {
+					newActiveTvs.splice(index, 1);
+				} else {
+					newActiveTvs.push(tv);
+				}
+				return { activeTvs: newActiveTvs };
+			}),
 
 		// Camera Shaking
 		cameraShakingWhenLookingAtMonster: false,
@@ -40,6 +75,12 @@ const useGeneralStore = create(
 		bathroomLight: false,
 		setBathroomLight: (state) => set(() => ({ bathroomLight: state })),
 
+		// Events
+		tv: false,
+		setTv: (state) => set(() => ({ tv: state })),
+		radio: false,
+		setRadio: (state) => set(() => ({ radio: state })),
+
 		restart: () => {
 			set((state) => ({
 				seedData: seed,
@@ -51,9 +92,11 @@ const useGeneralStore = create(
 				shakeIntensity: 0,
 				roomLight: false,
 				bathroomLight: false,
+				activeRadios: [],
+				activeTvs: [],
 			}));
 		},
 	}))
 );
 
-export default useGeneralStore;
+export default useGameStore;

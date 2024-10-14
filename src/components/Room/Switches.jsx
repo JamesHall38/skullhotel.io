@@ -2,7 +2,7 @@ import React, { useRef, useCallback, useEffect, useState } from 'react';
 import { useGLTF } from '@react-three/drei';
 import useGame from '../../hooks/useGame';
 import useInterface from '../../hooks/useInterface';
-import DetectableCube from '../DetectableCube';
+import DetectionZone from '../DetectionZone';
 
 export default function Switches(props) {
 	const roomLight = useGame((state) => state.roomLight);
@@ -18,6 +18,7 @@ export default function Switches(props) {
 
 	const switchOnSoundRef = useRef(new Audio('/sounds/switch_on.ogg'));
 	const switchOffSoundRef = useRef(new Audio('/sounds/switch_off.ogg'));
+	const neonSoundRef = useRef(new Audio('/sounds/neon.ogg'));
 
 	useEffect(() => {
 		const handleClickSwitch1 = () => {
@@ -26,9 +27,13 @@ export default function Switches(props) {
 				if (!bathroomLight) {
 					switchOnSoundRef.current.currentTime = 0;
 					switchOnSoundRef.current.play();
+					neonSoundRef.current.currentTime = 0;
+					neonSoundRef.current.play();
 				} else {
 					switchOffSoundRef.current.currentTime = 0;
 					switchOffSoundRef.current.play();
+					neonSoundRef.current.pause();
+					neonSoundRef.current.currentTime = 0;
 				}
 			}
 		};
@@ -91,7 +96,7 @@ export default function Switches(props) {
 				material={materials.White}
 				position={[1.889, 1.031, -4.69]}
 			/>
-			<DetectableCube
+			<DetectionZone
 				position={[1.889, 1.031, -4.67]}
 				scale={[0.2, 0.2, 0.05]}
 				distance={1.5}
@@ -106,7 +111,7 @@ export default function Switches(props) {
 				material={materials.White}
 				position={[1.448, 1.031, -3.309]}
 			/>
-			<DetectableCube
+			<DetectionZone
 				position={[1.448, 1.031, -3.309]}
 				scale={0.2}
 				distance={1.5}

@@ -340,7 +340,8 @@ export default function TriggersConditions({
 				playAnimation('Walk');
 			}
 		} else if (
-			raycaster.ray.intersectsBox(monsterBox.current) &&
+			monsterBox.current &&
+			raycaster.ray?.intersectsBox(monsterBox.current) &&
 			((seedData[playerPositionRoom].trigger?.bath && bathroomCurtain) ||
 				(seedData[playerPositionRoom].trigger?.door &&
 					roomDoor[playerPositionRoom]) ||
@@ -359,7 +360,7 @@ export default function TriggersConditions({
 		}
 		if (number === 1 || number === 2) {
 			raycaster.set(camera.position, lookingDown);
-			if (raycaster.ray.intersectsBox(zoneBox.current)) {
+			if (zoneBox.current && raycaster.ray?.intersectsBox(zoneBox.current)) {
 				playAnimation('Attack');
 				setMonsterState('run');
 			}

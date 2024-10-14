@@ -6,6 +6,7 @@ import { roomNumber } from '../utils/config';
 const Sound = () => {
 	const objectives = useInterface((state) => state.interfaceObjectives);
 	const end = useGame((state) => state.end);
+	const openDeathScreen = useGame((state) => state.openDeathScreen);
 
 	const ambiant1Ref = useRef(new Audio('/sounds/ambiant1.ogg'));
 	const boomRef = useRef(new Audio('/sounds/boom.ogg'));
@@ -55,6 +56,19 @@ const Sound = () => {
 			resetAudio(tenseRef);
 		}
 	}, [end]);
+
+	useEffect(() => {
+		if (openDeathScreen) {
+			ambiant1Ref.current.pause();
+			ambiant1Ref.current.currentTime = 0;
+			ambiant2Ref.current.pause();
+			ambiant2Ref.current.currentTime = 0;
+			boomRef.current.pause();
+			boomRef.current.currentTime = 0;
+			tenseRef.current.pause();
+			tenseRef.current.currentTime = 0;
+		}
+	}, [openDeathScreen]);
 
 	return null;
 };

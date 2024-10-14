@@ -1,21 +1,12 @@
 import { useMemo, useRef, useEffect, useCallback, useState } from 'react';
 import { useGLTF, PositionalAudio } from '@react-three/drei';
-import { useFrame } from '@react-three/fiber';
+import { useFrame, useThree } from '@react-three/fiber';
 import Blood from './Blood';
 import useGame from '../../hooks/useGame';
 import useMonster from '../../hooks/useMonster';
-import useInterface from '../../hooks/useInterface';
 import useDoor from '../../hooks/useDoor';
 import * as THREE from 'three';
 import Animations from './Animations';
-import { regenerateData } from '../../utils/config';
-
-function resetGame() {
-	useGame.getState().restart();
-	useInterface.getState().restart();
-	useDoor.getState().restart();
-	useMonster.getState().restart();
-}
 
 const CORRIDORLENGTH = 5.95;
 const INTENSITY = 4;
@@ -27,6 +18,7 @@ const Monster = (props) => {
 	const resetTriggered = useRef(false);
 	const [isVisible, setIsVisible] = useState(true);
 	const breathingSoundRef = useRef();
+	const { camera } = useThree();
 
 	// Game state
 	const seedData = useGame((state) => state.seedData);
@@ -34,6 +26,9 @@ const Monster = (props) => {
 	const roomTotal = useGame((state) => state.roomTotal);
 	const setShakeIntensity = useGame((state) => state.setShakeIntensity);
 	const roomDoor = useDoor((state) => state.roomDoor);
+	const loading = useGame((state) => state.loading);
+	const deaths = useGame((state) => state.deaths);
+	const setOpenDeathScreen = useGame((state) => state.setOpenDeathScreen);
 
 	// Animation
 	const playAnimation = useMonster((state) => state.playAnimation);
@@ -125,6 +120,10 @@ const Monster = (props) => {
 		roomTotal,
 		playerPositionRoom,
 	]);
+
+	useEffect(() => {
+		setMonsterPosition([0, 10, 0]);
+	}, [setMonsterPosition, deaths]);
 
 	const lookAtCamera = useCallback((camera) => {
 		const targetPosition = new THREE.Vector3(
@@ -271,8 +270,10 @@ const Monster = (props) => {
 				if (!resetTriggered.current) {
 					resetTriggered.current = true;
 					setTimeout(() => {
-						regenerateData();
-						resetGame();
+						setMonsterPosition([0, 10, 0]);
+						setMonsterState('hidden');
+						playAnimation('Idle');
+						setOpenDeathScreen(true);
 						resetTriggered.current = false;
 					}, 1200);
 				}
@@ -292,7 +293,7 @@ const Monster = (props) => {
 				group.current.rotation.z = 0;
 				lookAtCamera(camera);
 
-				if (animationName !== 'Attack') {
+				if (animationName !== 'Attack' && !loading) {
 					jumpScareSoundRef.current.play();
 					playAnimation('Attack');
 				}
@@ -303,10 +304,13 @@ const Monster = (props) => {
 		[
 			lookAtCamera,
 			runAtCamera,
+			loading,
 			setShakeIntensity,
 			setMonsterState,
 			animationName,
 			playAnimation,
+			setOpenDeathScreen,
+			setMonsterPosition,
 		]
 	);
 
@@ -362,13 +366,38 @@ const Monster = (props) => {
 		handleState(camera);
 
 		// Play or stop the breathing sound based on the room's sound trigger
-		if (seedData[playerPositionRoom]?.sound) {
+		if (seedData[playerPositionRoom]?.sound && !loading) {
 			if (breathingSoundRef.current && !breathingSoundRef.current.isPlaying) {
 				breathingSoundRef.current.play();
 			}
 		} else {
 			if (breathingSoundRef.current && breathingSoundRef.current.isPlaying) {
 				breathingSoundRef.current.stop();
+			}
+		}
+	});
+
+	useEffect(() => {
+		if (!camera.userData.listener) {
+			const listener = new THREE.AudioListener();
+			camera.add(listener);
+			camera.userData.listener = listener;
+		}
+	}, [camera]);
+
+	useFrame(() => {
+		if (breathingSoundRef.current && group.current) {
+			const distance = camera.position.distanceTo(group.current.position);
+			if (
+				distance > 3 ||
+				(seedData[playerPositionRoom]?.type === 2 &&
+					seedData[playerPositionRoom]?.number === 5 &&
+					camera.position.z < 4) ||
+				camera.position.z < 2
+			) {
+				breathingSoundRef.current.setVolume(0);
+			} else {
+				breathingSoundRef.current.setVolume(1);
 			}
 		}
 	});
@@ -424,11 +453,9 @@ const Monster = (props) => {
 
 			<PositionalAudio
 				ref={breathingSoundRef}
-				url="/sounds/breathing.ogg"
-				loop={true}
+				url="/sounds/scratching.ogg"
+				loop
 				distance={0.5}
-				refDistance={1}
-				rolloffFactor={1}
 				volume={1}
 			/>
 		</group>

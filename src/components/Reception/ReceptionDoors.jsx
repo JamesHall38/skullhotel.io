@@ -106,7 +106,7 @@ export default function ReceptionDoors() {
 					} else {
 						if (tutorialObjectives.every((value) => value === true)) {
 							setCorridorDoor(value);
-							setPlayerPositionRoom(Math.random());
+							setPlayerPositionRoom(0.5);
 						} else {
 							if (currentDialogueIndex !== 0) {
 								setCurrentDialogueIndex(0);
@@ -126,7 +126,7 @@ export default function ReceptionDoors() {
 						isOpen={tutorialDoor}
 						setOpen={(value) => {
 							setTutorialDoor(value);
-							setPlayerPositionRoom(Math.random());
+							setPlayerPositionRoom(0.5);
 						}}
 					>
 						<Door />

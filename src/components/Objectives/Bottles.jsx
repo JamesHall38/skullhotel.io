@@ -5,7 +5,7 @@ import useGame from '../../hooks/useGame';
 import useInterface from '../../hooks/useInterface';
 import useDoor from '../../hooks/useDoor';
 import * as THREE from 'three';
-import DetectableCube from '../DetectableCube';
+import DetectionZone from '../DetectionZone';
 
 const CORRIDORLENGTH = 5.95;
 const offset = [9.53, 0.83, 1.6];
@@ -178,7 +178,7 @@ export default function Bottles() {
 			rotation={[0, position[2] < 0 ? Math.PI : 0, 0]}
 			dispose={null}
 		>
-			<DetectableCube
+			<DetectionZone
 				position={[0, 0.2, 0.1]}
 				scale={[0.5, 0.5, 0.05]}
 				distance={2}

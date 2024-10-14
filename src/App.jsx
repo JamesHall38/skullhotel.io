@@ -51,8 +51,7 @@ import Monster from './components/Monster/Monster';
 import Triggers from './components/Monster/Triggers';
 import ReceptionPhysics from './components/Reception/ReceptionPhysics';
 import ReceptionDoors from './components/Reception/ReceptionDoors';
-import CameraShaking from './components/Player/CameraShaking';
-import Events from './components/Monster/Events';
+// import CameraShaking from './components/Player/CameraShaking';
 import Sound from './components/Sound';
 import Chair from './components/Room/Chair';
 import { regenerateData } from './utils/config';
@@ -69,12 +68,12 @@ const CORRIDORLENGTH = 5.95;
 function App() {
 	const isMobile = useGame((state) => state.isMobile);
 	const roomTotal = useGame((state) => state.roomTotal);
-	const playerPositionRoom = useGame((state) => state.playerPositionRoom);
+	// const playerPositionRoom = useGame((state) => state.playerPositionRoom);
 	const setEnd = useGame((state) => state.setEnd);
 	const deviceMode = useGame((state) => state.deviceMode);
 	const { camera } = useThree();
 	const setIsLocked = useGame((state) => state.setIsLocked);
-	const setPlayerPositionRoom = useGame((state) => state.setPlayerPositionRoom);
+	const openDeathScreen = useGame((state) => state.openDeathScreen);
 	const controlsRef = useRef();
 	const timeoutSet = useRef(false);
 
@@ -96,10 +95,6 @@ function App() {
 	}, [camera.position]);
 
 	useEffect(() => {
-		setPlayerPositionRoom(Math.random());
-	}, [setPlayerPositionRoom]);
-
-	useEffect(() => {
 		const controls = controlsRef.current;
 
 		const handleLock = () => setIsLocked(true);
@@ -119,6 +114,12 @@ function App() {
 	useEffect(() => {
 		camera.rotation.set(0, Math.PI, 0);
 	}, [camera]);
+
+	useEffect(() => {
+		if (openDeathScreen) {
+			controlsRef.current.unlock();
+		}
+	}, [openDeathScreen]);
 
 	useFrame(({ camera }) => {
 		if (isMobile) {
@@ -169,7 +170,7 @@ function App() {
 				{ name: 'action', keys: ['KeyE', 'gamepad5'] },
 			]}
 		>
-			{playerPositionRoom !== null && <CameraShaking />}
+			{/* {playerPositionRoom !== null && <CameraShaking />} */}
 			{/* <PointerLockControls ref={controlsRef} /> */}
 			{/* {deviceMode !== 'gamepad' && <PointerLockControls ref={controlsRef} />} */}
 			{deviceMode !== 'gamepad' && !isMobile && (
@@ -179,7 +180,6 @@ function App() {
 			<Sound />
 			<Monster />
 			<Triggers />
-			<Events />
 
 			{/* Models */}
 			{!isMobile && (
@@ -216,8 +216,7 @@ function App() {
 			<Physics gravity={[0, -30, 0]}>
 				<Player />
 				<Ground />
-				{!isMobile ? <ReceptionPhysics /> : <MobileCorridorPhysics />}
-				<ReceptionDoors />
+				{/* {!isMobile ? <ReceptionPhysics /> : <MobileCorridorPhysics />}
 				<CorridorPhysics
 					position={[
 						-1.19 - (roomTotal / 2 - 1) * CORRIDORLENGTH + position[0],
@@ -226,12 +225,13 @@ function App() {
 					]}
 				/>
 				<RoomPhysics />
+				<ReceptionDoors />
 				{duplicateComponents(DoorframePhysics)}
 				{duplicateComponents(RoomDoor)}
 				<BathroomDoor />
 				<NightstandDoor />
 				<DeskDoor />
-				{!isMobile && <Chair />}
+				{!isMobile && <Chair />} */}
 			</Physics>
 		</KeyboardControls>
 	);

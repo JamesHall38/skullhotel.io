@@ -6,7 +6,7 @@ import useInterface from '../../hooks/useInterface';
 import useDoor from '../../hooks/useDoor';
 import * as THREE from 'three';
 import levelData from '../../data/levelData';
-import DetectableCube from '../DetectableCube';
+import DetectionZone from '../DetectionZone';
 
 const CORRIDORLENGTH = 5.95;
 const offset = [8.43, 1.2, 11.52];
@@ -219,7 +219,7 @@ export default function Window() {
 			rotation={[0, position[2] < 0 ? Math.PI : 0, 0]}
 			dispose={null}
 		>
-			<DetectableCube
+			<DetectionZone
 				position={[1, 0, 0]}
 				scale={[1.2, 1.8, 0.2]}
 				distance={3}

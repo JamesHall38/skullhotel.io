@@ -4,7 +4,7 @@ import { useFrame, useThree } from '@react-three/fiber';
 import useGame from '../../hooks/useGame';
 import useInterface from '../../hooks/useInterface';
 import * as THREE from 'three';
-import DetectableCube from '../DetectableCube';
+import DetectionZone from '../DetectionZone';
 
 const CORRIDORLENGTH = 5.95;
 const offset = [8.8, -0.02, 6.2];
@@ -185,7 +185,7 @@ export default function Bedsheets() {
 			rotation={[0, position[2] < 0 ? Math.PI : 0, 0]}
 			dispose={null}
 		>
-			<DetectableCube
+			<DetectionZone
 				position={[-0.5, -0.2, 0]}
 				scale={2}
 				distance={3}
