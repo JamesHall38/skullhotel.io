@@ -5,6 +5,7 @@ import useGame from '../../hooks/useGame';
 import DetectionZone from '../DetectionZone';
 
 const PROBABILITY_OF_DARKNESS = 20;
+const LIGHT_INTENSITY = 2;
 
 export default function Bedroom() {
 	const { scene } = useGLTF('/models/room/bedroom.glb');
@@ -61,7 +62,6 @@ export default function Bedroom() {
 					roughnessMap,
 					lightMap,
 					bumpScale: 8,
-					lightMapIntensity: 1.0,
 				});
 
 				materialRef.current = material;
@@ -76,7 +76,7 @@ export default function Bedroom() {
 
 	useEffect(() => {
 		if (materialRef.current) {
-			materialRef.current.lightMapIntensity = isDark ? 0 : 1.0;
+			materialRef.current.lightMapIntensity = isDark ? 0 : LIGHT_INTENSITY;
 			materialRef.current.needsUpdate = true;
 		}
 	}, [isDark]);

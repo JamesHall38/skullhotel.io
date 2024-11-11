@@ -12,13 +12,13 @@ import {
 	Noise,
 	Glitch,
 } from '@react-three/postprocessing';
-import { Physics } from '@react-three/rapier';
 import Interface from './components/Interface/Interface';
 import './style.css';
 import useGame from './hooks/useGame';
 import useInterface from './hooks/useInterface';
 import useDoor from './hooks/useDoor';
 import useMonster from './hooks/useMonster';
+import useGridStore from './hooks/useGrid';
 
 // Models
 import Reception from './components/Reception/Reception';
@@ -26,18 +26,11 @@ import Room from './components/Room/Room';
 import CorridorStart from './components/Corridor/CorridorStart';
 import CorridorMiddles from './components/Corridor/CorridorMiddles';
 import CorridorEnd from './components/Corridor/CorridorEnd';
-import MobileCorridor from './components/Corridor/MobileCorridor';
 // Doors
 import RoomDoor from './components/Doors/RoomDoor';
 import BathroomDoor from './components/Doors/BathroomDoor';
 import NightstandDoor from './components/Doors/NightstandDoor';
 import DeskDoor from './components/Doors/DeskDoor';
-// Physics
-import RoomPhysics from './components/Room/RoomPhysics';
-import CorridorPhysics from './components/Corridor/CorridorPhysics';
-import DoorframePhysics from './components/Doors/DoorframePhysics';
-import MobileCorridorPhysics from './components/Corridor/MobileCorridorPhysics';
-import Ground from './components/Room/Ground';
 // Objectives
 import Window from './components/Objectives/Window';
 import Bottles from './components/Objectives/Bottles';
@@ -49,12 +42,14 @@ import RoomCurtain from './components/Curtains/RoomCurtain';
 import Player from './components/Player/Player';
 import Monster from './components/Monster/Monster';
 import Triggers from './components/Monster/Triggers';
-import ReceptionPhysics from './components/Reception/ReceptionPhysics';
+import Grid from './components/Grid';
 import ReceptionDoors from './components/Reception/ReceptionDoors';
 // import CameraShaking from './components/Player/CameraShaking';
 import Sound from './components/Sound';
 import Chair from './components/Room/Chair';
 import { regenerateData } from './utils/config';
+
+// import Posterize from './components/Posterize';
 
 function resetGame() {
 	useGame.getState().restart();
@@ -69,6 +64,9 @@ function App() {
 	const isMobile = useGame((state) => state.isMobile);
 	const roomTotal = useGame((state) => state.roomTotal);
 	// const playerPositionRoom = useGame((state) => state.playerPositionRoom);
+	const setRealPlayerPositionRoom = useGame(
+		(state) => state.setRealPlayerPositionRoom
+	);
 	const setEnd = useGame((state) => state.setEnd);
 	const deviceMode = useGame((state) => state.deviceMode);
 	const { camera } = useThree();
@@ -155,7 +153,28 @@ function App() {
 				}, 1000);
 			}
 		}
+
+		const x = camera.position.x;
+		const z = camera.position.z;
+		const isTopSide = z > 0;
+
+		const baseRoomIndex = Math.floor((x - 8) / CORRIDORLENGTH);
+		const roomIndex = isTopSide
+			? Math.abs(baseRoomIndex) - 2
+			: Math.abs(baseRoomIndex) + roomTotal / 2 - 2;
+
+		if (roomIndex >= 0 && roomIndex < roomTotal) {
+			setRealPlayerPositionRoom(roomIndex);
+		} else {
+			setRealPlayerPositionRoom(null);
+		}
 	});
+
+	const initializeIfNeeded = useGridStore((state) => state.initializeIfNeeded);
+
+	useEffect(() => {
+		initializeIfNeeded();
+	}, [initializeIfNeeded]);
 
 	return (
 		<KeyboardControls
@@ -170,69 +189,56 @@ function App() {
 				{ name: 'action', keys: ['KeyE', 'gamepad5'] },
 			]}
 		>
-			{/* {playerPositionRoom !== null && <CameraShaking />} */}
-			{/* <PointerLockControls ref={controlsRef} /> */}
-			{/* {deviceMode !== 'gamepad' && <PointerLockControls ref={controlsRef} />} */}
+			<Player />
+			<Monster />
+			<Triggers />
+			<Grid />
+			<Sound />
+
 			{deviceMode !== 'gamepad' && !isMobile && (
 				<PointerLockControls ref={controlsRef} />
 			)}
 
-			<Sound />
-			<Monster />
-			<Triggers />
+			{/* Reception */}
+			<ReceptionDoors />
+			{/* {!isMobile && ( */}
+			<Reception rotation={[0, Math.PI / 2, 0]} position={[9.805, 0, -0.15]} />
+			{/* )} */}
 
-			{/* Models */}
-			{!isMobile && (
-				<Reception
-					rotation={[0, Math.PI / 2, 0]}
-					position={[9.805, 0, -0.15]}
+			{/* Corridor */}
+			{duplicateComponents(RoomDoor)}
+
+			<group position={position}>
+				<CorridorStart position={[1.07, 0, 0]} />
+				<CorridorMiddles />
+				<CorridorEnd
+					position={[-1.19 - (roomTotal / 2 - 1) * CORRIDORLENGTH, 0, 0]}
 				/>
-			)}
+			</group>
+
+			{/* Room */}
 			<Suspense fallback={null}>
-				<Room />
-			</Suspense>
-			{!isMobile ? (
-				<group position={position}>
-					<CorridorStart position={[1.07, 0, 0]} />
-					<CorridorMiddles />
-					<CorridorEnd
-						position={[-1.19 - (roomTotal / 2 - 1) * CORRIDORLENGTH, 0, 0]}
-					/>
+				<group>
+					<Room />
+
+					{/* Doors */}
+					<BathroomDoor />
+					<NightstandDoor />
+					<DeskDoor />
+
+					{/* Curtains */}
+					<RoomCurtain />
+					<BathroomCurtain key="bathroom1" positionOffset={2} />
+					<BathroomCurtain key="bathroom2" />
+
+					{/* Objectives */}
+					<Bedsheets />
+					<Window />
+					<Bottles />
+
+					<Chair />
 				</group>
-			) : (
-				<MobileCorridor />
-			)}
-
-			{/* Curtains */}
-			<RoomCurtain />
-			<BathroomCurtain key="bathroom1" positionOffset={-2} />
-			<BathroomCurtain key="bathroom2" />
-
-			{/* Objectives */}
-			<Bedsheets />
-			<Window />
-			<Bottles />
-
-			<Physics gravity={[0, -30, 0]}>
-				<Player />
-				<Ground />
-				{/* {!isMobile ? <ReceptionPhysics /> : <MobileCorridorPhysics />}
-				<CorridorPhysics
-					position={[
-						-1.19 - (roomTotal / 2 - 1) * CORRIDORLENGTH + position[0],
-						0 + position[1],
-						0 + position[2],
-					]}
-				/>
-				<RoomPhysics />
-				<ReceptionDoors />
-				{duplicateComponents(DoorframePhysics)}
-				{duplicateComponents(RoomDoor)}
-				<BathroomDoor />
-				<NightstandDoor />
-				<DeskDoor />
-				{!isMobile && <Chair />} */}
-			</Physics>
+			</Suspense>
 		</KeyboardControls>
 	);
 }
@@ -250,13 +256,28 @@ export default function AppCanvas() {
 						near: 0.1,
 						far: 1000,
 					}}
-					shadows={isMobile ? false : true}
+					shadows
 				>
 					<App />
 					{!isMobile && (
-						<EffectComposer>
+						<EffectComposer
+						// multisamping={8}
+						// renderIndex={1}
+						// disableGamma={false}
+						// disableRenderPass={false}
+						// disableRender={false}
+						>
+							{/* <Posterize levels={64} /> */}
+
 							<ChromaticAberration offset={[0.001, 0.001]} />
-							<Vignette eskil={false} offset={0.05} darkness={1.2} />
+							<Vignette
+								eskil={false}
+								offset={0.05}
+								darkness={
+									0
+									// 1.2
+								}
+							/>
 							<Noise opacity={0.1} />
 							<Glitch
 								active={shakeIntensity}

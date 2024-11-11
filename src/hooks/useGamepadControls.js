@@ -1,4 +1,5 @@
-import { useEffect, useRef, useCallback } from 'react';
+import { useRef, useCallback } from 'react';
+import { useFrame } from '@react-three/fiber';
 import useGame from './useGame';
 
 const useGamepadControls = () => {
@@ -43,10 +44,6 @@ const useGamepadControls = () => {
 				controlsRef.current.backward = leftStickY > 0.1;
 
 				// Rotation de la caméra
-				// controlsRef.current.lookLeft = rightStickX;
-				// controlsRef.current.lookRight = rightStickX;
-				// controlsRef.current.lookUp = rightStickY;
-				// controlsRef.current.lookDown = rightStickY;
 				controlsRef.current.rightStickX = rightStickX;
 				controlsRef.current.rightStickY = rightStickY;
 
@@ -59,26 +56,9 @@ const useGamepadControls = () => {
 		}
 	}, [deviceMode, setDeviceMode]);
 
-	useEffect(() => {
-		const handleKeyboardInput = (event) => {
-			if (event.code) {
-				setDeviceMode('keyboard');
-			}
-		};
-
-		const gamepadLoop = () => {
-			handleGamepadInput();
-			requestAnimationFrame(gamepadLoop);
-		};
-
-		gamepadLoop();
-		window.addEventListener('keydown', handleKeyboardInput);
-
-		return () => {
-			cancelAnimationFrame(gamepadLoop);
-			window.removeEventListener('keydown', handleKeyboardInput);
-		};
-	}, [controlsRef, deviceMode, setDeviceMode, handleGamepadInput]);
+	useFrame(() => {
+		handleGamepadInput();
+	});
 
 	return () => controlsRef.current;
 };

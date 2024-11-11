@@ -5,9 +5,10 @@ import useGame from '../../hooks/useGame';
 import useInterface from '../../hooks/useInterface';
 import * as THREE from 'three';
 import DetectionZone from '../DetectionZone';
+import FabricMaterial from '../FabricMaterial';
 
 const CORRIDORLENGTH = 5.95;
-const offset = [8.8, -0.02, 6.2];
+const offset = [8.833, 0.014, 6.2];
 
 export default function Bedsheets() {
 	const roomNumber = useGame((state) => state.playerPositionRoom);
@@ -16,11 +17,10 @@ export default function Bedsheets() {
 	const playerPositionRoom = useGame((state) => state.playerPositionRoom);
 	const [isDetected, setIsDetected] = useState(false);
 	const group = useRef();
-	const { nodes, materials, animations } = useGLTF(
-		'/models/objectives/bedsheets.glb'
-	);
+	const { nodes, animations } = useGLTF('/models/objectives/bedsheets.glb');
 	const mixerRef = useRef(new THREE.AnimationMixer(null));
-	const [visibleMesh, setVisibleMesh] = useState('Plane005');
+	const [visibleMesh, setVisibleMesh] = useState('Start');
+	const material = FabricMaterial({ isGrayscale: false });
 	const tutorialObjectives = useInterface((state) => state.tutorialObjectives);
 	const setTutorialObjectives = useInterface(
 		(state) => state.setTutorialObjectives
@@ -36,7 +36,7 @@ export default function Bedsheets() {
 	const bedsheetsSoundRef = useRef();
 
 	const animationMeshClone = useMemo(() => {
-		return nodes.Plane004.clone();
+		return nodes.Animated.clone();
 	}, [nodes]);
 
 	const position = useMemo(() => {
@@ -61,7 +61,7 @@ export default function Bedsheets() {
 		if (camera.position.x > 8) {
 			calculatedPosition = [14.5, 0, 14.5];
 		} else if (camera.position.x <= 8 && camera.position.x > 4.4) {
-			calculatedPosition = [3.02, -0.02, 7.9];
+			calculatedPosition = [3.02, 0, 7.9];
 		}
 
 		return calculatedPosition;
@@ -75,16 +75,17 @@ export default function Bedsheets() {
 					if (clip.name === 'Bedsheets') {
 						const action = mixer.clipAction(clip);
 						action.clampWhenFinished = true;
-						action.timeScale = 4;
+						action.timeScale = 1;
 						action.loop = THREE.LoopOnce;
 						action.repetitions = 1;
-						action.time = 1.25;
+						// action.time = 1.25;
+						action.time = 0;
 						action.play();
 					}
 				});
 				mixerRef.current = mixer;
-				if (visibleMesh === 'Plane005') {
-					setVisibleMesh('Plane004');
+				if (visibleMesh === 'Start') {
+					setVisibleMesh('Animated');
 
 					if (bedsheetsSoundRef.current) {
 						bedsheetsSoundRef.current.play();
@@ -100,7 +101,7 @@ export default function Bedsheets() {
 						} else {
 							setInterfaceObjectives(1, roomNumber);
 						}
-					}, 500);
+					}, 1000);
 				}
 			}
 		};
@@ -123,13 +124,13 @@ export default function Bedsheets() {
 
 	useEffect(() => {
 		if (objective === false && isInit.current === true) {
-			setVisibleMesh('Plane005');
+			setVisibleMesh('Start');
 			mixerRef.current.stopAllAction();
-			mixerRef.current.setTime(1);
+			mixerRef.current.setTime(0);
 		} else {
 			isInit.current = true;
 			if (objective) {
-				setVisibleMesh('Plane006');
+				setVisibleMesh('End');
 			}
 		}
 	}, [objective, roomNumber]);
@@ -138,13 +139,13 @@ export default function Bedsheets() {
 
 	// useEffect(() => {
 	// 	if (tutorialObjectives[1] === false && tutorialInit.current === true) {
-	// 		setVisibleMesh('Plane005');
+	// 		setVisibleMesh('Start');
 	// 		mixerRef.current.stopAllAction();
 	// 		mixerRef.current.setTime(1);
 	// 	} else {
 	// 		tutorialInit.current = true;
 	// 		if (tutorialObjectives[1] === true) {
-	// 			setVisibleMesh('Plane006');
+	// 			setVisibleMesh('End');
 	// 		}
 	// 	}
 	// }, [tutorialObjectives, roomNumber]);
@@ -152,12 +153,12 @@ export default function Bedsheets() {
 	useFrame((_, delta) => {
 		if (mixerRef.current) {
 			mixerRef.current.update(delta);
-			if (visibleMesh === 'Plane004') {
+			if (visibleMesh === 'Animated') {
 				const action = mixerRef.current.existingAction(
 					animations.find((a) => a.name === 'Bedsheets')
 				);
 				if (action && action.time === action.getClip().duration) {
-					setVisibleMesh('Plane006');
+					setVisibleMesh('End');
 				}
 			}
 		}
@@ -193,29 +194,25 @@ export default function Bedsheets() {
 				onDetectEnd={handleDetectionEnd}
 			/>
 
-			<group name="Scene">
+			<group scale={0.96} name="Scene">
 				<mesh
-					visible={visibleMesh === 'Plane006'}
-					name="Plane006"
-					geometry={nodes.Plane006.geometry}
-					material={materials['Material.004']}
-					castShadow
-					receiveShadow
+					visible={visibleMesh === 'End'}
+					name="End"
+					geometry={nodes.End.geometry}
+					material={material}
 				/>
 				<mesh
-					visible={visibleMesh === 'Plane005'}
-					name="Plane005"
-					geometry={nodes.Plane005.geometry}
-					material={materials['Material.004']}
-					castShadow
-					receiveShadow
+					visible={visibleMesh === 'Start'}
+					name="Start"
+					geometry={nodes.Start.geometry}
+					material={material}
 				/>
 				<primitive
-					visible={visibleMesh === 'Plane004'}
+					position={[0, 0.05, 0]}
+					visible={visibleMesh === 'Animated'}
 					object={animationMeshClone}
-					frustumCulled={false}
-					castShadow
-					receiveShadow
+					material={material}
+					doubleSided={true}
 				/>
 			</group>
 			<PositionalAudio

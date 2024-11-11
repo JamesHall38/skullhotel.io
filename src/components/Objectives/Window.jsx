@@ -9,7 +9,7 @@ import levelData from '../../data/levelData';
 import DetectionZone from '../DetectionZone';
 
 const CORRIDORLENGTH = 5.95;
-const offset = [8.43, 1.2, 11.52];
+const offset = [8.43, 1.13, 12];
 
 export default function Window() {
 	const roomCurtain = useDoor((state) => state.roomCurtain);
@@ -82,9 +82,9 @@ export default function Window() {
 		}
 
 		if (camera.position.x > 8) {
-			calculatedPosition = [14.5, 0, 14.5];
+			calculatedPosition = [14.5, -0.07, 15];
 		} else if (camera.position.x <= 8 && camera.position.x > 4.4) {
-			calculatedPosition = [3.4, 1.2, 13.24];
+			calculatedPosition = [3.4, 1.13, 13.74];
 		}
 
 		return calculatedPosition;

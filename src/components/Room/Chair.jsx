@@ -1,6 +1,5 @@
-import React, { useRef, useMemo, useEffect } from 'react';
+import React, { useMemo } from 'react';
 import { useGLTF } from '@react-three/drei';
-import { RigidBody, BallCollider } from '@react-three/rapier';
 import { useThree } from '@react-three/fiber';
 import useGame from '../../hooks/useGame';
 
@@ -9,7 +8,6 @@ const offset = [8.83, 0, 6.2];
 
 export default function Chair() {
 	const { nodes, materials } = useGLTF('/models/room/chair.glb');
-	const chairRef = useRef();
 	const { camera } = useThree();
 	const playerPositionRoom = useGame((state) => state.playerPositionRoom);
 	const roomTotal = useGame((state) => state.roomTotal);
@@ -42,30 +40,10 @@ export default function Chair() {
 		return calculatedPosition;
 	}, [playerPositionRoom, roomTotal, camera.position.x]);
 
-	useEffect(() => {
-		if (chairRef.current) {
-			const rigidBody = chairRef.current;
-			rigidBody.setTranslation({
-				x: position[0],
-				y: position[1],
-				z: position[2],
-			});
-			rigidBody.setRotation({ x: 0, y: 0, z: 0, w: 1 });
-			rigidBody.setLinvel({ x: 0, y: 0, z: 0 });
-			rigidBody.setAngvel({ x: 0, y: 0, z: 0 });
-		}
-	}, [position]);
-
 	return (
-		<RigidBody
-			ref={chairRef}
-			colliders="hull"
-			mass={10}
-			type="dynamic"
-			position={position}
-		>
+		<group position={position}>
 			<group dispose={null}>
-				<group position={[3.568, 0.2, -0.609]}>
+				<group position={[3.568, 0.3, -0.609]}>
 					<mesh
 						castShadow
 						receiveShadow
@@ -80,11 +58,7 @@ export default function Chair() {
 					/>
 				</group>
 			</group>
-			<BallCollider args={[0.1]} position={[3.3, 0, -0.4]} />
-			<BallCollider args={[0.1]} position={[3.8, 0, -0.4]} />
-			<BallCollider args={[0.1]} position={[3.3, 0, -0.8]} />
-			<BallCollider args={[0.1]} position={[3.8, 0, -0.8]} />
-		</RigidBody>
+		</group>
 	);
 }
 

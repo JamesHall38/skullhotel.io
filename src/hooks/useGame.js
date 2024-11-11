@@ -31,6 +31,9 @@ const useGameStore = create(
 
 		// Room
 		roomTotal: roomNumber,
+		realPlayerPositionRoom: null,
+		setRealPlayerPositionRoom: (position) =>
+			set(() => ({ realPlayerPositionRoom: position })),
 		playerPositionRoom: null,
 		setPlayerPositionRoom: (position) =>
 			set(() => ({ playerPositionRoom: position })),

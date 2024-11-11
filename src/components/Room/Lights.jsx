@@ -133,20 +133,21 @@ export default function Lights() {
 				<group>
 					<pointLight
 						position={[1.5, 2, 0]}
-						intensity={roomLight ? 4 : 0}
+						intensity={roomLight ? 1.2 : 0}
 						castShadow
 						shadow-mapSize-width={1024}
 						shadow-mapSize-height={1024}
 						shadow-camera-near={0.1}
 						shadow-camera-far={50}
-						color={isRedLight ? 'red' : 'white'}
+						color={isRedLight ? '#ff0000' : '#fff5e6'}
 					/>
 					<pointLight
 						position={[-1, 2, -3.2]}
-						intensity={delayedBathroomLight ? 0.4 : 0}
+						intensity={delayedBathroomLight ? 0.3 : 0}
 						castShadow
 						shadow-camera-near={0.1}
 						shadow-camera-far={50}
+						color="#fff5e6"
 					/>
 				</group>
 			)}

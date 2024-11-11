@@ -5,60 +5,26 @@ import * as THREE from 'three';
 import useDoor from '../../hooks/useDoor';
 import useGame from '../../hooks/useGame';
 import useInterface from '../../hooks/useInterface';
+import WoodMaterial from '../WoodMaterial';
 
 const Door = () => {
 	const { nodes, materials } = useGLTF('/models/doors/door.glb');
+	const woodMaterial = WoodMaterial();
+	const lockMaterial = useMemo(
+		() => new THREE.MeshBasicMaterial({ color: '#ff0000' }),
+		[]
+	);
+
 	return (
 		<group>
-			<mesh
-				castShadow
-				receiveShadow
-				geometry={nodes.Lock.geometry}
-				material={new THREE.MeshBasicMaterial({ color: '#ff0000' })}
-			/>
-
-			<mesh
-				castShadow
-				receiveShadow
-				geometry={nodes.Handles.geometry}
-				material={materials.Handle}
-			/>
-			<mesh
-				castShadow
-				receiveShadow
-				geometry={nodes.Cube003.geometry}
-				material={materials.Frame}
-			/>
-			<mesh
-				castShadow
-				receiveShadow
-				geometry={nodes.Cube003_1.geometry}
-				material={materials.Handle}
-			/>
-			<mesh
-				castShadow
-				receiveShadow
-				geometry={nodes.Cube003_2.geometry}
-				material={materials.Metal}
-			/>
-			<mesh
-				castShadow
-				receiveShadow
-				geometry={nodes.Cube003_3.geometry}
-				material={materials.Lock}
-			/>
-			<mesh
-				castShadow
-				receiveShadow
-				geometry={nodes.Cube003_4.geometry}
-				material={materials.Wood}
-			/>
-			<mesh
-				castShadow
-				receiveShadow
-				geometry={nodes.Cube003_5.geometry}
-				material={materials.Plastic}
-			/>
+			<mesh geometry={nodes.Cube003_4.geometry} material={woodMaterial} />
+			<mesh geometry={nodes.Lock.geometry} material={lockMaterial} />
+			<mesh geometry={nodes.Handles.geometry} material={materials.Handle} />
+			<mesh geometry={nodes.Cube003.geometry} material={materials.Frame} />
+			<mesh geometry={nodes.Cube003_1.geometry} material={materials.Handle} />
+			<mesh geometry={nodes.Cube003_2.geometry} material={materials.Metal} />
+			<mesh geometry={nodes.Lock.geometry} material={materials.Lock} />
+			<mesh geometry={nodes.Cube003_5.geometry} material={materials.Plastic} />
 		</group>
 	);
 };
@@ -87,6 +53,8 @@ export default function ReceptionDoors() {
 		).length;
 	}, [objectives]);
 
+	const initialPosition = 0.5;
+
 	return (
 		<group>
 			<DoorWrapper
@@ -106,7 +74,7 @@ export default function ReceptionDoors() {
 					} else {
 						if (tutorialObjectives.every((value) => value === true)) {
 							setCorridorDoor(value);
-							setPlayerPositionRoom(0.5);
+							setPlayerPositionRoom(initialPosition);
 						} else {
 							if (currentDialogueIndex !== 0) {
 								setCurrentDialogueIndex(0);
@@ -126,7 +94,7 @@ export default function ReceptionDoors() {
 						isOpen={tutorialDoor}
 						setOpen={(value) => {
 							setTutorialDoor(value);
-							setPlayerPositionRoom(0.5);
+							setPlayerPositionRoom(initialPosition);
 						}}
 					>
 						<Door />
@@ -135,7 +103,7 @@ export default function ReceptionDoors() {
 						offset={[10.025, 0.965, -3.85]}
 						isOpen={exitDoor}
 						setOpen={(value) => {
-							if (doneObjectives === 10) {
+							if (doneObjectives >= 10) {
 								setExitDoor(value);
 							} else {
 								if (currentDialogueIndex !== 0) {

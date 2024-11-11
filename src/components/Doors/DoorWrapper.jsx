@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState, useMemo } from 'react';
-import { RigidBody } from '@react-three/rapier';
 import { useFrame } from '@react-three/fiber';
 import { PositionalAudio } from '@react-three/drei';
 import useGame from '../../hooks/useGame';
@@ -104,19 +103,14 @@ export default function DoorWrapper({
 
 	useEffect(() => {
 		if (doorRef.current) {
-			const newPosition = new THREE.Vector3(
-				position[0],
-				position[1],
-				position[2]
-			);
-			doorRef.current.setNextKinematicTranslation(newPosition);
+			doorRef.current.position.set(position[0], position[1], position[2]);
 		}
 	}, [position]);
 
 	useFrame(({ camera }, delta) => {
 		if (!doorRef.current) return;
 
-		const doorPosition = doorRef.current.translation();
+		const doorPosition = doorRef.current.position;
 		const distance = new THREE.Vector3(
 			doorPosition.x,
 			doorPosition.y,
@@ -169,19 +163,13 @@ export default function DoorWrapper({
 		const quaternion = new THREE.Quaternion();
 		quaternion.setFromEuler(new THREE.Euler(0, initialRotationY + newAngle, 0));
 		if (doorRef.current) {
-			doorRef.current.setNextKinematicRotation(quaternion);
+			doorRef.current.setRotationFromQuaternion(quaternion);
 		}
 	});
 
 	return (
 		<group dispose={null}>
-			<RigidBody
-				friction={0}
-				restitution={0.2}
-				type="kinematicPosition"
-				ref={doorRef}
-				colliders="cuboid"
-			>
+			<group ref={doorRef}>
 				{hasInitialized && (
 					<group>
 						<PositionalAudio
@@ -218,7 +206,7 @@ export default function DoorWrapper({
 				<group ref={group} dispose={null}>
 					{children}
 				</group>
-			</RigidBody>
+			</group>
 		</group>
 	);
 }

@@ -3,6 +3,8 @@ import { useGLTF, useTexture } from '@react-three/drei';
 import useGame from '../../hooks/useGame';
 import * as THREE from 'three';
 
+const LIGHT_INTENSITY = 4;
+
 function BathroomMain({ invert, ...props }) {
 	const { scene: originalScene } = useGLTF('/models/room/bathroom.glb');
 	const bathroomLight = useGame((state) => state.bathroomLight);
@@ -37,7 +39,6 @@ function BathroomMain({ invert, ...props }) {
 					roughnessMap,
 					lightMap,
 					bumpScale: 8,
-					lightMapIntensity: 6,
 				});
 
 				child.castShadow = true;
@@ -61,7 +62,7 @@ function BathroomMain({ invert, ...props }) {
 		if (bathroomLight) {
 			let intensity = 0;
 			intervalId = setInterval(() => {
-				intensity = Math.random() * 3;
+				intensity = Math.random() * LIGHT_INTENSITY;
 				setLightIntensity(intensity);
 			}, 50);
 
@@ -71,7 +72,7 @@ function BathroomMain({ invert, ...props }) {
 
 			timeoutRef.current = setTimeout(() => {
 				clearInterval(intervalId);
-				setLightIntensity(6);
+				setLightIntensity(LIGHT_INTENSITY);
 			}, 1600);
 		} else {
 			if (intervalId) clearInterval(intervalId);
