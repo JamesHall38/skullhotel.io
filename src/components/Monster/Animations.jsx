@@ -2,10 +2,21 @@ import { useCallback, useEffect, useRef } from 'react';
 import { useAnimations } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
 import useMonster from '../../hooks/useMonster';
+import useGame from '../../hooks/useGame';
+import useInterface from '../../hooks/useInterface';
+import useDoor from '../../hooks/useDoor';
+
+function resetGame() {
+	useGame.getState().restart();
+	useInterface.getState().restart();
+	useDoor.getState().restart();
+	useMonster.getState().restart();
+}
 
 export default function Animations({ group, animations }) {
 	const { actions } = useAnimations(animations, group);
 	const previousAnimationRef = useRef('Idle');
+	const setOpenDeathScreen = useGame((state) => state.setOpenDeathScreen);
 
 	const monsterState = useMonster((state) => state.monsterState);
 	const animationMixSpeed = useMonster((state) => state.animationMixSpeed);
@@ -35,6 +46,10 @@ export default function Animations({ group, animations }) {
 		}
 		if (animationName === 'Idle') {
 			actions[animationName].reset();
+		}
+		if (animationName === 'Attack') {
+			actions[animationName].reset();
+			actions[animationName].timeScale = 1;
 		}
 	}, [actions, animationName]);
 
@@ -92,6 +107,17 @@ export default function Animations({ group, animations }) {
 	useFrame((_, delta) => {
 		if (!group.current) return;
 		animationMixTransition(delta);
+
+		if (animationName === 'Attack') {
+			const attackAction = actions['Attack'];
+			if (
+				attackAction &&
+				attackAction.time >= attackAction._clip.duration - 0.01
+			) {
+				setOpenDeathScreen(true);
+				resetGame();
+			}
+		}
 	});
 
 	return null;

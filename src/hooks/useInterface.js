@@ -8,7 +8,10 @@ const useInterfaceStore = create(
 		setCursor: (cursor) => set(() => ({ cursor })),
 
 		// Objectives
-		tutorialObjectives: [false, false, false],
+		tutorialObjectives:
+			window.location.hash === '#debug'
+				? [true, true, true]
+				: [false, false, false],
 		// tutorialObjectives: [true, true, true],
 		setTutorialObjectives: (objective) =>
 			set(() => ({ tutorialObjectives: objective })),
@@ -20,7 +23,9 @@ const useInterfaceStore = create(
 		setInterfaceObjectives: (objective, number) => {
 			set((state) => {
 				const newObjectives = [...state.interfaceObjectives];
-				newObjectives[number][objective] = true;
+				if (newObjectives[number]) {
+					newObjectives[number][objective] = true;
+				}
 				return { interfaceObjectives: newObjectives };
 			});
 		},

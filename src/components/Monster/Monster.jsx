@@ -1,134 +1,38 @@
-import { useMemo, useRef, useEffect, useCallback, useState } from 'react';
-import { useGLTF, PositionalAudio } from '@react-three/drei';
-import { useFrame, useThree } from '@react-three/fiber';
+import { useRef, useEffect, useCallback, useState } from 'react';
+import { useGLTF } from '@react-three/drei';
+import { useFrame } from '@react-three/fiber';
 import Blood from './Blood';
-import useGame from '../../hooks/useGame';
-import useMonster from '../../hooks/useMonster';
-import useDoor from '../../hooks/useDoor';
 import * as THREE from 'three';
 import Animations from './Animations';
+import useMonster from '../../hooks/useMonster';
+import useGame from '../../hooks/useGame';
+import { findPath } from './pathfinding';
 
-const CORRIDORLENGTH = 5.95;
-const INTENSITY = 4;
-const offset = [3, 0, 6.2];
+const BASE_SPEED = 2;
+const CHASE_SPEED = 0.5;
+const NEXT_POINT_THRESHOLD = 0.5;
+const MIN_DISTANCE_FOR_RECALCULATION = 2;
+const ATTACK_DISTANCE = 0.8;
 
 const Monster = (props) => {
 	const group = useRef();
 	const { nodes, materials, animations } = useGLTF('/models/monster.glb');
-	const resetTriggered = useRef(false);
-	const [isVisible, setIsVisible] = useState(true);
-	const breathingSoundRef = useRef();
-	const { camera } = useThree();
-
-	// Game state
 	const seedData = useGame((state) => state.seedData);
 	const playerPositionRoom = useGame((state) => state.playerPositionRoom);
-	const roomTotal = useGame((state) => state.roomTotal);
-	const setShakeIntensity = useGame((state) => state.setShakeIntensity);
-	const roomDoor = useDoor((state) => state.roomDoor);
-	const loading = useGame((state) => state.loading);
-	const deaths = useGame((state) => state.deaths);
-	const setOpenDeathScreen = useGame((state) => state.setOpenDeathScreen);
-
-	// Animation
-	const playAnimation = useMonster((state) => state.playAnimation);
-	const animationName = useMonster((state) => state.animationName);
-
-	// Monster state
 	const monsterState = useMonster((state) => state.monsterState);
-	const setMonsterState = useMonster((state) => state.setMonsterState);
 	const monsterPosition = useMonster((state) => state.monsterPosition);
-	const setMonsterPosition = useMonster((state) => state.setMonsterPosition);
 	const monsterRotation = useMonster((state) => state.monsterRotation);
-	const setMonsterRotation = useMonster((state) => state.setMonsterRotation);
-
-	const type = seedData[playerPositionRoom]?.type;
-	const number = seedData[playerPositionRoom]?.number;
-
-	const jumpScareSoundRef = useRef(new Audio('/sounds/jump_scare.ogg'));
-
-	const position = useMemo(() => {
-		if (playerPositionRoom >= roomTotal / 2)
-			return [
-				offset[0] -
-					CORRIDORLENGTH -
-					(playerPositionRoom - roomTotal / 2) * CORRIDORLENGTH,
-				offset[1],
-				offset[2],
-			];
-		else
-			return [
-				offset[0] - 5.91 - playerPositionRoom * CORRIDORLENGTH,
-				offset[1],
-				offset[2],
-			];
-	}, [playerPositionRoom, roomTotal]);
-
-	// Position
-	useEffect(() => {
-		if (!seedData[playerPositionRoom] || seedData[playerPositionRoom]?.empty)
-			return;
-
-		const isFacingRoom = playerPositionRoom >= roomTotal / 2;
-		const initialPosition = [
-			position[0] +
-				(seedData[playerPositionRoom].monsterInitialPosition?.[0] || 0),
-			position[1] +
-				(seedData[playerPositionRoom].monsterInitialPosition?.[1] || 0),
-			position[2] +
-				(seedData[playerPositionRoom].monsterInitialPosition?.[2] || 0),
-		];
-
-		const getAdjustedPosition = (initialPosition, isFacingRoom) => {
-			if (!isFacingRoom) return initialPosition;
-			return [
-				-initialPosition[0] -
-					CORRIDORLENGTH * 2 * (playerPositionRoom - roomTotal / 2) -
-					0.1,
-				initialPosition[1],
-				-initialPosition[2],
-			];
-		};
-
-		const newPosition = getAdjustedPosition(initialPosition, isFacingRoom);
-
-		setMonsterState(
-			[0, 1, 5].includes(type)
-				? seedData[playerPositionRoom].trigger?.frozen
-					? 'frozen'
-					: 'hidden'
-				: 'frozen'
-		);
-		setMonsterPosition([newPosition[0], newPosition[1], newPosition[2]]);
-		setMonsterRotation([
-			(seedData[playerPositionRoom].monsterInitialRotation?.[0] || 0) *
-				(playerPositionRoom >= roomTotal / 2 ? -1 : 1),
-			(seedData[playerPositionRoom].monsterInitialRotation?.[1] || 0) +
-				(playerPositionRoom >= roomTotal / 2 ? Math.PI : 0),
-			(seedData[playerPositionRoom].monsterInitialRotation?.[2] || 0) +
-				(playerPositionRoom >= roomTotal / 2 ? 0 : 0),
-		]);
-		playAnimation(seedData[playerPositionRoom].animation);
-	}, [
-		seedData,
-		playAnimation,
-		position,
-		setMonsterPosition,
-		setMonsterRotation,
-		setMonsterState,
-		type,
-		roomTotal,
-		playerPositionRoom,
-	]);
-
-	useEffect(() => {
-		setMonsterPosition([0, 10, 0]);
-	}, [setMonsterPosition, deaths]);
+	const playAnimation = useMonster((state) => state.playAnimation);
+	const setIsAttacking = useMonster((state) => state.setIsAttacking);
+	const setAnimationSpeed = useMonster((state) => state.setAnimationSpeed);
+	const [currentPath, setCurrentPath] = useState(null);
+	const headBoneRef = useRef();
+	const lastTargetRef = useRef({ x: 0, z: 0 });
 
 	const lookAtCamera = useCallback((camera) => {
 		const targetPosition = new THREE.Vector3(
 			camera.position.x,
-			group.current.position.y,
+			0,
 			camera.position.z
 		);
 		group.current.lookAt(
@@ -139,325 +43,271 @@ const Monster = (props) => {
 	}, []);
 
 	const runAtCamera = useCallback(
-		(camera) => {
-			if (
-				type !== 5 ||
-				(number !== 2
-					? (roomDoor[playerPositionRoom] &&
-							Math.abs(camera.position.z) < 1.4) ||
-					  Math.abs(camera.position.z) > 1.4
-					: (roomDoor[playerPositionRoom] &&
-							Math.abs(camera.position.z) > 4.3) ||
-					  group.current.position.x - position[0] < 8)
-			) {
-				const groupPos = group.current.position;
-				const camPos = new THREE.Vector3(
-					camera.position.x,
-					groupPos.y,
-					camera.position.z
-				);
-
-				group.current.lookAt(camPos);
-
-				const direction = new THREE.Vector3()
-					.subVectors(camPos, groupPos)
-					.normalize();
-				const distance = groupPos.distanceTo(camPos);
-				const minDistance = 0.75;
-
-				if (distance > minDistance) {
-					const speed = monsterState === 'run' ? 0.05 : 0.01;
-					group.current.position.add(direction.multiplyScalar(speed));
-				} else if (distance <= minDistance) {
-					group.current.position.add(direction.multiplyScalar(-0.02));
-				}
-
-				if (monsterState === 'crawl') {
-					const targetY =
-						Math.abs(group.current.position.z) > 5 &&
-						Math.abs(group.current.position.z) < 8
-							? 2.4
-							: 1.65;
-
-					group.current.position.y = THREE.MathUtils.lerp(
-						group.current.position.y,
-						targetY,
-						0.05
-					);
-				}
-
-				if (
-					(monsterState === 'chase' || monsterState === 'crawl') &&
-					(number === 2 || number === 3 || number === 4)
-				) {
-					const monsterIsBathroomSide = Math.abs(group.current.position.z) < 5;
-					const monsterIsCorridorSide =
-						playerPositionRoom < roomTotal / 2
-							? Math.abs(group.current.position.x) - Math.abs(position[0]) <
-							  -1.8
-							: Math.abs(group.current.position.x) - Math.abs(position[0]) >
-							  -4.2;
-					const monsterIsWindowSide = Math.abs(group.current.position.z) > 8;
-					const monsterIsSkullSide =
-						playerPositionRoom < roomTotal / 2
-							? Math.abs(group.current.position.x) - Math.abs(position[0]) > -1
-							: Math.abs(group.current.position.x) - Math.abs(position[0]) <
-							  -4.8;
-
-					if (monsterIsWindowSide && monsterIsSkullSide) {
-						group.current.position.z =
-							playerPositionRoom > roomTotal / 2 ? -9 : 9;
-					}
-
-					if (monsterIsBathroomSide && !monsterIsCorridorSide) {
-						group.current.position.z =
-							playerPositionRoom > roomTotal / 2 ? -5 : 5;
-					}
-				}
-			}
-		},
-		[
-			type,
-			number,
-			roomDoor,
-			playerPositionRoom,
-			position,
-			monsterState,
-			roomTotal,
-		]
-	);
-
-	const hiddenState = useCallback((camera) => {
-		const targetPosition = new THREE.Vector3(
-			camera.position.x,
-			group.current.position.y,
-			camera.position.z
-		);
-
-		group.current.lookAt(
-			targetPosition.x,
-			group.current.position.y,
-			targetPosition.z
-		);
-	}, []);
-
-	const runState = useCallback(
-		(camera) => {
-			const monsterPosition = new THREE.Vector3().setFromMatrixPosition(
-				group.current.matrixWorld
+		(camera, delta, mode = 'run') => {
+			const speed = mode === 'chase' ? CHASE_SPEED : BASE_SPEED;
+			const targetPosition = new THREE.Vector3(
+				camera.position.x,
+				group.current.position.y,
+				camera.position.z
 			);
-			const distance = camera.position.distanceTo(monsterPosition);
 
-			if (distance > 1.36) {
-				lookAtCamera(camera);
-				runAtCamera(camera);
-			} else {
-				const direction = new THREE.Vector3()
-					.subVectors(group.current.position, camera.position)
+			const distanceToCamera =
+				group.current.position.distanceTo(targetPosition);
+
+			if (distanceToCamera <= ATTACK_DISTANCE) {
+				setIsAttacking(true);
+				playAnimation('Attack');
+				setAnimationSpeed(1);
+
+				const direction = new THREE.Vector3();
+				direction
+					.subVectors(group.current.position, targetPosition)
 					.normalize();
 
-				const targetPosition = new THREE.Vector3().addVectors(
-					camera.position,
-					direction.multiplyScalar(1.36)
-				);
+				const distanceToMove = (ATTACK_DISTANCE - distanceToCamera) * delta;
+				group.current.position.x += direction.x * distanceToMove;
+				group.current.position.y = 0.08;
+				group.current.position.z += direction.z * distanceToMove;
 
-				group.current.position.set(
+				camera.position.y = 1.585;
+
+				group.current.lookAt(
 					targetPosition.x,
 					group.current.position.y,
 					targetPosition.z
 				);
 
-				if (!resetTriggered.current) {
-					resetTriggered.current = true;
-					setTimeout(() => {
-						setMonsterPosition([0, 10, 0]);
-						setMonsterState('hidden');
-						playAnimation('Idle');
-						setOpenDeathScreen(true);
-						resetTriggered.current = false;
-					}, 1200);
-				}
-			}
-
-			if (distance < 2.5) {
-				setShakeIntensity(INTENSITY);
-				setMonsterState('run');
 				camera.lookAt(
-					monsterPosition.x,
-					monsterPosition.y + 1.15,
-					monsterPosition.z
+					group.current.position.x,
+					group.current.position.y + 1.42,
+					group.current.position.z
 				);
-
-				group.current.position.y = camera.position.y - 1.15;
-				group.current.rotation.x = 0;
-				group.current.rotation.z = 0;
-				lookAtCamera(camera);
-
-				if (animationName !== 'Attack' && !loading) {
-					jumpScareSoundRef.current.play();
-					playAnimation('Attack');
-				}
 			} else {
-				resetTriggered.current = false;
-			}
-		},
-		[
-			lookAtCamera,
-			runAtCamera,
-			loading,
-			setShakeIntensity,
-			setMonsterState,
-			animationName,
-			playAnimation,
-			setOpenDeathScreen,
-			setMonsterPosition,
-		]
-	);
+				if (monsterState !== 'chase') {
+					playAnimation('Run');
+				} else {
+					playAnimation('Walk');
+				}
 
-	const handleState = useCallback(
-		(camera) => {
-			switch (monsterState) {
-				case 'hidden':
-					hiddenState(camera);
-					break;
-				case 'frozen':
-					if (type === 1 && (number === 10 || number === 11)) {
-					} else {
-						if (
-							type === 3 &&
-							(Math.abs(camera.position.z) > 1.4 || number === 4)
-						) {
-							lookAtCamera(camera);
-						} else if (type !== 2 && type !== 4) {
-							group.current.lookAt(
-								group.current.position.x,
-								group.current.position.y,
-								group.current.position.z +
-									(playerPositionRoom > roomTotal / 2 ? -1 : 1)
-							);
+				if (mode === 'run') {
+					const direction = new THREE.Vector3(
+						camera.position.x - group.current.position.x,
+						0,
+						camera.position.z - group.current.position.z
+					).normalize();
+
+					const moveSpeed = speed * delta;
+					group.current.position.add(direction.multiplyScalar(moveSpeed));
+
+					group.current.lookAt(
+						camera.position.x,
+						group.current.position.y,
+						camera.position.z
+					);
+				} else {
+					const offsetX = 600;
+					const offsetZ = 150;
+
+					const monsterX = group.current.position.x * 10 + offsetX;
+					const monsterZ = group.current.position.z * 10 + offsetZ;
+					const targetX = camera.position.x * 10 + offsetX;
+					const targetZ = camera.position.z * 10 + offsetZ;
+
+					const distanceMoved = Math.sqrt(
+						Math.pow(lastTargetRef.current.x - targetX, 2) +
+							Math.pow(lastTargetRef.current.z - targetZ, 2)
+					);
+
+					if (!currentPath || distanceMoved > MIN_DISTANCE_FOR_RECALCULATION) {
+						const newPath = findPath(monsterX, monsterZ, targetX, targetZ);
+						setCurrentPath(newPath);
+						lastTargetRef.current = { x: targetX, z: targetZ };
+					}
+
+					if (currentPath && currentPath.length > 1) {
+						const nextPoint = currentPath[1];
+
+						const direction = new THREE.Vector3(
+							(nextPoint.x - offsetX) / 10 - group.current.position.x,
+							0,
+							(nextPoint.z - offsetZ) / 10 - group.current.position.z
+						).normalize();
+
+						const moveSpeed = speed * delta;
+
+						group.current.position.add(direction.multiplyScalar(moveSpeed));
+
+						lookAtCamera(camera);
+
+						const distanceToNextPoint = Math.sqrt(
+							Math.pow(
+								(nextPoint.x - offsetX) / 10 - group.current.position.x,
+								2
+							) +
+								Math.pow(
+									(nextPoint.z - offsetZ) / 10 - group.current.position.z,
+									2
+								)
+						);
+
+						if (distanceToNextPoint < NEXT_POINT_THRESHOLD) {
+							setCurrentPath(currentPath.slice(1));
 						}
 					}
-					break;
-				case 'run':
-				case 'chase':
-				case 'crawl':
-					runState(camera);
-					break;
-				default:
-					break;
+				}
 			}
 		},
 		[
+			playAnimation,
+			currentPath,
+			setAnimationSpeed,
+			setIsAttacking,
 			monsterState,
 			lookAtCamera,
-			runState,
-			type,
-			number,
-			playerPositionRoom,
-			roomTotal,
-			hiddenState,
 		]
 	);
 
-	const isFarFromTheDoor = type ? type !== 0 : false;
-	useFrame(({ camera }) => {
-		if (!group.current) return;
-		setIsVisible(Math.abs(camera.position.z) >= 1.55 || isFarFromTheDoor);
-		handleState(camera);
-
-		// Play or stop the breathing sound based on the room's sound trigger
-		if (seedData[playerPositionRoom]?.sound && !loading) {
-			if (breathingSoundRef.current && !breathingSoundRef.current.isPlaying) {
-				breathingSoundRef.current.play();
-			}
-		} else {
-			if (breathingSoundRef.current && breathingSoundRef.current.isPlaying) {
-				breathingSoundRef.current.stop();
-			}
-		}
-	});
-
 	useEffect(() => {
-		if (!camera.userData.listener) {
-			const listener = new THREE.AudioListener();
-			camera.add(listener);
-			camera.userData.listener = listener;
-		}
-	}, [camera]);
+		if (nodes.Mesh.skeleton) {
+			const headBone = nodes.Mesh.skeleton.bones.find(
+				(bone) => bone.name === 'mixamorigHead'
+			);
 
-	useFrame(() => {
-		if (breathingSoundRef.current && group.current) {
-			const distance = camera.position.distanceTo(group.current.position);
-			if (
-				distance > 3 ||
-				(seedData[playerPositionRoom]?.type === 2 &&
-					seedData[playerPositionRoom]?.number === 5 &&
-					camera.position.z < 4) ||
-				camera.position.z < 2
-			) {
-				breathingSoundRef.current.setVolume(0);
-			} else {
-				breathingSoundRef.current.setVolume(1);
+			if (headBone) {
+				headBoneRef.current = headBone;
 			}
+		}
+	}, [nodes]);
+
+	useFrame(({ camera, clock }) => {
+		if (
+			headBoneRef.current &&
+			monsterState !== 'run' &&
+			monsterState !== 'chase' &&
+			monsterState !== 'facingCamera'
+		) {
+			const headOffset =
+				Object.values(seedData)[playerPositionRoom]?.headOffset || 0;
+			const headPosition = new THREE.Vector3();
+
+			headBoneRef.current.getWorldPosition(headPosition);
+			const targetPosition = new THREE.Vector3();
+			targetPosition.copy(camera.position);
+			const lookAtVector = new THREE.Vector3();
+			lookAtVector.subVectors(targetPosition, headPosition).normalize();
+
+			const isBottomRow =
+				playerPositionRoom >= Math.floor(Object.keys(seedData).length / 2);
+
+			const targetAngle =
+				Math.atan2(lookAtVector.x, lookAtVector.z) -
+				headOffset +
+				(isBottomRow ? Math.PI : 0);
+			const currentAngle = headBoneRef.current.rotation.y;
+
+			const angleDiff = THREE.MathUtils.degToRad(
+				(((THREE.MathUtils.radToDeg(targetAngle - currentAngle) % 360) + 540) %
+					360) -
+					180
+			);
+
+			headBoneRef.current.rotation.y = THREE.MathUtils.lerp(
+				currentAngle,
+				currentAngle + angleDiff,
+				0.1
+			);
+		}
+
+		if (monsterState === 'facingCamera') {
+			lookAtCamera(camera);
+			if (
+				Object.values(seedData)[playerPositionRoom]?.monsterInitialRotation?.[0]
+			) {
+				group.current.rotation.x = 2.7;
+				group.current.rotation.y = group.current.rotation.y / 1.5 + 0.2;
+				group.current.rotation.z = 0;
+			}
+		} else if (monsterState === 'run') {
+			runAtCamera(camera, clock.getDelta() * 100, 'run');
+		} else if (monsterState === 'chase') {
+			runAtCamera(camera, clock.getDelta() * 100, 'chase');
 		}
 	});
 
 	return (
-		<group
-			position={monsterPosition}
-			rotation={monsterRotation}
-			scale={1.1}
-			ref={group}
-			{...props}
-			dispose={null}
-			visible={isVisible}
-		>
-			<Animations group={group} animations={animations} />
-			{type === 4 && (number === 0 || number === 1 || number === 2) && (
-				<Blood />
-			)}
-			<group name="Scene">
-				<group name="Armature" rotation={[Math.PI / 2, 0, 0]} scale={0.01}>
-					<group name="Ch30">
-						<skinnedMesh
-							frustumCulled={false}
-							castShadow
-							receiveShadow
-							name="Mesh"
-							geometry={nodes.Mesh.geometry}
-							material={materials.Ch30_Body1}
-							skeleton={nodes.Mesh.skeleton}
-						/>
-						<skinnedMesh
-							frustumCulled={false}
-							castShadow
-							receiveShadow
-							name="Mesh_1"
-							geometry={nodes.Mesh_1.geometry}
-							material={materials.Ch30_Body}
-							skeleton={nodes.Mesh_1.skeleton}
-						/>
-						<skinnedMesh
-							frustumCulled={false}
-							castShadow
-							receiveShadow
-							name="Mesh_2"
-							geometry={nodes.Mesh_2.geometry}
-							material={materials['Material.001']}
-							skeleton={nodes.Mesh_2.skeleton}
-						/>
+		<group>
+			<group scale={1.1} position={monsterPosition}>
+				{Object.keys(seedData)[playerPositionRoom] === 'bloodOnBath' ||
+					(Object.keys(seedData)[playerPositionRoom] === 'bloodOnDoor' && (
+						<Blood />
+					))}
+			</group>
+			<group
+				position={monsterPosition}
+				rotation={monsterRotation}
+				scale={1.1}
+				ref={group}
+				{...props}
+				dispose={null}
+			>
+				<Animations group={group} animations={animations} />
+				<group name="Scene">
+					<group name="Armature" scale={0.01}>
+						<group name="Ch30" rotation={[Math.PI / 2, 0, 0]}>
+							<primitive object={nodes.mixamorigHips} />
+							<skinnedMesh
+								name="Mesh"
+								geometry={nodes.Mesh.geometry}
+								material={materials.Ch30_Body1}
+								skeleton={nodes.Mesh.skeleton}
+								frustumCulled={false}
+							/>
+							<skinnedMesh
+								name="Mesh_1"
+								geometry={nodes.Mesh_1.geometry}
+								material={materials.Ch30_Body}
+								skeleton={nodes.Mesh_1.skeleton}
+								frustumCulled={false}
+							/>
+							<skinnedMesh
+								name="Mesh_2"
+								geometry={nodes.Mesh_2.geometry}
+								material={materials['Material.001']}
+								skeleton={nodes.Mesh_2.skeleton}
+								frustumCulled={false}
+							/>
+							<skinnedMesh
+								name="Mesh_3"
+								geometry={nodes.Mesh_3.geometry}
+								material={materials.Material}
+								skeleton={nodes.Mesh_3.skeleton}
+								frustumCulled={false}
+							/>
+							<skinnedMesh
+								name="Mesh_4"
+								geometry={nodes.Mesh_4.geometry}
+								material={materials['Material.002']}
+								skeleton={nodes.Mesh_4.skeleton}
+								frustumCulled={false}
+							/>
+							<skinnedMesh
+								name="Mesh_5"
+								geometry={nodes.Mesh_5.geometry}
+								material={materials['Material.011']}
+								skeleton={nodes.Mesh_5.skeleton}
+								frustumCulled={false}
+							/>
+							<skinnedMesh
+								name="Mesh_6"
+								geometry={nodes.Mesh_6.geometry}
+								material={materials['Material.016']}
+								skeleton={nodes.Mesh_6.skeleton}
+								frustumCulled={false}
+							/>
+						</group>
 					</group>
-					<primitive object={nodes.mixamorigHips} />
 				</group>
 			</group>
-
-			<PositionalAudio
-				ref={breathingSoundRef}
-				url="/sounds/scratching.ogg"
-				loop
-				distance={0.5}
-				volume={1}
-			/>
 		</group>
 	);
 };

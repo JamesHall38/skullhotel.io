@@ -3,7 +3,7 @@ import generateSeedData from './generateSeedData';
 
 const generateData = () => {
 	const seed = generateSeedData();
-	const roomNumber = seed.length;
+	const roomNumber = Object.keys(seed).length;
 	const events = generateEvents();
 
 	return { events, seed, roomNumber };

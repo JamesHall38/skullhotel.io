@@ -1,9 +1,5 @@
 import { useEffect, Suspense, useMemo, useRef } from 'react';
-import {
-	KeyboardControls,
-	PointerLockControls,
-	Stats,
-} from '@react-three/drei';
+import { KeyboardControls, PointerLockControls } from '@react-three/drei';
 import { Canvas, useThree, useFrame } from '@react-three/fiber';
 import {
 	EffectComposer,
@@ -19,6 +15,9 @@ import useInterface from './hooks/useInterface';
 import useDoor from './hooks/useDoor';
 import useMonster from './hooks/useMonster';
 import useGridStore from './hooks/useGrid';
+
+import { Perf } from 'r3f-perf';
+import { Leva, useControls, button } from 'leva';
 
 // Models
 import Reception from './components/Reception/Reception';
@@ -41,15 +40,71 @@ import RoomCurtain from './components/Curtains/RoomCurtain';
 // Game
 import Player from './components/Player/Player';
 import Monster from './components/Monster/Monster';
-import Triggers from './components/Monster/Triggers';
+import Triggers from './components/Monster/Triggers/Triggers';
 import Grid from './components/Grid';
 import ReceptionDoors from './components/Reception/ReceptionDoors';
 // import CameraShaking from './components/Player/CameraShaking';
 import Sound from './components/Sound';
 import Chair from './components/Room/Chair';
 import { regenerateData } from './utils/config';
+import generateSeedData from './utils/generateSeedData';
 
 // import Posterize from './components/Posterize';
+
+import levelData from './components/Monster/Triggers/levelData';
+
+const generateLevelOptions = () => {
+	const options = {
+		None: null,
+	};
+
+	Object.keys(levelData).forEach((key) => {
+		const label = key
+			.replace(/([A-Z])/g, ' $1')
+			.replace(/^./, (str) => str.toUpperCase());
+		options[label] = key;
+	});
+
+	return options;
+};
+
+const CameraShaking = () => {
+	const shakeIntensity = useGame((state) => state.shakeIntensity);
+	const monsterState = useMonster((state) => state.monsterState);
+	const isAttacking = useMonster((state) => state.isAttacking);
+	const triangleWave = (t, frequency) => {
+		const period = 1 / frequency;
+		const phase = t % period;
+		return 2 * Math.abs(phase / period - 0.5) - 0.5;
+	};
+
+	useFrame(({ camera, clock }) => {
+		if (shakeIntensity > 0) {
+			let shakeX = 0;
+			let shakeY = 0;
+
+			if (isAttacking) {
+			} else if (monsterState === 'run' || monsterState === 'chase') {
+				shakeX = (triangleWave(clock.elapsedTime * 10, 1) * 0.02 * 10) / 10;
+				shakeY = (triangleWave(clock.elapsedTime * 10, 1.33) * 0.02 * 10) / 10;
+			} else {
+				shakeX =
+					triangleWave(clock.elapsedTime * shakeIntensity, 1) *
+					0.02 *
+					shakeIntensity;
+				shakeY =
+					triangleWave(clock.elapsedTime * shakeIntensity, 1.33) *
+					0.02 *
+					shakeIntensity;
+			}
+
+			camera.position.x += shakeX;
+			camera.position.y += shakeY;
+		}
+	});
+
+	return null;
+};
 
 function resetGame() {
 	useGame.getState().restart();
@@ -64,6 +119,9 @@ function App() {
 	const isMobile = useGame((state) => state.isMobile);
 	const roomTotal = useGame((state) => state.roomTotal);
 	// const playerPositionRoom = useGame((state) => state.playerPositionRoom);
+	const realPlayerPositionRoom = useGame(
+		(state) => state.realPlayerPositionRoom
+	);
 	const setRealPlayerPositionRoom = useGame(
 		(state) => state.setRealPlayerPositionRoom
 	);
@@ -91,6 +149,22 @@ function App() {
 		}
 		return calculatedPosition;
 	}, [camera.position]);
+
+	const { selectedRoom } = useControls({
+		selectedRoom: {
+			options: generateLevelOptions(),
+			value: null,
+			label: 'Select Room',
+		},
+	});
+
+	const initializeIfNeeded = useGridStore((state) => state.initializeIfNeeded);
+
+	useEffect(() => {
+		const newSeedData = generateSeedData(false, selectedRoom);
+		useGame.getState().setSeedData(newSeedData);
+		initializeIfNeeded();
+	}, [initializeIfNeeded, selectedRoom]);
 
 	useEffect(() => {
 		const controls = controlsRef.current;
@@ -164,17 +238,15 @@ function App() {
 			: Math.abs(baseRoomIndex) + roomTotal / 2 - 2;
 
 		if (roomIndex >= 0 && roomIndex < roomTotal) {
-			setRealPlayerPositionRoom(roomIndex);
+			if (realPlayerPositionRoom !== roomIndex) {
+				setRealPlayerPositionRoom(roomIndex);
+			}
 		} else {
-			setRealPlayerPositionRoom(null);
+			if (realPlayerPositionRoom && realPlayerPositionRoom !== 0) {
+				setRealPlayerPositionRoom(null);
+			}
 		}
 	});
-
-	const initializeIfNeeded = useGridStore((state) => state.initializeIfNeeded);
-
-	useEffect(() => {
-		initializeIfNeeded();
-	}, [initializeIfNeeded]);
 
 	return (
 		<KeyboardControls
@@ -243,12 +315,51 @@ function App() {
 	);
 }
 
+const PostProcessing = () => {
+	const monsterState = useMonster((state) => state.monsterState);
+
+	return (
+		<EffectComposer>
+			{/* <Posterize levels={64} /> */}
+			<ChromaticAberration offset={[0.001, 0.001]} />
+			<Vignette
+				eskil={false}
+				offset={0.05}
+				darkness={
+					0
+					// 1.2
+				}
+			/>
+			<Noise opacity={0.1} />
+			<Glitch
+				// active={shakeIntensity > 1}
+				// strength={shakeIntensity * 0.02}
+				active={monsterState === 'run' || monsterState === 'chase'}
+				strength={monsterState === 'run' || monsterState === 'chase' ? 0.2 : 0}
+			/>
+		</EffectComposer>
+	);
+};
+
 export default function AppCanvas() {
-	const shakeIntensity = useGame((state) => state.shakeIntensity);
 	const isMobile = useGame((state) => state.isMobile);
+
+	const {
+		perfVisible,
+		// resetGame: resetGameControl,
+	} = useControls({
+		perfVisible: { value: false, label: 'Show performances' },
+		'Reset game': button(() => {
+			regenerateData();
+			resetGame();
+		}),
+	});
+
+	const isDebugMode = window.location.hash === '#debug';
 
 	return (
 		<>
+			<Leva collapsed hidden={!isDebugMode} />
 			<Suspense fallback={null}>
 				<Canvas
 					camera={{
@@ -258,35 +369,11 @@ export default function AppCanvas() {
 					}}
 					shadows
 				>
+					{perfVisible ? <Perf position="top-left" /> : null}
 					<App />
-					{!isMobile && (
-						<EffectComposer
-						// multisamping={8}
-						// renderIndex={1}
-						// disableGamma={false}
-						// disableRenderPass={false}
-						// disableRender={false}
-						>
-							{/* <Posterize levels={64} /> */}
-
-							<ChromaticAberration offset={[0.001, 0.001]} />
-							<Vignette
-								eskil={false}
-								offset={0.05}
-								darkness={
-									0
-									// 1.2
-								}
-							/>
-							<Noise opacity={0.1} />
-							<Glitch
-								active={shakeIntensity}
-								strength={shakeIntensity * 0.05}
-							/>
-						</EffectComposer>
-					)}
+					{!isMobile && <PostProcessing />}
+					<CameraShaking />
 				</Canvas>
-				<Stats />
 			</Suspense>
 			<Interface />
 		</>

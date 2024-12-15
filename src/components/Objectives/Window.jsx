@@ -5,7 +5,7 @@ import useGame from '../../hooks/useGame';
 import useInterface from '../../hooks/useInterface';
 import useDoor from '../../hooks/useDoor';
 import * as THREE from 'three';
-import levelData from '../../data/levelData';
+import levelData from '../Monster/Triggers/levelData';
 import DetectionZone from '../DetectionZone';
 
 const CORRIDORLENGTH = 5.95;

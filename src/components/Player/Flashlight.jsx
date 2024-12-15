@@ -1,6 +1,7 @@
 import { useEffect, useRef, useCallback, useState } from 'react';
 import * as THREE from 'three';
 import useGame from '../../hooks/useGame';
+import useMonster from '../../hooks/useMonster';
 import { useFrame, useThree } from '@react-three/fiber';
 
 const FLICKER_DURATION = 10000; // 10 seconds
@@ -8,6 +9,7 @@ const DEFAULT_INTENSITY = 6;
 
 export default function Flashlight({ playerRef, isCrouching }) {
 	const isFlickering = useGame((state) => state.isFlickering);
+	const monsterState = useMonster((state) => state.monsterState);
 	const spotLightRef = useRef();
 	const { scene, camera } = useThree();
 	const [intensity, setIntensity] = useState(DEFAULT_INTENSITY);
@@ -52,11 +54,28 @@ export default function Flashlight({ playerRef, isCrouching }) {
 		}, 1000);
 	}, []);
 
+	const monsterRunFlicker = useCallback(() => {
+		setIntensity((prev) => (Math.random() < 0.6 ? 0.1 : DEFAULT_INTENSITY));
+	}, []);
+
 	useEffect(() => {
 		if (isFlickering) {
 			flickerLight();
 		}
 	}, [isFlickering, flickerLight]);
+
+	useEffect(() => {
+		let intervalId;
+		if (monsterState === 'run') {
+			intervalId = setInterval(monsterRunFlicker, 50);
+		} else {
+			setIntensity(DEFAULT_INTENSITY);
+		}
+
+		return () => {
+			if (intervalId) clearInterval(intervalId);
+		};
+	}, [monsterState, monsterRunFlicker]);
 
 	useFrame((state) => {
 		if (!playerRef.current) return;

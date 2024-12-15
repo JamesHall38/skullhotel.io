@@ -8,6 +8,10 @@ const useGameStore = create(
 		eventData: events,
 		deaths: 0,
 
+		setSeedData: (newSeedData) => {
+			set({ seedData: newSeedData });
+		},
+
 		openDeathScreen: false,
 		setOpenDeathScreen: (state) => set(() => ({ openDeathScreen: state })),
 
@@ -28,6 +32,10 @@ const useGameStore = create(
 
 		isFlickering: false,
 		setIsFlickering: (state) => set(() => ({ isFlickering: state })),
+
+		resetFootstepSound: true,
+		setResetFootstepSound: (state) =>
+			set(() => ({ resetFootstepSound: state })),
 
 		// Room
 		roomTotal: roomNumber,
@@ -65,9 +73,6 @@ const useGameStore = create(
 			}),
 
 		// Camera Shaking
-		cameraShakingWhenLookingAtMonster: false,
-		setCameraShakingWhenLookingAtMonster: (state) =>
-			set(() => ({ cameraShakingWhenLookingAtMonster: state })),
 		shakeIntensity: 0,
 		setShakeIntensity: (intensity) =>
 			set(() => ({ shakeIntensity: intensity })),
@@ -86,11 +91,12 @@ const useGameStore = create(
 
 		restart: () => {
 			set((state) => ({
-				seedData: seed,
+				// seedData: seed, // commented for easy debug but should be uncommented for production
 				eventData: events,
 				deaths: state.deaths + 1,
 				roomTotal: roomNumber,
 				playerPositionRoom: null,
+				resetFootstepSound: true,
 				cameraShakingWhenLookingAtMonster: false,
 				shakeIntensity: 0,
 				roomLight: false,

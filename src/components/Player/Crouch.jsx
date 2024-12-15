@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useFrame } from '@react-three/fiber';
 import useGridStore, { CELL_TYPES } from '../../hooks/useGrid';
+import useMonster from '../../hooks/useMonster';
 
 const GRID_OFFSET_X = 600;
 const GRID_OFFSET_Z = 150;
@@ -8,9 +9,21 @@ const GRID_OFFSET_Z = 150;
 export default function Crouch({ setIsCrouching, playerPosition }) {
 	const getCell = useGridStore((state) => state.getCell);
 	const [wantsToStandUp, setWantsToStandUp] = useState(false);
+	const monsterState = useMonster((state) => state.monsterState);
+
+	useEffect(() => {
+		if (monsterState === 'run') {
+			setIsCrouching(false);
+		}
+	}, [monsterState, setIsCrouching]);
 
 	useEffect(() => {
 		const handleKeyDown = (event) => {
+			if (monsterState === 'run') {
+				setIsCrouching(false);
+				return;
+			}
+
 			if (event.code === 'ControlLeft' || event.code === 'ControlRight') {
 				setIsCrouching(true);
 			}
@@ -43,7 +56,7 @@ export default function Crouch({ setIsCrouching, playerPosition }) {
 			window.removeEventListener('keydown', handleKeyDown);
 			window.removeEventListener('keyup', handleKeyUp);
 		};
-	}, [getCell, playerPosition, setIsCrouching]);
+	}, [getCell, playerPosition, setIsCrouching, monsterState]);
 
 	useFrame(() => {
 		if (wantsToStandUp) {

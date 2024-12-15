@@ -92,7 +92,3 @@ html {
 		height: 100%;
 	}
 }
-
-canvas {
-	touch-action: none;
-}

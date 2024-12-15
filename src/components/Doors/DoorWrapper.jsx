@@ -27,9 +27,9 @@ export default function DoorWrapper({
 	const closeRef = useRef();
 	const beepRef = useRef();
 	const roomTotal = useGame((state) => state.roomTotal);
-	const cursor = useInterface((state) => state.cursor);
+	const cursorRef = useRef(null);
 	const setCursor = useInterface((state) => state.setCursor);
-	const [canOpen, setCanOpen] = useState(false);
+	const canOpenRef = useRef(false);
 	const [hasInitialized, setHasInitialized] = useState(false);
 	const rotationAngleRef = useRef(0);
 	const animationProgressRef = useRef(0);
@@ -91,7 +91,7 @@ export default function DoorWrapper({
 
 	useEffect(() => {
 		const handleClick = () => {
-			if (canOpen) {
+			if (canOpenRef.current) {
 				setOpen(!isOpen);
 				animationProgressRef.current = 0;
 			}
@@ -99,7 +99,7 @@ export default function DoorWrapper({
 
 		window.addEventListener('click', handleClick);
 		return () => window.removeEventListener('click', handleClick);
-	}, [canOpen, isOpen, setOpen]);
+	}, [canOpenRef, isOpen, setOpen]);
 
 	useEffect(() => {
 		if (doorRef.current) {
@@ -123,21 +123,30 @@ export default function DoorWrapper({
 			const intersects = raycaster.intersectObject(group.current, true);
 
 			if (intersects.length > 0) {
-				setCursor('door');
-				setCanOpen(true);
-				hasLookedAtGroup.current = true;
-			} else {
-				if (cursor === 'door' && hasLookedAtGroup.current) {
-					setCursor(null);
-					hasLookedAtGroup.current = false;
+				if (cursorRef.current !== 'door') {
+					cursorRef.current = 'door';
+					setCursor('door');
 				}
-				setCanOpen(false);
+				if (!canOpenRef.current) canOpenRef.current = true;
+				if (!hasLookedAtGroup.current) hasLookedAtGroup.current = true;
+			} else {
+				if (hasLookedAtGroup.current) {
+					if (cursorRef.current === 'door') {
+						cursorRef.current = null;
+						setCursor(null);
+					}
+					if (hasLookedAtGroup.current) hasLookedAtGroup.current = false;
+				}
+				if (canOpenRef.current) canOpenRef.current = false;
 			}
 		} else {
-			setCanOpen(false);
+			if (canOpenRef.current) canOpenRef.current = false;
 
 			if (hasLookedAtGroup.current) {
-				setCursor(null);
+				if (cursorRef.current === 'door') {
+					cursorRef.current = null;
+					setCursor(null);
+				}
 				hasLookedAtGroup.current = false;
 			}
 		}

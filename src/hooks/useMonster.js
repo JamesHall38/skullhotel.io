@@ -7,7 +7,7 @@ const useMonsterStore = create(
 		setMonsterState: (name) => set(() => ({ monsterState: name })),
 
 		// Position
-		monsterPosition: [0, 0, 0],
+		monsterPosition: [0, 10, 0],
 		setMonsterPosition: (position) =>
 			set(() => ({ monsterPosition: position })),
 		monsterRotation: [0, 0, 0],
@@ -19,18 +19,22 @@ const useMonsterStore = create(
 		playAnimation: (animation) => set(() => ({ animationName: animation })),
 		animationSpeed: 1,
 		setAnimationSpeed: (speed) => set(() => ({ animationSpeed: speed })),
-		animationMixSpeed: 3,
+		animationMixSpeed: 10,
 		setAnimationMixSpeed: (mixSpeed) =>
 			set(() => ({ animationMixSpeed: mixSpeed })),
+
+		isAttacking: false,
+		setIsAttacking: (isAttacking) => set(() => ({ isAttacking })),
 
 		restart: () => {
 			set(() => ({
 				monsterState: 'hidden',
-				monsterPosition: [0, 0, 0],
+				monsterPosition: [0, 10, 0],
 				monsterRotation: [0, 0, 0],
+				isAttacking: false,
 				animationName: 'Run',
 				animationSpeed: 1,
-				animationMixSpeed: 3,
+				animationMixSpeed: 10,
 			}));
 		},
 	}))

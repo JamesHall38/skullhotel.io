@@ -27,27 +27,15 @@ export default function Jump({ playerPosition, playerVelocity, isCrouching }) {
 	const [isInsideDoor, setIsInsideDoor] = useState(false);
 	const [jumpedFromBed, setJumpedFromBed] = useState(false);
 
-	const {
-		roomDoor,
-		bathroomDoor,
-		roomCurtain,
-		bathroomCurtain,
-		desk,
-		nightStand,
-		exit,
-		tutorial,
-		corridor,
-	} = useDoorStore((state) => ({
-		roomDoor: state.roomDoor,
-		bathroomDoor: state.bathroomDoor,
-		roomCurtain: state.roomCurtain,
-		bathroomCurtain: state.bathroomCurtain,
-		desk: state.desk,
-		nightStand: state.nightStand,
-		exit: state.exit,
-		tutorial: state.tutorial,
-		corridor: state.corridor,
-	}));
+	const roomDoor = useDoorStore((state) => state.roomDoor);
+	const bathroomDoor = useDoorStore((state) => state.bathroomDoor);
+	const roomCurtain = useDoorStore((state) => state.roomCurtain);
+	const bathroomCurtain = useDoorStore((state) => state.bathroomCurtain);
+	const desk = useDoorStore((state) => state.desk);
+	const nightStand = useDoorStore((state) => state.nightStand);
+	const exit = useDoorStore((state) => state.exit);
+	const tutorial = useDoorStore((state) => state.tutorial);
+	const corridor = useDoorStore((state) => state.corridor);
 
 	const isRaisedArea = (pos) => {
 		const cellX = Math.floor(pos.x * 10 + GRID_OFFSET_X);
@@ -76,6 +64,7 @@ export default function Jump({ playerPosition, playerVelocity, isCrouching }) {
 		}
 		return 0;
 	};
+
 	const checkCollision = (pos) => {
 		const cellX = Math.floor(pos.x * 10 + GRID_OFFSET_X);
 		const cellZ = Math.floor(pos.z * 10 + GRID_OFFSET_Z);
@@ -140,15 +129,15 @@ export default function Jump({ playerPosition, playerVelocity, isCrouching }) {
 		return false;
 	};
 
-	// const isHighRaisedArea = (pos) => {
-	// 	const cellX = Math.floor(pos.x * 10 + GRID_OFFSET_X);
-	// 	const cellZ = Math.floor(pos.z * 10 + GRID_OFFSET_Z);
-	// 	const cell = getCell(cellX, cellZ);
-	// 	return (
-	// 		cell.type === CELL_TYPES.RAISED_AREA_HIGH ||
-	// 		cell.type === CELL_TYPES.BATHROOM_CURTAIN_CLOSED
-	// 	);
-	// };
+	const isHighRaisedArea = (pos) => {
+		const cellX = Math.floor(pos.x * 10 + GRID_OFFSET_X);
+		const cellZ = Math.floor(pos.z * 10 + GRID_OFFSET_Z);
+		const cell = getCell(cellX, cellZ);
+		return (
+			cell.type === CELL_TYPES.RAISED_AREA_HIGH ||
+			cell.type === CELL_TYPES.BATHROOM_CURTAIN_CLOSED
+		);
+	};
 
 	useEffect(() => {
 		const handleKeyDown = (event) => {
@@ -204,7 +193,7 @@ export default function Jump({ playerPosition, playerVelocity, isCrouching }) {
 		corridor,
 		exit,
 		playerPosition,
-		getCell,
+		// getCell,
 		playerPositionRoom,
 	]);
 
@@ -217,9 +206,8 @@ export default function Jump({ playerPosition, playerVelocity, isCrouching }) {
 			if (
 				spacePressed &&
 				jumpState === 'grounded' &&
-				canJump
-				// &&
-				// !isHighRaisedArea(playerPosition.current)
+				canJump &&
+				!isHighRaisedArea(playerPosition.current)
 			) {
 				const currentCell = getCell(
 					Math.floor(playerPosition.current.x * 10 + GRID_OFFSET_X),

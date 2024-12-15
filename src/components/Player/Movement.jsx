@@ -43,29 +43,17 @@ export default function Movement({
 		rightStickRef,
 	});
 
-	const {
-		roomDoor,
-		bathroomDoor,
-		roomCurtain,
-		bathroomCurtain,
-		desk,
-		nightStand,
-		tutorial,
-		corridor,
-		exit,
-	} = useDoorStore((state) => ({
-		roomDoor: state.roomDoor,
-		bathroomDoor: state.bathroomDoor,
-		roomCurtain: state.roomCurtain,
-		bathroomCurtain: state.bathroomCurtain,
-		deskDoor: state.deskDoor,
-		nightStand: state.nightStand,
-		tutorial: state.tutorial,
-		corridor: state.corridor,
-		exit: state.exit,
-	}));
-
 	const [isInsideDoor, setIsInsideDoor] = useState(false);
+
+	const roomDoor = useDoorStore((state) => state.roomDoor);
+	const bathroomDoor = useDoorStore((state) => state.bathroomDoor);
+	const roomCurtain = useDoorStore((state) => state.roomCurtain);
+	const bathroomCurtain = useDoorStore((state) => state.bathroomCurtain);
+	const desk = useDoorStore((state) => state.desk);
+	const nightStand = useDoorStore((state) => state.nightStand);
+	const exit = useDoorStore((state) => state.exit);
+	const tutorial = useDoorStore((state) => state.tutorial);
+	const corridor = useDoorStore((state) => state.corridor);
 
 	useEffect(() => {
 		const cellX = Math.floor(playerPosition.current.x * 10 + GRID_OFFSET_X);
@@ -168,6 +156,10 @@ export default function Movement({
 	};
 
 	useFrame((state, delta) => {
+		if (monsterState === 'run') {
+			return;
+		}
+
 		const {
 			forward: keyForward,
 			backward: keyBackward,

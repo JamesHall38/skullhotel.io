@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import useGame from './useGame';
 
 export const CELL_TYPES = {
 	EMPTY: 'empty',
@@ -23,6 +24,7 @@ export const CELL_TYPES = {
 	EXIT_DOOR_CLOSED: 'exitDoorClosed',
 	CORRIDOR_DOOR_CLOSED: 'corridorRoomDoorClosed',
 	CORRIDOR_DOOR_OPEN: 'corridorRoomDoorOpen',
+	MONSTER_POSITION: 'monsterPosition',
 };
 
 const useGridStore = create((set, get) => ({
@@ -85,6 +87,8 @@ const useGridStore = create((set, get) => ({
 	],
 
 	generateRooms: () => {
+		const seedData = useGame.getState().seedData;
+
 		const closedDoorPositions = [
 			{
 				start: { x: 28, z: 21 },
@@ -297,6 +301,61 @@ const useGridStore = create((set, get) => ({
 					}
 					rooms.push(newWall);
 				});
+
+				const seedDataArray = Object.values(seedData);
+				const monsterRoomIndex = isTopRow
+					? roomsPerRow - col
+					: Math.floor(seedDataArray.length / 2) + (roomsPerRow - col);
+				const roomData = seedDataArray[monsterRoomIndex - 1];
+
+				if (roomData?.monsterInitialPosition) {
+					const monsterX = Math.round(
+						(roomData.monsterInitialPosition[0] * 18 + roomWidth) / 2 - 15
+					);
+					const monsterZ = Math.round(
+						(roomData.monsterInitialPosition[2] * 18 + roomHeight) / 2
+					);
+
+					if (isTopRow) {
+						const finalPos = {
+							x: Math.round(monsterX + offsetX),
+							z: Math.round(monsterZ + offsetZ),
+						};
+
+						const newWall = {
+							start: {
+								x: finalPos.x,
+								z: finalPos.z,
+							},
+							end: {
+								x: finalPos.x,
+								z: finalPos.z,
+							},
+							type: CELL_TYPES.MONSTER_POSITION,
+							roomIndex,
+						};
+						rooms.push(newWall);
+					} else {
+						const finalPos = {
+							x: Math.round(roomWidth - monsterX + offsetX + 30),
+							z: Math.round(roomHeight - monsterZ + offsetZ - 230),
+						};
+
+						const newWall = {
+							start: {
+								x: finalPos.x,
+								z: finalPos.z,
+							},
+							end: {
+								x: finalPos.x,
+								z: finalPos.z,
+							},
+							type: CELL_TYPES.MONSTER_POSITION,
+							roomIndex,
+						};
+						rooms.push(newWall);
+					}
+				}
 			}
 		}
 
@@ -335,7 +394,7 @@ const useGridStore = create((set, get) => ({
 		});
 
 		set({ grid: newGrid, isInitialized: true });
-		get().printGridASCII();
+		// get().printGridASCII();
 	},
 
 	getCell: (x, z) => {
@@ -376,11 +435,13 @@ const useGridStore = create((set, get) => ({
 		const scaledHeight = Math.ceil(height / heightScaleFactor);
 		const scaledWidth = Math.ceil(width / widthScaleFactor);
 
-		const lightBlue = '\x1b[94m■\x1b[0m'; // L in light blue
-		const darkBlue = '\x1b[34m■\x1b[0m'; // H in dark blue
-		const mediumBlue = '\x1b[36m■\x1b[0m'; // C in medium blue
-		const redDoor = '\x1b[31m■\x1b[0m'; // D in red
-		const greenDoor = '\x1b[32m■\x1b[0m'; // O in green
+		const brightGreen = '\x1b[92m■\x1b[0m'; // Bright green
+		const darkGreen = '\x1b[32m■\x1b[0m'; // Dark green
+		const mediumGreen = '\x1b[32;1m■\x1b[0m'; // Medium green
+		const cyan = '\x1b[36m■\x1b[0m'; // Cyan
+		const darkGreenDoor = '\x1b[32m■\x1b[0m'; // Dark green
+		const redMonster = '\x1b[31m██\x1b[0m'; // Bright red
+		const brightCyan = '\x1b[36;1m■\x1b[0m'; // Bright cyan
 
 		asciiGrid +=
 			'   0                       50                      100                      150                      200                      250                      300';
@@ -397,6 +458,12 @@ const useGridStore = create((set, get) => ({
 				let hasCrouchOnly = false;
 				let hasDoor = false;
 				let hasOpenDoor = false;
+				let hasBed = false;
+
+				let hasMonsterTopLeft = false;
+				let hasMonsterTopRight = false;
+				let hasMonsterBottomLeft = false;
+				let hasMonsterBottomRight = false;
 
 				for (let dx = 0; dx < widthScaleFactor; dx++) {
 					for (let dz = 0; dz < heightScaleFactor; dz++) {
@@ -412,6 +479,11 @@ const useGridStore = create((set, get) => ({
 							hasHighArea = true;
 						} else if (cell.type === CELL_TYPES.CROUCH_ONLY) {
 							hasCrouchOnly = true;
+						} else if (cell.type === CELL_TYPES.MONSTER_POSITION) {
+							hasMonsterTopLeft = true;
+							hasMonsterTopRight = true;
+							hasMonsterBottomLeft = true;
+							hasMonsterBottomRight = true;
 						} else if (
 							cell.type === CELL_TYPES.ROOM_DOOR_CLOSED ||
 							cell.type === CELL_TYPES.BATHROOM_DOOR_CLOSED ||
@@ -436,22 +508,34 @@ const useGridStore = create((set, get) => ({
 							hasOpenDoor = true;
 						} else if (cell.boundary) {
 							hasBoundary = true;
+						} else if (cell.type === CELL_TYPES.BED) {
+							hasBed = true;
 						}
 					}
 				}
 
-				if (hasWall) {
+				if (
+					hasMonsterTopLeft ||
+					hasMonsterTopRight ||
+					hasMonsterBottomLeft ||
+					hasMonsterBottomRight
+				) {
+					asciiGrid += redMonster;
+					z++;
+				} else if (hasBed) {
+					asciiGrid += brightCyan;
+				} else if (hasWall) {
 					asciiGrid += '█';
 				} else if (hasDoor) {
-					asciiGrid += redDoor;
+					asciiGrid += cyan;
 				} else if (hasOpenDoor) {
-					asciiGrid += greenDoor;
+					asciiGrid += darkGreenDoor;
 				} else if (hasLowArea) {
-					asciiGrid += lightBlue;
+					asciiGrid += brightGreen;
 				} else if (hasHighArea) {
-					asciiGrid += darkBlue;
+					asciiGrid += darkGreen;
 				} else if (hasCrouchOnly) {
-					asciiGrid += mediumBlue;
+					asciiGrid += mediumGreen;
 				} else if (hasBoundary) {
 					asciiGrid += '▒';
 				} else {
@@ -464,7 +548,9 @@ const useGridStore = create((set, get) => ({
 		asciiGrid +=
 			'   0                        50                      100                      150                      200                      250                      300';
 
-		console.log(asciiGrid);
+		console.group('Grid Display');
+		console.table(asciiGrid);
+		console.groupEnd();
 		return asciiGrid;
 	},
 
@@ -476,5 +562,5 @@ const useGridStore = create((set, get) => ({
 		}
 	},
 }));
-
+//
 export default useGridStore;

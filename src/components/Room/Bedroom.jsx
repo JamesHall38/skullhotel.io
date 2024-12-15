@@ -5,7 +5,7 @@ import useGame from '../../hooks/useGame';
 import DetectionZone from '../DetectionZone';
 
 const PROBABILITY_OF_DARKNESS = 20;
-const LIGHT_INTENSITY = 2;
+const LIGHT_INTENSITY = 1;
 
 export default function Bedroom() {
 	const { scene } = useGLTF('/models/room/bedroom.glb');

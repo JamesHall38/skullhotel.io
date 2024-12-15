@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useGLTF } from '@react-three/drei';
 import useGame from '../../hooks/useGame';
 import useDoor from '../../hooks/useDoor';
-import useInterface from '../../hooks/useInterface';
+// import useInterface from '../../hooks/useInterface';
 import DoorWrapper from './DoorWrapper';
 import { useThree } from '@react-three/fiber';
 import WoodMaterial from '../WoodMaterial';
@@ -24,7 +24,7 @@ export default function DeskDoor() {
 	const setOpen = useDoor((state) => state.setDesk);
 	const [instantChange, setInstantChange] = useState(false);
 	const [tutorialRoomOffset, setTutorialRoomOffset] = useState(null);
-	const setCursor = useInterface((state) => state.setCursor);
+	// const setCursor = useInterface((state) => state.setCursor);
 	const woodMaterial = WoodMaterial();
 	const { camera } = useThree();
 	const getCell = useGridStore((state) => state.getCell);

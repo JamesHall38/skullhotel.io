@@ -44,7 +44,10 @@ export default function Lights() {
 	useEffect(() => {
 		const probability = doneObjectivesNumberRef.current / 9;
 
-		if (!seedData[playerPositionRoom] || seedData[playerPositionRoom]?.empty) {
+		if (
+			!seedData[playerPositionRoom] ||
+			seedData[playerPositionRoom]?.type === 'empty'
+		) {
 			setRoomLight(Math.random() > probability);
 			setBathroomLight(Math.random() > probability);
 		} else {

@@ -61,7 +61,7 @@ export default function Bedsheets() {
 		if (camera.position.x > 8) {
 			calculatedPosition = [14.5, 0, 14.5];
 		} else if (camera.position.x <= 8 && camera.position.x > 4.4) {
-			calculatedPosition = [3.02, 0, 7.9];
+			calculatedPosition = [3.02, 0.02, 7.9];
 		}
 
 		return calculatedPosition;
@@ -207,6 +207,7 @@ export default function Bedsheets() {
 					geometry={nodes.Start.geometry}
 					material={material}
 				/>
+
 				<primitive
 					position={[0, 0.05, 0]}
 					visible={visibleMesh === 'Animated'}

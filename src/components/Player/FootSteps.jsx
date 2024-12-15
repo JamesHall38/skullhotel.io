@@ -8,6 +8,9 @@ const floor = -0.2;
 
 export default function FootSteps({ playerPosition }) {
 	const loading = useGame((state) => state.loading);
+	const resetFootstepSound = useGame((state) => state.resetFootstepSound);
+	const setResetFootstepSound = useGame((state) => state.setResetFootstepSound);
+
 	const footstepSounds = [
 		useRef(new Audio('/sounds/step1.ogg')),
 		useRef(new Audio('/sounds/step2.ogg')),
@@ -33,7 +36,12 @@ export default function FootSteps({ playerPosition }) {
 				const sound = footstepSounds[footstepIndexRef.current].current;
 				sound.volume = 0.8;
 				sound.currentTime = 0;
-				sound.play();
+
+				if (resetFootstepSound) {
+					setResetFootstepSound(false);
+				} else {
+					sound.play();
+				}
 
 				footstepIndexRef.current =
 					(footstepIndexRef.current + 1) % footstepSounds.length;
