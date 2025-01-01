@@ -95,7 +95,7 @@ export default function NightstandDoor() {
 					castShadow
 					receiveShadow
 					// geometry={nodes.Mesh.geometry}
-					geometry={nodes.NightStand.geometry}
+					geometry={nodes.Mesh.geometry}
 					material={woodMaterial}
 					// material={materials.Wood}
 					onPointerOut={() => setCursor(null)}

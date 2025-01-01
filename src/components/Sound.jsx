@@ -2,6 +2,7 @@ import { useEffect, useRef, useMemo } from 'react';
 import useInterface from '../hooks/useInterface';
 import useGame from '../hooks/useGame';
 import { roomNumber } from '../utils/config';
+import KnockingSound from './Sound/KnockingSound';
 
 const Sound = () => {
 	const objectives = useInterface((state) => state.interfaceObjectives);
@@ -70,7 +71,7 @@ const Sound = () => {
 		}
 	}, [openDeathScreen]);
 
-	return null;
+	return <KnockingSound />;
 };
 
 export default Sound;

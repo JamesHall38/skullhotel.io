@@ -10,6 +10,9 @@ const useDoorStore = create(
 				tutorial: state,
 				corridor: false,
 				roomDoor: [...Array(roomNumber)].map(() => false),
+				tutorialHandle: false,
+				corridorHandle: false,
+				roomDoorHandle: [...Array(roomNumber)].map(() => false),
 			})),
 		exit: false,
 		setExit: (state) => set(() => ({ exit: state })),
@@ -19,6 +22,9 @@ const useDoorStore = create(
 				corridor: state,
 				tutorial: false,
 				roomDoor: [...Array(roomNumber)].map(() => false),
+				tutorialHandle: false,
+				corridorHandle: false,
+				roomDoorHandle: [...Array(roomNumber)].map(() => false),
 			})),
 
 		roomDoor: [...Array(roomNumber)].map(() => false),
@@ -36,6 +42,9 @@ const useDoorStore = create(
 				roomDoor: roomDoor,
 				tutorial: false,
 				corridor: false,
+				tutorialHandle: false,
+				corridorHandle: false,
+				roomDoorHandle: [...Array(roomNumber)].map(() => false),
 			}));
 		},
 		setBathroomDoor: (state) =>
@@ -103,6 +112,48 @@ const useDoorStore = create(
 			}));
 		},
 
+		handlePressed: [...Array(roomNumber)].map(() => false),
+		setHandlePressed: (number, state) => {
+			set((current) => ({
+				handlePressed: current.handlePressed.map((handle, index) =>
+					index === number ? state : handle
+				),
+			}));
+		},
+
+		tutorialHandle: false,
+		setTutorialHandle: (state) =>
+			set(() => ({
+				tutorialHandle: state,
+			})),
+
+		corridorHandle: false,
+		setCorridorHandle: (state) =>
+			set(() => ({
+				corridorHandle: state,
+			})),
+
+		exitHandle: false,
+		setExitHandle: (state) =>
+			set(() => ({
+				exitHandle: state,
+			})),
+
+		roomDoorHandle: [...Array(roomNumber)].map(() => false),
+		setRoomDoorHandle: (number, state) => {
+			set((current) => ({
+				roomDoorHandle: current.roomDoorHandle.map((handle, index) =>
+					index === number ? state : handle
+				),
+			}));
+		},
+
+		bathroomDoorHandle: false,
+		setBathroomDoorHandle: (state) =>
+			set(() => ({
+				bathroomDoorHandle: state,
+			})),
+
 		restart: (roomNumber) => {
 			set(() => ({
 				roomDoor: [...Array(roomNumber)].map(() => false),
@@ -119,6 +170,12 @@ const useDoorStore = create(
 				exit: false,
 				tutorial: false,
 				corridor: false,
+				handlePressed: [...Array(roomNumber)].map(() => false),
+				tutorialHandle: false,
+				corridorHandle: false,
+				exitHandle: false,
+				roomDoorHandle: [...Array(roomNumber)].map(() => false),
+				bathroomDoorHandle: false,
 			}));
 		},
 	}))

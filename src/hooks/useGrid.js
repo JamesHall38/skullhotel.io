@@ -105,11 +105,6 @@ const useGridStore = create((set, get) => ({
 				end: { x: 53, z: 53 },
 				type: CELL_TYPES.DESK_DOOR_CLOSED,
 			},
-			// {
-			// 	start: { x: 7, z: 37 },
-			// 	end: { x: 12, z: 39 },
-			// 	type: CELL_TYPES.NIGHTSTAND_DOOR_CLOSED,
-			// },
 			{
 				start: { x: 4, z: 34 },
 				end: { x: 7, z: 37 },
@@ -126,6 +121,36 @@ const useGridStore = create((set, get) => ({
 				type: CELL_TYPES.ROOM_CURTAIN_CLOSED,
 			},
 		];
+
+		// Zones de cachette séparées
+		const hidingSpots = [
+			{
+				start: { x: 21, z: 103 },
+				end: { x: 37, z: 104 },
+				type: CELL_TYPES.EMPTY,
+				hidingSpot: 'room_curtain',
+			},
+			{
+				start: { x: 4, z: 5 },
+				end: { x: 15, z: 7 },
+				type: CELL_TYPES.EMPTY,
+				hidingSpot: 'bathroom_curtain',
+			},
+			{
+				start: { x: 54, z: 51 },
+				end: { x: 55, z: 53 },
+				type: CELL_TYPES.CROUCH_ONLY,
+				hidingSpot: 'desk',
+			},
+			{
+				start: { x: 2, z: 34 },
+				end: { x: 4, z: 37 },
+				type: CELL_TYPES.CROUCH_ONLY,
+				hidingSpot: 'nightstand',
+			},
+		];
+
+		console.log('Generating rooms with hiding spots:', hidingSpots);
 
 		const baseRoom = [
 			// Walls
@@ -214,6 +239,7 @@ const useGridStore = create((set, get) => ({
 			}, // wardrobe
 
 			...closedDoorPositions,
+			...hidingSpots, // Ajout des zones de cachette
 		];
 
 		const roomWidth = 59;
@@ -241,6 +267,7 @@ const useGridStore = create((set, get) => ({
 					z: Math.round(wall.end.z + tutorialRoomZ),
 				},
 				type: wall.type,
+				hidingSpot: wall.hidingSpot,
 			};
 			rooms.push(newWall);
 		});
@@ -285,6 +312,7 @@ const useGridStore = create((set, get) => ({
 								z: Math.round(wall.end.z + offsetZ),
 							},
 							type: wall.type,
+							hidingSpot: wall.hidingSpot,
 						};
 					} else {
 						newWall = {
@@ -297,6 +325,7 @@ const useGridStore = create((set, get) => ({
 								z: Math.round(roomHeight - wall.start.z + offsetZ - 230),
 							},
 							type: wall.type,
+							hidingSpot: wall.hidingSpot,
 						};
 					}
 					rooms.push(newWall);
@@ -382,13 +411,26 @@ const useGridStore = create((set, get) => ({
 		}
 
 		// Ajouter les murs
+		console.log('Total walls to process:', walls.length);
+		console.log(
+			'Walls with hiding spots:',
+			walls.filter((w) => w.hidingSpot)
+		);
+
 		walls.forEach((wall) => {
 			for (let x = wall.start.x; x <= wall.end.x; x++) {
 				for (let z = wall.start.z; z <= wall.end.z; z++) {
 					newGrid[`${x},${z}`] = {
 						...newGrid[`${x},${z}`],
 						type: wall.type || CELL_TYPES.WALL,
+						hidingSpot: wall.hidingSpot || null,
 					};
+					// Log si on ajoute une zone de cachette
+					if (wall.hidingSpot) {
+						console.log(
+							`Adding hiding spot ${wall.hidingSpot} at [${x}, ${z}] with type ${wall.type}`
+						);
+					}
 				}
 			}
 		});
@@ -442,6 +484,7 @@ const useGridStore = create((set, get) => ({
 		const darkGreenDoor = '\x1b[32m■\x1b[0m'; // Dark green
 		const redMonster = '\x1b[31m██\x1b[0m'; // Bright red
 		const brightCyan = '\x1b[36;1m■\x1b[0m'; // Bright cyan
+		const magentaHiding = '\x1b[35m■\x1b[0m'; // Magenta pour les cachettes
 
 		asciiGrid +=
 			'   0                       50                      100                      150                      200                      250                      300';
@@ -459,6 +502,7 @@ const useGridStore = create((set, get) => ({
 				let hasDoor = false;
 				let hasOpenDoor = false;
 				let hasBed = false;
+				let hasHidingSpot = false;
 
 				let hasMonsterTopLeft = false;
 				let hasMonsterTopRight = false;
@@ -471,7 +515,20 @@ const useGridStore = create((set, get) => ({
 							x * widthScaleFactor + dx,
 							z * heightScaleFactor + dz
 						);
-						if (cell.type === CELL_TYPES.WALL) {
+						// Log les cellules avec hidingSpot
+						if (cell.hidingSpot) {
+							console.log(
+								`Found hiding spot ${cell.hidingSpot} at [${
+									x * widthScaleFactor + dx
+								}, ${z * heightScaleFactor + dz}]`
+							);
+							hasHidingSpot = true;
+						} else if (cell.type === CELL_TYPES.MONSTER_POSITION) {
+							hasMonsterTopLeft = true;
+							hasMonsterTopRight = true;
+							hasMonsterBottomLeft = true;
+							hasMonsterBottomRight = true;
+						} else if (cell.type === CELL_TYPES.WALL) {
 							hasWall = true;
 						} else if (cell.type === CELL_TYPES.RAISED_AREA_LOW) {
 							hasLowArea = true;
@@ -479,11 +536,6 @@ const useGridStore = create((set, get) => ({
 							hasHighArea = true;
 						} else if (cell.type === CELL_TYPES.CROUCH_ONLY) {
 							hasCrouchOnly = true;
-						} else if (cell.type === CELL_TYPES.MONSTER_POSITION) {
-							hasMonsterTopLeft = true;
-							hasMonsterTopRight = true;
-							hasMonsterBottomLeft = true;
-							hasMonsterBottomRight = true;
 						} else if (
 							cell.type === CELL_TYPES.ROOM_DOOR_CLOSED ||
 							cell.type === CELL_TYPES.BATHROOM_DOOR_CLOSED ||
@@ -522,6 +574,8 @@ const useGridStore = create((set, get) => ({
 				) {
 					asciiGrid += redMonster;
 					z++;
+				} else if (hasHidingSpot) {
+					asciiGrid += magentaHiding;
 				} else if (hasBed) {
 					asciiGrid += brightCyan;
 				} else if (hasWall) {

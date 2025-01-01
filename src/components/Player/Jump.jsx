@@ -16,7 +16,12 @@ const GRAVITY = 8;
 const CEILING_HEIGHT = 0.7;
 const floor = -0.2;
 
-export default function Jump({ playerPosition, playerVelocity, isCrouching }) {
+export default function Jump({
+	playerPosition,
+	playerVelocity,
+	isCrouchingRef,
+	crouchProgressRef,
+}) {
 	const playerPositionRoom = useGame((state) => state.realPlayerPositionRoom);
 	const monsterState = useMonster((state) => state.monsterState);
 	const getCell = useGridStore((state) => state.getCell);
@@ -122,7 +127,7 @@ export default function Jump({ playerPosition, playerVelocity, isCrouching }) {
 			(cell.type === CELL_TYPES.CROUCH_ONLY ||
 				cell.type === CELL_TYPES.DESK_DOOR_CLOSED ||
 				cell.type === CELL_TYPES.NIGHTSTAND_DOOR_CLOSED) &&
-			!isCrouching
+			!isCrouchingRef.current
 		) {
 			return true;
 		}
@@ -193,7 +198,7 @@ export default function Jump({ playerPosition, playerVelocity, isCrouching }) {
 		corridor,
 		exit,
 		playerPosition,
-		// getCell,
+		getCell,
 		playerPositionRoom,
 	]);
 
@@ -291,7 +296,11 @@ export default function Jump({ playerPosition, playerVelocity, isCrouching }) {
 			}
 
 			state.camera.position.y = playerPosition.current.y;
-			state.camera.position.y += isCrouching ? CROUCH_CAMERA_OFFSET : 1.7;
+			const standingHeight = 1.7;
+			const crouchHeight = CROUCH_CAMERA_OFFSET;
+			state.camera.position.y +=
+				standingHeight -
+				(standingHeight - crouchHeight) * crouchProgressRef.current;
 
 			if (
 				jumpState === 'falling' &&

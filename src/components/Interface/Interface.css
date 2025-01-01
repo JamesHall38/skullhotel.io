@@ -49,7 +49,10 @@
 .dialogue-popup {
 	position: absolute;
 	background: rgba(26, 26, 26, 0.8);
+
+	font-size: 1rem;
 	color: #ffffff;
+	/* color: #ffd400; */
 	border-radius: 5px;
 	padding: 0 15px;
 	width: auto;
@@ -74,6 +77,38 @@
 	z-index: 9999;
 }
 
+.cursor-wrapper {
+	position: relative;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.progress-circle {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	pointer-events: none;
+	z-index: 9998;
+	width: 100px !important;
+	height: 100px !important;
+}
+
+.progress-circle-bg {
+	stroke: rgba(255, 255, 255, 0.1);
+	transform: rotate(-90deg);
+	transform-origin: center;
+	stroke-width: 4;
+}
+
+.progress-circle-fg {
+	stroke: rgba(255, 255, 255, 0.4);
+	transform: rotate(-90deg);
+	transform-origin: center;
+	stroke-width: 4;
+}
+
 .simple-cursor {
 	width: 1rem;
 	height: 1rem;
@@ -88,9 +123,11 @@
 	height: 2rem;
 }
 
-.cursor-container svg {
+.cursor-container svg:not(.progress-circle) {
 	width: 2.5rem;
 	height: 2.5rem;
+	position: relative;
+	z-index: 9999;
 }
 
 .cursor-container svg path {
@@ -269,7 +306,8 @@
 	border-radius: 0.5rem;
 	margin: 1rem 0;
 	cursor: pointer;
-	font-family: 'Merriweather', serif;
+	/* font-family: 'Merriweather', serif; */
+	font-family: 'Libre Baskerville', serif;
 }
 
 .full-screen-button:hover {

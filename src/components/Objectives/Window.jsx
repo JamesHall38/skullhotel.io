@@ -91,54 +91,75 @@ export default function Window() {
 	}, [playerPositionRoom, roomTotal, camera]);
 
 	const handleDetection = useCallback(() => {
-		if (tutorialObjectives[2] === false) {
-			if (roomCurtain) {
+		if (camera.position.x > 1.8 && camera.position.z > 3) {
+			if (roomCurtain && tutorialObjectives[2] === false) {
 				setCursor('clean');
 				setIsDetected(true);
+			} else {
+				setCursor(null);
+				setIsDetected(false);
 			}
+		} else if (!objective && roomCurtain) {
+			setCursor('clean');
+			setIsDetected(true);
 		} else {
-			if (roomCurtain && !objective) {
-				setCursor('clean');
-				setIsDetected(true);
-			}
-		}
-	}, [setCursor, roomCurtain, objective, tutorialObjectives]);
-
-	const handleDetectionEnd = useCallback(() => {
-		if (roomCurtain) {
 			setCursor(null);
 			setIsDetected(false);
 		}
-	}, [setCursor, roomCurtain]);
+	}, [setCursor, camera, roomCurtain, objective, tutorialObjectives]);
 
-	const handleClick = useCallback(() => {
-		if (isDetected && delayedRoomCurtain && !(type === 3 && number === 0)) {
-			Object.values(actions).forEach((action) => {
-				if (!action.isRunning()) {
-					if (action && action.time !== action.getClip().duration) {
-						action.clampWhenFinished = true;
-						action.timeScale = 2;
-						action.loop = THREE.LoopOnce;
-						action.repetitions = 1;
+	const handleDetectionEnd = useCallback(() => {
+		setCursor(null);
+		setIsDetected(false);
+	}, [setCursor]);
 
-						if (windowSoundRef.current) {
-							windowSoundRef.current.play();
-						}
+	useEffect(() => {
+		const handleProgressComplete = () => {
+			if (isDetected && delayedRoomCurtain && !(type === 3 && number === 0)) {
+				document.removeEventListener(
+					'progressComplete',
+					handleProgressComplete
+				);
 
-						action.play();
-						if (tutorialObjectives[2] === false) {
-							setTutorialObjectives([
-								tutorialObjectives[0],
-								tutorialObjectives[1],
-								true,
-							]);
-						} else {
-							setInterfaceObjectives(2, roomNumber);
+				Object.values(actions).forEach((action) => {
+					if (!action.isRunning()) {
+						if (action && action.time !== action.getClip().duration) {
+							action.clampWhenFinished = true;
+							action.timeScale = 2;
+							action.loop = THREE.LoopOnce;
+							action.repetitions = 1;
+
+							if (windowSoundRef.current) {
+								windowSoundRef.current.play();
+							}
+
+							action.play();
+							if (tutorialObjectives[2] === false) {
+								setTutorialObjectives([
+									tutorialObjectives[0],
+									tutorialObjectives[1],
+									true,
+								]);
+							} else {
+								setInterfaceObjectives(2, roomNumber);
+								useGame
+									.getState()
+									.checkObjectiveCompletion('window', roomNumber);
+							}
 						}
 					}
-				}
-			});
-		}
+				});
+
+				setCursor(null);
+				setIsDetected(false);
+			}
+		};
+
+		document.addEventListener('progressComplete', handleProgressComplete);
+
+		return () => {
+			document.removeEventListener('progressComplete', handleProgressComplete);
+		};
 	}, [
 		isDetected,
 		delayedRoomCurtain,
@@ -149,12 +170,8 @@ export default function Window() {
 		roomNumber,
 		tutorialObjectives,
 		setTutorialObjectives,
+		setCursor,
 	]);
-
-	useEffect(() => {
-		document.addEventListener('click', handleClick);
-		return () => document.removeEventListener('click', handleClick);
-	}, [handleClick]);
 
 	const isInit = useRef(false);
 
@@ -164,6 +181,7 @@ export default function Window() {
 				if (action) {
 					action.stop();
 					action.reset();
+					action.time = 0;
 				}
 			});
 		} else {
@@ -177,40 +195,13 @@ export default function Window() {
 							action.loop = THREE.LoopOnce;
 							action.repetitions = 1;
 							action.play();
-							action.time = 10;
+							action.time = action.getClip().duration;
 						}
 					}
 				});
 			}
 		}
 	}, [objective, actions]);
-
-	useEffect(() => {
-		if (tutorialObjectives[2] === false && isInit.current === true) {
-			Object.values(actions).forEach((action) => {
-				if (action) {
-					action.stop();
-					action.reset();
-				}
-			});
-		} else {
-			isInit.current = true;
-			if (tutorialObjectives[2]) {
-				Object.values(actions).forEach((action) => {
-					if (!action.isRunning()) {
-						if (action && action.time !== action.getClip().duration) {
-							action.clampWhenFinished = true;
-							action.timeScale = 2;
-							action.loop = THREE.LoopOnce;
-							action.repetitions = 1;
-							action.play();
-							action.time = 10;
-						}
-					}
-				});
-			}
-		}
-	}, [tutorialObjectives, actions]);
 
 	return (
 		<group
@@ -229,10 +220,73 @@ export default function Window() {
 			/>
 			<group name="Scene">
 				<mesh
-					name="Window"
-					geometry={nodes.Window.geometry}
-					material={nodes.Window.material}
-				/>
+					name="frame"
+					castShadow
+					receiveShadow
+					geometry={nodes.frame.geometry}
+				>
+					<meshStandardMaterial color="white" attach="material" />
+					<mesh
+						name="frame001"
+						castShadow
+						receiveShadow
+						geometry={nodes.frame001.geometry}
+						position={[0.985, 0.045, -0.051]}
+					>
+						<meshStandardMaterial color="lightgrey" attach="material" />
+					</mesh>
+				</mesh>
+				<mesh
+					name="right"
+					castShadow
+					receiveShadow
+					geometry={nodes.right.geometry}
+				>
+					<meshPhysicalMaterial
+						transparent
+						polygonOffset
+						opacity={0.6}
+						polygonOffsetFactor={-1}
+						roughness={0.01}
+						metalness={1}
+						color="white"
+						attach="material"
+					/>
+				</mesh>
+
+				<mesh
+					name="left"
+					castShadow
+					receiveShadow
+					geometry={nodes.left.geometry}
+					material={nodes.left.material}
+					position={[-0.417, -1.128, -5.799]}
+				>
+					<meshPhysicalMaterial
+						transparent
+						polygonOffset
+						opacity={0.6}
+						polygonOffsetFactor={-1}
+						roughness={0.01}
+						metalness={1}
+						color="white"
+						attach="material"
+					/>
+				</mesh>
+				<mesh
+					name="cage"
+					castShadow
+					receiveShadow
+					geometry={nodes.cage.geometry}
+				>
+					<meshStandardMaterial
+						color="#303030"
+						metalness={0.9}
+						roughness={0.5}
+						envMapIntensity={1.5}
+						attach="material"
+					/>
+				</mesh>
 			</group>
 			<PositionalAudio
 				ref={windowSoundRef}

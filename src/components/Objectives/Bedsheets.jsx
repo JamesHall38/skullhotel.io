@@ -68,8 +68,8 @@ export default function Bedsheets() {
 	}, [playerPositionRoom, roomTotal, camera]);
 
 	useEffect(() => {
-		const handleInteraction = () => {
-			if (isDetected) {
+		const handleProgressComplete = () => {
+			if (isDetected && !objective && visibleMesh === 'Start') {
 				const mixer = new THREE.AnimationMixer(animationMeshClone);
 				animations.forEach((clip) => {
 					if (clip.name === 'Bedsheets') {
@@ -78,46 +78,52 @@ export default function Bedsheets() {
 						action.timeScale = 1;
 						action.loop = THREE.LoopOnce;
 						action.repetitions = 1;
-						// action.time = 1.25;
 						action.time = 0;
 						action.play();
 					}
 				});
 				mixerRef.current = mixer;
-				if (visibleMesh === 'Start') {
-					setVisibleMesh('Animated');
+				setVisibleMesh('Animated');
 
-					if (bedsheetsSoundRef.current) {
-						bedsheetsSoundRef.current.play();
-					}
-
-					setTimeout(() => {
-						if (tutorialObjectives[1] === false) {
-							setTutorialObjectives([
-								tutorialObjectives[0],
-								true,
-								tutorialObjectives[2],
-							]);
-						} else {
-							setInterfaceObjectives(1, roomNumber);
-						}
-					}, 1000);
+				if (bedsheetsSoundRef.current) {
+					bedsheetsSoundRef.current.play();
 				}
+
+				setTimeout(() => {
+					if (tutorialObjectives[1] === false) {
+						setTutorialObjectives([
+							tutorialObjectives[0],
+							true,
+							tutorialObjectives[2],
+						]);
+					} else {
+						setInterfaceObjectives(1, roomNumber);
+						useGame
+							.getState()
+							.checkObjectiveCompletion('bedsheets', roomNumber);
+					}
+				}, 1000);
+
+				setCursor(null);
 			}
 		};
 
-		document.addEventListener('click', handleInteraction);
-		return () => document.removeEventListener('click', handleInteraction);
+		document.addEventListener('progressComplete', handleProgressComplete);
+
+		return () => {
+			document.removeEventListener('progressComplete', handleProgressComplete);
+		};
 	}, [
 		animations,
 		animationMeshClone,
 		visibleMesh,
-		camera,
 		roomNumber,
 		tutorialObjectives,
 		setTutorialObjectives,
 		setInterfaceObjectives,
 		isDetected,
+		objective,
+		setCursor,
 	]);
 
 	const isInit = useRef(false);
@@ -125,8 +131,10 @@ export default function Bedsheets() {
 	useEffect(() => {
 		if (objective === false && isInit.current === true) {
 			setVisibleMesh('Start');
-			mixerRef.current.stopAllAction();
-			mixerRef.current.setTime(0);
+			if (mixerRef.current) {
+				mixerRef.current.stopAllAction();
+				mixerRef.current.setTime(0);
+			}
 		} else {
 			isInit.current = true;
 			if (objective) {
@@ -135,21 +143,6 @@ export default function Bedsheets() {
 		}
 	}, [objective, roomNumber]);
 
-	// const tutorialInit = useRef(false);
-
-	// useEffect(() => {
-	// 	if (tutorialObjectives[1] === false && tutorialInit.current === true) {
-	// 		setVisibleMesh('Start');
-	// 		mixerRef.current.stopAllAction();
-	// 		mixerRef.current.setTime(1);
-	// 	} else {
-	// 		tutorialInit.current = true;
-	// 		if (tutorialObjectives[1] === true) {
-	// 			setVisibleMesh('End');
-	// 		}
-	// 	}
-	// }, [tutorialObjectives, roomNumber]);
-
 	useFrame((_, delta) => {
 		if (mixerRef.current) {
 			mixerRef.current.update(delta);
@@ -157,7 +150,7 @@ export default function Bedsheets() {
 				const action = mixerRef.current.existingAction(
 					animations.find((a) => a.name === 'Bedsheets')
 				);
-				if (action && action.time === action.getClip().duration) {
+				if (action && action.time >= action.getClip().duration - 0.1) {
 					setVisibleMesh('End');
 				}
 			}
@@ -165,14 +158,17 @@ export default function Bedsheets() {
 	});
 
 	const handleDetection = useCallback(() => {
-		if (!objective) {
-			setCursor('clean');
-		}
 		if (tutorialObjectives[1] === false) {
 			setCursor('clean');
+			setIsDetected(true);
+			return;
 		}
-		setIsDetected(true);
-	}, [setCursor, objective, tutorialObjectives]);
+
+		if (!objective && visibleMesh === 'Start') {
+			setCursor('clean');
+			setIsDetected(true);
+		}
+	}, [setCursor, objective, tutorialObjectives, visibleMesh]);
 
 	const handleDetectionEnd = useCallback(() => {
 		setCursor(null);

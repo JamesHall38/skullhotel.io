@@ -44,6 +44,12 @@ const Monster = (props) => {
 
 	const runAtCamera = useCallback(
 		(camera, delta, mode = 'run') => {
+			camera.lookAt(
+				group.current.position.x,
+				group.current.position.y + 1.42,
+				group.current.position.z
+			);
+
 			const speed = mode === 'chase' ? CHASE_SPEED : BASE_SPEED;
 			const targetPosition = new THREE.Vector3(
 				camera.position.x,
@@ -90,20 +96,70 @@ const Monster = (props) => {
 				}
 
 				if (mode === 'run') {
-					const direction = new THREE.Vector3(
-						camera.position.x - group.current.position.x,
-						0,
-						camera.position.z - group.current.position.z
-					).normalize();
+					const offsetX = 600;
+					const offsetZ = 150;
 
-					const moveSpeed = speed * delta;
-					group.current.position.add(direction.multiplyScalar(moveSpeed));
+					const monsterX = group.current.position.x * 10 + offsetX;
+					const monsterZ = group.current.position.z * 10 + offsetZ;
+					const targetX = camera.position.x * 10 + offsetX;
+					const targetZ = camera.position.z * 10 + offsetZ;
 
-					group.current.lookAt(
-						camera.position.x,
-						group.current.position.y,
-						camera.position.z
+					const distanceMoved = Math.sqrt(
+						Math.pow(lastTargetRef.current.x - targetX, 2) +
+							Math.pow(lastTargetRef.current.z - targetZ, 2)
 					);
+
+					if (!currentPath || distanceMoved > MIN_DISTANCE_FOR_RECALCULATION) {
+						const newPath = findPath(monsterX, monsterZ, targetX, targetZ);
+						setCurrentPath(newPath);
+						lastTargetRef.current = { x: targetX, z: targetZ };
+					}
+
+					if (currentPath && currentPath.length > 1) {
+						const nextPoint = currentPath[1];
+
+						const direction = new THREE.Vector3(
+							(nextPoint.x - offsetX) / 10 - group.current.position.x,
+							0,
+							(nextPoint.z - offsetZ) / 10 - group.current.position.z
+						).normalize();
+
+						const moveSpeed = speed * delta;
+
+						group.current.position.add(direction.multiplyScalar(moveSpeed));
+
+						lookAtCamera(camera);
+
+						const distanceToNextPoint = Math.sqrt(
+							Math.pow(
+								(nextPoint.x - offsetX) / 10 - group.current.position.x,
+								2
+							) +
+								Math.pow(
+									(nextPoint.z - offsetZ) / 10 - group.current.position.z,
+									2
+								)
+						);
+
+						if (distanceToNextPoint < NEXT_POINT_THRESHOLD) {
+							setCurrentPath(currentPath.slice(1));
+						}
+					} else {
+						const direction = new THREE.Vector3(
+							camera.position.x - group.current.position.x,
+							0,
+							camera.position.z - group.current.position.z
+						).normalize();
+
+						const moveSpeed = speed * delta;
+						group.current.position.add(direction.multiplyScalar(moveSpeed));
+
+						group.current.lookAt(
+							camera.position.x,
+							group.current.position.y,
+							camera.position.z
+						);
+					}
 				} else {
 					const offsetX = 600;
 					const offsetZ = 150;
@@ -227,10 +283,12 @@ const Monster = (props) => {
 				group.current.rotation.y = group.current.rotation.y / 1.5 + 0.2;
 				group.current.rotation.z = 0;
 			}
-		} else if (monsterState === 'run') {
-			runAtCamera(camera, clock.getDelta() * 100, 'run');
-		} else if (monsterState === 'chase') {
-			runAtCamera(camera, clock.getDelta() * 100, 'chase');
+		} else if (monsterState === 'run' || monsterState === 'chase') {
+			const game = useGame.getState();
+			// Ne pas attaquer si le joueur est caché
+			if (!game.isPlayerHidden(camera)) {
+				runAtCamera(camera, clock.getDelta() * 100, monsterState);
+			}
 		}
 	});
 

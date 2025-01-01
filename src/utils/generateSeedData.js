@@ -2,31 +2,50 @@ import levelData from '../components/Monster/Triggers/levelData';
 
 const numberOfRooms = 20;
 
+function getDebugHidingRooms() {
+	return {
+		empty_1: { type: 'empty', number: 1 },
+		empty_2: {
+			type: 'empty',
+			number: 2,
+			hideObjective: 'window',
+			hideSpot: 'roomCurtain',
+		},
+		empty_3: {
+			type: 'empty',
+			number: 3,
+			hideObjective: 'bedsheets',
+			hideSpot: 'desk',
+		},
+		empty_4: {
+			type: 'empty',
+			number: 4,
+			hideObjective: 'bottles',
+			hideSpot: 'bathroomCurtain',
+		},
+	};
+}
+
 export default function generateSeedData(
 	isTestMode = false,
 	selectedRoom = null
 ) {
 	if (selectedRoom && levelData[selectedRoom]) {
-		let selectedRooms = {};
-		const roomData = levelData[selectedRoom];
-
-		for (let i = 0; i < numberOfRooms; i++) {
-			selectedRooms[`${selectedRoom}_${i}`] = {
-				...roomData,
+		return {
+			[selectedRoom]: {
+				...levelData[selectedRoom],
 				type: selectedRoom,
-				number: i,
-			};
-		}
-
-		return selectedRooms;
+			},
+		};
 	}
 
 	if (isTestMode) {
-		let selectedRooms = {};
+		let selectedRooms = getDebugHidingRooms();
 		let allNonEmptyRooms = Object.entries(levelData).flat();
 
 		allNonEmptyRooms.forEach((room, index) => {
 			if (Array.isArray(room)) return; // Skip array entries
+			if (index < 5) return; // Skip first 5 rooms which are hiding rooms
 			selectedRooms[`${room.type || 'room'}_${index}`] = { ...room };
 		});
 

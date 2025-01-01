@@ -1,23 +1,16 @@
-// import React, { useMemo } from 'react';
+// import React from 'react';
 // import { Box } from '@react-three/drei';
 // import useGridStore, { CELL_TYPES } from '../hooks/useGrid';
 
 const Grid = () => {
-	// const { getAllWalls, getAllBoundaries, grid } = useGridStore();
-
-	// // eslint-disable-next-line react-hooks/exhaustive-deps
-	// const walls = useMemo(() => getAllWalls(), [getAllWalls, grid]);
-	// const boundaries = useMemo(() => getAllBoundaries(), [getAllBoundaries]);
-
-	// const filteredBoundaries = useMemo(
-	// 	() => boundaries.filter((cell) => cell.type !== CELL_TYPES.WALL),
-	// 	[boundaries]
-	// );
-
-	// const getCellColor = (cellType) => {
+	// const { grid } = useGridStore();
+	// const getCellColor = (cellType, hidingSpot) => {
+	// 	if (hidingSpot) {
+	// 		return 'magenta';
+	// 	}
 	// 	switch (cellType) {
-	// 		case CELL_TYPES.WALL:
-	// 			return 'gray';
+	// 		// case CELL_TYPES.WALL:
+	// 		// 	return 'gray';
 	// 		case CELL_TYPES.RAISED_AREA_LOW:
 	// 			return 'darkblue';
 	// 		case CELL_TYPES.RAISED_AREA_HIGH:
@@ -42,20 +35,16 @@ const Grid = () => {
 	// 		position={[cell.x * 0.1, 0.05, cell.z * 0.1]}
 	// 		args={[0.1, 0.1, 0.1]}
 	// 	>
-	// 		<meshStandardMaterial color={getCellColor(cell.type)} />
+	// 		<meshStandardMaterial color={getCellColor(cell.type, cell.hidingSpot)} />
 	// 	</Box>
 	// );
 
 	return (
 		<group position={[-60, 0.5, -15]}>
 			{/* {Object.values(grid).map((cell) =>
-				cell.type !== CELL_TYPES.EMPTY
+				cell.type !== CELL_TYPES.EMPTY || cell.hidingSpot
 					? renderCell(cell, `cell-${cell.x},${cell.z}`)
 					: null
-			)} */}
-			{/* {walls.map((wall) => renderCell(wall, `wall-${wall.x},${wall.z}`))} */}
-			{/* {filteredBoundaries.map((boundary) =>
-				renderCell(boundary, `boundary-${boundary.x},${boundary.z}`)
 			)} */}
 		</group>
 	);

@@ -217,8 +217,9 @@ export default function Triggers() {
 		if (
 			!Object.values(seedData)[playerPositionRoom] ||
 			Object.values(seedData)[playerPositionRoom]?.type === 'empty'
-		)
+		) {
 			return undefined;
+		}
 
 		const isFacingRoom = playerPositionRoom >= roomTotal / 2;
 
@@ -280,7 +281,10 @@ export default function Triggers() {
 			{controls.visible && (
 				<group
 					rotation={[0, playerPositionRoom >= roomTotal / 2 ? Math.PI : 0, 0]}
-					visible={!seedData[playerPositionRoom]?.type === 'empty'}
+					visible={
+						!seedData[playerPositionRoom] ||
+						seedData[playerPositionRoom].type !== 'empty'
+					}
 				>
 					{Object.entries(BOXES_CONFIG).map(([color]) => (
 						<mesh

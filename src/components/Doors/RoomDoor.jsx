@@ -1,5 +1,6 @@
 import { useMemo, useRef, useEffect } from 'react';
 import { useGLTF } from '@react-three/drei';
+import { useFrame } from '@react-three/fiber';
 import useDoor from '../../hooks/useDoor';
 import useGame from '../../hooks/useGame';
 import DoorWrapper from './DoorWrapper';
@@ -10,8 +11,12 @@ import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry';
 
 export default function RoomDoor({ roomNumber }) {
 	const { nodes, materials } = useGLTF('/models/doors/door.glb');
+	const handleRef = useRef();
+	const handleRotationRef = useRef(0);
 	const isOpen = useDoor((state) => state.roomDoor[roomNumber]);
 	const setOpen = useDoor((state) => state.setRoomDoor);
+	const isHandlePressed = useDoor((state) => state.roomDoorHandle[roomNumber]);
+	const setHandlePressed = useDoor((state) => state.setRoomDoorHandle);
 	const setPlayerPositionRoom = useGame((state) => state.setPlayerPositionRoom);
 	const woodMaterial = WoodMaterial();
 	const textRef = useRef();
@@ -55,6 +60,18 @@ export default function RoomDoor({ roomNumber }) {
 		[]
 	);
 
+	useFrame((_, delta) => {
+		if (!handleRef.current) return;
+
+		const targetRotation = isHandlePressed ? -Math.PI / 4 : 0;
+		handleRotationRef.current = THREE.MathUtils.lerp(
+			handleRotationRef.current,
+			targetRotation,
+			delta * 15
+		);
+		handleRef.current.rotation.z = handleRotationRef.current;
+	});
+
 	return (
 		<DoorWrapper
 			roomNumber={roomNumber}
@@ -64,10 +81,19 @@ export default function RoomDoor({ roomNumber }) {
 				setOpen(roomNumber, value);
 				setPlayerPositionRoom(roomNumber);
 			}}
+			isHandlePressed={isHandlePressed}
+			setHandlePressed={(value) => setHandlePressed(roomNumber, value)}
 		>
 			<mesh geometry={nodes.Cube003_4.geometry} material={woodMaterial} />
 			<mesh geometry={nodes.Lock.geometry} material={lockMaterial} />
-			<mesh geometry={nodes.Handles.geometry} material={materials.Handle} />
+			<mesh
+				ref={handleRef}
+				geometry={nodes.Handles.geometry}
+				position={[-1.128, 0.105, 0]}
+				material={materials.Handle}
+			>
+				<primitive object={nodes.Handles.geometry} />
+			</mesh>
 			<mesh geometry={nodes.Cube003.geometry} material={materials.Frame} />
 			<mesh geometry={nodes.Cube003_1.geometry} material={materials.Handle} />
 			<mesh geometry={nodes.Cube003_2.geometry} material={materials.Metal} />

@@ -26,8 +26,9 @@ const GRID_OFFSET_Z = 150;
 export default function Movement({
 	playerPosition,
 	playerVelocity,
-	isCrouching,
+	isCrouchingRef,
 	isRunning,
+	crouchProgressRef,
 }) {
 	const playerPositionRoom = useGame((state) => state.realPlayerPositionRoom);
 	const monsterState = useMonster((state) => state.monsterState);
@@ -100,6 +101,7 @@ export default function Movement({
 		}
 
 		if (isInsideDoor) {
+			console.log('isInsideDoor', cell);
 			if (cell.type === CELL_TYPES.EMPTY) {
 				setIsInsideDoor(false);
 			}
@@ -147,7 +149,7 @@ export default function Movement({
 			(cell.type === CELL_TYPES.CROUCH_ONLY ||
 				cell.type === CELL_TYPES.DESK_DOOR_CLOSED ||
 				cell.type === CELL_TYPES.NIGHTSTAND_DOOR_CLOSED) &&
-			!isCrouching
+			!isCrouchingRef.current
 		) {
 			return true;
 		}
@@ -208,7 +210,11 @@ export default function Movement({
 		direction
 			.normalize()
 			.multiplyScalar(
-				isRunning ? RUN_SPEED : isCrouching ? CROUCH_SPEED : WALK_SPEED
+				isRunning
+					? RUN_SPEED
+					: isCrouchingRef.current
+					? CROUCH_SPEED
+					: WALK_SPEED
 			);
 
 		playerVelocity.current.copy(direction);
@@ -244,8 +250,15 @@ export default function Movement({
 			playerPosition.current.z = newPosition.z;
 		}
 
-		state.camera.position.copy(playerPosition.current);
-		state.camera.position.y += isCrouching ? CROUCH_CAMERA_OFFSET : 1.7;
+		// state.camera.position.copy(playerPosition.current);
+		state.camera.position.x = playerPosition.current.x;
+		state.camera.position.z = playerPosition.current.z;
+		const standingHeight = 1.7;
+		const crouchHeight = CROUCH_CAMERA_OFFSET;
+		state.camera.position.y =
+			playerPosition.current.y +
+			standingHeight -
+			(standingHeight - crouchHeight) * crouchProgressRef.current;
 
 		if (monsterState === 'run') {
 			playerVelocity.current.x = 0;

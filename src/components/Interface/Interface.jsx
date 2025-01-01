@@ -11,12 +11,15 @@ import useJoysticks from '../../hooks/useJoysticks';
 import Cursor from './Cursor';
 import { regenerateData } from '../../utils/config';
 import './Interface.css';
+import useLight from '../../hooks/useLight';
 
 function resetGame() {
 	useGame.getState().restart();
 	useInterface.getState().restart();
 	useDoor.getState().restart();
 	useMonster.getState().restart();
+	useGame.getState().setPlayIntro(true);
+	useLight.getState().restart();
 }
 
 const SPEED = 0.01;
@@ -154,6 +157,18 @@ export default function Interface() {
 	const setTutorialObjectives = useInterface(
 		(state) => state.setTutorialObjectives
 	);
+	const setPlayIntro = useGame((state) => state.setPlayIntro);
+	const { active, progress } = useProgress();
+	const [displayProgress, setDisplayProgress] = useState(0);
+	const tutorialObjectives = useInterface((state) => state.tutorialObjectives);
+	const setEnd = useGame((state) => state.setEnd);
+	const end = useGame((state) => state.end);
+	const loading = useGame((state) => state.loading);
+	const setLoading = useGame((state) => state.setLoading);
+	const openDeathScreen = useGame((state) => state.openDeathScreen);
+	const setOpenDeathScreen = useGame((state) => state.setOpenDeathScreen);
+	const playerPositionRoom = useGame((state) => state.playerPositionRoom);
+	const seedData = useGame((state) => state.seedData);
 
 	useEffect(() => {
 		const checkMobile = () => {
@@ -180,17 +195,6 @@ export default function Interface() {
 	const objectives = useInterface((state) => state.interfaceObjectives);
 	const interfaceAction = useInterface((state) => state.interfaceAction);
 	const [activeDialogues, setActiveDialogues] = useState([]);
-	const { active, progress } = useProgress();
-	const [displayProgress, setDisplayProgress] = useState(0);
-	const tutorialObjectives = useInterface((state) => state.tutorialObjectives);
-	const setEnd = useGame((state) => state.setEnd);
-	const end = useGame((state) => state.end);
-	const loading = useGame((state) => state.loading);
-	const setLoading = useGame((state) => state.setLoading);
-	const openDeathScreen = useGame((state) => state.openDeathScreen);
-	const setOpenDeathScreen = useGame((state) => state.setOpenDeathScreen);
-	const playerPositionRoom = useGame((state) => state.playerPositionRoom);
-	const seedData = useGame((state) => state.seedData);
 
 	const doneObjectives = useMemo(() => {
 		return objectives.filter((subArray) =>
@@ -257,6 +261,7 @@ export default function Interface() {
 							e.stopPropagation();
 						} else {
 							setLoading(false);
+							setPlayIntro(true);
 						}
 					}}
 				>
@@ -359,6 +364,7 @@ export default function Interface() {
 					<div
 						onClick={(e) => {
 							e.stopPropagation();
+							resetGame();
 							setEnd(false);
 							document.documentElement.click();
 						}}

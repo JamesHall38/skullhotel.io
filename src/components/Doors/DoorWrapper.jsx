@@ -13,6 +13,8 @@ export default function DoorWrapper({
 	roomNumber,
 	isOpen,
 	setOpen,
+	isHandlePressed,
+	setHandlePressed,
 	reverse,
 	rotate,
 	offset,
@@ -90,16 +92,28 @@ export default function DoorWrapper({
 	}, [isOpen, hasInitialized, closet]);
 
 	useEffect(() => {
-		const handleClick = () => {
+		const handlePointerDown = () => {
+			if (canOpenRef.current && setHandlePressed) {
+				setHandlePressed(true);
+			}
+		};
+
+		const handlePointerUp = () => {
 			if (canOpenRef.current) {
+				if (setHandlePressed) setHandlePressed(false);
 				setOpen(!isOpen);
 				animationProgressRef.current = 0;
 			}
 		};
 
-		window.addEventListener('click', handleClick);
-		return () => window.removeEventListener('click', handleClick);
-	}, [canOpenRef, isOpen, setOpen]);
+		window.addEventListener('pointerdown', handlePointerDown);
+		window.addEventListener('pointerup', handlePointerUp);
+
+		return () => {
+			window.removeEventListener('pointerdown', handlePointerDown);
+			window.removeEventListener('pointerup', handlePointerUp);
+		};
+	}, [canOpenRef, isOpen, setOpen, setHandlePressed]);
 
 	useEffect(() => {
 		if (doorRef.current) {

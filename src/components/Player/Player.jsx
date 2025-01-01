@@ -9,22 +9,25 @@ import FootSteps from './FootSteps';
 
 export default function Player() {
 	const [isRunning, setIsRunning] = useState(false);
-	const [isCrouching, setIsCrouching] = useState(false);
 	const playerPosition = useRef(new THREE.Vector3());
 	const playerVelocity = useRef(new THREE.Vector3());
+	const isCrouchingRef = useRef(false);
+	const crouchProgressRef = useRef(0);
 
 	return (
 		<>
 			<Movement
 				playerPosition={playerPosition}
 				playerVelocity={playerVelocity}
-				isCrouching={isCrouching}
+				isCrouchingRef={isCrouchingRef}
 				isRunning={isRunning}
+				crouchProgressRef={crouchProgressRef}
 			/>
 			<Jump
 				playerPosition={playerPosition}
 				playerVelocity={playerVelocity}
-				isCrouching={isCrouching}
+				isCrouchingRef={isCrouchingRef}
+				crouchProgressRef={crouchProgressRef}
 			/>
 			<Rotation
 				playerPosition={playerPosition}
@@ -32,8 +35,16 @@ export default function Player() {
 				setIsRunning={setIsRunning}
 			/>
 			<FootSteps playerPosition={playerPosition} />
-			<Flashlight playerRef={playerPosition} isCrouching={isCrouching} />
-			<Crouch setIsCrouching={setIsCrouching} playerPosition={playerPosition} />
+			<Flashlight
+				playerRef={playerPosition}
+				isCrouchingRef={isCrouchingRef}
+				crouchProgressRef={crouchProgressRef}
+			/>
+			<Crouch
+				isCrouchingRef={isCrouchingRef}
+				crouchProgressRef={crouchProgressRef}
+				playerPosition={playerPosition}
+			/>
 		</>
 	);
 }

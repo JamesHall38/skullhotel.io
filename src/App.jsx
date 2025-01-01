@@ -1,13 +1,6 @@
 import { useEffect, Suspense, useMemo, useRef } from 'react';
 import { KeyboardControls, PointerLockControls } from '@react-three/drei';
 import { Canvas, useThree, useFrame } from '@react-three/fiber';
-import {
-	EffectComposer,
-	ChromaticAberration,
-	Vignette,
-	Noise,
-	Glitch,
-} from '@react-three/postprocessing';
 import Interface from './components/Interface/Interface';
 import './style.css';
 import useGame from './hooks/useGame';
@@ -15,6 +8,8 @@ import useInterface from './hooks/useInterface';
 import useDoor from './hooks/useDoor';
 import useMonster from './hooks/useMonster';
 import useGridStore from './hooks/useGrid';
+import useLight from './hooks/useLight';
+import PostProcessing from './components/PostProcessing/PostProcessing';
 
 import { Perf } from 'r3f-perf';
 import { Leva, useControls, button } from 'leva';
@@ -111,6 +106,8 @@ function resetGame() {
 	useInterface.getState().restart();
 	useDoor.getState().restart();
 	useMonster.getState().restart();
+	useGame.getState().setPlayIntro(true);
+	useLight.getState().restart();
 }
 
 const CORRIDORLENGTH = 5.95;
@@ -161,7 +158,38 @@ function App() {
 	const initializeIfNeeded = useGridStore((state) => state.initializeIfNeeded);
 
 	useEffect(() => {
-		const newSeedData = generateSeedData(false, selectedRoom);
+		let newSeedData;
+		if (selectedRoom) {
+			// Si une room est sélectionnée, on la met en première position
+			newSeedData = {
+				[selectedRoom]: {
+					...levelData[selectedRoom],
+					type: selectedRoom,
+				},
+				// On ajoute les rooms de cachette
+				empty_1: {
+					type: 'empty',
+					number: 1,
+					hideObjective: 'window',
+					hideSpot: 'roomCurtain',
+				},
+				empty_2: {
+					type: 'empty',
+					number: 2,
+					hideObjective: 'bedsheets',
+					hideSpot: 'desk',
+				},
+				empty_3: {
+					type: 'empty',
+					number: 3,
+					hideObjective: 'bottles',
+					hideSpot: 'bathroomCurtain',
+				},
+			};
+		} else {
+			newSeedData = generateSeedData(false, selectedRoom);
+		}
+		console.log(newSeedData);
 		useGame.getState().setSeedData(newSeedData);
 		initializeIfNeeded();
 	}, [initializeIfNeeded, selectedRoom]);
@@ -315,39 +343,10 @@ function App() {
 	);
 }
 
-const PostProcessing = () => {
-	const monsterState = useMonster((state) => state.monsterState);
-
-	return (
-		<EffectComposer>
-			{/* <Posterize levels={64} /> */}
-			<ChromaticAberration offset={[0.001, 0.001]} />
-			<Vignette
-				eskil={false}
-				offset={0.05}
-				darkness={
-					0
-					// 1.2
-				}
-			/>
-			<Noise opacity={0.1} />
-			<Glitch
-				// active={shakeIntensity > 1}
-				// strength={shakeIntensity * 0.02}
-				active={monsterState === 'run' || monsterState === 'chase'}
-				strength={monsterState === 'run' || monsterState === 'chase' ? 0.2 : 0}
-			/>
-		</EffectComposer>
-	);
-};
-
 export default function AppCanvas() {
 	const isMobile = useGame((state) => state.isMobile);
 
-	const {
-		perfVisible,
-		// resetGame: resetGameControl,
-	} = useControls({
+	const { perfVisible } = useControls({
 		perfVisible: { value: false, label: 'Show performances' },
 		'Reset game': button(() => {
 			regenerateData();
@@ -359,7 +358,9 @@ export default function AppCanvas() {
 
 	return (
 		<>
-			<Leva collapsed hidden={!isDebugMode} />
+			<div onClick={(e) => e.stopPropagation()}>
+				<Leva collapsed hidden={!isDebugMode} />
+			</div>
 			<Suspense fallback={null}>
 				<Canvas
 					camera={{

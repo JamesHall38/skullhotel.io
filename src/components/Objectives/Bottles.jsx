@@ -75,31 +75,40 @@ export default function Bottles() {
 	}, [playerPositionRoom, roomTotal, camera]);
 
 	const handleDetection = useCallback(() => {
-		if (!tutorialObjectives.every((value) => value === true)) {
-			if (Math.abs(camera.position.z) > 0.4 && bathroomCurtain) {
+		if (camera.position.x > 1.8 && camera.position.z > 3) {
+			if (bathroomCurtain && tutorialObjectives[0] === false) {
 				setCursor('clean');
-
 				setIsDetected(true);
+			} else {
+				setCursor(null);
+				setIsDetected(false);
 			}
+		} else if (
+			!objective &&
+			Math.abs(camera.position.z) > 0.4 &&
+			bathroomCurtain
+		) {
+			setCursor('clean');
+			setIsDetected(true);
 		} else {
-			if (Math.abs(camera.position.z) > 0.4 && bathroomCurtain && !objective) {
-				setCursor('clean');
-
-				setIsDetected(true);
-			}
+			setCursor(null);
+			setIsDetected(false);
 		}
 	}, [setCursor, camera, bathroomCurtain, objective, tutorialObjectives]);
 
 	const handleDetectionEnd = useCallback(() => {
-		if (Math.abs(camera.position.z) > 0.4 && bathroomCurtain) {
-			setCursor(null);
-			setIsDetected(false);
-		}
-	}, [setCursor, camera, bathroomCurtain]);
+		setCursor(null);
+		setIsDetected(false);
+	}, [setCursor]);
 
 	useEffect(() => {
-		const onClick = () => {
+		const handleProgressComplete = () => {
 			if (isDetected && delayedBathroomCurtain) {
+				document.removeEventListener(
+					'progressComplete',
+					handleProgressComplete
+				);
+
 				Object.values(actions).forEach((action) => {
 					if (!action.isRunning()) {
 						if (action && action.time !== action.getClip().duration) {
@@ -122,16 +131,23 @@ export default function Bottles() {
 								]);
 							} else {
 								setInterfaceObjectives(0, roomNumber);
+								useGame
+									.getState()
+									.checkObjectiveCompletion('bottles', roomNumber);
 							}
 						}
 					}
 				});
+
+				setCursor(null);
+				setIsDetected(false);
 			}
 		};
-		document.addEventListener('click', onClick);
+
+		document.addEventListener('progressComplete', handleProgressComplete);
 
 		return () => {
-			document.removeEventListener('click', onClick);
+			document.removeEventListener('progressComplete', handleProgressComplete);
 		};
 	}, [
 		actions,
@@ -141,6 +157,7 @@ export default function Bottles() {
 		roomNumber,
 		setTutorialObjectives,
 		tutorialObjectives,
+		setCursor,
 	]);
 
 	const isInit = useRef(false);
@@ -151,10 +168,24 @@ export default function Bottles() {
 				if (action) {
 					action.stop();
 					action.reset();
+					action.time = 0;
 				}
 			});
 		} else {
 			isInit.current = true;
+			if (objective) {
+				Object.values(actions).forEach((action) => {
+					if (!action.isRunning()) {
+						if (action && action.time !== action.getClip().duration) {
+							action.clampWhenFinished = true;
+							action.loop = THREE.LoopOnce;
+							action.repetitions = 1;
+							action.play();
+							action.time = action.getClip().duration;
+						}
+					}
+				});
+			}
 		}
 	}, [objective, actions]);
 
