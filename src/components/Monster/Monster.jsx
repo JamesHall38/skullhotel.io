@@ -240,6 +240,7 @@ const Monster = (props) => {
 			headBoneRef.current &&
 			monsterState !== 'run' &&
 			monsterState !== 'chase' &&
+			monsterState !== 'leaving' &&
 			monsterState !== 'facingCamera'
 		) {
 			const headOffset =
@@ -284,10 +285,35 @@ const Monster = (props) => {
 				group.current.rotation.z = 0;
 			}
 		} else if (monsterState === 'run' || monsterState === 'chase') {
-			const game = useGame.getState();
-			// Ne pas attaquer si le joueur est caché
-			if (!game.isPlayerHidden(camera)) {
-				runAtCamera(camera, clock.getDelta() * 100, monsterState);
+			runAtCamera(camera, clock.getDelta() * 100, monsterState);
+		} else if (monsterState === 'leaving') {
+			const targetPos = useMonster.getState().targetPosition;
+			if (targetPos) {
+				const delta = clock.getDelta() * 100;
+				const speed = 0.5;
+
+				const direction = new THREE.Vector3(
+					targetPos[0] - group.current.position.x,
+					0,
+					targetPos[2] - group.current.position.z
+				).normalize();
+
+				const moveAmount = direction.multiplyScalar(speed * delta);
+				group.current.position.add(moveAmount);
+
+				useMonster
+					.getState()
+					.setMonsterPosition([
+						group.current.position.x,
+						group.current.position.y,
+						group.current.position.z,
+					]);
+
+				group.current.lookAt(
+					targetPos[0],
+					group.current.position.y,
+					targetPos[2]
+				);
 			}
 		}
 	});

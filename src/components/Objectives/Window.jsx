@@ -144,7 +144,7 @@ export default function Window() {
 								setInterfaceObjectives(2, roomNumber);
 								useGame
 									.getState()
-									.checkObjectiveCompletion('window', roomNumber);
+									.checkObjectiveCompletion('window', roomNumber, camera);
 							}
 						}
 					}

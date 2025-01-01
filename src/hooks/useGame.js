@@ -5,7 +5,7 @@ import useHiding from './useHiding';
 import useInterface from './useInterface';
 import useMonster from './useMonster';
 import useDoor from './useDoor';
-import useGridStore from './useGrid';
+import useGrid from './useGrid';
 
 const CORRIDORLENGTH = 5.95;
 
@@ -101,61 +101,7 @@ const useGameStore = create(
 		setRadio: (state) => set(() => ({ radio: state })),
 
 		// Objectives
-		isPlayerHidden: (camera) => {
-			const doors = useDoor.getState();
-			const hiding = useHiding.getState();
-			const hideSpot = hiding.hideSpot;
-			const getCell = useGridStore.getState().getCell;
-
-			// Si on n'a pas de hideSpot défini, le joueur n'est pas caché
-			if (!hideSpot || !camera) return false;
-
-			// Convertir la position de la caméra en position de grille
-			const GRID_OFFSET_X = 600;
-			const GRID_OFFSET_Z = 150;
-			const playerX = Math.floor(camera.position.x * 10 + GRID_OFFSET_X);
-			const playerZ = Math.floor(camera.position.z * 10 + GRID_OFFSET_Z);
-
-			// Récupérer la cellule actuelle
-			const currentCell = getCell(playerX, playerZ);
-
-			// Vérifier si on est dans une cachette
-			let isHidden = false;
-			let hidingSpotName = '';
-
-			switch (hideSpot) {
-				case 'roomCurtain':
-					isHidden =
-						currentCell.hidingSpot === 'room_curtain' && !doors.roomCurtain;
-					hidingSpotName = 'rideau de la chambre';
-					break;
-				case 'bathroomCurtain':
-					isHidden =
-						currentCell.hidingSpot === 'bathroom_curtain' &&
-						!doors.bathroomCurtain;
-					hidingSpotName = 'rideau de la salle de bain';
-					break;
-				case 'desk':
-					isHidden = currentCell.hidingSpot === 'desk' && !doors.desk;
-					hidingSpotName = 'bureau';
-					break;
-				case 'nightstand':
-					isHidden =
-						currentCell.hidingSpot === 'nightstand' && !doors.nightStand;
-					hidingSpotName = 'table de nuit';
-					break;
-				default:
-					isHidden = false;
-			}
-
-			if (isHidden) {
-				console.log(`Caché dans : ${hidingSpotName}`);
-			}
-
-			return isHidden;
-		},
-
-		checkObjectiveCompletion: (objective, room) => {
+		checkObjectiveCompletion: (objective, room, camera) => {
 			const state = get();
 			const roomData = state.seedData[`empty_${room}`];
 
@@ -182,30 +128,92 @@ const useGameStore = create(
 					monster.playAnimation('Run');
 					monster.setAnimationSpeed(1);
 				} else {
-					// Sinon, il toque à la porte
 					hiding.setMonsterKnocking(true);
 					hiding.setKnockingRoom(room);
 					hiding.setHideSpot(roomData.hideSpot);
 
-					// Start a timer for the monster to enter
 					setTimeout(() => {
 						const hiding = useHiding.getState();
 						const monster = useMonster.getState();
-						const doors = useDoor.getState();
+						let doors = useDoor.getState();
+
 						if (hiding.isMonsterKnocking) {
-							// Ouvrir la porte
 							doors.setRoomDoor(room, true);
 
-							// Attendre un peu que la porte s'ouvre avant que le monstre n'entre
-							setTimeout(() => {
-								hiding.setMonsterKnocking(false);
-								hiding.setMonsterEntering(true);
-								monster.setMonsterState('run');
-								monster.playAnimation('Run');
-								monster.setAnimationSpeed(1);
-							}, 1000); // Attendre 1 seconde après l'ouverture de la porte
+							let checkCount = 0;
+							const maxChecks = 5;
+							const checkInterval = setInterval(() => {
+								const isHidden = useHiding.getState().isPlayerHidden;
+								checkCount++;
+
+								if (!isHidden && checkCount >= maxChecks) {
+									clearInterval(checkInterval);
+									hiding.setMonsterKnocking(false);
+									hiding.setMonsterEntering(true);
+									monster.setMonsterState('run');
+									monster.playAnimation('Run');
+									monster.setAnimationSpeed(1);
+								} else if (isHidden && checkCount >= maxChecks) {
+									clearInterval(checkInterval);
+									hiding.setMonsterKnocking(false);
+									monster.setMonsterState('leaving');
+									monster.playAnimation('Walk');
+									monster.setAnimationSpeed(0.5);
+									monster.setTargetPosition([0, 0, 2]);
+
+									// Surveiller si le joueur sort pendant que le monstre part
+									const checkPlayerHiding = setInterval(() => {
+										const hiding = useHiding.getState();
+										const monster = useMonster.getState();
+										const doors = useDoor.getState();
+
+										console.log('État actuel:', JSON.stringify({
+											hiding: {
+												isPlayerHidden: hiding.isPlayerHidden,
+												hideSpot: hiding.hideSpot,
+												canExitHiding: hiding.canExitHiding,
+												monsterKnocking: hiding.isMonsterKnocking,
+												monsterEntering: hiding.isMonsterEntering
+											},
+											monster: {
+												state: monster.monsterState,
+												position: monster.monsterPosition,
+												targetPosition: monster.targetPosition
+											},
+											doors: {
+												roomDoor: doors.roomDoor,
+												roomCurtain: doors.roomCurtain
+											}
+										}, null, 2));
+
+										const isStillHidden = hiding.isPlayerHidden;
+										const currentMonsterState = monster.monsterState;
+										const canExit = hiding.canExitHiding;
+
+										// Si le joueur sort avant que canExitHiding soit true
+										if (!isStillHidden && !canExit) {
+											console.log('Le monstre attaque car:', {
+												isStillHidden,
+												canExit,
+												hideSpot: hiding.hideSpot
+											});
+											clearInterval(checkPlayerHiding);
+											monster.setMonsterState('run');
+											monster.playAnimation('Run');
+											monster.setAnimationSpeed(1);
+										}
+									}, 100);
+
+									// Attendre 2 secondes puis fermer la porte
+									setTimeout(() => {
+										doors.setRoomDoor(room, false);
+										hiding.setCanExitHiding(true);
+										clearInterval(checkPlayerHiding);
+									}, 2000);
+								}
+							}, 400);
 						}
-					}, 10000); // 10 seconds to hide
+					}, 10000);
 				}
 			}
 		},

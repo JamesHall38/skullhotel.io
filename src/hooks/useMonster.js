@@ -37,6 +37,9 @@ const useMonsterStore = create(
 				animationMixSpeed: 10,
 			}));
 		},
+
+		targetPosition: null,
+		setTargetPosition: (position) => set({ targetPosition: position }),
 	}))
 );
 

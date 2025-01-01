@@ -223,22 +223,17 @@ export default function Interface() {
 		let rafId;
 
 		const updateProgress = () => {
-			if (displayProgress < progress) {
-				const increment = Math.max(0.1, (100 - displayProgress) / 200);
-				setDisplayProgress((prev) => Math.min(progress, prev + increment));
-				rafId = requestAnimationFrame(updateProgress);
-			} else {
-				cancelAnimationFrame(rafId);
-				if (progress === 100 && displayProgress < 100) {
-					setDisplayProgress(100);
-				}
+			setDisplayProgress(progress);
+
+			if (progress === 100 && displayProgress < 100) {
+				setDisplayProgress(100);
 			}
 		};
 
 		rafId = requestAnimationFrame(updateProgress);
 
 		return () => cancelAnimationFrame(rafId);
-	}, [displayProgress, progress, active]);
+	}, [progress, active]);
 
 	const handleJoystickMove = useCallback(
 		(side, x, y) => {

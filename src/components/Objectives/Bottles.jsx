@@ -133,7 +133,7 @@ export default function Bottles() {
 								setInterfaceObjectives(0, roomNumber);
 								useGame
 									.getState()
-									.checkObjectiveCompletion('bottles', roomNumber);
+									.checkObjectiveCompletion('bottles', roomNumber, camera);
 							}
 						}
 					}

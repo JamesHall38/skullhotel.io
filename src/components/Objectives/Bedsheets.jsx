@@ -100,7 +100,7 @@ export default function Bedsheets() {
 						setInterfaceObjectives(1, roomNumber);
 						useGame
 							.getState()
-							.checkObjectiveCompletion('bedsheets', roomNumber);
+							.checkObjectiveCompletion('bedsheets', roomNumber, camera);
 					}
 				}, 1000);
 
