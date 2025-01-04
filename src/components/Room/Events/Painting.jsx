@@ -122,7 +122,7 @@ export default function Painting(props) {
 			)}
 			<mesh
 				ref={groupRef}
-				castShadow
+				receiveShadow
 				geometry={nodes.Abstract_Painting.geometry}
 				material={materials.Abstract_Painting}
 			/>

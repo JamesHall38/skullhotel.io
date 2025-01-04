@@ -84,7 +84,7 @@ export default function RoomDoor({ roomNumber }) {
 			isHandlePressed={isHandlePressed}
 			setHandlePressed={(value) => setHandlePressed(roomNumber, value)}
 		>
-			<mesh geometry={nodes.Cube003_4.geometry} material={woodMaterial} />
+			<mesh geometry={nodes.Cube003_4.geometry} material={woodMaterial()} />
 			<mesh geometry={nodes.Lock.geometry} material={lockMaterial} />
 			<mesh
 				ref={handleRef}

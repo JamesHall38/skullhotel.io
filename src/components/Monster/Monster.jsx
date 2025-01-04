@@ -7,6 +7,8 @@ import Animations from './Animations';
 import useMonster from '../../hooks/useMonster';
 import useGame from '../../hooks/useGame';
 import { findPath } from './pathfinding';
+import useDoor from '../../hooks/useDoor';
+import useHiding from '../../hooks/useHiding';
 
 const BASE_SPEED = 2;
 const CHASE_SPEED = 0.5;
@@ -19,15 +21,35 @@ const Monster = (props) => {
 	const { nodes, materials, animations } = useGLTF('/models/monster.glb');
 	const seedData = useGame((state) => state.seedData);
 	const playerPositionRoom = useGame((state) => state.playerPositionRoom);
+	const roomNumber = useGame((state) => state.roomNumber);
+	const setShakeIntensity = useGame((state) => state.setShakeIntensity);
 	const monsterState = useMonster((state) => state.monsterState);
+	const setMonsterState = useMonster((state) => state.setMonsterState);
 	const monsterPosition = useMonster((state) => state.monsterPosition);
+	const setMonsterPosition = useMonster((state) => state.setMonsterPosition);
 	const monsterRotation = useMonster((state) => state.monsterRotation);
 	const playAnimation = useMonster((state) => state.playAnimation);
 	const setIsAttacking = useMonster((state) => state.setIsAttacking);
 	const setAnimationSpeed = useMonster((state) => state.setAnimationSpeed);
+	const setAnimationMixSpeed = useMonster(
+		(state) => state.setAnimationMixSpeed
+	);
+
+	const nightstandDoor = useDoor((state) => state.nightStand);
+	const deskDoor = useDoor((state) => state.desk);
+	const roomCurtain = useDoor((state) => state.roomCurtain);
+	const bathroomCurtain = useDoor((state) => state.bathroomCurtain);
+
+	const setRoomDoor = useDoor((state) => state.setRoomDoor);
+	const setBathroomDoors = useDoor((state) => state.setBathroomDoors);
 	const [currentPath, setCurrentPath] = useState(null);
+	const [pathfindingFailures, setPathfindingFailures] = useState(0);
+	const [currentTargetIndex, setCurrentTargetIndex] = useState(0);
+	const [nextTargetIndex, setNextTargetIndex] = useState(0);
+	const MAX_PATHFINDING_FAILURES = 3;
 	const headBoneRef = useRef();
 	const lastTargetRef = useRef({ x: 0, z: 0 });
+	const [isWaiting, setIsWaiting] = useState(false);
 
 	const lookAtCamera = useCallback((camera) => {
 		const targetPosition = new THREE.Vector3(
@@ -111,8 +133,18 @@ const Monster = (props) => {
 
 					if (!currentPath || distanceMoved > MIN_DISTANCE_FOR_RECALCULATION) {
 						const newPath = findPath(monsterX, monsterZ, targetX, targetZ);
-						setCurrentPath(newPath);
-						lastTargetRef.current = { x: targetX, z: targetZ };
+						if (newPath) {
+							setCurrentPath(newPath);
+							lastTargetRef.current = { x: targetX, z: targetZ };
+							setPathfindingFailures(0);
+						} else {
+							setPathfindingFailures((prevFailures) => prevFailures + 1);
+							if (pathfindingFailures >= MAX_PATHFINDING_FAILURES) {
+								console.warn('Too many pathfinding failures, aborting');
+								setCurrentPath(null);
+								setPathfindingFailures(0);
+							}
+						}
 					}
 
 					if (currentPath && currentPath.length > 1) {
@@ -176,8 +208,18 @@ const Monster = (props) => {
 
 					if (!currentPath || distanceMoved > MIN_DISTANCE_FOR_RECALCULATION) {
 						const newPath = findPath(monsterX, monsterZ, targetX, targetZ);
-						setCurrentPath(newPath);
-						lastTargetRef.current = { x: targetX, z: targetZ };
+						if (newPath) {
+							setCurrentPath(newPath);
+							lastTargetRef.current = { x: targetX, z: targetZ };
+							setPathfindingFailures(0);
+						} else {
+							setPathfindingFailures((prevFailures) => prevFailures + 1);
+							if (pathfindingFailures >= MAX_PATHFINDING_FAILURES) {
+								console.warn('Too many pathfinding failures, aborting');
+								setCurrentPath(null);
+								setPathfindingFailures(0);
+							}
+						}
 					}
 
 					if (currentPath && currentPath.length > 1) {
@@ -209,6 +251,21 @@ const Monster = (props) => {
 						if (distanceToNextPoint < NEXT_POINT_THRESHOLD) {
 							setCurrentPath(currentPath.slice(1));
 						}
+					} else {
+						const direction = new THREE.Vector3(
+							camera.position.x - group.current.position.x,
+							0,
+							camera.position.z - group.current.position.z
+						).normalize();
+
+						const moveSpeed = speed * delta;
+						group.current.position.add(direction.multiplyScalar(moveSpeed));
+
+						group.current.lookAt(
+							camera.position.x,
+							group.current.position.y,
+							camera.position.z
+						);
 					}
 				}
 			}
@@ -220,6 +277,7 @@ const Monster = (props) => {
 			setIsAttacking,
 			monsterState,
 			lookAtCamera,
+			pathfindingFailures,
 		]
 	);
 
@@ -234,6 +292,13 @@ const Monster = (props) => {
 			}
 		}
 	}, [nodes]);
+
+	useEffect(() => {
+		if (monsterState === 'leaving') {
+			setCurrentTargetIndex(0);
+			setNextTargetIndex(1);
+		}
+	}, [monsterState]);
 
 	useFrame(({ camera, clock }) => {
 		if (
@@ -287,33 +352,137 @@ const Monster = (props) => {
 		} else if (monsterState === 'run' || monsterState === 'chase') {
 			runAtCamera(camera, clock.getDelta() * 100, monsterState);
 		} else if (monsterState === 'leaving') {
-			const targetPos = useMonster.getState().targetPosition;
+			let leavingPath;
+			const hideSpot = useHiding.getState().hideSpot;
+
+			if (
+				(hideSpot === 'nightstand' && !nightstandDoor) ||
+				(hideSpot === 'desk' && !deskDoor)
+			) {
+				leavingPath = [
+					new THREE.Vector3(-1, 0, 12),
+					new THREE.Vector3(0, 0, 0),
+					new THREE.Vector3(2, 0, 0),
+				];
+			} else if (hideSpot === 'roomCurtain' && !roomCurtain) {
+				leavingPath = [new THREE.Vector3(2, 0, 0)];
+			} else if (hideSpot === 'bathroomCurtain' && !bathroomCurtain) {
+				leavingPath = [
+					new THREE.Vector3(-1, 0, 3.9),
+					new THREE.Vector3(-1.01, 0, 0),
+					new THREE.Vector3(-2, 0, 0),
+				];
+			} else {
+				setShakeIntensity(10);
+				setMonsterState('run');
+				playAnimation('Run');
+				return;
+			}
+
+			const CORRIDOR_LENGTH = 5.95;
+			let roomX;
+			if (playerPositionRoom >= roomNumber / 2) {
+				roomX = -(playerPositionRoom - roomNumber / 2) * CORRIDOR_LENGTH;
+			} else {
+				roomX = -playerPositionRoom * CORRIDOR_LENGTH;
+			}
+			const roomPosition = new THREE.Vector3(roomX, 0, 0);
+
+			const absoluteLeavingPath = leavingPath.map((relativePos) =>
+				relativePos.add(roomPosition)
+			);
+
+			const targetPos = absoluteLeavingPath[currentTargetIndex];
+
 			if (targetPos) {
-				const delta = clock.getDelta() * 100;
-				const speed = 0.5;
+				if (group.current.position.distanceTo(targetPos) < 0.1) {
+					if (hideSpot === 'bathroomCurtain' && currentTargetIndex === 0) {
+						setAnimationMixSpeed(1);
+						playAnimation('Idle');
 
-				const direction = new THREE.Vector3(
-					targetPos[0] - group.current.position.x,
-					0,
-					targetPos[2] - group.current.position.z
-				).normalize();
+						const targetRotation = Math.atan2(
+							camera.position.x - group.current.position.x,
+							camera.position.z - group.current.position.z
+						);
+						const rotateSpeed = 80; // slower rotation
+						group.current.rotation.y = THREE.MathUtils.lerp(
+							group.current.rotation.y,
+							targetRotation,
+							clock.getDelta() * rotateSpeed
+						);
 
-				const moveAmount = direction.multiplyScalar(speed * delta);
-				group.current.position.add(moveAmount);
+						const currentRoom = playerPositionRoom;
+						setBathroomDoors(currentRoom, true);
 
-				useMonster
-					.getState()
-					.setMonsterPosition([
+						setIsWaiting(true);
+						setTimeout(() => {
+							setIsWaiting(false);
+							if (nextTargetIndex < leavingPath.length - 1) {
+								setCurrentTargetIndex(nextTargetIndex);
+							}
+						}, 4000);
+					} else {
+						if (nextTargetIndex < leavingPath.length - 1) {
+							setCurrentTargetIndex(nextTargetIndex);
+						}
+						if (
+							currentTargetIndex ===
+							leavingPath.length -
+								1 -
+								(nextTargetIndex < leavingPath.length - 1 ||
+								hideSpot === 'roomCurtain'
+									? 0
+									: 1)
+						) {
+							setRoomDoor(playerPositionRoom, false);
+
+							group.current.position.y = 10;
+							setMonsterPosition([
+								group.current.position.x,
+								10,
+								group.current.position.z,
+							]);
+
+							setCurrentTargetIndex(0);
+							setNextTargetIndex(1);
+
+							setMonsterState('hiding');
+							playAnimation('Idle');
+						}
+					}
+
+					if (nextTargetIndex < leavingPath.length - 1) {
+						setNextTargetIndex(nextTargetIndex + 1);
+					}
+				}
+
+				if (!isWaiting && targetPos) {
+					const delta = clock.getDelta() * 100;
+					const speed = 0.5;
+
+					const direction = new THREE.Vector3(
+						targetPos.x - group.current.position.x,
+						0,
+						targetPos.z - group.current.position.z
+					).normalize();
+
+					const moveAmount = direction.multiplyScalar(speed * delta);
+					group.current.position.add(moveAmount);
+
+					setMonsterPosition([
 						group.current.position.x,
 						group.current.position.y,
 						group.current.position.z,
 					]);
 
-				group.current.lookAt(
-					targetPos[0],
-					group.current.position.y,
-					targetPos[2]
-				);
+					const targetRotation = Math.atan2(direction.x, direction.z);
+					const rotationSpeed = (Math.PI * delta * speed) / 2;
+					group.current.rotation.y = THREE.MathUtils.lerp(
+						group.current.rotation.y,
+						targetRotation,
+						rotationSpeed
+					);
+				}
 			}
 		}
 	});
@@ -345,6 +514,8 @@ const Monster = (props) => {
 								material={materials.Ch30_Body1}
 								skeleton={nodes.Mesh.skeleton}
 								frustumCulled={false}
+								castShadow
+								receiveShadow
 							/>
 							<skinnedMesh
 								name="Mesh_1"
@@ -352,6 +523,8 @@ const Monster = (props) => {
 								material={materials.Ch30_Body}
 								skeleton={nodes.Mesh_1.skeleton}
 								frustumCulled={false}
+								castShadow
+								receiveShadow
 							/>
 							<skinnedMesh
 								name="Mesh_2"
@@ -359,6 +532,8 @@ const Monster = (props) => {
 								material={materials['Material.001']}
 								skeleton={nodes.Mesh_2.skeleton}
 								frustumCulled={false}
+								castShadow
+								receiveShadow
 							/>
 							<skinnedMesh
 								name="Mesh_3"
@@ -366,6 +541,8 @@ const Monster = (props) => {
 								material={materials.Material}
 								skeleton={nodes.Mesh_3.skeleton}
 								frustumCulled={false}
+								castShadow
+								receiveShadow
 							/>
 							<skinnedMesh
 								name="Mesh_4"
@@ -373,6 +550,8 @@ const Monster = (props) => {
 								material={materials['Material.002']}
 								skeleton={nodes.Mesh_4.skeleton}
 								frustumCulled={false}
+								castShadow
+								receiveShadow
 							/>
 							<skinnedMesh
 								name="Mesh_5"
@@ -380,6 +559,8 @@ const Monster = (props) => {
 								material={materials['Material.011']}
 								skeleton={nodes.Mesh_5.skeleton}
 								frustumCulled={false}
+								castShadow
+								receiveShadow
 							/>
 							<skinnedMesh
 								name="Mesh_6"
@@ -387,6 +568,8 @@ const Monster = (props) => {
 								material={materials['Material.016']}
 								skeleton={nodes.Mesh_6.skeleton}
 								frustumCulled={false}
+								castShadow
+								receiveShadow
 							/>
 						</group>
 					</group>

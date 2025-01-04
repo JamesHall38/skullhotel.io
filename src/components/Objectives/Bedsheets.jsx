@@ -124,6 +124,7 @@ export default function Bedsheets() {
 		isDetected,
 		objective,
 		setCursor,
+		camera,
 	]);
 
 	const isInit = useRef(false);
@@ -196,12 +197,14 @@ export default function Bedsheets() {
 					name="End"
 					geometry={nodes.End.geometry}
 					material={material}
+					receiveShadow
 				/>
 				<mesh
 					visible={visibleMesh === 'Start'}
 					name="Start"
 					geometry={nodes.Start.geometry}
 					material={material}
+					receiveShadow
 				/>
 
 				<primitive

@@ -189,7 +189,6 @@ function App() {
 		} else {
 			newSeedData = generateSeedData(false, selectedRoom);
 		}
-		console.log(newSeedData);
 		useGame.getState().setSeedData(newSeedData);
 		initializeIfNeeded();
 	}, [initializeIfNeeded, selectedRoom]);

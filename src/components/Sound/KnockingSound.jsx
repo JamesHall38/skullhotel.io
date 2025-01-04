@@ -12,7 +12,6 @@ export default function KnockingSound() {
 	useEffect(() => {
 		if (isMonsterKnocking && knockingRoom === playerPositionRoom) {
 			if (knockingSoundRef.current) {
-				console.log('play');
 				knockingSoundRef.current.play();
 			}
 		} else {
@@ -26,8 +25,8 @@ export default function KnockingSound() {
 		<PositionalAudio
 			ref={knockingSoundRef}
 			url="/sounds/knocking.ogg"
-			loop={true}
-			distance={200}
+			loop={false}
+			distance={100}
 			refDistance={100}
 			rolloffFactor={0.1}
 			volume={20}

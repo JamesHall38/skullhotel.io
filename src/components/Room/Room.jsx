@@ -87,7 +87,7 @@ export default function Room() {
 
 			{!isMobile && <CeilingFan />}
 
-			{/* <Lights /> */}
+			<Lights />
 			<Switches />
 			<Radio />
 			<Painting />

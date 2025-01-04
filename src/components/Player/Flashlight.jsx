@@ -3,11 +3,12 @@ import * as THREE from 'three';
 import useGame from '../../hooks/useGame';
 import useMonster from '../../hooks/useMonster';
 import useLight from '../../hooks/useLight';
+import useHiding from '../../hooks/useHiding';
 import { useFrame, useThree } from '@react-three/fiber';
 
 const FLICKER_DURATION = 10000;
 const LERP_FACTOR = 0.05;
-const DEFAULT_INTENSITY = 5;
+const DEFAULT_INTENSITY = 8;
 const SIZE = 0.85;
 const RING_OPACITY = 0.03;
 
@@ -19,12 +20,16 @@ export default function Flashlight({
 	const isFlickering = useGame((state) => state.isFlickering);
 	const monsterState = useMonster((state) => state.monsterState);
 	const flashlightEnabled = useLight((state) => state.flashlightEnabled);
+	const isPlayerHidden = useHiding((state) => state.isPlayerHidden);
 	const spotLightRef = useRef();
 	const targetRef = useRef(new THREE.Vector3());
 	const currentLightPos = useRef(new THREE.Vector3());
 	const lastCameraQuaternion = useRef(new THREE.Quaternion());
 	const { scene, camera } = useThree();
 	const [intensity, setIntensity] = useState(0);
+	const recoveryTimeoutRef = useRef(null);
+	const flashlightSoundRef = useRef(new Audio('/sounds/flashlight.ogg'));
+	const [isRecoveringFromHiding, setIsRecoveringFromHiding] = useState(false);
 
 	useEffect(() => {
 		const canvas = document.createElement('canvas');
@@ -276,13 +281,89 @@ export default function Flashlight({
 		lastCameraQuaternion.current.copy(currentQuaternion);
 	});
 
+	const playFlashlightSound = useCallback(() => {
+		const volume = 0 + Math.random() * 0.2;
+
+		flashlightSoundRef.current.pause();
+		flashlightSoundRef.current.currentTime = 0;
+		flashlightSoundRef.current.volume = volume;
+
+		setTimeout(() => {
+			flashlightSoundRef.current.play().catch(() => {});
+		}, 1);
+	}, []);
+
+	useEffect(() => {
+		if (!isPlayerHidden && spotLightRef.current) {
+			playFlashlightSound();
+
+			let lastIntensity = DEFAULT_INTENSITY * SIZE;
+			const flashlightStartTime = Date.now();
+			const flashlightFlickerInterval = setInterval(() => {
+				const newIntensity = Math.random() < 0.5 ? 0 : DEFAULT_INTENSITY * SIZE;
+
+				if (
+					(lastIntensity === 0 && newIntensity > 0) ||
+					(lastIntensity > 0 && newIntensity === 0)
+				) {
+					playFlashlightSound();
+				}
+
+				lastIntensity = newIntensity;
+				setIntensity(newIntensity);
+
+				if (Date.now() - flashlightStartTime > 500) {
+					clearInterval(flashlightFlickerInterval);
+					setIntensity(DEFAULT_INTENSITY * SIZE);
+					playFlashlightSound();
+				}
+			}, 50);
+
+			recoveryTimeoutRef.current = flashlightFlickerInterval;
+			return () => {
+				if (recoveryTimeoutRef.current) {
+					clearInterval(recoveryTimeoutRef.current);
+				}
+			};
+		}
+	}, [isPlayerHidden, playFlashlightSound]);
+
+	useEffect(() => {
+		if (flashlightEnabled !== undefined) {
+			playFlashlightSound();
+		}
+	}, [flashlightEnabled, playFlashlightSound]);
+
+	useEffect(() => {
+		if (isPlayerHidden) {
+			// Quand on se cache, on attend 1 seconde avant d'éteindre
+			playFlashlightSound();
+			setIsRecoveringFromHiding(true);
+
+			const timeout = setTimeout(() => {
+				setIsRecoveringFromHiding(false);
+				playFlashlightSound();
+			}, 1000);
+
+			return () => clearTimeout(timeout);
+		}
+	}, [isPlayerHidden, playFlashlightSound]);
+
 	return (
 		<spotLight
 			shadow-normalBias={0.04}
-			intensity={flashlightEnabled ? intensity : 0}
+			intensity={
+				flashlightEnabled && (!isPlayerHidden || isRecoveringFromHiding)
+					? intensity
+					: 0
+			}
 			castShadow
 			ref={spotLightRef}
-			power={flashlightEnabled ? 30 * SIZE : 0}
+			power={
+				flashlightEnabled && (!isPlayerHidden || isRecoveringFromHiding)
+					? 30 * SIZE
+					: 0
+			}
 		/>
 	);
 }

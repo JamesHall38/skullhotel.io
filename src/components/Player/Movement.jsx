@@ -101,7 +101,6 @@ export default function Movement({
 		}
 
 		if (isInsideDoor) {
-			console.log('isInsideDoor', cell);
 			if (cell.type === CELL_TYPES.EMPTY) {
 				setIsInsideDoor(false);
 			}

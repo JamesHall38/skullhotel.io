@@ -2,10 +2,8 @@ import { create } from 'zustand';
 import { subscribeWithSelector } from 'zustand/middleware';
 import { seed, roomNumber, events } from '../utils/config';
 import useHiding from './useHiding';
-import useInterface from './useInterface';
 import useMonster from './useMonster';
 import useDoor from './useDoor';
-import useGrid from './useGrid';
 
 const CORRIDORLENGTH = 5.95;
 
@@ -100,7 +98,16 @@ const useGameStore = create(
 		radio: false,
 		setRadio: (state) => set(() => ({ radio: state })),
 
+		// Knocking
+		knockedRooms: [],
+		addKnockedRoom: (room) =>
+			set((state) => ({ knockedRooms: [...state.knockedRooms, room] })),
+
 		// Objectives
+		monsterKnockDuration: 5000,
+		setMonsterKnockDuration: (duration) =>
+			set({ monsterKnockDuration: duration }),
+
 		checkObjectiveCompletion: (objective, room, camera) => {
 			const state = get();
 			const roomData = state.seedData[`empty_${room}`];
@@ -110,7 +117,6 @@ const useGameStore = create(
 				const monster = useMonster.getState();
 				const doors = useDoor.getState();
 
-				// Calculer la position du monstre au milieu de la room
 				let monsterX;
 				if (room >= roomNumber / 2) {
 					monsterX = -(room - roomNumber / 2) * CORRIDORLENGTH;
@@ -118,16 +124,19 @@ const useGameStore = create(
 					monsterX = -room * CORRIDORLENGTH;
 				}
 
-				// Positionner le monstre dans la room
 				monster.setMonsterPosition([monsterX, 0, 0]);
 				monster.setMonsterRotation([0, 0, 0]);
 
-				// Si la porte est ouverte, le monstre attaque directement
 				if (doors.roomDoor[room]) {
+					state.setShakeIntensity(10);
 					monster.setMonsterState('run');
 					monster.playAnimation('Run');
 					monster.setAnimationSpeed(1);
-				} else {
+				} else if (
+					objective === roomData.hideObjective &&
+					!state.knockedRooms.includes(room)
+				) {
+					state.addKnockedRoom(room);
 					hiding.setMonsterKnocking(true);
 					hiding.setKnockingRoom(room);
 					hiding.setHideSpot(roomData.hideSpot);
@@ -139,81 +148,26 @@ const useGameStore = create(
 
 						if (hiding.isMonsterKnocking) {
 							doors.setRoomDoor(room, true);
+							monster.playAnimation('Idle');
 
-							let checkCount = 0;
-							const maxChecks = 5;
-							const checkInterval = setInterval(() => {
-								const isHidden = useHiding.getState().isPlayerHidden;
-								checkCount++;
+							const isHidden = useHiding.getState().isPlayerHidden;
 
-								if (!isHidden && checkCount >= maxChecks) {
-									clearInterval(checkInterval);
-									hiding.setMonsterKnocking(false);
-									hiding.setMonsterEntering(true);
-									monster.setMonsterState('run');
-									monster.playAnimation('Run');
-									monster.setAnimationSpeed(1);
-								} else if (isHidden && checkCount >= maxChecks) {
-									clearInterval(checkInterval);
-									hiding.setMonsterKnocking(false);
-									monster.setMonsterState('leaving');
-									monster.playAnimation('Walk');
-									monster.setAnimationSpeed(0.5);
-									monster.setTargetPosition([0, 0, 2]);
-
-									// Surveiller si le joueur sort pendant que le monstre part
-									const checkPlayerHiding = setInterval(() => {
-										const hiding = useHiding.getState();
-										const monster = useMonster.getState();
-										const doors = useDoor.getState();
-
-										console.log('État actuel:', JSON.stringify({
-											hiding: {
-												isPlayerHidden: hiding.isPlayerHidden,
-												hideSpot: hiding.hideSpot,
-												canExitHiding: hiding.canExitHiding,
-												monsterKnocking: hiding.isMonsterKnocking,
-												monsterEntering: hiding.isMonsterEntering
-											},
-											monster: {
-												state: monster.monsterState,
-												position: monster.monsterPosition,
-												targetPosition: monster.targetPosition
-											},
-											doors: {
-												roomDoor: doors.roomDoor,
-												roomCurtain: doors.roomCurtain
-											}
-										}, null, 2));
-
-										const isStillHidden = hiding.isPlayerHidden;
-										const currentMonsterState = monster.monsterState;
-										const canExit = hiding.canExitHiding;
-
-										// Si le joueur sort avant que canExitHiding soit true
-										if (!isStillHidden && !canExit) {
-											console.log('Le monstre attaque car:', {
-												isStillHidden,
-												canExit,
-												hideSpot: hiding.hideSpot
-											});
-											clearInterval(checkPlayerHiding);
-											monster.setMonsterState('run');
-											monster.playAnimation('Run');
-											monster.setAnimationSpeed(1);
-										}
-									}, 100);
-
-									// Attendre 2 secondes puis fermer la porte
-									setTimeout(() => {
-										doors.setRoomDoor(room, false);
-										hiding.setCanExitHiding(true);
-										clearInterval(checkPlayerHiding);
-									}, 2000);
-								}
-							}, 400);
+							if (!isHidden) {
+								hiding.setMonsterKnocking(false);
+								hiding.setMonsterEntering(true);
+								state.setShakeIntensity(10);
+								monster.setMonsterState('run');
+								monster.playAnimation('Run');
+								monster.setAnimationSpeed(1);
+							} else {
+								hiding.setMonsterKnocking(false);
+								monster.setAnimationMixSpeed(2);
+								monster.setAnimationSpeed(0.5);
+								monster.setMonsterState('leaving');
+								monster.playAnimation('Walk');
+							}
 						}
-					}, 10000);
+					}, state.monsterKnockDuration);
 				}
 			}
 		},
@@ -233,6 +187,7 @@ const useGameStore = create(
 				activeRadios: [],
 				activeTvs: [],
 				playIntro: false,
+				knockedRooms: [],
 			}));
 			useHiding.getState().restart();
 		},
@@ -240,30 +195,30 @@ const useGameStore = create(
 );
 
 // Surveiller les changements dans interfaceObjectives
-useInterface.subscribe(
-	(state) => state.interfaceObjectives,
-	(interfaceObjectives) => {
-		const gameState = useGameStore.getState();
-		const roomNumber = gameState.playerPositionRoom;
-		if (roomNumber === null) return;
+// useInterface.subscribe(
+// 	(state) => state.interfaceObjectives,
+// 	(interfaceObjectives) => {
+// 		const gameState = useGameStore.getState();
+// 		const roomNumber = gameState.playerPositionRoom;
+// 		if (roomNumber === null) return;
 
-		const objectives = interfaceObjectives[roomNumber];
-		if (!objectives) return;
+// 		const objectives = interfaceObjectives[roomNumber];
+// 		if (!objectives) return;
 
-		// Vérifier chaque objectif
-		if (objectives[0]) {
-			// bottles
-			gameState.checkObjectiveCompletion('bottles', roomNumber);
-		}
-		if (objectives[1]) {
-			// bedsheets
-			gameState.checkObjectiveCompletion('bedsheets', roomNumber);
-		}
-		if (objectives[2]) {
-			// window
-			gameState.checkObjectiveCompletion('window', roomNumber);
-		}
-	}
-);
+// 		// Vérifier chaque objectif
+// 		if (objectives[0]) {
+// 			// bottles
+// 			gameState.checkObjectiveCompletion('bottles', roomNumber);
+// 		}
+// 		if (objectives[1]) {
+// 			// bedsheets
+// 			gameState.checkObjectiveCompletion('bedsheets', roomNumber);
+// 		}
+// 		if (objectives[2]) {
+// 			// window
+// 			gameState.checkObjectiveCompletion('window', roomNumber);
+// 		}
+// 	}
+// );
 
 export default useGameStore;

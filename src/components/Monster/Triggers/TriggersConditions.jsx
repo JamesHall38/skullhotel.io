@@ -55,7 +55,7 @@ export default function TriggersConditions({
 		playAnimation('Run');
 	};
 
-	const basicHidding = (clock, camera, raycaster, useInstantBox = false) => {
+	const basicHiding = (clock, camera, raycaster, useInstantBox = false) => {
 		let monsterIsTriggered = false;
 		if (interfaceObjectives[playerPositionRoom]?.[2]) {
 			playAnimation('Idle');
@@ -163,15 +163,15 @@ export default function TriggersConditions({
 
 		switch (Object.keys(seedData)[playerPositionRoom]) {
 			case 'underBed':
-				basicHidding(clock, camera, raycaster, 'underBed');
+				basicHiding(clock, camera, raycaster, 'underBed');
 				break;
 			case 'bathroomVent':
 			case 'roomVent':
-				basicHidding(clock, camera, raycaster);
+				basicHiding(clock, camera, raycaster);
 				break;
 			case 'bedBasket':
 			case 'windowBasket':
-				basicHidding(clock, camera, raycaster, true);
+				basicHiding(clock, camera, raycaster, true);
 				break;
 			case 'behindDoor':
 				let monsterIsTriggered = false;

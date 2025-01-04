@@ -150,8 +150,6 @@ const useGridStore = create((set, get) => ({
 			},
 		];
 
-		console.log('Generating rooms with hiding spots:', hidingSpots);
-
 		const baseRoom = [
 			// Walls
 			{ start: { x: 49, z: 0 }, end: { x: 59, z: 4 } }, // door left
@@ -410,13 +408,6 @@ const useGridStore = create((set, get) => ({
 			}
 		}
 
-		// Ajouter les murs
-		console.log('Total walls to process:', walls.length);
-		console.log(
-			'Walls with hiding spots:',
-			walls.filter((w) => w.hidingSpot)
-		);
-
 		walls.forEach((wall) => {
 			for (let x = wall.start.x; x <= wall.end.x; x++) {
 				for (let z = wall.start.z; z <= wall.end.z; z++) {
@@ -425,12 +416,6 @@ const useGridStore = create((set, get) => ({
 						type: wall.type || CELL_TYPES.WALL,
 						hidingSpot: wall.hidingSpot || null,
 					};
-					// Log si on ajoute une zone de cachette
-					if (wall.hidingSpot) {
-						console.log(
-							`Adding hiding spot ${wall.hidingSpot} at [${x}, ${z}] with type ${wall.type}`
-						);
-					}
 				}
 			}
 		});
@@ -517,11 +502,6 @@ const useGridStore = create((set, get) => ({
 						);
 						// Log les cellules avec hidingSpot
 						if (cell.hidingSpot) {
-							console.log(
-								`Found hiding spot ${cell.hidingSpot} at [${
-									x * widthScaleFactor + dx
-								}, ${z * heightScaleFactor + dz}]`
-							);
 							hasHidingSpot = true;
 						} else if (cell.type === CELL_TYPES.MONSTER_POSITION) {
 							hasMonsterTopLeft = true;
