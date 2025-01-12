@@ -23,17 +23,16 @@ const isWalkable = (cell, x, z) => {
 };
 
 const getNeighbors = (x, z, target) => {
-	const directions = [];
-	const numDirections = 16;
-
-	for (let i = 0; i < numDirections; i++) {
-		const angle = (2 * Math.PI * i) / numDirections;
-		directions.push({
-			x: Math.cos(angle),
-			z: Math.sin(angle),
-			cost: 1,
-		});
-	}
+	const directions = [
+		{ x: 1, z: 0, cost: 1 },
+		{ x: -1, z: 0, cost: 1 },
+		{ x: 0, z: 1, cost: 1 },
+		{ x: 0, z: -1, cost: 1 },
+		{ x: 1, z: 1, cost: Math.SQRT2 },
+		{ x: -1, z: 1, cost: Math.SQRT2 },
+		{ x: 1, z: -1, cost: Math.SQRT2 },
+		{ x: -1, z: -1, cost: Math.SQRT2 },
+	];
 
 	const angleToTarget = Math.atan2(target.z - z, target.x - x);
 
@@ -58,7 +57,7 @@ const getNeighbors = (x, z, target) => {
 };
 
 const heuristic = (a, b) => {
-	return Math.sqrt(Math.pow(a.x - b.x, 2) + Math.pow(a.z - b.z, 2));
+	return Math.abs(a.x - b.x) + Math.abs(a.z - b.z);
 };
 
 const findNearestAccessiblePoint = (point) => {
@@ -109,7 +108,7 @@ export const findPath = (startX, startZ, targetX, targetZ) => {
 		target = nearestTarget;
 	}
 
-	const maxDistance = 200;
+	const maxDistance = 400;
 	if (heuristic(start, target) > maxDistance) {
 		console.warn('Target is too far, aborting pathfinding');
 		return null;
@@ -124,7 +123,7 @@ export const findPath = (startX, startZ, targetX, targetZ) => {
 	fScore.set(`${start.x},${start.z}`, heuristic(start, target));
 
 	let iterations = 0;
-	const maxIterations = 3000;
+	const maxIterations = 1000;
 
 	while (openSet.length > 0 && iterations < maxIterations) {
 		iterations++;
@@ -151,9 +150,6 @@ export const findPath = (startX, startZ, targetX, targetZ) => {
 			}
 			path.unshift(start);
 
-			// if (path) {
-			// 	printPathASCII(path);
-			// }
 			return path;
 		}
 

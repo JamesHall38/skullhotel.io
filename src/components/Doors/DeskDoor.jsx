@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useGLTF } from '@react-three/drei';
+import { useSpring, a } from '@react-spring/three';
 import useGame from '../../hooks/useGame';
 import useDoor from '../../hooks/useDoor';
-// import useInterface from '../../hooks/useInterface';
+import useHiding from '../../hooks/useHiding';
 import DoorWrapper from './DoorWrapper';
 import { useThree } from '@react-three/fiber';
 import WoodMaterial from '../WoodMaterial';
@@ -24,10 +25,22 @@ export default function DeskDoor() {
 	const setOpen = useDoor((state) => state.setDesk);
 	const [instantChange, setInstantChange] = useState(false);
 	const [tutorialRoomOffset, setTutorialRoomOffset] = useState(null);
-	// const setCursor = useInterface((state) => state.setCursor);
-	const woodMaterial = WoodMaterial();
+	const createWoodMaterial = WoodMaterial();
+	const doorMaterial = useRef(createWoodMaterial());
 	const { camera } = useThree();
 	const getCell = useGridStore((state) => state.getCell);
+	const isHidden = useHiding(
+		(state) => state.isPlayerHidden && state.hideSpot === 'desk'
+	);
+
+	const { opacity } = useSpring({
+		opacity: isHidden ? 0.05 : 1,
+		config: {
+			mass: 1,
+			tension: 170,
+			friction: 26,
+		},
+	});
 
 	useEffect(() => {
 		if (deskDoors[playerPositionRoom] === true && !isOpen) {
@@ -73,6 +86,10 @@ export default function DeskDoor() {
 		getCell,
 	]);
 
+	useEffect(() => {
+		doorMaterial.current.transparent = true;
+	}, [doorMaterial]);
+
 	return (
 		<DoorWrapper
 			roomNumber={playerPositionRoom}
@@ -89,20 +106,12 @@ export default function DeskDoor() {
 			tutorialRoomOffset={tutorialRoomOffset}
 		>
 			<group dispose={null}>
-				{/* <mesh
+				<a.mesh
 					castShadow
 					receiveShadow
-					geometry={nodes.Cube001.geometry}
-					// material={materials['Walnut Wood.001']}
-					onPointerOut={() => setCursor(null)}
-				/> */}
-				<mesh
-					castShadow
-					receiveShadow
-					// geometry={nodes.Cube001_1.geometry}
 					geometry={nodes.Desk.geometry}
-					material={woodMaterial}
-					// material={materials['metal.001']}
+					material={doorMaterial.current}
+					material-opacity={opacity}
 				/>
 			</group>
 		</DoorWrapper>

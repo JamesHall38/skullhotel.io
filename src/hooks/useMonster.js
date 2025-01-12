@@ -15,11 +15,11 @@ const useMonsterStore = create(
 			set(() => ({ monsterRotation: rotation })),
 
 		// Animation
-		animationName: 'Run',
-		playAnimation: (animation) => set(() => ({ animationName: animation })),
+		animationName: 'Idle',
+		playAnimation: (name) => set(() => ({ animationName: name })),
 		animationSpeed: 1,
 		setAnimationSpeed: (speed) => set(() => ({ animationSpeed: speed })),
-		animationMixSpeed: 10,
+		animationMixSpeed: 5,
 		setAnimationMixSpeed: (mixSpeed) =>
 			set(() => ({ animationMixSpeed: mixSpeed })),
 
@@ -32,11 +32,14 @@ const useMonsterStore = create(
 				monsterPosition: [0, 10, 0],
 				monsterRotation: [0, 0, 0],
 				isAttacking: false,
-				animationName: 'Run',
+				animationName: 'Idle',
 				animationSpeed: 1,
-				animationMixSpeed: 10,
+				animationMixSpeed: 5,
 			}));
 		},
+
+		targetPosition: null,
+		setTargetPosition: (position) => set({ targetPosition: position }),
 	}))
 );
 

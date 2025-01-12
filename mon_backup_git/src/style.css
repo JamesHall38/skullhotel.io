@@ -1,0 +1,94 @@
+/* @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400..900&family=EB+Garamond:ital,wght@0,400..800;1,400..800&display=swap'); */
+/* @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400..900&family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap'); */
+/* @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400..900&family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap'); */
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400..900&family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=Merriweather:ital,wght@0,300;0,400;0,700;0,900;1,300;1,400;1,700;1,900&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap');
+
+html,
+body,
+#root {
+	/* font-family: 'Cinzel', serif; */
+	/* font-family: 'Montserrat', sans-serif; */
+	/* font-family: 'Open Sans', sans-serif; */
+	font-family: 'Merriweather', serif;
+
+	background: #000;
+	/* background: #1a1a1a; */
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	overflow: hidden;
+	cursor: pointer;
+	touch-action: none;
+	-webkit-tap-highlight-color: transparent;
+	user-select: none;
+	-webkit-user-select: none;
+}
+
+.interface {
+	position: fixed;
+	display: flex;
+	flex-direction: column;
+	align-items: flex-end;
+	width: 100%;
+	height: 100%;
+	top: 0;
+	left: 0;
+	color: white;
+}
+
+.objectives {
+	display: flex;
+	flex-direction: column;
+	box-sizing: border-box;
+	width: fit-content;
+	padding: 30px;
+}
+
+.action {
+	display: flex;
+	align-items: flex-end;
+	justify-content: center;
+	box-sizing: border-box;
+	width: 100%;
+	height: 100%;
+	padding: 30px;
+}
+
+.done {
+	text-decoration: line-through;
+}
+
+html {
+	font-size: 16px; /* 1rem = 16px */
+}
+@media (min-width: 1200px) {
+	html {
+		font-size: 18px; /* 1rem = 18px */
+	}
+}
+@media (min-width: 992px) and (max-width: 1199px) {
+	html {
+		font-size: 16px; /* 1rem = 16px */
+	}
+}
+@media (min-width: 768px) and (max-width: 991px) {
+	html {
+		font-size: 15px; /* 1rem = 15px */
+	}
+}
+@media (min-width: 576px) and (max-width: 767px) {
+	html {
+		font-size: 14px; /* 1rem = 14px */
+	}
+}
+@media (max-width: 575px) {
+	html {
+		font-size: 12px; /* 1rem = 12px */
+		overflow: hidden;
+		position: fixed;
+		width: 100%;
+		height: 100%;
+	}
+}

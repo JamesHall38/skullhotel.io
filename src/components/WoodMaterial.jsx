@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { useTexture } from '@react-three/drei';
 import * as THREE from 'three';
 
-export default function WoodMaterial() {
+export default function WoodMaterial({ transparent = false } = {}) {
 	const [colorMap, roughnessMap] = useTexture([
 		'/textures/wood/wood_color.webp',
 		'/textures/wood/wood_roughness.webp',
@@ -20,6 +20,8 @@ export default function WoodMaterial() {
 			map: colorMap,
 			roughnessMap: roughnessMap,
 			roughness: 1.75,
+			transparent: transparent,
+			opacity: 1,
 		});
 
 		material.map.wrapS = THREE.RepeatWrapping;
@@ -32,9 +34,9 @@ export default function WoodMaterial() {
 		material.needsUpdate = true;
 
 		return material;
-	}, [colorMap, roughnessMap]);
+	}, [colorMap, roughnessMap, transparent]);
 
-	return woodMaterial;
+	return () => woodMaterial.clone();
 }
 
 useTexture.preload([
