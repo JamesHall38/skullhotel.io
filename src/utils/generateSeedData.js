@@ -2,22 +2,22 @@ import levelData from '../components/Monster/Triggers/levelData';
 
 const numberOfRooms = 20;
 
-function getDebugHidingRooms() {
+function getHidingRooms() {
 	return {
 		empty_1: { type: 'empty', number: 1 },
-		empty_2: {
+		hiding_1: {
 			type: 'empty',
 			number: 2,
 			hideObjective: 'window',
 			hideSpot: 'roomCurtain',
 		},
-		empty_3: {
+		hiding_2: {
 			type: 'empty',
 			number: 3,
 			hideObjective: 'bedsheets',
 			hideSpot: 'desk',
 		},
-		empty_4: {
+		hiding_3: {
 			type: 'empty',
 			number: 4,
 			hideObjective: 'bottles',
@@ -40,7 +40,7 @@ export default function generateSeedData(
 	}
 
 	if (isTestMode) {
-		let selectedRooms = getDebugHidingRooms();
+		let selectedRooms = getHidingRooms();
 		let allNonEmptyRooms = Object.entries(levelData).flat();
 
 		allNonEmptyRooms.forEach((room, index) => {
@@ -54,8 +54,9 @@ export default function generateSeedData(
 
 	const numberOfEmptyRooms = Math.floor(numberOfRooms * 0.5);
 	const numberOfFilledRooms = numberOfRooms - numberOfEmptyRooms;
+	const hidingRooms = getHidingRooms();
 
-	let selectedRooms = {};
+	let selectedRooms = { ...hidingRooms };
 	let allNonEmptyRooms = Object.entries(levelData);
 	allNonEmptyRooms.sort(() => Math.random() - 0.5);
 
@@ -81,9 +82,13 @@ export default function generateSeedData(
 		currentIndex++;
 	}
 
-	// Add empty rooms
-	for (let i = 0; i < numberOfEmptyRooms; i++) {
-		selectedRooms[`empty_${i}`] = { type: 'empty', number: i };
+	// Modify empty rooms loop to account for hiding rooms
+	for (
+		let i = 0;
+		i < numberOfEmptyRooms - Object.keys(hidingRooms).length;
+		i++
+	) {
+		selectedRooms[`empty_${i + 5}`] = { type: 'empty', number: i + 5 };
 	}
 
 	// Randomize order

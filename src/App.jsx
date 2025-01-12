@@ -38,11 +38,11 @@ import Monster from './components/Monster/Monster';
 import Triggers from './components/Monster/Triggers/Triggers';
 import Grid from './components/Grid';
 import ReceptionDoors from './components/Reception/ReceptionDoors';
-// import CameraShaking from './components/Player/CameraShaking';
 import Sound from './components/Sound';
 import Chair from './components/Room/Chair';
 import { regenerateData } from './utils/config';
 import generateSeedData from './utils/generateSeedData';
+import ListeningMode from './components/ListeningMode';
 
 // import Posterize from './components/Posterize';
 
@@ -61,44 +61,6 @@ const generateLevelOptions = () => {
 	});
 
 	return options;
-};
-
-const CameraShaking = () => {
-	const shakeIntensity = useGame((state) => state.shakeIntensity);
-	const monsterState = useMonster((state) => state.monsterState);
-	const isAttacking = useMonster((state) => state.isAttacking);
-	const triangleWave = (t, frequency) => {
-		const period = 1 / frequency;
-		const phase = t % period;
-		return 2 * Math.abs(phase / period - 0.5) - 0.5;
-	};
-
-	useFrame(({ camera, clock }) => {
-		if (shakeIntensity > 0) {
-			let shakeX = 0;
-			let shakeY = 0;
-
-			if (isAttacking) {
-			} else if (monsterState === 'run' || monsterState === 'chase') {
-				shakeX = (triangleWave(clock.elapsedTime * 10, 1) * 0.02 * 10) / 10;
-				shakeY = (triangleWave(clock.elapsedTime * 10, 1.33) * 0.02 * 10) / 10;
-			} else {
-				shakeX =
-					triangleWave(clock.elapsedTime * shakeIntensity, 1) *
-					0.02 *
-					shakeIntensity;
-				shakeY =
-					triangleWave(clock.elapsedTime * shakeIntensity, 1.33) *
-					0.02 *
-					shakeIntensity;
-			}
-
-			camera.position.x += shakeX;
-			camera.position.y += shakeY;
-		}
-	});
-
-	return null;
 };
 
 function resetGame() {
@@ -215,45 +177,33 @@ function App() {
 	}, [camera]);
 
 	useEffect(() => {
-		if (openDeathScreen) {
+		if (openDeathScreen && controlsRef.current) {
 			controlsRef.current.unlock();
 		}
 	}, [openDeathScreen]);
 
 	useFrame(({ camera }) => {
-		if (isMobile) {
-			if (
-				camera.position.x > 3.8 &&
-				camera.position.z > -1 &&
-				!timeoutSet.current
-			) {
-				timeoutSet.current = true;
-				setEnd(true);
-
-				setTimeout(() => {
-					regenerateData();
-					resetGame();
-					timeoutSet.current = false;
-				}, 1000);
-			}
-		} else {
-			if (
-				camera.position.x > 8 &&
-				camera.position.z < -4 &&
-				!timeoutSet.current
-			) {
-				timeoutSet.current = true;
-				setEnd(true);
+		if (
+			camera.position.x > 8 &&
+			camera.position.z < -4 &&
+			!timeoutSet.current
+		) {
+			timeoutSet.current = true;
+			setEnd(true);
+			if (controlsRef.current) {
 				controlsRef.current.unlock();
-
-				setTimeout(() => {
-					regenerateData();
-					resetGame();
-					controlsRef.current.unlock();
-					timeoutSet.current = false;
-				}, 1000);
 			}
+
+			setTimeout(() => {
+				regenerateData();
+				resetGame();
+				if (controlsRef.current) {
+					controlsRef.current.unlock();
+				}
+				timeoutSet.current = false;
+			}, 1000);
 		}
+		// }
 
 		const x = camera.position.x;
 		const z = camera.position.z;
@@ -276,75 +226,77 @@ function App() {
 	});
 
 	return (
-		<KeyboardControls
-			map={[
-				{ name: 'forward', keys: ['ArrowUp', 'KeyW', 'gamepad1'] },
-				{ name: 'backward', keys: ['ArrowDown', 'KeyS', 'gamepad2'] },
-				{ name: 'left', keys: ['ArrowLeft', 'KeyA', 'gamepad3'] },
-				{ name: 'right', keys: ['ArrowRight', 'KeyD', 'gamepad4'] },
-				{ name: 'jump', keys: ['Space', 'gamepad0'] },
-				{ name: 'run', keys: ['ShiftLeft', 'gamepad10'] },
-				{ name: 'crouch', keys: ['ControlLeft', 'gamepad11'] },
-				{ name: 'action', keys: ['KeyE', 'gamepad5'] },
-			]}
-		>
-			<Player />
-			<Monster />
-			<Triggers />
-			<Grid />
-			<Sound />
+		<>
+			<ListeningMode />
+			<KeyboardControls
+				map={[
+					{ name: 'forward', keys: ['ArrowUp', 'KeyW', 'gamepad1'] },
+					{ name: 'backward', keys: ['ArrowDown', 'KeyS', 'gamepad2'] },
+					{ name: 'left', keys: ['ArrowLeft', 'KeyA', 'gamepad3'] },
+					{ name: 'right', keys: ['ArrowRight', 'KeyD', 'gamepad4'] },
+					{ name: 'jump', keys: ['Space', 'gamepad0'] },
+					{ name: 'run', keys: ['ShiftLeft', 'gamepad10'] },
+					{ name: 'crouch', keys: ['ControlLeft', 'gamepad11'] },
+					{ name: 'action', keys: ['KeyE', 'gamepad5'] },
+				]}
+			>
+				<Player />
+				<Monster />
+				<Triggers />
+				<Grid />
+				<Sound />
 
-			{deviceMode !== 'gamepad' && !isMobile && (
-				<PointerLockControls ref={controlsRef} />
-			)}
+				{deviceMode !== 'gamepad' && !isMobile && (
+					<PointerLockControls ref={controlsRef} />
+				)}
 
-			{/* Reception */}
-			<ReceptionDoors />
-			{/* {!isMobile && ( */}
-			<Reception rotation={[0, Math.PI / 2, 0]} position={[9.805, 0, -0.15]} />
-			{/* )} */}
-
-			{/* Corridor */}
-			{duplicateComponents(RoomDoor)}
-
-			<group position={position}>
-				<CorridorStart position={[1.07, 0, 0]} />
-				<CorridorMiddles />
-				<CorridorEnd
-					position={[-1.19 - (roomTotal / 2 - 1) * CORRIDORLENGTH, 0, 0]}
+				{/* Reception */}
+				<ReceptionDoors />
+				<Reception
+					rotation={[0, Math.PI / 2, 0]}
+					position={[9.805, 0, -0.15]}
 				/>
-			</group>
 
-			{/* Room */}
-			<Suspense fallback={null}>
-				<group>
-					<Room />
+				{/* Corridor */}
+				{duplicateComponents(RoomDoor)}
 
-					{/* Doors */}
-					<BathroomDoor />
-					<NightstandDoor />
-					<DeskDoor />
-
-					{/* Curtains */}
-					<RoomCurtain />
-					<BathroomCurtain key="bathroom1" positionOffset={2} />
-					<BathroomCurtain key="bathroom2" />
-
-					{/* Objectives */}
-					<Bedsheets />
-					<Window />
-					<Bottles />
-
-					<Chair />
+				<group position={position}>
+					<CorridorStart position={[1.07, 0, 0]} />
+					<CorridorMiddles />
+					<CorridorEnd
+						position={[-1.19 - (roomTotal / 2 - 1) * CORRIDORLENGTH, 0, 0]}
+					/>
 				</group>
-			</Suspense>
-		</KeyboardControls>
+
+				{/* Room */}
+				<Suspense fallback={null}>
+					<group>
+						<Room />
+
+						{/* Doors */}
+						<BathroomDoor />
+						<NightstandDoor />
+						<DeskDoor />
+
+						{/* Curtains */}
+						<RoomCurtain />
+						<BathroomCurtain key="bathroom1" positionOffset={2} />
+						<BathroomCurtain key="bathroom2" />
+
+						{/* Objectives */}
+						<Bedsheets />
+						<Window />
+						<Bottles />
+
+						<Chair />
+					</group>
+				</Suspense>
+			</KeyboardControls>
+		</>
 	);
 }
 
 export default function AppCanvas() {
-	const isMobile = useGame((state) => state.isMobile);
-
 	const { perfVisible } = useControls({
 		perfVisible: { value: false, label: 'Show performances' },
 		'Reset game': button(() => {
@@ -371,8 +323,7 @@ export default function AppCanvas() {
 				>
 					{perfVisible ? <Perf position="top-left" /> : null}
 					<App />
-					{!isMobile && <PostProcessing />}
-					<CameraShaking />
+					<PostProcessing />
 				</Canvas>
 			</Suspense>
 			<Interface />

@@ -150,6 +150,7 @@ export default function Bottles() {
 			document.removeEventListener('progressComplete', handleProgressComplete);
 		};
 	}, [
+		camera,
 		actions,
 		delayedBathroomCurtain,
 		isDetected,

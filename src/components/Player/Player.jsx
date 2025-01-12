@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import Flashlight from './Flashlight';
@@ -11,7 +11,9 @@ import useHiding from '../../hooks/useHiding';
 import useGameStore from '../../hooks/useGame';
 
 export default function Player() {
-	const [isRunning, setIsRunning] = useState(false);
+	const isRunning = useGameStore((state) => state.isRunning);
+	const setIsRunning = useGameStore((state) => state.setIsRunning);
+
 	const playerPosition = useRef(new THREE.Vector3());
 	const playerVelocity = useRef(new THREE.Vector3());
 	const isCrouchingRef = useRef(false);

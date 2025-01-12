@@ -370,20 +370,26 @@ export default function TriggersConditions({
 				break;
 			case 'runningWindowToDoor':
 			case 'runningWindowCurtainToBed':
-				const isInHallway = camera.position.x < 2;
-				const isDoorClosed = !roomDoors[playerPositionRoom];
+				// const isInHallway = camera.position.x < 2;
+				const currentRoomDoorState = roomDoors[playerPositionRoom];
+				const isDoorClosed = !currentRoomDoorState;
+				const isInCurrentRoom =
+					Object.keys(seedData)[playerPositionRoom] === 'runningWindowToDoor' ||
+					Object.keys(seedData)[playerPositionRoom] ===
+						'runningWindowCurtainToBed';
 
-				if (isInHallway && isDoorClosed) {
+				if (isDoorClosed && isInCurrentRoom) {
 					if (monsterState !== 'facingCamera') {
 						setMonsterState('facingCamera');
 						playAnimation('Idle');
 					}
-				} else if (
-					isInHallway &&
-					!isDoorClosed &&
-					monsterState === 'facingCamera'
-				) {
-					monsterAttack();
+					// } else if (
+					// 	isInHallway &&
+					// 	!isDoorClosed &&
+					// 	monsterState === 'facingCamera' &&
+					// 	isInCurrentRoom
+					// ) {
+					// 	// monsterAttack();
 				} else if (playerIsInsideZone(zoneBox, raycaster, camera)) {
 					if (monsterState !== 'chase') {
 						setMonsterState('chase');

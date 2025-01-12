@@ -1,20 +1,18 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { ReactComponent as BellIcon } from './cursors/bell.svg';
-import { ReactComponent as CleanIcon } from './cursors/clean.svg';
-import { ReactComponent as DoorIcon } from './cursors/door.svg';
-import { ReactComponent as HelpIcon } from './cursors/help.svg';
-import { ReactComponent as LightIcon } from './cursors/light.svg';
-import { ReactComponent as PowerIcon } from './cursors/power.svg';
+import { FaHandPaper } from 'react-icons/fa';
+import { BiSolidDoorOpen } from 'react-icons/bi';
+import { HiLightBulb } from 'react-icons/hi';
+import { FaPowerOff } from 'react-icons/fa';
+import { MdHearing } from 'react-icons/md';
 import useInterface from '../../hooks/useInterface';
 import './Interface.css';
 
 const cursorIcons = {
-	bell: <BellIcon />,
-	clean: <CleanIcon />,
-	door: <DoorIcon />,
-	help: <HelpIcon className="help-cursor" />,
-	light: <LightIcon />,
-	power: <PowerIcon />,
+	clean: <FaHandPaper />,
+	door: <BiSolidDoorOpen />,
+	light: <HiLightBulb />,
+	power: <FaPowerOff />,
+	listening: <MdHearing />,
 };
 
 export default function Cursor() {
@@ -52,12 +50,26 @@ export default function Cursor() {
 			stopHolding();
 		};
 
+		const handleStartProgress = () => {
+			if (cursor === 'clean') {
+				startHolding();
+				// Démarrer l'animation qui dure environ 3 secondes
+				setTimeout(() => {
+					const event = new CustomEvent('progressComplete');
+					document.dispatchEvent(event);
+					stopHolding();
+				}, 3000);
+			}
+		};
+
 		document.addEventListener('mousedown', handleMouseDown);
 		document.addEventListener('mouseup', handleMouseUp);
+		document.addEventListener('startProgress', handleStartProgress);
 
 		return () => {
 			document.removeEventListener('mousedown', handleMouseDown);
 			document.removeEventListener('mouseup', handleMouseUp);
+			document.removeEventListener('startProgress', handleStartProgress);
 		};
 	}, [cursor, startHolding, stopHolding]);
 

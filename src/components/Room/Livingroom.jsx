@@ -15,7 +15,7 @@ export default function Livingroom() {
 	const roughnessMap = useTexture(
 		'/textures/livingroom/roughness_livingroom.webp'
 	);
-	const lightMap = useTexture('/textures/livingroom/light_livingroom.jpg');
+	const lightMap = useTexture('/textures/livingroom/light_livingroom.webp');
 
 	const [isDetectionActive, setIsDetectionActive] = useState(false);
 	const [isDark, setIsDark] = useState(false);

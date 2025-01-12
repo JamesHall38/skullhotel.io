@@ -1,10 +1,7 @@
-import { useEffect, useMemo, useState, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { useGLTF, useTexture, Text } from '@react-three/drei';
-import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import Metal from './Metal';
-import Receptionist from './Receptionist';
-import ExitSign from './ExitSign';
 import useLight from '../../hooks/useLight';
 import { useControls } from 'leva';
 
@@ -29,7 +26,6 @@ export default function Reception() {
 	const receptionLight1 = useLight((state) => state.receptionLight1);
 	const receptionLight2 = useLight((state) => state.receptionLight2);
 	const receptionLight3 = useLight((state) => state.receptionLight3);
-	const setReceptionLight1 = useLight((state) => state.setReceptionLight1);
 
 	useControls(
 		'Reception Lights',
@@ -79,36 +75,36 @@ export default function Reception() {
 		}
 	);
 
-	// Constant subtle neon flicker
-	useEffect(() => {
-		let intervalId;
-		if (receptionLight1.intensity > 0) {
-			intervalId = setInterval(() => {
-				// 25% chance to flicker
-				if (Math.random() < 0.25) {
-					// Turn off
-					setReceptionLight1(receptionLight1.color, 0);
+	// // Constant subtle neon flicker
+	// useEffect(() => {
+	// 	let intervalId;
+	// 	if (receptionLight1.intensity > 0) {
+	// 		intervalId = setInterval(() => {
+	// 			// 25% chance to flicker
+	// 			if (Math.random() < 0.25) {
+	// 				// Turn off
+	// 				setReceptionLight1(receptionLight1.color, 0);
 
-					// Quick flicker before turning back on
-					setTimeout(() => {
-						setReceptionLight1(receptionLight1.color, 0.5);
-						setTimeout(() => {
-							setReceptionLight1(receptionLight1.color, 0);
-							setTimeout(() => {
-								setReceptionLight1(receptionLight1.color, 0.7);
-								setTimeout(() => {
-									setReceptionLight1(receptionLight1.color, 1);
-								}, 20);
-							}, 20);
-						}, 20);
-					}, 10 + Math.random() * 50);
-				}
-			}, 500); // Check every half second
-		}
-		return () => {
-			if (intervalId) clearInterval(intervalId);
-		};
-	}, [receptionLight1.intensity, receptionLight1.color, setReceptionLight1]);
+	// 				// Quick flicker before turning back on
+	// 				setTimeout(() => {
+	// 					setReceptionLight1(receptionLight1.color, 0.5);
+	// 					setTimeout(() => {
+	// 						setReceptionLight1(receptionLight1.color, 0);
+	// 						setTimeout(() => {
+	// 							setReceptionLight1(receptionLight1.color, 0.7);
+	// 							setTimeout(() => {
+	// 								setReceptionLight1(receptionLight1.color, 1);
+	// 							}, 20);
+	// 						}, 20);
+	// 					}, 20);
+	// 				}, 10 + Math.random() * 50);
+	// 			}
+	// 		}, 500); // Check every half second
+	// 	}
+	// 	return () => {
+	// 		if (intervalId) clearInterval(intervalId);
+	// 	};
+	// }, [receptionLight1.intensity, receptionLight1.color, setReceptionLight1]);
 
 	useEffect(() => {
 		scene.traverse((child) => {

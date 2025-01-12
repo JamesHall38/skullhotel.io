@@ -13,6 +13,8 @@ const offset = [8.833, 0.014, 6.2];
 export default function Bedsheets() {
 	const roomNumber = useGame((state) => state.playerPositionRoom);
 	const roomTotal = useGame((state) => state.roomTotal);
+	const mobileClick = useGame((state) => state.mobileClick);
+	const setMobileClick = useGame((state) => state.setMobileClick);
 	const setCursor = useInterface((state) => state.setCursor);
 	const playerPositionRoom = useGame((state) => state.playerPositionRoom);
 	const [isDetected, setIsDetected] = useState(false);
@@ -100,7 +102,7 @@ export default function Bedsheets() {
 						setInterfaceObjectives(1, roomNumber);
 						useGame
 							.getState()
-							.checkObjectiveCompletion('bedsheets', roomNumber, camera);
+							.checkObjectiveCompletion('bedsheets', roomNumber);
 					}
 				}, 1000);
 
@@ -143,6 +145,14 @@ export default function Bedsheets() {
 			}
 		}
 	}, [objective, roomNumber]);
+
+	useEffect(() => {
+		if (mobileClick && isDetected && !objective && visibleMesh === 'Start') {
+			// setCursor('clean');
+			setIsDetected(true);
+			// setMobileClick(false);
+		}
+	}, [mobileClick, isDetected, objective, visibleMesh, setMobileClick]);
 
 	useFrame((_, delta) => {
 		if (mixerRef.current) {

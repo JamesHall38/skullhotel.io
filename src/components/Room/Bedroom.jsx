@@ -13,7 +13,7 @@ export default function Bedroom() {
 	const bakedTexture = useTexture('/textures/bedroom/baked_bedroom.webp');
 	const bumpMap = useTexture('/textures/bedroom/bump_bedroom.webp');
 	const roughnessMap = useTexture('/textures/bedroom/roughness_bedroom.webp');
-	const lightMap = useTexture('/textures/bedroom/light_bedroom.jpg');
+	const lightMap = useTexture('/textures/bedroom/light_bedroom.webp');
 
 	const [isDetectionActive, setIsDetectionActive] = useState(false);
 	const [isDark, setIsDark] = useState(false);

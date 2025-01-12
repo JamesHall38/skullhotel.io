@@ -3,14 +3,9 @@ import * as THREE from 'three';
 import { useGLTF } from '@react-three/drei';
 import useLight from '../../hooks/useLight';
 
-export default function Metal({ lightIntensity = 1 }) {
+export default function Metal() {
 	const { nodes, materials } = useGLTF('/models/reception/reception_metal.glb');
 	const receptionLight1 = useLight((state) => state.receptionLight1);
-
-	const lightBulbsMaterial = useMemo(() => {
-		const color = new THREE.Color('#c0c0c0').multiplyScalar(lightIntensity);
-		return new THREE.MeshBasicMaterial({ color });
-	}, [lightIntensity]);
 
 	const textMaterial = useMemo(() => {
 		const opacity = receptionLight1.intensity > 0 ? 1 : 0;

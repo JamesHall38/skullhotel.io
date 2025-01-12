@@ -161,6 +161,7 @@ export default function Window() {
 			document.removeEventListener('progressComplete', handleProgressComplete);
 		};
 	}, [
+		camera,
 		isDetected,
 		delayedRoomCurtain,
 		type,

@@ -109,7 +109,7 @@ export default function NightstandDoor() {
 				<a.mesh
 					castShadow
 					receiveShadow
-					geometry={nodes.Mesh.geometry}
+					geometry={nodes.NightStand.geometry}
 					material={doorMaterial.current}
 					material-opacity={opacity}
 				/>

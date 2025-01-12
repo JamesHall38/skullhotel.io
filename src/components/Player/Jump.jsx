@@ -5,6 +5,7 @@ import { useFrame } from '@react-three/fiber';
 import useGame from '../../hooks/useGame';
 import useDoorStore from '../../hooks/useDoor';
 import useMonster from '../../hooks/useMonster';
+import useJoysticks from '../../hooks/useJoysticks';
 
 const GRID_OFFSET_X = 600;
 const GRID_OFFSET_Z = 150;
@@ -31,6 +32,8 @@ export default function Jump({
 	const jumpVelocity = useRef(0);
 	const [isInsideDoor, setIsInsideDoor] = useState(false);
 	const [jumpedFromBed, setJumpedFromBed] = useState(false);
+	const isListening = useGame((state) => state.isListening);
+	const controls = useJoysticks((state) => state.controls);
 
 	const roomDoor = useDoorStore((state) => state.roomDoor);
 	const bathroomDoor = useDoorStore((state) => state.bathroomDoor);
@@ -146,7 +149,7 @@ export default function Jump({
 
 	useEffect(() => {
 		const handleKeyDown = (event) => {
-			if (event.code === 'Space' && !spacePressed) {
+			if (event.code === 'Space' && !spacePressed && !isListening) {
 				setSpacePressed(true);
 				setCanJump(true);
 			}
@@ -165,7 +168,16 @@ export default function Jump({
 			window.removeEventListener('keydown', handleKeyDown);
 			window.removeEventListener('keyup', handleKeyUp);
 		};
-	}, [spacePressed]);
+	}, [spacePressed, isListening]);
+
+	useEffect(() => {
+		if (controls.jump && !spacePressed && !isListening) {
+			setSpacePressed(true);
+			setCanJump(true);
+		} else if (!controls.jump && spacePressed) {
+			setSpacePressed(false);
+		}
+	}, [controls.jump, spacePressed, isListening]);
 
 	useEffect(() => {
 		const cellX = Math.floor(playerPosition.current.x * 10 + GRID_OFFSET_X);

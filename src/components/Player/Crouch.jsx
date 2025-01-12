@@ -2,6 +2,7 @@ import { useEffect, useRef, useCallback } from 'react';
 import { useFrame } from '@react-three/fiber';
 import useGridStore, { CELL_TYPES } from '../../hooks/useGrid';
 import useMonster from '../../hooks/useMonster';
+import useJoysticks from '../../hooks/useJoysticks';
 
 const GRID_OFFSET_X = 600;
 const GRID_OFFSET_Z = 150;
@@ -15,6 +16,7 @@ export default function Crouch({
 }) {
 	const getCell = useGridStore((state) => state.getCell);
 	const monsterState = useMonster((state) => state.monsterState);
+	const controls = useJoysticks((state) => state.controls);
 	const wantsToStandUpRef = useRef(false);
 
 	const resetCrouchState = useCallback(() => {
@@ -81,6 +83,15 @@ export default function Crouch({
 			window.removeEventListener('keyup', handleKeyUp);
 		};
 	}, [handleCrouchChange]);
+
+	// Add effect to handle mobile crouch button
+	useEffect(() => {
+		if (controls.crouch) {
+			handleCrouchChange(true);
+		} else {
+			handleCrouchChange(false);
+		}
+	}, [controls.crouch, handleCrouchChange]);
 
 	useFrame(() => {
 		if (wantsToStandUpRef.current && !checkCrouchArea(playerPosition.current)) {

@@ -5,12 +5,12 @@ import { useKeyboardControls } from '@react-three/drei';
 import useGame from '../../hooks/useGame';
 import useGamepadControls from '../../hooks/useGamepadControls';
 import useJoysticksStore from '../../hooks/useJoysticks';
-import useMonster from '../../hooks/useMonster';
 import useGridStore, { CELL_TYPES } from '../../hooks/useGrid';
 import useDoorStore from '../../hooks/useDoor';
 
-const WALK_SPEED = 1;
-const RUN_SPEED = 2;
+const WALK_SPEED = 0.5;
+const RUN_SPEED = 1 * 2;
+const MOBILE_SPEED = (WALK_SPEED + RUN_SPEED) / 2;
 const CROUCH_SPEED = 1;
 const CROUCH_CAMERA_OFFSET = 0.8;
 const RAISED_AREA_LOW_HEIGHT = 0.5;
@@ -23,6 +23,9 @@ const floor = -0.2;
 const GRID_OFFSET_X = 600;
 const GRID_OFFSET_Z = 150;
 
+const LISTENING_SPEED_MULTIPLIER = 0;
+const LISTENING_THRESHOLD = 0.9;
+
 export default function Movement({
 	playerPosition,
 	playerVelocity,
@@ -30,8 +33,9 @@ export default function Movement({
 	isRunning,
 	crouchProgressRef,
 }) {
+	const isMobile = useGame((state) => state.isMobile);
 	const playerPositionRoom = useGame((state) => state.realPlayerPositionRoom);
-	const monsterState = useMonster((state) => state.monsterState);
+	const jumpScare = useGame((state) => state.jumpScare);
 	const getCell = useGridStore((state) => state.getCell);
 	const getKeys = useKeyboardControls()[1];
 	const getGamepadControls = useGamepadControls();
@@ -55,6 +59,23 @@ export default function Movement({
 	const exit = useDoorStore((state) => state.exit);
 	const tutorial = useDoorStore((state) => state.tutorial);
 	const corridor = useDoorStore((state) => state.corridor);
+
+	const isListening = useGame((state) => state.isListening);
+	const [listeningProgress, setListeningProgress] = useState(0);
+
+	useEffect(() => {
+		let interval;
+		if (isListening) {
+			interval = setInterval(() => {
+				setListeningProgress((prev) => Math.min(1, prev + 0.1));
+			}, 100);
+		} else {
+			interval = setInterval(() => {
+				setListeningProgress((prev) => Math.max(0, prev - 0.1));
+			}, 100);
+		}
+		return () => clearInterval(interval);
+	}, [isListening]);
 
 	useEffect(() => {
 		const cellX = Math.floor(playerPosition.current.x * 10 + GRID_OFFSET_X);
@@ -157,7 +178,7 @@ export default function Movement({
 	};
 
 	useFrame((state, delta) => {
-		if (monsterState === 'run') {
+		if (jumpScare || listeningProgress > LISTENING_THRESHOLD) {
 			return;
 		}
 
@@ -209,11 +230,14 @@ export default function Movement({
 		direction
 			.normalize()
 			.multiplyScalar(
-				isRunning
+				(isMobile
+					? MOBILE_SPEED
+					: isRunning
 					? RUN_SPEED
 					: isCrouchingRef.current
 					? CROUCH_SPEED
-					: WALK_SPEED
+					: WALK_SPEED) *
+					(1 - listeningProgress * (1 - LISTENING_SPEED_MULTIPLIER))
 			);
 
 		playerVelocity.current.copy(direction);
@@ -259,7 +283,7 @@ export default function Movement({
 			standingHeight -
 			(standingHeight - crouchHeight) * crouchProgressRef.current;
 
-		if (monsterState === 'run') {
+		if (jumpScare) {
 			playerVelocity.current.x = 0;
 			playerVelocity.current.z = 0;
 		}

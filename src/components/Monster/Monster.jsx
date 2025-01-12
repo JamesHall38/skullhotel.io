@@ -10,14 +10,29 @@ import { findPath } from './pathfinding';
 import useDoor from '../../hooks/useDoor';
 import useHiding from '../../hooks/useHiding';
 
-const BASE_SPEED = 2;
+const BASE_SPEED = 5;
 const CHASE_SPEED = 0.5;
 const NEXT_POINT_THRESHOLD = 0.5;
 const MIN_DISTANCE_FOR_RECALCULATION = 2;
 const ATTACK_DISTANCE = 0.8;
 
+function lerpCameraLookAt(camera, targetPosition, lerpFactor) {
+	const targetQuaternion = new THREE.Quaternion();
+	const cameraDirection = new THREE.Vector3();
+
+	cameraDirection.subVectors(targetPosition, camera.position).normalize();
+	targetQuaternion.setFromUnitVectors(
+		new THREE.Vector3(0, 0, -1),
+		cameraDirection
+	);
+
+	camera.quaternion.slerp(targetQuaternion, lerpFactor);
+}
+
 const Monster = (props) => {
 	const group = useRef();
+	const jumpScareSoundRef = useRef(new Audio('/sounds/jump_scare.ogg'));
+	const [hasPlayedJumpScare, setHasPlayedJumpScare] = useState(false);
 	const { nodes, materials, animations } = useGLTF('/models/monster.glb');
 	const seedData = useGame((state) => state.seedData);
 	const playerPositionRoom = useGame((state) => state.playerPositionRoom);
@@ -29,12 +44,16 @@ const Monster = (props) => {
 	const setMonsterPosition = useMonster((state) => state.setMonsterPosition);
 	const monsterRotation = useMonster((state) => state.monsterRotation);
 	const playAnimation = useMonster((state) => state.playAnimation);
-	const setIsAttacking = useMonster((state) => state.setIsAttacking);
+	const animationName = useMonster((state) => state.animationName);
 	const setAnimationSpeed = useMonster((state) => state.setAnimationSpeed);
 	const setAnimationMixSpeed = useMonster(
 		(state) => state.setAnimationMixSpeed
 	);
+	const setJumpScare = useGame((state) => state.setJumpScare);
+	const jumpScare = useGame((state) => state.jumpScare);
+	const deaths = useGame((state) => state.deaths);
 
+	const roomDoors = useDoor((state) => state.roomDoor);
 	const nightstandDoor = useDoor((state) => state.nightStand);
 	const deskDoor = useDoor((state) => state.desk);
 	const roomCurtain = useDoor((state) => state.roomCurtain);
@@ -51,6 +70,21 @@ const Monster = (props) => {
 	const lastTargetRef = useRef({ x: 0, z: 0 });
 	const [isWaiting, setIsWaiting] = useState(false);
 
+	useEffect(() => {
+		const jumpScareSound = jumpScareSoundRef.current;
+		jumpScareSound.volume = 1;
+		jumpScareSound.loop = false;
+
+		return () => {
+			jumpScareSound.pause();
+			jumpScareSound.currentTime = 0;
+		};
+	}, []);
+
+	useEffect(() => {
+		setHasPlayedJumpScare(false);
+	}, [deaths]);
+
 	const lookAtCamera = useCallback((camera) => {
 		const targetPosition = new THREE.Vector3(
 			camera.position.x,
@@ -66,12 +100,6 @@ const Monster = (props) => {
 
 	const runAtCamera = useCallback(
 		(camera, delta, mode = 'run') => {
-			camera.lookAt(
-				group.current.position.x,
-				group.current.position.y + 1.42,
-				group.current.position.z
-			);
-
 			const speed = mode === 'chase' ? CHASE_SPEED : BASE_SPEED;
 			const targetPosition = new THREE.Vector3(
 				camera.position.x,
@@ -79,13 +107,43 @@ const Monster = (props) => {
 				camera.position.z
 			);
 
+			const isMonsterNearHallway = Math.abs(group.current.position.z) < 6.5;
+			const isInHallway = camera.position.z < 2;
+			const currentRoomDoorState = roomDoors[playerPositionRoom];
+			const isDoorOpen = currentRoomDoorState;
+			const isRunningRoom =
+				Object.keys(seedData)[playerPositionRoom] === 'runningWindowToDoor' ||
+				Object.keys(seedData)[playerPositionRoom] ===
+					'runningWindowCurtainToBed';
+
+			if (
+				mode === 'chase' &&
+				isMonsterNearHallway &&
+				isInHallway &&
+				isDoorOpen &&
+				isRunningRoom
+			) {
+				setShakeIntensity(10);
+				setMonsterState('run');
+				playAnimation('Run');
+				return;
+			}
+
 			const distanceToCamera =
 				group.current.position.distanceTo(targetPosition);
 
 			if (distanceToCamera <= ATTACK_DISTANCE) {
-				setIsAttacking(true);
+				if (!jumpScare) {
+					setJumpScare(true);
+				}
 				playAnimation('Attack');
 				setAnimationSpeed(1);
+
+				if (!hasPlayedJumpScare) {
+					jumpScareSoundRef.current.currentTime = 0;
+					jumpScareSoundRef.current.play();
+					setHasPlayedJumpScare(true);
+				}
 
 				const direction = new THREE.Vector3();
 				direction
@@ -94,27 +152,36 @@ const Monster = (props) => {
 
 				const distanceToMove = (ATTACK_DISTANCE - distanceToCamera) * delta;
 				group.current.position.x += direction.x * distanceToMove;
-				group.current.position.y = 0.08;
+				group.current.position.y = 0;
 				group.current.position.z += direction.z * distanceToMove;
 
-				camera.position.y = 1.585;
+				const targetLookAtPosition = new THREE.Vector3(
+					group.current.position.x,
+					group.current.position.y + 1.42,
+					group.current.position.z
+				);
+
+				const lerpFactor = 0.1;
+				lerpCameraLookAt(camera, targetLookAtPosition, lerpFactor);
 
 				group.current.lookAt(
 					targetPosition.x,
 					group.current.position.y,
 					targetPosition.z
 				);
-
-				camera.lookAt(
-					group.current.position.x,
-					group.current.position.y + 1.42,
-					group.current.position.z
-				);
 			} else {
+				if (jumpScare) {
+					setJumpScare(false);
+				}
+
 				if (monsterState !== 'chase') {
-					playAnimation('Run');
+					if (animationName !== 'Run') {
+						playAnimation('Run');
+					}
 				} else {
-					playAnimation('Walk');
+					if (animationName !== 'Walk') {
+						playAnimation('Walk');
+					}
 				}
 
 				if (mode === 'run') {
@@ -272,12 +339,20 @@ const Monster = (props) => {
 		},
 		[
 			playAnimation,
+			jumpScare,
 			currentPath,
 			setAnimationSpeed,
-			setIsAttacking,
 			monsterState,
 			lookAtCamera,
 			pathfindingFailures,
+			setJumpScare,
+			hasPlayedJumpScare,
+			animationName,
+			roomDoors,
+			playerPositionRoom,
+			seedData,
+			setMonsterState,
+			setShakeIntensity,
 		]
 	);
 
@@ -565,12 +640,13 @@ const Monster = (props) => {
 							<skinnedMesh
 								name="Mesh_6"
 								geometry={nodes.Mesh_6.geometry}
-								material={materials['Material.016']}
 								skeleton={nodes.Mesh_6.skeleton}
 								frustumCulled={false}
 								castShadow
 								receiveShadow
-							/>
+							>
+								<meshBasicMaterial color="black" />
+							</skinnedMesh>
 						</group>
 					</group>
 				</group>

@@ -2,17 +2,25 @@ import { useEffect, useRef, useMemo } from 'react';
 import useInterface from '../hooks/useInterface';
 import useGame from '../hooks/useGame';
 import { roomNumber } from '../utils/config';
-import KnockingSound from './Sound/KnockingSound';
+import KnockingSound from './KnockingSound';
 
 const Sound = () => {
 	const objectives = useInterface((state) => state.interfaceObjectives);
 	const end = useGame((state) => state.end);
 	const openDeathScreen = useGame((state) => state.openDeathScreen);
+	const isListening = useGame((state) => state.isListening);
 
 	const ambiant1Ref = useRef(new Audio('/sounds/ambiant1.ogg'));
 	const boomRef = useRef(new Audio('/sounds/boom.ogg'));
 	const ambiant2Ref = useRef(new Audio('/sounds/ambiant2.ogg'));
 	const tenseRef = useRef(new Audio('/sounds/tense.ogg'));
+
+	const defaultVolumes = useRef({
+		ambiant1: 0.7,
+		boom: 0.9,
+		ambiant2: 0.4,
+		tense: 0.4,
+	});
 
 	const doneObjectives = useMemo(() => {
 		return objectives.filter((subArray) =>
@@ -70,6 +78,33 @@ const Sound = () => {
 			tenseRef.current.currentTime = 0;
 		}
 	}, [openDeathScreen]);
+
+	useEffect(() => {
+		let fadeInterval;
+
+		if (isListening) {
+			// Fade out
+			fadeInterval = setInterval(() => {
+				const refs = [ambiant1Ref, boomRef, ambiant2Ref, tenseRef];
+
+				refs.forEach((ref) => {
+					if (ref.current.volume > 0) {
+						ref.current.volume = Math.max(0.1, ref.current.volume - 0.1);
+					}
+				});
+			}, 100);
+		} else {
+			// Restore original volumes
+			ambiant1Ref.current.volume = defaultVolumes.current.ambiant1;
+			boomRef.current.volume = defaultVolumes.current.boom;
+			ambiant2Ref.current.volume = defaultVolumes.current.ambiant2;
+			tenseRef.current.volume = defaultVolumes.current.tense;
+		}
+
+		return () => {
+			if (fadeInterval) clearInterval(fadeInterval);
+		};
+	}, [isListening]);
 
 	return <KnockingSound />;
 };

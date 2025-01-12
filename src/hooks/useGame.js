@@ -103,14 +103,26 @@ const useGameStore = create(
 		addKnockedRoom: (room) =>
 			set((state) => ({ knockedRooms: [...state.knockedRooms, room] })),
 
+		isListening: false,
+		setIsListening: (value) => set({ isListening: value }),
+
 		// Objectives
 		monsterKnockDuration: 5000,
 		setMonsterKnockDuration: (duration) =>
 			set({ monsterKnockDuration: duration }),
 
+		jumpScare: false,
+		setJumpScare: (state) => set({ jumpScare: state }),
+
+		performanceMode: true,
+		setPerformanceMode: (mode) => set({ performanceMode: mode }),
+
 		checkObjectiveCompletion: (objective, room, camera) => {
 			const state = get();
-			const roomData = state.seedData[`empty_${room}`];
+			const roomData =
+				state.seedData[
+					`hiding_${room === 'window' ? 1 : room === 'bedsheets' ? 2 : 3}`
+				];
 
 			if (roomData?.hideObjective === objective) {
 				const hiding = useHiding.getState();
@@ -188,9 +200,19 @@ const useGameStore = create(
 				activeTvs: [],
 				playIntro: false,
 				knockedRooms: [],
+				jumpScare: false,
 			}));
 			useHiding.getState().restart();
 		},
+
+		isRunning: false,
+		setIsRunning: (value) => set({ isRunning: value }),
+
+		mobileClick: false,
+		setMobileClick: (value) => set({ mobileClick: value }),
+
+		releaseMobileClick: false,
+		setReleaseMobileClick: (value) => set({ releaseMobileClick: value }),
 	}))
 );
 

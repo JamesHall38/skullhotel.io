@@ -6,7 +6,7 @@ import useLight from '../../hooks/useLight';
 import useHiding from '../../hooks/useHiding';
 import { useFrame, useThree } from '@react-three/fiber';
 
-const FLICKER_DURATION = 10000;
+// const FLICKER_DURATION = 10000;
 const LERP_FACTOR = 0.05;
 const DEFAULT_INTENSITY = 8;
 const SIZE = 0.85;
@@ -14,10 +14,11 @@ const RING_OPACITY = 0.03;
 
 export default function Flashlight({
 	playerRef,
-	isCrouchingRef,
+	// isCrouchingRef,
 	crouchProgressRef,
 }) {
-	const isFlickering = useGame((state) => state.isFlickering);
+	// const isFlickering = useGame((state) => state.isFlickering);
+	const performanceMode = useGame((state) => state.performanceMode);
 	const monsterState = useMonster((state) => state.monsterState);
 	const flashlightEnabled = useLight((state) => state.flashlightEnabled);
 	const isPlayerHidden = useHiding((state) => state.isPlayerHidden);
@@ -183,27 +184,27 @@ export default function Flashlight({
 		};
 	}, [scene]);
 
-	const flickerLight = useCallback(() => {
-		let flickerInterval = setInterval(() => {
-			// setIntensity(Math.random() * DEFAULT_INTENSITY * SIZE);
-		}, 50);
+	// const flickerLight = useCallback(() => {
+	// 	let flickerInterval = setInterval(() => {
+	// 		// setIntensity(Math.random() * DEFAULT_INTENSITY * SIZE);
+	// 	}, 50);
 
-		setTimeout(() => {
-			clearInterval(flickerInterval);
-			setIntensity(0);
+	// 	setTimeout(() => {
+	// 		clearInterval(flickerInterval);
+	// 		setIntensity(0);
 
-			setTimeout(() => {
-				flickerInterval = setInterval(() => {
-					// setIntensity(Math.random() * DEFAULT_INTENSITY * SIZE);
-				}, 50);
+	// 		setTimeout(() => {
+	// 			flickerInterval = setInterval(() => {
+	// 				// setIntensity(Math.random() * DEFAULT_INTENSITY * SIZE);
+	// 			}, 50);
 
-				// setTimeout(() => {
-				// 	clearInterval(flickerInterval);
-				// 	setIntensity(DEFAULT_INTENSITY * SIZE);
-				// }, 1000);
-			}, FLICKER_DURATION);
-		}, 1000);
-	}, []);
+	// 			// setTimeout(() => {
+	// 			// 	clearInterval(flickerInterval);
+	// 			// 	setIntensity(DEFAULT_INTENSITY * SIZE);
+	// 			// }, 1000);
+	// 		}, FLICKER_DURATION);
+	// 	}, 1000);
+	// }, []);
 
 	const monsterRunFlicker = useCallback(() => {
 		setIntensity((prev) =>
@@ -211,11 +212,11 @@ export default function Flashlight({
 		);
 	}, []);
 
-	useEffect(() => {
-		if (isFlickering) {
-			flickerLight();
-		}
-	}, [isFlickering, flickerLight]);
+	// useEffect(() => {
+	// 	if (isFlickering) {
+	// 		flickerLight();
+	// 	}
+	// }, [isFlickering, flickerLight]);
 
 	useEffect(() => {
 		let intervalId;
@@ -336,7 +337,7 @@ export default function Flashlight({
 
 	useEffect(() => {
 		if (isPlayerHidden) {
-			// Quand on se cache, on attend 1 seconde avant d'éteindre
+			// When hiding, we wait 1 second before turning off
 			playFlashlightSound();
 			setIsRecoveringFromHiding(true);
 
@@ -353,12 +354,15 @@ export default function Flashlight({
 		<spotLight
 			shadow-normalBias={0.04}
 			intensity={
-				flashlightEnabled && (!isPlayerHidden || isRecoveringFromHiding)
+				(flashlightEnabled && !isPlayerHidden) || isRecoveringFromHiding
 					? intensity
 					: 0
+				// 8
 			}
 			castShadow
 			ref={spotLightRef}
+			shadow-mapSize-width={performanceMode ? 1024 : 4}
+			shadow-mapSize-height={performanceMode ? 1024 : 4}
 			power={
 				flashlightEnabled && (!isPlayerHidden || isRecoveringFromHiding)
 					? 30 * SIZE

@@ -1,17 +1,19 @@
 import { useState, useEffect, useCallback, memo, useMemo, useRef } from 'react';
 import { useProgress } from '@react-three/drei';
 import { ReactComponent as SkullHotelLogo } from './logo.svg';
-import { ReactComponent as FullSreenIcon } from './fullscreen.svg';
+import { RiFullscreenFill } from 'react-icons/ri';
+import { FaArrowCircleDown, FaArrowCircleUp } from 'react-icons/fa';
 import useDoor from '../../hooks/useDoor';
 import useMonster from '../../hooks/useMonster';
 import dialogues from '../../data/dialogues';
 import useInterface from '../../hooks/useInterface';
 import useGame from '../../hooks/useGame';
 import useJoysticks from '../../hooks/useJoysticks';
+import useLight from '../../hooks/useLight';
 import Cursor from './Cursor';
 import { regenerateData } from '../../utils/config';
 import './Interface.css';
-import useLight from '../../hooks/useLight';
+import { measurePerformance } from '../../hooks/usePerformance';
 
 function resetGame() {
 	useGame.getState().restart();
@@ -148,20 +150,25 @@ const Joystick = ({ onMove, side }) => {
 	);
 };
 
+const DRAW_CALLS_STABILIZATION_TIME = 3000;
+
 export default function Interface() {
 	const { setIsLocked } = useGame();
 	const isMobile = useGame((state) => state.isMobile);
 	const setIsMobile = useGame((state) => state.setIsMobile);
 	const leftStickRef = useJoysticks((state) => state.leftStickRef);
 	const rightStickRef = useJoysticks((state) => state.rightStickRef);
+	const setControl = useJoysticks((state) => state.setControl);
 	const setTutorialObjectives = useInterface(
 		(state) => state.setTutorialObjectives
 	);
 	const setPlayIntro = useGame((state) => state.setPlayIntro);
-	const { active, progress } = useProgress();
+	const { progress } = useProgress();
 	const [displayProgress, setDisplayProgress] = useState(0);
 	const tutorialObjectives = useInterface((state) => state.tutorialObjectives);
 	const setEnd = useGame((state) => state.setEnd);
+	const setMobileClick = useGame((state) => state.setMobileClick);
+	const setReleaseMobileClick = useGame((state) => state.setReleaseMobileClick);
 	const end = useGame((state) => state.end);
 	const loading = useGame((state) => state.loading);
 	const setLoading = useGame((state) => state.setLoading);
@@ -169,6 +176,19 @@ export default function Interface() {
 	const setOpenDeathScreen = useGame((state) => state.setOpenDeathScreen);
 	const playerPositionRoom = useGame((state) => state.playerPositionRoom);
 	const seedData = useGame((state) => state.seedData);
+	const [assetsLoaded, setAssetsLoaded] = useState(false);
+	const [performanceMeasured, setPerformanceMeasured] = useState(false);
+	const setPerformanceMode = useGame((state) => state.setPerformanceMode);
+	const [drawCallsStabilized, setDrawCallsStabilized] = useState(false);
+
+	const setIsListening = useGame((state) => state.setIsListening);
+	const setCursor = useInterface((state) => state.setCursor);
+	const [activeButtons, setActiveButtons] = useState({
+		rightClick: false,
+		leftClick: false,
+		jump: false,
+		crouch: false,
+	});
 
 	useEffect(() => {
 		const checkMobile = () => {
@@ -177,10 +197,6 @@ export default function Interface() {
 					navigator.userAgent
 				);
 			setIsMobile(mobileDetected);
-			if (mobileDetected) {
-				setTutorialObjectives([true, true, true]);
-			}
-
 			setIsLocked(true);
 		};
 
@@ -220,20 +236,61 @@ export default function Interface() {
 	}, [currentDialogueIndex]);
 
 	useEffect(() => {
+		if (progress === 100 && !assetsLoaded) {
+			// Attendre que les draw calls se stabilisent
+			setTimeout(() => {
+				setAssetsLoaded(true);
+				// Attendre encore que les draw calls se stabilisent complètement
+				setTimeout(() => {
+					setDrawCallsStabilized(true);
+				}, DRAW_CALLS_STABILIZATION_TIME);
+			}, 1000);
+		}
+	}, [progress, assetsLoaded]);
+
+	useEffect(() => {
+		if (assetsLoaded && drawCallsStabilized && !performanceMeasured) {
+			measurePerformance().then((isHighPerformance) => {
+				setPerformanceMode(isHighPerformance);
+				setPerformanceMeasured(true);
+			});
+		}
+	}, [
+		assetsLoaded,
+		drawCallsStabilized,
+		performanceMeasured,
+		setPerformanceMode,
+	]);
+
+	useEffect(() => {
 		let rafId;
 
 		const updateProgress = () => {
-			setDisplayProgress(progress);
+			let targetProgress;
 
-			if (progress === 100 && displayProgress < 100) {
-				setDisplayProgress(100);
+			if (!assetsLoaded) {
+				targetProgress = progress * 0.6; // 0-60%
+			} else if (!drawCallsStabilized) {
+				targetProgress = 60 + progress * 0.2; // 60-80%
+			} else if (!performanceMeasured) {
+				targetProgress = 80 + progress * 0.2; // 80-100%
+			} else {
+				targetProgress = 100;
 			}
+
+			setDisplayProgress((prev) => {
+				const newProgress = Math.min(targetProgress, prev + 0.5);
+				if (newProgress < targetProgress) {
+					rafId = requestAnimationFrame(updateProgress);
+				}
+				return newProgress;
+			});
 		};
 
 		rafId = requestAnimationFrame(updateProgress);
 
 		return () => cancelAnimationFrame(rafId);
-	}, [progress, active]);
+	}, [progress, assetsLoaded, drawCallsStabilized, performanceMeasured]);
 
 	const handleJoystickMove = useCallback(
 		(side, x, y) => {
@@ -245,6 +302,24 @@ export default function Interface() {
 		},
 		[leftStickRef, rightStickRef]
 	);
+
+	useEffect(() => {
+		let timeoutId;
+
+		const resetMobileClick = () => {
+			timeoutId = setTimeout(() => {
+				if (!activeButtons.leftClick) {
+					setMobileClick(false);
+				}
+			}, 10);
+		};
+
+		resetMobileClick();
+
+		return () => {
+			clearTimeout(timeoutId);
+		};
+	}, [activeButtons.leftClick, setMobileClick]);
 
 	return (
 		<div className={`interface ${loading ? 'animated' : ''}`}>
@@ -263,7 +338,7 @@ export default function Interface() {
 					<SkullHotelLogo />
 					<div className="flex">
 						<div className="title">SKULL HOTEL</div>
-						<div className="io">.io</div>
+						{/* <div className="io">.io</div> */}
 					</div>
 					<button
 						className="full-screen-button"
@@ -298,7 +373,7 @@ export default function Interface() {
 							}
 						}}
 					>
-						<FullSreenIcon />
+						<RiFullscreenFill />
 						Full Screen
 					</button>
 					<div className={displayProgress !== 100 ? 'loading' : 'start'}>
@@ -325,10 +400,115 @@ export default function Interface() {
 				</ul>
 			)}
 			{!loading && isMobile && (
-				<>
+				<div
+					className="mobile-interface"
+					onPointerDown={(e) => e.stopPropagation()}
+					onPointerUp={(e) => e.stopPropagation()}
+					onClick={(e) => e.stopPropagation()}
+				>
+					<div className="mobile-buttons left">
+						<button
+							className={`mobile-button top ${
+								activeButtons.rightClick ? 'active' : ''
+							}`}
+							onTouchStart={() => {
+								setActiveButtons((prev) => ({ ...prev, rightClick: true }));
+								setIsListening(true);
+								setCursor('listening');
+							}}
+							onTouchEnd={() => {
+								setActiveButtons((prev) => ({ ...prev, rightClick: false }));
+								setIsListening(false);
+								setCursor(null);
+							}}
+						>
+							B
+						</button>
+						<button
+							className={`mobile-button bottom ${
+								activeButtons.leftClick ? 'active' : ''
+							}`}
+							onTouchStart={() => {
+								setActiveButtons((prev) => ({ ...prev, leftClick: true }));
+								const pointerEvent = new PointerEvent('pointerdown', {
+									bubbles: true,
+									cancelable: true,
+									pointerType: 'touch',
+									button: 0,
+									clientX: window.innerWidth / 2,
+									clientY: window.innerHeight / 2,
+								});
+								window.dispatchEvent(pointerEvent);
+								const clickEvent = new MouseEvent('click', {
+									bubbles: true,
+									cancelable: true,
+									view: window,
+									clientX: window.innerWidth / 2,
+									clientY: window.innerHeight / 2,
+								});
+								window.dispatchEvent(clickEvent);
+								setMobileClick(true);
+
+								const cursor = useInterface.getState().cursor;
+								if (cursor === 'clean') {
+									const event = new CustomEvent('startProgress');
+									document.dispatchEvent(event);
+								}
+							}}
+							onTouchEnd={() => {
+								setActiveButtons((prev) => ({ ...prev, leftClick: false }));
+								const pointerEvent = new PointerEvent('pointerup', {
+									bubbles: true,
+									cancelable: true,
+									pointerType: 'touch',
+									button: 0,
+									clientX: window.innerWidth / 2,
+									clientY: window.innerHeight / 2,
+								});
+								window.dispatchEvent(pointerEvent);
+								setReleaseMobileClick(true);
+							}}
+						>
+							A
+						</button>
+					</div>
+
+					<div className="mobile-buttons right">
+						<button
+							className={`mobile-button top ${
+								activeButtons.jump ? 'active' : ''
+							}`}
+							onTouchStart={() => {
+								setActiveButtons((prev) => ({ ...prev, jump: true }));
+								setControl('jump', true);
+							}}
+							onTouchEnd={() => {
+								setActiveButtons((prev) => ({ ...prev, jump: false }));
+								setControl('jump', false);
+							}}
+						>
+							<FaArrowCircleUp />
+						</button>
+						<button
+							className={`mobile-button bottom ${
+								activeButtons.crouch ? 'active' : ''
+							}`}
+							onTouchStart={() => {
+								setActiveButtons((prev) => ({ ...prev, crouch: true }));
+								setControl('crouch', true);
+							}}
+							onTouchEnd={() => {
+								setActiveButtons((prev) => ({ ...prev, crouch: false }));
+								setControl('crouch', false);
+							}}
+						>
+							<FaArrowCircleDown />
+						</button>
+					</div>
+
 					<Joystick onMove={handleJoystickMove} side="left" />
 					<Joystick onMove={handleJoystickMove} side="right" />
-				</>
+				</div>
 			)}
 			{!loading && (
 				<>

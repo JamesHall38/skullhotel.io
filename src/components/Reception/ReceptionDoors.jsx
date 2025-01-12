@@ -66,21 +66,13 @@ export default function ReceptionDoors() {
 	const setCorridorHandle = useDoor((state) => state.setCorridorHandle);
 
 	const setPlayerPositionRoom = useGame((state) => state.setPlayerPositionRoom);
-	const isMobile = useGame((state) => state.isMobile);
 	const currentDialogueIndex = useInterface(
 		(state) => state.currentDialogueIndex
 	);
 	const setCurrentDialogueIndex = useInterface(
 		(state) => state.setCurrentDialogueIndex
 	);
-	const objectives = useInterface((state) => state.interfaceObjectives);
 	const tutorialObjectives = useInterface((state) => state.tutorialObjectives);
-
-	const doneObjectives = useMemo(() => {
-		return objectives.filter((subArray) =>
-			subArray.every((value) => value === true)
-		).length;
-	}, [objectives]);
 
 	const initialPosition = 0.5;
 
@@ -93,24 +85,13 @@ export default function ReceptionDoors() {
 				isHandlePressed={corridorHandle}
 				setHandlePressed={setCorridorHandle}
 				setOpen={(value) => {
-					if (isMobile) {
-						if (doneObjectives === 10) {
-							setCorridorDoor(value);
-						} else {
-							if (currentDialogueIndex !== 0) {
-								setCurrentDialogueIndex(0);
-								setTimeout(() => setCurrentDialogueIndex(null), 3000);
-							}
-						}
+					if (tutorialObjectives.every((value) => value === true)) {
+						setCorridorDoor(value);
+						setPlayerPositionRoom(initialPosition);
 					} else {
-						if (tutorialObjectives.every((value) => value === true)) {
-							setCorridorDoor(value);
-							setPlayerPositionRoom(initialPosition);
-						} else {
-							if (currentDialogueIndex !== 0) {
-								setCurrentDialogueIndex(0);
-								setTimeout(() => setCurrentDialogueIndex(null), 3000);
-							}
+						if (currentDialogueIndex !== 0) {
+							setCurrentDialogueIndex(0);
+							setTimeout(() => setCurrentDialogueIndex(null), 3000);
 						}
 					}
 				}}
@@ -118,40 +99,31 @@ export default function ReceptionDoors() {
 			>
 				<Door isHandlePressed={corridorHandle} />
 			</DoorWrapper>
-			{!isMobile && (
-				<group>
-					<DoorWrapper
-						offset={[6.582, 0.965, 3.2]}
-						isOpen={tutorialDoor}
-						isHandlePressed={tutorialHandle}
-						setHandlePressed={setTutorialHandle}
-						setOpen={(value) => {
-							setTutorialDoor(value);
-							setPlayerPositionRoom(initialPosition);
-						}}
-					>
-						<Door isHandlePressed={tutorialHandle} />
-					</DoorWrapper>
-					<DoorWrapper
-						offset={[10.025, 0.965, -3.85]}
-						isOpen={exitDoor}
-						isHandlePressed={exitHandle}
-						setHandlePressed={setExitHandle}
-						setOpen={(value) => {
-							if (doneObjectives >= 10 || window.location.hash === '#debug') {
-								setExitDoor(value);
-							} else {
-								if (currentDialogueIndex !== 0) {
-									setCurrentDialogueIndex(0);
-									setTimeout(() => setCurrentDialogueIndex(null), 3000);
-								}
-							}
-						}}
-					>
-						<Door isHandlePressed={exitHandle} />
-					</DoorWrapper>
-				</group>
-			)}
+			<group>
+				<DoorWrapper
+					offset={[6.582, 0.965, 3.2]}
+					isOpen={tutorialDoor}
+					isHandlePressed={tutorialHandle}
+					setHandlePressed={setTutorialHandle}
+					setOpen={(value) => {
+						setTutorialDoor(value);
+						setPlayerPositionRoom(initialPosition);
+					}}
+				>
+					<Door isHandlePressed={tutorialHandle} />
+				</DoorWrapper>
+				<DoorWrapper
+					offset={[10.025, 0.965, -3.85]}
+					isOpen={exitDoor}
+					isHandlePressed={exitHandle}
+					setHandlePressed={setExitHandle}
+					setOpen={(value) => {
+						setExitDoor(value);
+					}}
+				>
+					<Door isHandlePressed={exitHandle} />
+				</DoorWrapper>
+			</group>
 		</group>
 	);
 }
