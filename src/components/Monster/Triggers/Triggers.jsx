@@ -2,9 +2,11 @@ import { useEffect, useMemo, useRef } from 'react';
 import useGame from '../../../hooks/useGame';
 import useMonster from '../../../hooks/useMonster';
 import * as THREE from 'three';
+import { PositionalAudio } from '@react-three/drei';
 import TriggersConditions from './TriggersConditions';
 import { getMonsterInitialPosition } from './triggersUtils';
 import { useControls } from 'leva';
+import { useFrame } from '@react-three/fiber';
 
 const boxGeometry = new THREE.BoxGeometry(1, 1, 1);
 const CORRIDORLENGTH = 5.95;
@@ -53,11 +55,13 @@ const MONSTER_CONFIG = {
 export default function Triggers() {
 	const seedData = useGame((state) => state.seedData);
 	const roomTotal = useGame((state) => state.roomTotal);
+	const isListening = useGame((state) => state.isListening);
 	const playerPositionRoom = useGame((state) => state.playerPositionRoom);
 	const setMonsterRotation = useMonster((state) => state.setMonsterRotation);
 	const playAnimation = useMonster((state) => state.playAnimation);
 	const setMonsterState = useMonster((state) => state.setMonsterState);
 	const setMonsterPosition = useMonster((state) => state.setMonsterPosition);
+	const monsterSoundRef = useRef();
 
 	const greenRef = useRef();
 	const redRef = useRef();
@@ -217,8 +221,9 @@ export default function Triggers() {
 		if (
 			!Object.values(seedData)[playerPositionRoom] ||
 			Object.values(seedData)[playerPositionRoom]?.type === 'empty'
-		)
+		) {
 			return undefined;
+		}
 
 		const isFacingRoom = playerPositionRoom >= roomTotal / 2;
 
@@ -274,13 +279,41 @@ export default function Triggers() {
 		{}
 	);
 
+	useFrame(({ camera }) => {
+		if (
+			Object.values(seedData)[playerPositionRoom]?.sound &&
+			monsterSoundRef.current &&
+			isListening
+		) {
+			const monsterPos = new THREE.Vector3(
+				position[0] + controls.monsterInitialPosition[0],
+				position[1] + controls.monsterInitialPosition[1],
+				position[2] + controls.monsterInitialPosition[2]
+			);
+			const distance = camera.position.distanceTo(monsterPos);
+
+			if (distance > 3.5) {
+				monsterSoundRef.current.stop();
+			} else if (!monsterSoundRef.current.isPlaying) {
+				monsterSoundRef.current.offset =
+					Math.random() * monsterSoundRef.current.buffer.duration;
+				monsterSoundRef.current.play();
+			}
+		} else if (monsterSoundRef.current && monsterSoundRef.current.isPlaying) {
+			monsterSoundRef.current.stop();
+		}
+	});
+
 	return (
 		<>
 			<TriggersConditions {...refs} position={position} />
 			{controls.visible && (
 				<group
 					rotation={[0, playerPositionRoom >= roomTotal / 2 ? Math.PI : 0, 0]}
-					visible={!seedData[playerPositionRoom]?.type === 'empty'}
+					visible={
+						!seedData[playerPositionRoom] ||
+						seedData[playerPositionRoom].type !== 'empty'
+					}
 				>
 					{Object.entries(BOXES_CONFIG).map(([color]) => (
 						<mesh
@@ -301,6 +334,22 @@ export default function Triggers() {
 						</mesh>
 					))}
 				</group>
+			)}
+			{Object.values(seedData)[playerPositionRoom]?.sound && (
+				<PositionalAudio
+					ref={monsterSoundRef}
+					url="/sounds/breathing.ogg"
+					loop={true}
+					distance={3}
+					refDistance={1}
+					rolloffFactor={3}
+					volume={1}
+					position={[
+						position[0] + controls.monsterInitialPosition[0],
+						position[1] + controls.monsterInitialPosition[1],
+						position[2] + controls.monsterInitialPosition[2],
+					]}
+				/>
 			)}
 		</>
 	);

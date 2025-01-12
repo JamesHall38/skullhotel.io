@@ -2,31 +2,50 @@ import levelData from '../components/Monster/Triggers/levelData';
 
 const numberOfRooms = 20;
 
+function getHidingRooms() {
+	return {
+		empty_1: { type: 'empty', number: 1 },
+		hiding_1: {
+			type: 'empty',
+			number: 2,
+			hideObjective: 'window',
+			hideSpot: 'roomCurtain',
+		},
+		hiding_2: {
+			type: 'empty',
+			number: 3,
+			hideObjective: 'bedsheets',
+			hideSpot: 'desk',
+		},
+		hiding_3: {
+			type: 'empty',
+			number: 4,
+			hideObjective: 'bottles',
+			hideSpot: 'bathroomCurtain',
+		},
+	};
+}
+
 export default function generateSeedData(
 	isTestMode = false,
 	selectedRoom = null
 ) {
 	if (selectedRoom && levelData[selectedRoom]) {
-		let selectedRooms = {};
-		const roomData = levelData[selectedRoom];
-
-		for (let i = 0; i < numberOfRooms; i++) {
-			selectedRooms[`${selectedRoom}_${i}`] = {
-				...roomData,
+		return {
+			[selectedRoom]: {
+				...levelData[selectedRoom],
 				type: selectedRoom,
-				number: i,
-			};
-		}
-
-		return selectedRooms;
+			},
+		};
 	}
 
 	if (isTestMode) {
-		let selectedRooms = {};
+		let selectedRooms = getHidingRooms();
 		let allNonEmptyRooms = Object.entries(levelData).flat();
 
 		allNonEmptyRooms.forEach((room, index) => {
 			if (Array.isArray(room)) return; // Skip array entries
+			if (index < 5) return; // Skip first 5 rooms which are hiding rooms
 			selectedRooms[`${room.type || 'room'}_${index}`] = { ...room };
 		});
 
@@ -35,8 +54,9 @@ export default function generateSeedData(
 
 	const numberOfEmptyRooms = Math.floor(numberOfRooms * 0.5);
 	const numberOfFilledRooms = numberOfRooms - numberOfEmptyRooms;
+	const hidingRooms = getHidingRooms();
 
-	let selectedRooms = {};
+	let selectedRooms = { ...hidingRooms };
 	let allNonEmptyRooms = Object.entries(levelData);
 	allNonEmptyRooms.sort(() => Math.random() - 0.5);
 
@@ -62,9 +82,13 @@ export default function generateSeedData(
 		currentIndex++;
 	}
 
-	// Add empty rooms
-	for (let i = 0; i < numberOfEmptyRooms; i++) {
-		selectedRooms[`empty_${i}`] = { type: 'empty', number: i };
+	// Modify empty rooms loop to account for hiding rooms
+	for (
+		let i = 0;
+		i < numberOfEmptyRooms - Object.keys(hidingRooms).length;
+		i++
+	) {
+		selectedRooms[`empty_${i + 5}`] = { type: 'empty', number: i + 5 };
 	}
 
 	// Randomize order

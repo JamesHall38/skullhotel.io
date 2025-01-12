@@ -55,7 +55,7 @@ export default function TriggersConditions({
 		playAnimation('Run');
 	};
 
-	const basicHidding = (clock, camera, raycaster, useInstantBox = false) => {
+	const basicHiding = (clock, camera, raycaster, useInstantBox = false) => {
 		let monsterIsTriggered = false;
 		if (interfaceObjectives[playerPositionRoom]?.[2]) {
 			playAnimation('Idle');
@@ -163,15 +163,15 @@ export default function TriggersConditions({
 
 		switch (Object.keys(seedData)[playerPositionRoom]) {
 			case 'underBed':
-				basicHidding(clock, camera, raycaster, 'underBed');
+				basicHiding(clock, camera, raycaster, 'underBed');
 				break;
 			case 'bathroomVent':
 			case 'roomVent':
-				basicHidding(clock, camera, raycaster);
+				basicHiding(clock, camera, raycaster);
 				break;
 			case 'bedBasket':
 			case 'windowBasket':
-				basicHidding(clock, camera, raycaster, true);
+				basicHiding(clock, camera, raycaster, true);
 				break;
 			case 'behindDoor':
 				let monsterIsTriggered = false;
@@ -370,20 +370,26 @@ export default function TriggersConditions({
 				break;
 			case 'runningWindowToDoor':
 			case 'runningWindowCurtainToBed':
-				const isInHallway = camera.position.x < 2;
-				const isDoorClosed = !roomDoors[playerPositionRoom];
+				// const isInHallway = camera.position.x < 2;
+				const currentRoomDoorState = roomDoors[playerPositionRoom];
+				const isDoorClosed = !currentRoomDoorState;
+				const isInCurrentRoom =
+					Object.keys(seedData)[playerPositionRoom] === 'runningWindowToDoor' ||
+					Object.keys(seedData)[playerPositionRoom] ===
+						'runningWindowCurtainToBed';
 
-				if (isInHallway && isDoorClosed) {
+				if (isDoorClosed && isInCurrentRoom) {
 					if (monsterState !== 'facingCamera') {
 						setMonsterState('facingCamera');
 						playAnimation('Idle');
 					}
-				} else if (
-					isInHallway &&
-					!isDoorClosed &&
-					monsterState === 'facingCamera'
-				) {
-					monsterAttack();
+					// } else if (
+					// 	isInHallway &&
+					// 	!isDoorClosed &&
+					// 	monsterState === 'facingCamera' &&
+					// 	isInCurrentRoom
+					// ) {
+					// 	// monsterAttack();
 				} else if (playerIsInsideZone(zoneBox, raycaster, camera)) {
 					if (monsterState !== 'chase') {
 						setMonsterState('chase');

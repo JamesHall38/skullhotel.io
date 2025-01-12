@@ -1,0 +1,47 @@
+{
+	"name": "8rooms",
+	"version": "1.0.0",
+	"description": "",
+	"main": "index.js",
+	"scripts": {
+		"start": "react-scripts start",
+		"build": "react-scripts build"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"dependencies": {
+		"@react-three/drei": "^9.97.6",
+		"@react-three/fiber": "^8.15.16",
+		"@react-three/postprocessing": "^2.16.2",
+		"leva": "^0.9.35",
+		"r3f-perf": "^7.2.3",
+		"react": "^18.2.0",
+		"react-dom": "^18.2.0",
+		"react-icons": "^5.4.0",
+		"react-scripts": "^5.0.1",
+		"three": "^0.161.0",
+		"zustand": "^4.5.1"
+	},
+	"browserslist": {
+		"production": [
+			">0.2%",
+			"not dead",
+			"not op_mini all"
+		],
+		"development": [
+			"last 1 chrome version",
+			"last 1 firefox version",
+			"last 1 safari version"
+		]
+	},
+	"eslintConfig": {
+		"extends": [
+			"react-app",
+			"react-app/jest"
+		],
+		"rules": {
+			"react-hooks/exhaustive-deps": "warn"
+		}
+	}
+}

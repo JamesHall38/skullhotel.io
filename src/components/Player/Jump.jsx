@@ -5,6 +5,7 @@ import { useFrame } from '@react-three/fiber';
 import useGame from '../../hooks/useGame';
 import useDoorStore from '../../hooks/useDoor';
 import useMonster from '../../hooks/useMonster';
+import useJoysticks from '../../hooks/useJoysticks';
 
 const GRID_OFFSET_X = 600;
 const GRID_OFFSET_Z = 150;
@@ -16,7 +17,12 @@ const GRAVITY = 8;
 const CEILING_HEIGHT = 0.7;
 const floor = -0.2;
 
-export default function Jump({ playerPosition, playerVelocity, isCrouching }) {
+export default function Jump({
+	playerPosition,
+	playerVelocity,
+	isCrouchingRef,
+	crouchProgressRef,
+}) {
 	const playerPositionRoom = useGame((state) => state.realPlayerPositionRoom);
 	const monsterState = useMonster((state) => state.monsterState);
 	const getCell = useGridStore((state) => state.getCell);
@@ -26,6 +32,8 @@ export default function Jump({ playerPosition, playerVelocity, isCrouching }) {
 	const jumpVelocity = useRef(0);
 	const [isInsideDoor, setIsInsideDoor] = useState(false);
 	const [jumpedFromBed, setJumpedFromBed] = useState(false);
+	const isListening = useGame((state) => state.isListening);
+	const controls = useJoysticks((state) => state.controls);
 
 	const roomDoor = useDoorStore((state) => state.roomDoor);
 	const bathroomDoor = useDoorStore((state) => state.bathroomDoor);
@@ -122,7 +130,7 @@ export default function Jump({ playerPosition, playerVelocity, isCrouching }) {
 			(cell.type === CELL_TYPES.CROUCH_ONLY ||
 				cell.type === CELL_TYPES.DESK_DOOR_CLOSED ||
 				cell.type === CELL_TYPES.NIGHTSTAND_DOOR_CLOSED) &&
-			!isCrouching
+			!isCrouchingRef.current
 		) {
 			return true;
 		}
@@ -141,7 +149,7 @@ export default function Jump({ playerPosition, playerVelocity, isCrouching }) {
 
 	useEffect(() => {
 		const handleKeyDown = (event) => {
-			if (event.code === 'Space' && !spacePressed) {
+			if (event.code === 'Space' && !spacePressed && !isListening) {
 				setSpacePressed(true);
 				setCanJump(true);
 			}
@@ -160,7 +168,16 @@ export default function Jump({ playerPosition, playerVelocity, isCrouching }) {
 			window.removeEventListener('keydown', handleKeyDown);
 			window.removeEventListener('keyup', handleKeyUp);
 		};
-	}, [spacePressed]);
+	}, [spacePressed, isListening]);
+
+	useEffect(() => {
+		if (controls.jump && !spacePressed && !isListening) {
+			setSpacePressed(true);
+			setCanJump(true);
+		} else if (!controls.jump && spacePressed) {
+			setSpacePressed(false);
+		}
+	}, [controls.jump, spacePressed, isListening]);
 
 	useEffect(() => {
 		const cellX = Math.floor(playerPosition.current.x * 10 + GRID_OFFSET_X);
@@ -193,7 +210,7 @@ export default function Jump({ playerPosition, playerVelocity, isCrouching }) {
 		corridor,
 		exit,
 		playerPosition,
-		// getCell,
+		getCell,
 		playerPositionRoom,
 	]);
 
@@ -291,7 +308,11 @@ export default function Jump({ playerPosition, playerVelocity, isCrouching }) {
 			}
 
 			state.camera.position.y = playerPosition.current.y;
-			state.camera.position.y += isCrouching ? CROUCH_CAMERA_OFFSET : 1.7;
+			const standingHeight = 1.7;
+			const crouchHeight = CROUCH_CAMERA_OFFSET;
+			state.camera.position.y +=
+				standingHeight -
+				(standingHeight - crouchHeight) * crouchProgressRef.current;
 
 			if (
 				jumpState === 'falling' &&

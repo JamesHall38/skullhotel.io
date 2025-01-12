@@ -1,12 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useGLTF } from '@react-three/drei';
 import DoorWrapper from './DoorWrapper';
 import useGame from '../../hooks/useGame';
 import useDoor from '../../hooks/useDoor';
-import useInterface from '../../hooks/useInterface';
 import { useThree } from '@react-three/fiber';
 import WoodMaterial from '../WoodMaterial';
 import useGridStore, { CELL_TYPES } from '../../hooks/useGrid';
+import useHiding from '../../hooks/useHiding';
+import { useSpring, a } from '@react-spring/three';
 
 const tutorialRoomCenter = [2.05, 0.51, 6.28];
 
@@ -19,15 +20,27 @@ export default function NightstandDoor() {
 	const nightstandDoors = useDoor((state) => state.nightStands);
 	const setNightstandDoors = useDoor((state) => state.setNightStands);
 	const { nodes } = useGLTF('/models/doors/nightstand_door.glb');
-	const woodMaterial = WoodMaterial();
+	const createWoodMaterial = WoodMaterial();
+	const doorMaterial = useRef(createWoodMaterial());
 	const isOpen = useDoor((state) => state.nightStand);
 	const setOpen = useDoor((state) => state.setNightStand);
 	const [instantChange, setInstantChange] = useState(false);
 	const playerPositionRoom = useGame((state) => state.playerPositionRoom);
-	const setCursor = useInterface((state) => state.setCursor);
 	const [tutorialRoomOffset, setTutorialRoomOffset] = useState(null);
 	const { camera } = useThree();
 	const getCell = useGridStore((state) => state.getCell);
+	const isHidden = useHiding(
+		(state) => state.isPlayerHidden && state.hideSpot === 'nightstand'
+	);
+
+	const { opacity } = useSpring({
+		opacity: isHidden ? 0.05 : 1,
+		config: {
+			mass: 1,
+			tension: 170,
+			friction: 26,
+		},
+	});
 
 	useEffect(() => {
 		if (nightstandDoors[roomNumber] === true && !isOpen) {
@@ -46,12 +59,10 @@ export default function NightstandDoor() {
 	}, [nightstandDoors, roomNumber, setOpen, isOpen]);
 
 	useEffect(() => {
-		// Convert camera position to grid coordinates
 		const cellX = Math.floor(camera.position.x * 10 + GRID_OFFSET_X);
 		const cellZ = Math.floor(camera.position.z * 10 + GRID_OFFSET_Z);
 		const cell = getCell(cellX, cellZ);
 
-		// Check if camera is in nightstand door area using the grid
 		if (cell.type === CELL_TYPES.NIGHTSTAND_DOOR_CLOSED && !isOpen) {
 			setTimeout(() => {
 				setNightstandDoors(roomNumber, true);
@@ -75,6 +86,10 @@ export default function NightstandDoor() {
 		);
 	}, [playerPositionRoom, camera]);
 
+	useEffect(() => {
+		doorMaterial.current.transparent = true;
+	}, [doorMaterial]);
+
 	return (
 		<DoorWrapper
 			roomNumber={roomNumber}
@@ -91,14 +106,12 @@ export default function NightstandDoor() {
 			tutorialRoomOffset={tutorialRoomOffset}
 		>
 			<group dispose={null}>
-				<mesh
+				<a.mesh
 					castShadow
 					receiveShadow
-					// geometry={nodes.Mesh.geometry}
 					geometry={nodes.NightStand.geometry}
-					material={woodMaterial}
-					// material={materials.Wood}
-					onPointerOut={() => setCursor(null)}
+					material={doorMaterial.current}
+					material-opacity={opacity}
 				/>
 				{/* <mesh
 					castShadow
