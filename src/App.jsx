@@ -25,6 +25,8 @@ import RoomDoor from './components/Doors/RoomDoor';
 import BathroomDoor from './components/Doors/BathroomDoor';
 import NightstandDoor from './components/Doors/NightstandDoor';
 import DeskDoor from './components/Doors/DeskDoor';
+// Tutorial
+import Tutorial from './components/Tutorial/Tutorial';
 // Objectives
 import Window from './components/Objectives/Window';
 import Bottles from './components/Objectives/Bottles';
@@ -256,6 +258,9 @@ function App() {
 					rotation={[0, Math.PI / 2, 0]}
 					position={[9.805, 0, -0.15]}
 				/>
+
+				{/* Tutorial */}
+				<Tutorial />
 
 				{/* Corridor */}
 				{duplicateComponents(RoomDoor)}

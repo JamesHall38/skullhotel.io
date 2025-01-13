@@ -11,7 +11,6 @@ import Metal from './Metal';
 import Painting from './Events/Painting';
 import Tv from './Events/Tv';
 import Lights from './Lights';
-// import Inscriptions from './Inscriptions';
 import DetectionZone from '../DetectionZone';
 
 const CORRIDORLENGTH = 5.95;
@@ -92,7 +91,6 @@ export default function Room() {
 			<Painting />
 			<Metal />
 			<Tv />
-			{/* <Inscriptions /> */}
 
 			{isDetectionActive && (
 				<DetectionZone

@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useRef } from 'react';
-import { useGLTF, useTexture, Text } from '@react-three/drei';
+import { useEffect, useRef } from 'react';
+import { useGLTF, useTexture } from '@react-three/drei';
 import * as THREE from 'three';
 import Metal from './Metal';
 import useLight from '../../hooks/useLight';
@@ -221,34 +221,12 @@ export default function Reception() {
 		}
 	}, [receptionLight1, receptionLight2, receptionLight3]);
 
-	const textMaterial = useMemo(() => {
-		return new THREE.MeshStandardMaterial({ color: '#8A0303' });
-	}, []);
-
 	return (
 		<group rotation={[0, Math.PI / 2, 0]} position={[9.8, 0, -0.15]}>
 			{/* <Receptionist /> */}
 			<Metal />
 			{/* <ExitSign /> */}
 			<primitive object={scene} />
-			<Text
-				font={'/Redrum.otf'}
-				position={[0, 2, 3.65]}
-				material={textMaterial}
-				scale={0.2}
-				rotation={[0, Math.PI, 0]}
-			>
-				If you see or hear one of them
-			</Text>
-			<Text
-				font={'/Redrum.otf'}
-				position={[0, 1.75, 3.65]}
-				material={textMaterial}
-				scale={0.2}
-				rotation={[0, Math.PI, 0]}
-			>
-				turn around
-			</Text>
 			{/* <pointLight intensity={100} color={'#4a7b6e'} position={[0, 2, 0]} /> */}
 		</group>
 	);

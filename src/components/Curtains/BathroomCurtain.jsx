@@ -39,7 +39,7 @@ export default function BathroomCurtain({ positionOffset }) {
 		if (camera.position.x > 8) {
 			calculatedPosition = [14.5, 0, 14.5];
 		} else if (camera.position.x <= 8 && camera.position.x > 4.4) {
-			calculatedPosition = [3.5, 0.35, 9.5];
+			calculatedPosition = [3.5, 0.35, 9.45];
 		}
 
 		return [
