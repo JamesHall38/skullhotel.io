@@ -41,7 +41,7 @@ export default function RoomCurtain() {
 		if (camera.position.x > 8) {
 			calculatedPosition = [14.5, 0, 14.5];
 		} else if (camera.position.x <= 8 && camera.position.x > 4.4) {
-			calculatedPosition = [2.9, 0, 7.81];
+			calculatedPosition = [2.9, 0, 7.78];
 		}
 
 		return calculatedPosition;

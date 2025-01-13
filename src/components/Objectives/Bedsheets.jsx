@@ -91,20 +91,16 @@ export default function Bedsheets() {
 					bedsheetsSoundRef.current.play();
 				}
 
-				setTimeout(() => {
-					if (tutorialObjectives[1] === false) {
-						setTutorialObjectives([
-							tutorialObjectives[0],
-							true,
-							tutorialObjectives[2],
-						]);
-					} else {
-						setInterfaceObjectives(1, roomNumber);
-						useGame
-							.getState()
-							.checkObjectiveCompletion('bedsheets', roomNumber);
-					}
-				}, 1000);
+				if (tutorialObjectives[1] === false) {
+					setTutorialObjectives([
+						tutorialObjectives[0],
+						true,
+						tutorialObjectives[2],
+					]);
+				} else {
+					setInterfaceObjectives(1, roomNumber);
+					useGame.getState().checkObjectiveCompletion('bedsheets', roomNumber);
+				}
 
 				setCursor(null);
 			}
