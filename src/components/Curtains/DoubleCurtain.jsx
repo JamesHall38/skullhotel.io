@@ -4,6 +4,7 @@ import { useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import useInterface from '../../hooks/useInterface';
 import useGame from '../../hooks/useGame';
+import { usePositionalSound } from '../../utils/audio';
 
 export default function DoubleCurtain({
 	modelPath = '/models/doors/curtain.glb',
@@ -15,7 +16,6 @@ export default function DoubleCurtain({
 	setCurtain,
 	setCurtains,
 	roomNumber,
-	soundUrl = '/sounds/curtain.ogg',
 	meshPositions = {
 		mesh0: [1, 1, -5.5],
 		mesh1: [1, 1, -5.5],
@@ -38,6 +38,7 @@ export default function DoubleCurtain({
 		open: 0.6,
 		closed: 1.1,
 	},
+	...props
 }) {
 	const group = useRef();
 	const mixerRightRef = useRef(new THREE.AnimationMixer(null));
@@ -89,6 +90,8 @@ export default function DoubleCurtain({
 		() => new THREE.AnimationMixer(animationMeshCloneLeft),
 		[animationMeshCloneLeft]
 	);
+
+	const curtainSound = usePositionalSound('curtain');
 
 	useEffect(() => {
 		roomNumberRef.current = roomNumber;
@@ -310,15 +313,7 @@ export default function DoubleCurtain({
 					object={animationMeshCloneRight}
 				/>
 			</group>
-			<PositionalAudio
-				ref={curtainSoundRef}
-				url={soundUrl}
-				loop={false}
-				distance={1}
-				refDistance={1}
-				rolloffFactor={1}
-				volume={0.25}
-			/>
+			<PositionalAudio ref={curtainSoundRef} {...curtainSound} loop={false} />
 			<group position={[-2.86, 0, 0]}>
 				<mesh ref={mesh0Ref} position={meshPositions.mesh0}>
 					<boxGeometry args={[1.2, 1.8, 0.2]} />

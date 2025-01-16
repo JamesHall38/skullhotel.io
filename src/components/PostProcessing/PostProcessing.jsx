@@ -14,6 +14,8 @@ import { useFrame } from '@react-three/fiber';
 import { useControls, button } from 'leva';
 import useGame from '../../hooks/useGame';
 import useInterface from '../../hooks/useInterface';
+import * as THREE from 'three';
+import { getSoundUrl } from '../../utils/audio';
 
 const DISTORTION_SPEED = 5;
 
@@ -218,7 +220,6 @@ const Saturation = ({ isListening }) => {
 			Math.min(delta * LERP_SPEED, 1);
 		effect.uniforms.get('saturation').value = currentSaturation.current;
 
-		// Mise à jour du temps pour l'animation du bruit
 		effect.uniforms.get('time').value += delta;
 	});
 
@@ -231,7 +232,7 @@ const PostProcessing = () => {
 	const [isNeonFlickering, setIsNeonFlickering] = useState(false);
 	const [isDistorting, setIsDistorting] = useState(false);
 	const jumpScareAmbianceRef = useRef(
-		new Audio('/sounds/jump_scare_ambiance.ogg')
+		new Audio(getSoundUrl('jumpScareAmbiance'))
 	);
 	const currentVolumeRef = useRef(0);
 	const setReceptionLight1 = useLight((state) => state.setReceptionLight1);
@@ -242,6 +243,7 @@ const PostProcessing = () => {
 	const jumpScare = useGame((state) => state.jumpScare);
 	const shakeIntensity = useGame((state) => state.shakeIntensity);
 	const isListening = useGame((state) => state.isListening);
+	const lerpTimeRef = useRef(0);
 
 	const glitchStrength = useMemo(() => {
 		if (isDistorting || isNeonFlickering) return 0.2;
@@ -280,6 +282,28 @@ const PostProcessing = () => {
 		}
 	});
 
+	useFrame(({ camera }, delta) => {
+		if (useGame.getState().isCameraLocked) {
+			const targetLookAt = new THREE.Vector3(10.77, 6, 100);
+
+			lerpTimeRef.current = Math.min(lerpTimeRef.current + delta, 2);
+
+			const progress = lerpTimeRef.current / 2;
+			const easeOutFactor = 1 - Math.pow(1 - progress, 3);
+
+			const currentRotation = camera.quaternion.clone();
+			const targetQuaternion = new THREE.Quaternion();
+
+			camera.lookAt(targetLookAt);
+			targetQuaternion.copy(camera.quaternion);
+
+			camera.quaternion.copy(currentRotation);
+			camera.quaternion.slerp(targetQuaternion, easeOutFactor);
+		} else {
+			lerpTimeRef.current = 0;
+		}
+	});
+
 	useControls({
 		'Play Intro Animation': button(() => {
 			setPlayIntro(true);
@@ -289,6 +313,9 @@ const PostProcessing = () => {
 	useEffect(() => {
 		if (playIntro) {
 			const sequence = async () => {
+				const setCameraLocked = useGame.getState().setCameraLocked;
+
+				setCameraLocked(true);
 				setReceptionLight1(receptionLight1.color, 0);
 				setFlashlightEnabled(false);
 				setIsDistorting(true);
@@ -307,7 +334,6 @@ const PostProcessing = () => {
 						clearInterval(flickerInterval);
 						setReceptionLight1(receptionLight1.color, 1);
 						setIsNeonFlickering(false);
-						setCursor(null);
 					}
 				}, 50);
 
@@ -320,6 +346,8 @@ const PostProcessing = () => {
 					if (Date.now() - flashlightStartTime > 500) {
 						clearInterval(flashlightFlickerInterval);
 						setFlashlightEnabled(true);
+						setCameraLocked(false);
+						setCursor(null);
 					}
 				}, 50);
 			};

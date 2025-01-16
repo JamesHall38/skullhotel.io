@@ -3,6 +3,7 @@ import { useGLTF } from '@react-three/drei';
 import useGame from '../../hooks/useGame';
 import useInterface from '../../hooks/useInterface';
 import DetectionZone from '../DetectionZone';
+import { getSoundUrl } from '../../utils/audio';
 
 export default function Switches(props) {
 	const roomLight = useGame((state) => state.roomLight);
@@ -17,9 +18,9 @@ export default function Switches(props) {
 	const switch1Ref = useRef();
 	const switch2Ref = useRef();
 
-	const switchOnSoundRef = useRef(new Audio('/sounds/switch_on.ogg'));
-	const switchOffSoundRef = useRef(new Audio('/sounds/switch_off.ogg'));
-	const neonSoundRef = useRef(new Audio('/sounds/neon.ogg'));
+	const switchOnSoundRef = useRef(new Audio(getSoundUrl('switchOn')));
+	const switchOffSoundRef = useRef(new Audio(getSoundUrl('switchOff')));
+	const neonSoundRef = useRef(new Audio(getSoundUrl('neon')));
 
 	const bathroomLightRef = useRef(bathroomLight);
 	const roomLightRef = useRef(roomLight);
@@ -39,12 +40,12 @@ export default function Switches(props) {
 				setBathroomLight(newBathroomLight);
 				if (newBathroomLight) {
 					switchOnSoundRef.current.currentTime = 0;
-					switchOnSoundRef.current.play();
+					switchOnSoundRef.current.play().catch(() => {});
 					neonSoundRef.current.currentTime = 0;
-					neonSoundRef.current.play();
+					neonSoundRef.current.play().catch(() => {});
 				} else {
 					switchOffSoundRef.current.currentTime = 0;
-					switchOffSoundRef.current.play();
+					switchOffSoundRef.current.play().catch(() => {});
 					neonSoundRef.current.pause();
 					neonSoundRef.current.currentTime = 0;
 				}
@@ -54,10 +55,10 @@ export default function Switches(props) {
 				setRoomLight(newRoomLight);
 				if (newRoomLight) {
 					switchOnSoundRef.current.currentTime = 0;
-					switchOnSoundRef.current.play();
+					switchOnSoundRef.current.play().catch(() => {});
 				} else {
 					switchOffSoundRef.current.currentTime = 0;
-					switchOffSoundRef.current.play();
+					switchOffSoundRef.current.play().catch(() => {});
 				}
 			}
 		}
@@ -75,12 +76,12 @@ export default function Switches(props) {
 				setBathroomLight(!bathroomLight);
 				if (!bathroomLight) {
 					switchOnSoundRef.current.currentTime = 0;
-					switchOnSoundRef.current.play();
+					switchOnSoundRef.current.play().catch(() => {});
 					neonSoundRef.current.currentTime = 0;
-					neonSoundRef.current.play();
+					neonSoundRef.current.play().catch(() => {});
 				} else {
 					switchOffSoundRef.current.currentTime = 0;
-					switchOffSoundRef.current.play();
+					switchOffSoundRef.current.play().catch(() => {});
 					neonSoundRef.current.pause();
 					neonSoundRef.current.currentTime = 0;
 				}
@@ -92,10 +93,10 @@ export default function Switches(props) {
 				setRoomLight(!roomLight);
 				if (!roomLight) {
 					switchOnSoundRef.current.currentTime = 0;
-					switchOnSoundRef.current.play();
+					switchOnSoundRef.current.play().catch(() => {});
 				} else {
 					switchOffSoundRef.current.currentTime = 0;
-					switchOffSoundRef.current.play();
+					switchOffSoundRef.current.play().catch(() => {});
 				}
 			}
 		};

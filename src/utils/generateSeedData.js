@@ -52,8 +52,8 @@ export default function generateSeedData(
 		return selectedRooms;
 	}
 
-	const numberOfEmptyRooms = Math.floor(numberOfRooms * 0.5);
-	const numberOfFilledRooms = numberOfRooms - numberOfEmptyRooms;
+	const numberOfEmptyRooms = Math.floor(numberOfRooms * 0.5) - 2;
+	const numberOfFilledRooms = numberOfRooms - numberOfEmptyRooms + 2;
 	const hidingRooms = getHidingRooms();
 
 	let selectedRooms = { ...hidingRooms };

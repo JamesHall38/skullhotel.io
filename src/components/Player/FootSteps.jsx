@@ -1,13 +1,14 @@
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
 import useGame from '../../hooks/useGame';
 import { useKeyboardControls } from '@react-three/drei';
 import * as THREE from 'three';
+import { getSoundUrl } from '../../utils/audio';
 
 const floor = -0.2;
 const STEP_INTERVAL = {
-	walk: 600, // ms between steps when walking
-	run: 350, // ms between steps when running
+	walk: 600,
+	run: 350,
 };
 
 const VOLUMES = {
@@ -20,6 +21,21 @@ const JUMP_SOUND_DELAY = 400;
 const MOVEMENT_THRESHOLD = 0.00001;
 
 export default function FootSteps({ playerPosition }) {
+	const footstepSounds = useMemo(
+		() => [
+			new Audio(getSoundUrl('step1')),
+			new Audio(getSoundUrl('step2')),
+			new Audio(getSoundUrl('step3')),
+			new Audio(getSoundUrl('step4')),
+			new Audio(getSoundUrl('step5')),
+			new Audio(getSoundUrl('step6')),
+			new Audio(getSoundUrl('step7')),
+			new Audio(getSoundUrl('step8')),
+			new Audio(getSoundUrl('step9')),
+		],
+		[]
+	);
+
 	const loading = useGame((state) => state.loading);
 	const resetFootstepSound = useGame((state) => state.resetFootstepSound);
 	const setResetFootstepSound = useGame((state) => state.setResetFootstepSound);
@@ -28,18 +44,7 @@ export default function FootSteps({ playerPosition }) {
 	const isListening = useGame((state) => state.isListening);
 
 	const lastPosition = useRef(new THREE.Vector3());
-	const footstepSounds = useRef([
-		new Audio('/sounds/step1.ogg'),
-		new Audio('/sounds/step2.ogg'),
-		new Audio('/sounds/step3.ogg'),
-		new Audio('/sounds/step4.ogg'),
-		new Audio('/sounds/step5.ogg'),
-		new Audio('/sounds/step6.ogg'),
-		new Audio('/sounds/step7.ogg'),
-		new Audio('/sounds/step8.ogg'),
-		new Audio('/sounds/step9.ogg'),
-	]);
-
+	const footstepRefs = useRef(footstepSounds);
 	const footstepIndexRef = useRef(0);
 	const lastStepTime = useRef(0);
 	const wasMovingRef = useRef(false);
@@ -48,13 +53,15 @@ export default function FootSteps({ playerPosition }) {
 		const handleKeyDown = (event) => {
 			if (event.code === 'Space') {
 				setTimeout(() => {
-					const jumpSound =
-						footstepSounds.current[
-							Math.floor(Math.random() * footstepSounds.current.length)
-						];
-					jumpSound.volume = VOLUMES.landing;
-					jumpSound.currentTime = 0;
-					jumpSound.play();
+					const soundIndex = Math.floor(
+						Math.random() * footstepRefs.current.length
+					);
+					const sound = footstepRefs.current[soundIndex];
+					if (sound) {
+						sound.volume = VOLUMES.landing;
+						sound.currentTime = 0;
+						sound.play().catch(() => {});
+					}
 				}, JUMP_SOUND_DELAY);
 			}
 		};
@@ -62,7 +69,7 @@ export default function FootSteps({ playerPosition }) {
 		return () => {
 			window.removeEventListener('keydown', handleKeyDown);
 		};
-	}, [playerPosition]);
+	}, []);
 
 	useFrame((state) => {
 		if (!loading && !isListening) {
@@ -71,7 +78,6 @@ export default function FootSteps({ playerPosition }) {
 				const { forward, backward, left, right } = getKeys();
 				const keysPressed = forward || backward || left || right;
 
-				// Calculer le déplacement réel
 				const currentPosition = playerPosition.current;
 				const movement = new THREE.Vector3().subVectors(
 					currentPosition,
@@ -84,34 +90,36 @@ export default function FootSteps({ playerPosition }) {
 				const isMoving = keysPressed && actuallyMoving;
 
 				if (isMoving && !wasMovingRef.current) {
-					const sound = footstepSounds.current[footstepIndexRef.current];
-					sound.volume = isRunning ? VOLUMES.run : VOLUMES.walk;
-					sound.currentTime = 0;
-
-					if (!resetFootstepSound) {
-						sound.play();
-					} else {
-						setResetFootstepSound(false);
+					const sound = footstepRefs.current[footstepIndexRef.current];
+					if (sound) {
+						sound.volume = isRunning ? VOLUMES.run : VOLUMES.walk;
+						sound.currentTime = 0;
+						if (!resetFootstepSound) {
+							sound.play().catch(() => {});
+						} else {
+							setResetFootstepSound(false);
+						}
 					}
 
 					footstepIndexRef.current =
-						(footstepIndexRef.current + 1) % footstepSounds.current.length;
+						(footstepIndexRef.current + 1) % footstepRefs.current.length;
 					lastStepTime.current = currentTime;
 				} else if (isMoving) {
 					const interval = isRunning ? STEP_INTERVAL.run : STEP_INTERVAL.walk;
 					if (currentTime - lastStepTime.current > interval) {
-						const sound = footstepSounds.current[footstepIndexRef.current];
-						sound.volume = isRunning ? VOLUMES.run : VOLUMES.walk;
-						sound.currentTime = 0;
-
-						if (!resetFootstepSound) {
-							sound.play();
-						} else {
-							setResetFootstepSound(false);
+						const sound = footstepRefs.current[footstepIndexRef.current];
+						if (sound) {
+							sound.volume = isRunning ? VOLUMES.run : VOLUMES.walk;
+							sound.currentTime = 0;
+							if (!resetFootstepSound) {
+								sound.play().catch(() => {});
+							} else {
+								setResetFootstepSound(false);
+							}
 						}
 
 						footstepIndexRef.current =
-							(footstepIndexRef.current + 1) % footstepSounds.current.length;
+							(footstepIndexRef.current + 1) % footstepRefs.current.length;
 						lastStepTime.current = currentTime;
 					}
 				}
@@ -120,4 +128,6 @@ export default function FootSteps({ playerPosition }) {
 			}
 		}
 	});
+
+	return null;
 }

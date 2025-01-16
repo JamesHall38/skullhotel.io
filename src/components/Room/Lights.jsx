@@ -6,6 +6,7 @@ import useGame from '../../hooks/useGame';
 import useInterface from '../../hooks/useInterface';
 import { PositionalAudio } from '@react-three/drei';
 import DetectionZone from '../DetectionZone';
+import { usePositionalSound } from '../../utils/audio';
 
 const PROBABILITY_OF_RED_LIGHT = 20;
 
@@ -31,6 +32,7 @@ export default function Lights() {
 	const firstRedLightPlayed = useRef(false);
 	const mainLightRef = useRef();
 	const performanceMode = useGame((state) => state.performanceMode);
+	const bulbSound = usePositionalSound('bulb');
 
 	const doneObjectivesNumber = useMemo(() => {
 		const count = doneObjectives?.reduce((acc, subArray) => {
@@ -199,15 +201,7 @@ export default function Lights() {
 				/>
 			</group>
 			{/* )} */}
-			<PositionalAudio
-				ref={redLightSoundRef}
-				url="/sounds/bulb.ogg"
-				loop={false}
-				distance={1}
-				refDistance={1}
-				rolloffFactor={1}
-				volume={0.5}
-			/>
+			<PositionalAudio ref={redLightSoundRef} {...bulbSound} loop={false} />
 		</group>
 	);
 }

@@ -6,6 +6,7 @@ import * as THREE from 'three';
 import useInterface from '../../../hooks/useInterface';
 import DetectionZone from '../../DetectionZone';
 import { PositionalAudio, useTexture } from '@react-three/drei';
+import { usePositionalSound } from '../../../utils/audio';
 
 const PROBABILITY_OF_ACTIVATION = 20;
 
@@ -22,6 +23,7 @@ const Radio = () => {
 	const cursor = useInterface((state) => state.cursor);
 	const setCursor = useInterface((state) => state.setCursor);
 	const radioSoundRef = useRef();
+	const radioSound = usePositionalSound('radio');
 
 	const textureOn = useTexture('/textures/bedroom/radio_on.webp');
 	const textureOff = useTexture('/textures/bedroom/radio_off.webp');
@@ -165,15 +167,7 @@ const Radio = () => {
 					<meshStandardMaterial map={textureOff} />
 				)}
 			</mesh>
-			<PositionalAudio
-				ref={radioSoundRef}
-				url="/sounds/radio.ogg"
-				loop={true}
-				distance={0.75}
-				refDistance={1}
-				rolloffFactor={1}
-				volume={1}
-			/>
+			<PositionalAudio ref={radioSoundRef} {...radioSound} loop={true} />
 		</group>
 	);
 };

@@ -7,6 +7,7 @@ import TriggersConditions from './TriggersConditions';
 import { getMonsterInitialPosition } from './triggersUtils';
 import { useControls } from 'leva';
 import { useFrame } from '@react-three/fiber';
+import { usePositionalSound } from '../../../utils/audio';
 
 const boxGeometry = new THREE.BoxGeometry(1, 1, 1);
 const CORRIDORLENGTH = 5.95;
@@ -67,6 +68,8 @@ export default function Triggers() {
 	const redRef = useRef();
 	const blueRef = useRef();
 	const yellowRef = useRef();
+
+	const breathingSound = usePositionalSound('breathing');
 
 	const boxRefs = useMemo(
 		() => ({
@@ -338,12 +341,7 @@ export default function Triggers() {
 			{Object.values(seedData)[playerPositionRoom]?.sound && (
 				<PositionalAudio
 					ref={monsterSoundRef}
-					url="/sounds/breathing.ogg"
-					loop={true}
-					distance={3}
-					refDistance={1}
-					rolloffFactor={3}
-					volume={1}
+					{...breathingSound}
 					position={[
 						position[0] + controls.monsterInitialPosition[0],
 						position[1] + controls.monsterInitialPosition[1],

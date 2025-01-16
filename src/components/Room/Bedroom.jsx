@@ -5,6 +5,7 @@ import useGame from '../../hooks/useGame';
 import DetectionZone from '../DetectionZone';
 import { useControls } from 'leva';
 import useLight from '../../hooks/useLight';
+import { usePositionalSound } from '../../utils/audio';
 
 const PROBABILITY_OF_DARKNESS = 20;
 
@@ -25,6 +26,8 @@ export default function Bedroom() {
 	const { leftLight, radioLight, rightLight } = useLight();
 
 	const isRadioOn = useGame((state) => state.radio);
+
+	const bulbSound = usePositionalSound('bulb');
 
 	useControls(
 		'Bedroom Lights',
@@ -244,15 +247,7 @@ export default function Bedroom() {
 				/>
 			)}
 			<primitive object={scene} />
-			<PositionalAudio
-				ref={lightSoundRef}
-				url="/sounds/bulb.ogg"
-				distance={1}
-				loop={false}
-				refDistance={1}
-				rolloffFactor={1}
-				volume={0.5}
-			/>
+			<PositionalAudio ref={lightSoundRef} {...bulbSound} loop={false} />
 		</>
 	);
 }

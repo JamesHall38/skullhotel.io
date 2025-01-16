@@ -48,6 +48,7 @@ const levelData = {
 		cameraShakingPosition: [-0.75, 0, 0.75],
 		cameraShakingScale: [2.35, 1, 2],
 		animation: 'Basket',
+		headOffset: Math.PI / 2,
 	},
 
 	windowBasket: {
@@ -63,6 +64,7 @@ const levelData = {
 		cameraShakingPosition: [-0.75, 0, 2.56],
 		cameraShakingScale: [1.94, 1, 1.6],
 		animation: 'Basket',
+		headOffset: Math.PI / 2,
 	},
 
 	behindDoor: {
@@ -315,17 +317,6 @@ const levelData = {
 		headOffset: Math.PI / 2,
 	},
 
-	bathroomSound: {
-		probability: 0.1,
-		deathReason: 'If you hear the client, run away',
-		monsterPosition: [1.35, 0, 8],
-		monsterInitialPosition: [0.3, 0, -2.6],
-		monsterInitialRotation: [0, Math.PI / 2, 0],
-		animation: 'Crouch',
-		sound: true,
-		headOffset: Math.PI / 2 + 0.05,
-	},
-
 	// CLOSE QUICKLY
 	quickWindow: {
 		probability: 0.1,
@@ -372,15 +363,15 @@ const levelData = {
 	},
 
 	// DO NOT LOOK
-	bloodOnBath: {
-		probability: 0.1,
-		deathReason: 'Do not look at the client',
-		position: [-0.75, 0, -3.2],
-		scale: [2, 1, 2],
-		monsterPosition: [-0.75, 1.8, -4.2],
-		monsterInitialPosition: [-0.65, -0.27, -4.2],
-		animation: 'BathCeiling',
-	},
+	// bloodOnBath: {
+	// 	probability: 0.1,
+	// 	deathReason: 'Do not look at the client',
+	// 	position: [-0.75, 0, -3.2],
+	// 	scale: [2, 1, 2],
+	// 	monsterPosition: [-0.75, 1.8, -4.2],
+	// 	monsterInitialPosition: [-0.65, -0.27, -4.2],
+	// 	animation: 'BathCeiling',
+	// },
 
 	bloodOnDoor: {
 		probability: 0.1,

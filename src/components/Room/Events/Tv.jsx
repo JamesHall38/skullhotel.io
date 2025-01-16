@@ -12,6 +12,7 @@ import * as THREE from 'three';
 import useInterface from '../../../hooks/useInterface';
 import DetectionZone from '../../DetectionZone';
 import { PositionalAudio } from '@react-three/drei';
+import { usePositionalSound } from '../../../utils/audio';
 
 const PROBABILITY_OF_ACTIVATION = 20;
 
@@ -36,6 +37,7 @@ export default function Tv() {
 	);
 	const mobileClick = useGame((state) => state.mobileClick);
 	const processedInFrameRef = useRef(false);
+	const whiteNoiseSound = usePositionalSound('whiteNoise');
 
 	const generateRandomRoomNumber = useCallback(
 		() => Math.floor(Math.random() * PROBABILITY_OF_ACTIVATION),
@@ -194,15 +196,7 @@ export default function Tv() {
 				`}
 				/>
 			</mesh>
-			<PositionalAudio
-				ref={tvSoundRef}
-				url="/sounds/white_noise.ogg"
-				loop={true}
-				distance={0.75}
-				refDistance={1}
-				rolloffFactor={1}
-				volume={1}
-			/>
+			<PositionalAudio ref={tvSoundRef} {...whiteNoiseSound} loop={true} />
 		</group>
 	);
 }

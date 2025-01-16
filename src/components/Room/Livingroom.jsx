@@ -5,6 +5,7 @@ import useGame from '../../hooks/useGame';
 import DetectionZone from '../DetectionZone';
 import useLight from '../../hooks/useLight';
 import { useControls } from 'leva';
+import { usePositionalSound } from '../../utils/audio';
 
 const PROBABILITY_OF_DARKNESS = 20;
 
@@ -255,15 +256,7 @@ export default function Livingroom() {
 				/>
 			)}
 			<primitive object={scene} />
-			<PositionalAudio
-				ref={lightSoundRef}
-				url="/sounds/bulb.ogg"
-				distance={1}
-				loop={false}
-				refDistance={1}
-				rolloffFactor={1}
-				volume={0.5}
-			/>
+			<PositionalAudio ref={lightSoundRef} {...usePositionalSound('bulb')} />
 		</>
 	);
 }
