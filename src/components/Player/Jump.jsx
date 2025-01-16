@@ -34,6 +34,7 @@ export default function Jump({
 	const [jumpedFromBed, setJumpedFromBed] = useState(false);
 	const isListening = useGame((state) => state.isListening);
 	const controls = useJoysticks((state) => state.controls);
+	const isMobile = useGame((state) => state.isMobile);
 
 	const roomDoor = useDoorStore((state) => state.roomDoor);
 	const bathroomDoor = useDoorStore((state) => state.bathroomDoor);
@@ -148,6 +149,8 @@ export default function Jump({
 	};
 
 	useEffect(() => {
+		if (isMobile) return;
+
 		const handleKeyDown = (event) => {
 			if (event.code === 'Space' && !spacePressed && !isListening) {
 				setSpacePressed(true);
@@ -168,16 +171,18 @@ export default function Jump({
 			window.removeEventListener('keydown', handleKeyDown);
 			window.removeEventListener('keyup', handleKeyUp);
 		};
-	}, [spacePressed, isListening]);
+	}, [spacePressed, isListening, isMobile]);
 
 	useEffect(() => {
+		if (!isMobile) return;
+
 		if (controls.jump && !spacePressed && !isListening) {
 			setSpacePressed(true);
 			setCanJump(true);
 		} else if (!controls.jump && spacePressed) {
 			setSpacePressed(false);
 		}
-	}, [controls.jump, spacePressed, isListening]);
+	}, [controls.jump, spacePressed, isListening, isMobile]);
 
 	useEffect(() => {
 		const cellX = Math.floor(playerPosition.current.x * 10 + GRID_OFFSET_X);

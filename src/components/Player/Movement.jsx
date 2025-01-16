@@ -9,7 +9,7 @@ import useGridStore, { CELL_TYPES } from '../../hooks/useGrid';
 import useDoorStore from '../../hooks/useDoor';
 
 const WALK_SPEED = 0.5;
-const RUN_SPEED = 1 * 2;
+const RUN_SPEED = 1;
 const MOBILE_SPEED = (WALK_SPEED + RUN_SPEED) / 2;
 const CROUCH_SPEED = 1;
 const CROUCH_CAMERA_OFFSET = 0.8;
@@ -34,6 +34,7 @@ export default function Movement({
 	crouchProgressRef,
 }) {
 	const isMobile = useGame((state) => state.isMobile);
+	const isCameraLocked = useGame((state) => state.isCameraLocked);
 	const playerPositionRoom = useGame((state) => state.realPlayerPositionRoom);
 	const jumpScare = useGame((state) => state.jumpScare);
 	const getCell = useGridStore((state) => state.getCell);
@@ -178,6 +179,15 @@ export default function Movement({
 	};
 
 	useFrame((state, delta) => {
+		if (isCameraLocked) {
+			playerPosition.current.set(10.77, floor, -3);
+
+			state.camera.position.x = playerPosition.current.x;
+			state.camera.position.z = playerPosition.current.z;
+			state.camera.position.y = playerPosition.current.y + 1.7;
+			return;
+		}
+
 		if (jumpScare || listeningProgress > LISTENING_THRESHOLD) {
 			return;
 		}

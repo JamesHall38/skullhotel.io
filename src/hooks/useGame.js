@@ -213,6 +213,9 @@ const useGameStore = create(
 
 		releaseMobileClick: false,
 		setReleaseMobileClick: (value) => set({ releaseMobileClick: value }),
+
+		isCameraLocked: false,
+		setCameraLocked: (state) => set(() => ({ isCameraLocked: state })),
 	}))
 );
 

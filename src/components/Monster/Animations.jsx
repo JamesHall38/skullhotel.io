@@ -5,16 +5,17 @@ import useMonster from '../../hooks/useMonster';
 import useGame from '../../hooks/useGame';
 import useInterface from '../../hooks/useInterface';
 import useDoor from '../../hooks/useDoor';
+import { getSoundUrl } from '../../utils/audio';
 
 const monsterStepSounds = [
-	new Audio('/sounds/monster_step1.ogg'),
-	new Audio('/sounds/monster_step2.ogg'),
-	new Audio('/sounds/monster_step3.ogg'),
-	new Audio('/sounds/monster_step4.ogg'),
+	new Audio(getSoundUrl('monsterStep1')),
+	new Audio(getSoundUrl('monsterStep2')),
+	new Audio(getSoundUrl('monsterStep3')),
+	new Audio(getSoundUrl('monsterStep4')),
 ];
 
-monsterStepSounds.forEach((sound) => {
-	sound.preload = 'auto';
+monsterStepSounds.forEach((audio) => {
+	audio.preload = 'auto';
 });
 
 const VOLUMES = {

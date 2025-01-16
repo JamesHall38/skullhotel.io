@@ -10,6 +10,7 @@ import { useFrame } from '@react-three/fiber';
 import DetectionZone from '../../DetectionZone';
 import * as THREE from 'three';
 import useGame from '../../../hooks/useGame';
+import { usePositionalSound } from '../../../utils/audio';
 
 const PROBABILITY_OF_FALLING = 20;
 const LERP_SPEED = 20;
@@ -24,6 +25,7 @@ export default function Painting(props) {
 	const hasPlayed = useRef(false);
 	const groupRef = useRef();
 	const soundRef = useRef();
+	const impactSound = usePositionalSound('impact');
 
 	const [randomRoomNumber, setRandomRoomNumber] = useState(
 		Math.floor(Math.random() * PROBABILITY_OF_FALLING)
@@ -126,15 +128,7 @@ export default function Painting(props) {
 				geometry={nodes.Abstract_Painting.geometry}
 				material={materials.Abstract_Painting}
 			/>
-			<PositionalAudio
-				ref={soundRef}
-				url="/sounds/impact.ogg"
-				distance={1}
-				loop={false}
-				refDistance={1}
-				rolloffFactor={1}
-				volume={1}
-			/>
+			<PositionalAudio ref={soundRef} {...impactSound} loop={false} />
 		</group>
 	);
 }

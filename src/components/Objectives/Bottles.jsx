@@ -6,6 +6,7 @@ import useInterface from '../../hooks/useInterface';
 import useDoor from '../../hooks/useDoor';
 import * as THREE from 'three';
 import DetectionZone from '../DetectionZone';
+import { usePositionalSound } from '../../utils/audio';
 
 const CORRIDORLENGTH = 5.95;
 const offset = [9.53, 0.83, 1.6];
@@ -131,9 +132,14 @@ export default function Bottles() {
 								]);
 							} else {
 								setInterfaceObjectives(0, roomNumber);
-								useGame
-									.getState()
-									.checkObjectiveCompletion('bottles', roomNumber, camera);
+								const currentRoom = Object.values(useGame.getState().seedData)[
+									roomNumber
+								];
+								if (currentRoom?.hideObjective === 'bottles') {
+									useGame
+										.getState()
+										.checkObjectiveCompletion('bottles', roomNumber, camera);
+								}
 							}
 						}
 					}
@@ -262,12 +268,8 @@ export default function Bottles() {
 			</group>
 			<PositionalAudio
 				ref={bottleSoundRef}
-				url="/sounds/bottles.ogg"
+				{...usePositionalSound('bottles')}
 				loop={false}
-				distance={1}
-				refDistance={1}
-				rolloffFactor={1}
-				volume={0.5}
 			/>
 		</group>
 	);

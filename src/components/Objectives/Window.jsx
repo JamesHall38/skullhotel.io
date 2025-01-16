@@ -7,6 +7,7 @@ import useDoor from '../../hooks/useDoor';
 import * as THREE from 'three';
 import levelData from '../Monster/Triggers/levelData';
 import DetectionZone from '../DetectionZone';
+import { usePositionalSound } from '../../utils/audio';
 
 const CORRIDORLENGTH = 5.95;
 const offset = [8.43, 1.13, 12];
@@ -34,6 +35,7 @@ export default function Window() {
 	const [isDetected, setIsDetected] = useState(false);
 	const setCursor = useInterface((state) => state.setCursor);
 
+	const windowSound = usePositionalSound('window');
 	const windowSoundRef = useRef();
 
 	useEffect(() => {
@@ -142,9 +144,14 @@ export default function Window() {
 								]);
 							} else {
 								setInterfaceObjectives(2, roomNumber);
-								useGame
-									.getState()
-									.checkObjectiveCompletion('window', roomNumber, camera);
+								const currentRoom = Object.values(useGame.getState().seedData)[
+									roomNumber
+								];
+								if (currentRoom?.hideObjective === 'window') {
+									useGame
+										.getState()
+										.checkObjectiveCompletion('window', roomNumber, camera);
+								}
 							}
 						}
 					}
@@ -289,15 +296,7 @@ export default function Window() {
 					/>
 				</mesh>
 			</group>
-			<PositionalAudio
-				ref={windowSoundRef}
-				url="/sounds/window.ogg"
-				loop={false}
-				distance={1}
-				refDistance={1}
-				rolloffFactor={1}
-				volume={0.5}
-			/>
+			<PositionalAudio ref={windowSoundRef} {...windowSound} loop={false} />
 		</group>
 	);
 }

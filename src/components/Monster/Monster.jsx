@@ -9,6 +9,7 @@ import useGame from '../../hooks/useGame';
 import { findPath } from './pathfinding';
 import useDoor from '../../hooks/useDoor';
 import useHiding from '../../hooks/useHiding';
+import { getSoundUrl } from '../../utils/audio';
 
 const BASE_SPEED = 5;
 const CHASE_SPEED = 0.5;
@@ -31,7 +32,7 @@ function lerpCameraLookAt(camera, targetPosition, lerpFactor) {
 
 const Monster = (props) => {
 	const group = useRef();
-	const jumpScareSoundRef = useRef(new Audio('/sounds/jump_scare.ogg'));
+	const jumpScareSoundRef = useRef(new Audio(getSoundUrl('jumpScare')));
 	const [hasPlayedJumpScare, setHasPlayedJumpScare] = useState(false);
 	const { nodes, materials, animations } = useGLTF('/models/monster.glb');
 	const seedData = useGame((state) => state.seedData);
@@ -141,7 +142,7 @@ const Monster = (props) => {
 
 				if (!hasPlayedJumpScare) {
 					jumpScareSoundRef.current.currentTime = 0;
-					jumpScareSoundRef.current.play();
+					jumpScareSoundRef.current.play().catch(() => {});
 					setHasPlayedJumpScare(true);
 				}
 

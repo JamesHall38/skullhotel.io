@@ -3,6 +3,7 @@ import { useGLTF, PositionalAudio } from '@react-three/drei';
 import { useFrame, useThree } from '@react-three/fiber';
 import useGame from '../../hooks/useGame';
 import useInterface from '../../hooks/useInterface';
+import { usePositionalSound } from '../../utils/audio';
 import * as THREE from 'three';
 import DetectionZone from '../DetectionZone';
 import FabricMaterial from '../FabricMaterial';
@@ -87,7 +88,7 @@ export default function Bedsheets() {
 				mixerRef.current = mixer;
 				setVisibleMesh('Animated');
 
-				if (bedsheetsSoundRef.current) {
+				if (bedsheetsSoundRef.current && !bedsheetsSoundRef.current.isPlaying) {
 					bedsheetsSoundRef.current.play();
 				}
 
@@ -97,12 +98,7 @@ export default function Bedsheets() {
 						true,
 						tutorialObjectives[2],
 					]);
-				} else {
-					setInterfaceObjectives(1, roomNumber);
-					useGame.getState().checkObjectiveCompletion('bedsheets', roomNumber);
 				}
-
-				setCursor(null);
 			}
 		};
 
@@ -159,6 +155,16 @@ export default function Bedsheets() {
 				);
 				if (action && action.time >= action.getClip().duration - 0.1) {
 					setVisibleMesh('End');
+					if (!tutorialObjectives[1]) return;
+					setInterfaceObjectives(1, roomNumber);
+					const currentRoom = Object.values(useGame.getState().seedData)[
+						roomNumber
+					];
+					if (currentRoom?.hideObjective === 'bedsheets') {
+						useGame
+							.getState()
+							.checkObjectiveCompletion('bedsheets', roomNumber);
+					}
 				}
 			}
 		}
@@ -223,12 +229,8 @@ export default function Bedsheets() {
 			</group>
 			<PositionalAudio
 				ref={bedsheetsSoundRef}
-				url="/sounds/bedsheets.ogg"
+				{...usePositionalSound('bedsheets')}
 				loop={false}
-				distance={1}
-				refDistance={1}
-				rolloffFactor={1}
-				volume={0.5}
 			/>
 		</group>
 	);

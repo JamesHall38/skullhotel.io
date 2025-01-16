@@ -24,7 +24,7 @@ function resetGame() {
 	useLight.getState().restart();
 }
 
-const SPEED = 0.01;
+const SPEED = 50;
 
 const Dialogue = memo(({ id, text, index, onRemove }) => {
 	const [displayedText, setDisplayedText] = useState('');
@@ -35,12 +35,15 @@ const Dialogue = memo(({ id, text, index, onRemove }) => {
 		setDisplayedText('');
 
 		const displayText = async () => {
+			const displayDuration = Math.max(3000, text?.length * SPEED + 2000);
+
 			if (!isCancelled) {
 				setTimeout(() => {
 					setIsFadingOut(true);
 					setTimeout(() => onRemove(id), 250);
-				}, 3000);
+				}, displayDuration);
 			}
+
 			for (let i = 0; i < text?.length; i++) {
 				if (isCancelled) break;
 				setDisplayedText((prev) => prev + text[i]);

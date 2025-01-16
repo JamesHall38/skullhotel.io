@@ -5,6 +5,7 @@ import useMonster from '../../hooks/useMonster';
 import useLight from '../../hooks/useLight';
 import useHiding from '../../hooks/useHiding';
 import { useFrame, useThree } from '@react-three/fiber';
+import { getSoundUrl } from '../../utils/audio';
 
 // const FLICKER_DURATION = 10000;
 const LERP_FACTOR = 0.05;
@@ -29,7 +30,7 @@ export default function Flashlight({
 	const { scene, camera } = useThree();
 	const [intensity, setIntensity] = useState(0);
 	const recoveryTimeoutRef = useRef(null);
-	const flashlightSoundRef = useRef(new Audio('/sounds/flashlight.ogg'));
+	const flashlightSoundRef = useRef(new Audio(getSoundUrl('flashlight')));
 	const [isRecoveringFromHiding, setIsRecoveringFromHiding] = useState(false);
 
 	useEffect(() => {

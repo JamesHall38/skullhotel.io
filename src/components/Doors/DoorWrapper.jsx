@@ -3,6 +3,7 @@ import { useFrame } from '@react-three/fiber';
 import { PositionalAudio } from '@react-three/drei';
 import useGame from '../../hooks/useGame';
 import useInterface from '../../hooks/useInterface';
+import { usePositionalSound } from '../../utils/audio';
 import * as THREE from 'three';
 
 const CORRIDORLENGTH = 5.95;
@@ -74,16 +75,24 @@ export default function DoorWrapper({
 		return rotation;
 	}, [rotate, position, doubleRotate]);
 
+	const openSound = usePositionalSound(closet ? 'closetOpen' : 'doorOpen');
+	const closeSound = usePositionalSound(closet ? 'closetClose' : 'doorClose');
+	const beepSound = usePositionalSound('beep');
+
 	useEffect(() => {
 		if (hasInitialized) {
 			if (isOpen) {
-				openRef.current.play();
-				if (!closet) {
-					beepRef.current.play();
+				if (openRef.current && !openRef.current.isPlaying) {
+					openRef.current.play();
+					if (!closet && beepRef.current && !beepRef.current.isPlaying) {
+						beepRef.current.play();
+					}
 				}
 			} else {
 				setTimeout(() => {
-					closeRef.current.play();
+					if (closeRef.current && !closeRef.current.isPlaying) {
+						closeRef.current.play();
+					}
 				}, 800);
 			}
 		} else if (isOpen) {
@@ -195,34 +204,10 @@ export default function DoorWrapper({
 			<group ref={doorRef}>
 				{hasInitialized && (
 					<group>
-						<PositionalAudio
-							ref={openRef}
-							url={closet ? '/sounds/closet_open.ogg' : '/sounds/open.ogg'}
-							loop={false}
-							distance={1}
-							refDistance={1}
-							rolloffFactor={1}
-							volume={closet ? 1 : 0.5}
-						/>
-						<PositionalAudio
-							ref={closeRef}
-							url={closet ? '/sounds/closet_close.ogg' : '/sounds/close.ogg'}
-							loop={false}
-							distance={1}
-							refDistance={1}
-							rolloffFactor={1}
-							volume={closet ? 1 : 0.5}
-						/>
+						<PositionalAudio ref={openRef} {...openSound} loop={false} />
+						<PositionalAudio ref={closeRef} {...closeSound} loop={false} />
 						{!closet && (
-							<PositionalAudio
-								ref={beepRef}
-								url="/sounds/beep.ogg"
-								loop={false}
-								distance={1}
-								refDistance={1}
-								rolloffFactor={1}
-								volume={0.5}
-							/>
+							<PositionalAudio ref={beepRef} {...beepSound} loop={false} />
 						)}
 					</group>
 				)}

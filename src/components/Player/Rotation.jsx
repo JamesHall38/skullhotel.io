@@ -27,7 +27,7 @@ export default function Rotation({
 	const pitch = useRef(0);
 
 	const reset = useCallback(() => {
-		playerPosition.current.set(10.7, floor, -3);
+		playerPosition.current.set(10.77, floor, -3);
 		playerVelocity.current.set(0, 0, 0);
 
 		camera.rotation.set(0, Math.PI, 0);

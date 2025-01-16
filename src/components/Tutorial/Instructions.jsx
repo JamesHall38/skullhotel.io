@@ -104,24 +104,16 @@ const instructions = [
 	// bathroom hiding
 	{
 		type: 'text',
-		content: 'hiding spot',
-		position: [21, 19, 42.15],
+		content: 'hiding',
+		position: [22, 17.5, 42.15],
 		rotation: [0, 0, 0],
 		scale: 0.1,
 		isBathroom: true,
 	},
 	{
 		type: 'text',
-		content: '-',
-		position: [21, 17.75, 42.15],
-		rotation: [0, 0, 0],
-		scale: 0.1,
-		isBathroom: true,
-	},
-	{
-		type: 'text',
-		content: 'for you and clients',
-		position: [21, 16.5, 42.15],
+		content: 'spot',
+		position: [22, 16.25, 42.15],
 		rotation: [0, 0, 0],
 		scale: 0.1,
 		isBathroom: true,
@@ -139,24 +131,16 @@ const instructions = [
 	// room curtain hiding
 	{
 		type: 'text',
-		content: 'hiding spot',
-		position: [51, 17, 130],
+		content: 'hiding',
+		position: [50, 15.5, 130],
 		rotation: [0, Math.PI, 0],
 		scale: 0.1,
 		isRoom: true,
 	},
 	{
 		type: 'text',
-		content: '-',
-		position: [51, 15.75, 130],
-		rotation: [0, Math.PI, 0],
-		scale: 0.1,
-		isRoom: true,
-	},
-	{
-		type: 'text',
-		content: 'for you and clients',
-		position: [51, 14.5, 130],
+		content: 'spot',
+		position: [50, 14.25, 130],
 		rotation: [0, Math.PI, 0],
 		scale: 0.1,
 		isRoom: true,
@@ -174,22 +158,15 @@ const instructions = [
 	// desk hiding
 	{
 		type: 'text',
-		content: 'hiding spot',
-		position: [68, 17, 82.5],
+		content: 'hiding',
+		position: [68, 15.5, 82.5],
 		rotation: [0, -Math.PI / 2, 0],
 		scale: 0.1,
 	},
 	{
 		type: 'text',
-		content: '-',
-		position: [68, 15.75, 82.5],
-		rotation: [0, -Math.PI / 2, 0],
-		scale: 0.1,
-	},
-	{
-		type: 'text',
-		content: 'for you and clients',
-		position: [68, 14.5, 82.5],
+		content: 'spot',
+		position: [68, 14.25, 82.5],
 		rotation: [0, -Math.PI / 2, 0],
 		scale: 0.1,
 	},
@@ -205,22 +182,15 @@ const instructions = [
 	// nightstand hiding
 	{
 		type: 'text',
-		content: 'hiding spot',
-		position: [20, 17, 67],
+		content: 'hiding ',
+		position: [20, 15.5, 66.25],
 		rotation: [0, Math.PI / 2, 0],
 		scale: 0.1,
 	},
 	{
 		type: 'text',
-		content: '-',
-		position: [20, 15.75, 67],
-		rotation: [0, Math.PI / 2, 0],
-		scale: 0.1,
-	},
-	{
-		type: 'text',
-		content: 'for you and clients',
-		position: [20, 14.5, 67],
+		content: 'spot',
+		position: [20, 14.25, 66.25],
 		rotation: [0, Math.PI / 2, 0],
 		scale: 0.1,
 	},
@@ -388,16 +358,16 @@ export default function Instructions() {
 	const tutorial = useDoorStore((state) => state.tutorial);
 	const bathroomCurtain = useDoorStore((state) => state.bathroomCurtain);
 	const roomCurtain = useDoorStore((state) => state.roomCurtain);
-	const arrowsY = useRef([0, 0, 0]);
+	const arrowRefs = useRef([null, null, null]);
 	const shownInstructions = useRef(new Set());
 
 	useFrame((state) => {
 		const time = state.clock.elapsedTime;
-		arrowsY.current = [
-			Math.sin(time * 2) * 0.1,
-			Math.sin(time * 2) * 0.1,
-			Math.sin(time * 2) * 0.1,
-		];
+		arrowRefs.current.forEach((ref) => {
+			if (ref) {
+				ref.position.y = 1.5 + Math.sin(time * 2) * 0.1;
+			}
+		});
 	});
 
 	const textMaterial = useMemo(() => {
@@ -446,8 +416,21 @@ export default function Instructions() {
 
 			if (instruction.type === 'svg') {
 				let position = [...instruction.position];
+
 				if (instruction.isArrow) {
-					position[1] += arrowsY.current[instruction.objectiveIndex];
+					return (
+						<group
+							key={index}
+							ref={(el) => (arrowRefs.current[instruction.objectiveIndex] = el)}
+							position={position}
+						>
+							<Svg
+								src={`data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="white" d="${instruction.content}"/></svg>`}
+								rotation={instruction.rotation}
+								scale={instruction.scale}
+							/>
+						</group>
+					);
 				}
 
 				return (
@@ -466,7 +449,7 @@ export default function Instructions() {
 			tutorialObjectives,
 			bathroomCurtain,
 			roomCurtain,
-			arrowsY,
+			arrowRefs,
 			textMaterial,
 		]
 	);

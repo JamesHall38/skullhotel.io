@@ -49,6 +49,7 @@ import ListeningMode from './components/ListeningMode';
 // import Posterize from './components/Posterize';
 
 import levelData from './components/Monster/Triggers/levelData';
+import { preloadSounds } from './utils/audio';
 
 const generateLevelOptions = () => {
 	const options = {
@@ -226,6 +227,26 @@ function App() {
 			}
 		}
 	});
+
+	useEffect(() => {
+		const handleFirstInteraction = () => {
+			// Créer et démarrer le contexte audio
+			const audioContext = new (window.AudioContext ||
+				window.webkitAudioContext)();
+			if (audioContext.state === 'suspended') {
+				audioContext.resume();
+			}
+			// Précharger les sons
+			preloadSounds();
+			// Retirer l'écouteur d'événements
+			document.removeEventListener('click', handleFirstInteraction);
+		};
+
+		document.addEventListener('click', handleFirstInteraction);
+		return () => {
+			document.removeEventListener('click', handleFirstInteraction);
+		};
+	}, []);
 
 	return (
 		<>

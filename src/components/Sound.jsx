@@ -1,7 +1,8 @@
-import { useEffect, useRef, useMemo } from 'react';
+import { useRef, useMemo, useEffect } from 'react';
 import useInterface from '../hooks/useInterface';
 import useGame from '../hooks/useGame';
-import { roomNumber } from '../utils/config';
+import { PositionalAudio } from '@react-three/drei';
+import { usePositionalSound } from '../utils/audio';
 import KnockingSound from './KnockingSound';
 
 const Sound = () => {
@@ -9,11 +10,17 @@ const Sound = () => {
 	const end = useGame((state) => state.end);
 	const openDeathScreen = useGame((state) => state.openDeathScreen);
 	const isListening = useGame((state) => state.isListening);
+	const roomNumber = useGame((state) => state.roomNumber);
 
-	const ambiant1Ref = useRef(new Audio('/sounds/ambiant1.ogg'));
-	const boomRef = useRef(new Audio('/sounds/boom.ogg'));
-	const ambiant2Ref = useRef(new Audio('/sounds/ambiant2.ogg'));
-	const tenseRef = useRef(new Audio('/sounds/tense.ogg'));
+	const ambiant1Sound = usePositionalSound('ambiant1');
+	const boomSound = usePositionalSound('boom');
+	const ambiant2Sound = usePositionalSound('ambiant2');
+	const tenseSound = usePositionalSound('tense');
+
+	const ambiant1Ref = useRef();
+	const boomRef = useRef();
+	const ambiant2Ref = useRef();
+	const tenseRef = useRef();
 
 	const defaultVolumes = useRef({
 		ambiant1: 0.7,
@@ -50,7 +57,7 @@ const Sound = () => {
 		} else if (doneObjectives > 0) {
 			ambiant1Ref.current.play();
 		}
-	}, [objectives, doneObjectives]);
+	}, [objectives, doneObjectives, roomNumber]);
 
 	useEffect(() => {
 		const resetAudio = (audioRef) => {
@@ -106,7 +113,15 @@ const Sound = () => {
 		};
 	}, [isListening]);
 
-	return <KnockingSound />;
+	return (
+		<>
+			<PositionalAudio ref={ambiant1Ref} {...ambiant1Sound} loop={true} />
+			<PositionalAudio ref={boomRef} {...boomSound} loop={true} />
+			<PositionalAudio ref={ambiant2Ref} {...ambiant2Sound} loop={true} />
+			<PositionalAudio ref={tenseRef} {...tenseSound} loop={true} />
+			<KnockingSound />
+		</>
+	);
 };
 
 export default Sound;
