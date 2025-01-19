@@ -193,21 +193,6 @@ export default function Interface() {
 		crouch: false,
 	});
 
-	useEffect(() => {
-		const checkMobile = () => {
-			const mobileDetected =
-				/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-					navigator.userAgent
-				);
-			setIsMobile(mobileDetected);
-			setIsLocked(true);
-		};
-
-		checkMobile();
-		window.addEventListener('resize', checkMobile);
-		return () => window.removeEventListener('resize', checkMobile);
-	}, [setIsLocked, setIsMobile, setTutorialObjectives]);
-
 	const currentDialogueIndex = useInterface(
 		(state) => state.currentDialogueIndex
 	);
@@ -225,6 +210,32 @@ export default function Interface() {
 		setActiveDialogues((prev) => prev.filter((dialogue) => dialogue.id !== id));
 	}, []);
 
+	const handleJoystickMove = useCallback(
+		(side, x, y) => {
+			if (side === 'left') {
+				leftStickRef.current = { x, y };
+			} else if (side === 'right') {
+				rightStickRef.current = { x, y };
+			}
+		},
+		[leftStickRef, rightStickRef]
+	);
+
+	useEffect(() => {
+		const checkMobile = () => {
+			const mobileDetected =
+				/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+					navigator.userAgent
+				);
+			setIsMobile(mobileDetected);
+			setIsLocked(true);
+		};
+
+		checkMobile();
+		window.addEventListener('resize', checkMobile);
+		return () => window.removeEventListener('resize', checkMobile);
+	}, [setIsLocked, setIsMobile, setTutorialObjectives]);
+
 	useEffect(() => {
 		if (
 			currentDialogueIndex !== null &&
@@ -240,10 +251,8 @@ export default function Interface() {
 
 	useEffect(() => {
 		if (progress === 100 && !assetsLoaded) {
-			// Attendre que les draw calls se stabilisent
 			setTimeout(() => {
 				setAssetsLoaded(true);
-				// Attendre encore que les draw calls se stabilisent complètement
 				setTimeout(() => {
 					setDrawCallsStabilized(true);
 				}, DRAW_CALLS_STABILIZATION_TIME);
@@ -265,64 +274,53 @@ export default function Interface() {
 		setPerformanceMode,
 	]);
 
-	useEffect(() => {
-		let rafId;
+	// useEffect(() => {
+	// 	let rafId;
 
-		const updateProgress = () => {
-			let targetProgress;
+	// 	const updateProgress = () => {
+	// 		let targetProgress;
 
-			if (!assetsLoaded) {
-				targetProgress = progress * 0.6; // 0-60%
-			} else if (!drawCallsStabilized) {
-				targetProgress = 60 + progress * 0.2; // 60-80%
-			} else if (!performanceMeasured) {
-				targetProgress = 80 + progress * 0.2; // 80-100%
-			} else {
-				targetProgress = 100;
-			}
+	// 		if (!assetsLoaded) {
+	// 			targetProgress = progress * 0.6; // 0-60%
+	// 		} else if (!drawCallsStabilized) {
+	// 			targetProgress = 60 + progress * 0.2; // 60-80%
+	// 		} else if (!performanceMeasured) {
+	// 			targetProgress = 80 + progress * 0.2; // 80-100%
+	// 		} else {
+	// 			targetProgress = 100;
+	// 		}
 
-			setDisplayProgress((prev) => {
-				const newProgress = Math.min(targetProgress, prev + 0.5);
-				if (newProgress < targetProgress) {
-					rafId = requestAnimationFrame(updateProgress);
-				}
-				return newProgress;
-			});
-		};
+	// 		setDisplayProgress((prev) => {
+	// 			const newProgress = Math.min(targetProgress, prev + 0.5);
+	// 			if (newProgress < targetProgress) {
+	// 				rafId = requestAnimationFrame(updateProgress);
+	// 			}
+	// 			return newProgress;
+	// 		});
+	// 	};
 
-		rafId = requestAnimationFrame(updateProgress);
+	// 	rafId = requestAnimationFrame(updateProgress);
 
-		return () => cancelAnimationFrame(rafId);
-	}, [progress, assetsLoaded, drawCallsStabilized, performanceMeasured]);
+	// 	return () => cancelAnimationFrame(rafId);
+	// }, [progress, assetsLoaded, drawCallsStabilized, performanceMeasured]);
 
-	const handleJoystickMove = useCallback(
-		(side, x, y) => {
-			if (side === 'left') {
-				leftStickRef.current = { x, y };
-			} else if (side === 'right') {
-				rightStickRef.current = { x, y };
-			}
-		},
-		[leftStickRef, rightStickRef]
-	);
+	// useEffect(() => {
+	// 	let timeoutId;
 
-	useEffect(() => {
-		let timeoutId;
+	// 	const resetMobileClick = () => {
+	// 		timeoutId = setTimeout(() => {
+	// 			if (!activeButtons.leftClick) {
+	// 				setMobileClick(false);
+	// 			}
+	// 		}, 10);
+	// 	};
 
-		const resetMobileClick = () => {
-			timeoutId = setTimeout(() => {
-				if (!activeButtons.leftClick) {
-					setMobileClick(false);
-				}
-			}, 10);
-		};
+	// 	resetMobileClick();
 
-		resetMobileClick();
-
-		return () => {
-			clearTimeout(timeoutId);
-		};
-	}, [activeButtons.leftClick, setMobileClick]);
+	// 	return () => {
+	// 		clearTimeout(timeoutId);
+	// 	};
+	// }, [activeButtons.leftClick, setMobileClick]);
 
 	return (
 		<div className={`interface ${loading ? 'animated' : ''}`}>
