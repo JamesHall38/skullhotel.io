@@ -1,6 +1,6 @@
 import { useRef, useEffect, useCallback, useState } from 'react';
 import { useGLTF } from '@react-three/drei';
-import { useFrame } from '@react-three/fiber';
+import { useFrame, useThree } from '@react-three/fiber';
 import Blood from './Blood';
 import * as THREE from 'three';
 import Animations from './Animations';
@@ -10,6 +10,7 @@ import { findPath } from './pathfinding';
 import useDoor from '../../hooks/useDoor';
 import useHiding from '../../hooks/useHiding';
 import { getSoundUrl } from '../../utils/audio';
+import { KTX2Loader } from 'three/examples/jsm/loaders/KTX2Loader';
 
 const BASE_SPEED = 5;
 const CHASE_SPEED = 0.5;
@@ -34,7 +35,23 @@ const Monster = (props) => {
 	const group = useRef();
 	const jumpScareSoundRef = useRef(new Audio(getSoundUrl('jumpScare')));
 	const [hasPlayedJumpScare, setHasPlayedJumpScare] = useState(false);
-	const { nodes, materials, animations } = useGLTF('/models/monster.glb');
+	const { gl } = useThree();
+	const { nodes, materials, animations } = useGLTF(
+		'/models/monster-opt.glb',
+		undefined,
+		undefined,
+		(loader) => {
+			const ktxLoader = new KTX2Loader();
+			ktxLoader.setTranscoderPath(
+				'https://cdn.jsdelivr.net/gh/pmndrs/drei-assets/basis/'
+			);
+			ktxLoader.detectSupport(gl);
+			loader.setKTX2Loader(ktxLoader);
+		}
+	);
+
+	console.log(nodes);
+
 	const seedData = useGame((state) => state.seedData);
 	const playerPositionRoom = useGame((state) => state.playerPositionRoom);
 	const roomNumber = useGame((state) => state.roomNumber);
@@ -357,17 +374,17 @@ const Monster = (props) => {
 		]
 	);
 
-	useEffect(() => {
-		if (nodes.Mesh.skeleton) {
-			const headBone = nodes.Mesh.skeleton.bones.find(
-				(bone) => bone.name === 'mixamorigHead'
-			);
+	// useEffect(() => {
+	// 	if (nodes.Mesh.skeleton) {
+	// 		const headBone = nodes.Mesh.skeleton.bones.find(
+	// 			(bone) => bone.name === 'mixamorigHead'
+	// 		);
 
-			if (headBone) {
-				headBoneRef.current = headBone;
-			}
-		}
-	}, [nodes]);
+	// 		if (headBone) {
+	// 			headBoneRef.current = headBone;
+	// 		}
+	// 	}
+	// }, [nodes]);
 
 	useEffect(() => {
 		if (monsterState === 'leaving') {
@@ -583,6 +600,55 @@ const Monster = (props) => {
 				<group name="Scene">
 					<group name="Armature" scale={0.01}>
 						<group name="Ch30" rotation={[Math.PI / 2, 0, 0]}>
+							{/* <group name="Armature"> */}
+							<primitive object={nodes.mixamorigHips} />
+							{/* </group> */}
+							<skinnedMesh
+								name="Ch30_primitive0"
+								geometry={nodes.Ch30_primitive0.geometry}
+								material={materials.Ch30_Body1}
+								skeleton={nodes.Ch30_primitive0.skeleton}
+							/>
+							<skinnedMesh
+								name="Ch30_primitive1"
+								geometry={nodes.Ch30_primitive1.geometry}
+								material={materials.Ch30_Body}
+								skeleton={nodes.Ch30_primitive1.skeleton}
+							/>
+							<skinnedMesh
+								name="Ch30_primitive2"
+								geometry={nodes.Ch30_primitive2.geometry}
+								material={materials['Material.001']}
+								skeleton={nodes.Ch30_primitive2.skeleton}
+							/>
+							<skinnedMesh
+								name="Ch30_primitive3"
+								geometry={nodes.Ch30_primitive3.geometry}
+								material={materials.Material}
+								skeleton={nodes.Ch30_primitive3.skeleton}
+							/>
+							<skinnedMesh
+								name="Ch30_primitive4"
+								geometry={nodes.Ch30_primitive4.geometry}
+								material={materials['Material.002']}
+								skeleton={nodes.Ch30_primitive4.skeleton}
+							/>
+							<skinnedMesh
+								name="Ch30_primitive5"
+								geometry={nodes.Ch30_primitive5.geometry}
+								material={materials['Material.011']}
+								skeleton={nodes.Ch30_primitive5.skeleton}
+							/>
+							<skinnedMesh
+								name="Ch30_primitive6"
+								geometry={nodes.Ch30_primitive6.geometry}
+								material={materials['Material.016']}
+								skeleton={nodes.Ch30_primitive6.skeleton}
+							/>
+						</group>
+					</group>
+					{/* <group name="Armature" scale={0.01}>
+						<group name="Ch30" rotation={[Math.PI / 2, 0, 0]}>
 							<primitive object={nodes.mixamorigHips} />
 							<skinnedMesh
 								name="Mesh"
@@ -649,7 +715,7 @@ const Monster = (props) => {
 								<meshBasicMaterial color="black" />
 							</skinnedMesh>
 						</group>
-					</group>
+					</group> */}
 				</group>
 			</group>
 		</group>

@@ -295,28 +295,28 @@ function App() {
 				</group>
 
 				{/* Room */}
-				<Suspense fallback={null}>
-					<group>
-						<Room />
+				{/* <Suspense fallback={null}> */}
+				<group>
+					<Room />
 
-						{/* Doors */}
-						<BathroomDoor />
-						<NightstandDoor />
-						<DeskDoor />
+					{/* Doors */}
+					<BathroomDoor />
+					<NightstandDoor />
+					<DeskDoor />
 
-						{/* Curtains */}
-						<RoomCurtain />
-						<BathroomCurtain key="bathroom1" positionOffset={2} />
-						<BathroomCurtain key="bathroom2" />
+					{/* Curtains */}
+					<RoomCurtain />
+					<BathroomCurtain key="bathroom1" positionOffset={2} />
+					<BathroomCurtain key="bathroom2" />
 
-						{/* Objectives */}
-						<Bedsheets />
-						<Window />
-						<Bottles />
+					{/* Objectives */}
+					<Bedsheets />
+					<Window />
+					<Bottles />
 
-						<Chair />
-					</group>
-				</Suspense>
+					<Chair />
+				</group>
+				{/* </Suspense> */}
 			</KeyboardControls>
 		</>
 	);

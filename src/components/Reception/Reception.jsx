@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { useGLTF, useTexture } from '@react-three/drei';
+import { useGLTF, useKTX2 } from '@react-three/drei';
 import * as THREE from 'three';
 import Metal from './Metal';
 import useLight from '../../hooks/useLight';
@@ -7,12 +7,14 @@ import { useControls } from 'leva';
 
 export default function Reception() {
 	const { scene } = useGLTF('/models/reception/reception.glb');
-	const bakedTexture = useTexture('/textures/reception/baked_reception.webp');
-	const bumpMap = useTexture('/textures/reception/bump_reception.webp');
-	const roughnessMap = useTexture(
-		'/textures/reception/roughness_reception.webp'
+	const bakedTexture = useKTX2(
+		'/textures/reception/baked_reception_uastc.ktx2'
 	);
-	const lightMap = useTexture('/textures/reception/light_reception.webp');
+	const bumpMap = useKTX2('/textures/reception/bump_reception_uastc.ktx2');
+	const roughnessMap = useKTX2(
+		'/textures/reception/roughness_reception_uastc.ktx2'
+	);
+	const lightMap = useKTX2('/textures/reception/light_reception_uastc.ktx2');
 
 	bakedTexture.flipY = false;
 	bumpMap.flipY = false;
@@ -233,7 +235,3 @@ export default function Reception() {
 }
 
 useGLTF.preload('/models/reception/reception.glb');
-useTexture.preload('/textures/reception/baked_reception.webp');
-useTexture.preload('/textures/reception/light_reception.webp');
-useTexture.preload('/textures/reception/bump_reception.webp');
-useTexture.preload('/textures/reception/roughness_reception.webp');

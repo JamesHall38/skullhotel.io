@@ -1,4 +1,8 @@
-import { useMemo, useRef, useEffect } from 'react';
+import {
+	useMemo,
+	useRef,
+	// , useEffect
+} from 'react';
 import { useGLTF } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
 import useDoor from '../../hooks/useDoor';
@@ -6,8 +10,8 @@ import useGame from '../../hooks/useGame';
 import DoorWrapper from './DoorWrapper';
 import * as THREE from 'three';
 import WoodMaterial from '../WoodMaterial';
-import { FontLoader } from 'three/examples/jsm/loaders/FontLoader';
-import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry';
+// import { FontLoader } from 'three/examples/jsm/loaders/FontLoader';
+// import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry';
 
 export default function RoomDoor({ roomNumber }) {
 	const { nodes, materials } = useGLTF('/models/doors/door.glb');
@@ -21,7 +25,7 @@ export default function RoomDoor({ roomNumber }) {
 	const woodMaterial = WoodMaterial();
 	const textRef = useRef();
 
-	const fontUrl = './EB_Garamond_Regular.json';
+	// const fontUrl = './EB_Garamond_Regular.json';
 
 	const lockMaterial = useMemo(
 		() =>
@@ -29,26 +33,26 @@ export default function RoomDoor({ roomNumber }) {
 		[isOpen]
 	);
 
-	useEffect(() => {
-		const loader = new FontLoader();
-		loader.load(fontUrl, (font) => {
-			const geometry = new TextGeometry((roomNumber + 1).toString(), {
-				font: font,
-				size: 0.15,
-				height: 0.1,
-				curveSegments: 12,
-			});
+	// useEffect(() => {
+	// 	const loader = new FontLoader();
+	// 	loader.load(fontUrl, (font) => {
+	// 		const geometry = new TextGeometry((roomNumber + 1).toString(), {
+	// 			font: font,
+	// 			size: 0.15,
+	// 			height: 0.1,
+	// 			curveSegments: 12,
+	// 		});
 
-			if (textRef.current) {
-				textRef.current.geometry.dispose();
-				textRef.current.geometry = geometry;
-			}
+	// 		if (textRef.current) {
+	// 			textRef.current.geometry.dispose();
+	// 			textRef.current.geometry = geometry;
+	// 		}
 
-			return () => {
-				geometry.dispose();
-			};
-		});
-	}, [roomNumber]);
+	// 		return () => {
+	// 			geometry.dispose();
+	// 		};
+	// 	});
+	// }, [roomNumber]);
 
 	const textMaterial = useMemo(
 		() =>

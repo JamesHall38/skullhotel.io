@@ -355,20 +355,20 @@ export default function Flashlight({
 		<spotLight
 			shadow-normalBias={0.04}
 			intensity={
-				(flashlightEnabled && !isPlayerHidden) || isRecoveringFromHiding
-					? intensity
-					: 0
-				// 8
+				// (flashlightEnabled && !isPlayerHidden) || isRecoveringFromHiding
+				// 	? intensity
+				// 	: 0
+				8
 			}
 			castShadow
 			ref={spotLightRef}
 			shadow-mapSize-width={performanceMode ? 1024 : 4}
 			shadow-mapSize-height={performanceMode ? 1024 : 4}
-			power={
-				flashlightEnabled && (!isPlayerHidden || isRecoveringFromHiding)
-					? 30 * SIZE
-					: 0
-			}
+			// power={
+			// 	flashlightEnabled && (!isPlayerHidden || isRecoveringFromHiding)
+			// 		? 30 * SIZE
+			// 		: 0
+			// }
 		/>
 	);
 }

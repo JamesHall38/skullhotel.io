@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
-import { useGLTF, useTexture, PositionalAudio } from '@react-three/drei';
+import { useGLTF, useKTX2, PositionalAudio } from '@react-three/drei';
 import * as THREE from 'three';
 import useGame from '../../hooks/useGame';
 import DetectionZone from '../DetectionZone';
@@ -11,10 +11,12 @@ const PROBABILITY_OF_DARKNESS = 20;
 
 export default function Bedroom() {
 	const { scene } = useGLTF('/models/room/bedroom.glb');
-	const bakedTexture = useTexture('/textures/bedroom/baked_bedroom.webp');
-	const bumpMap = useTexture('/textures/bedroom/bump_bedroom.webp');
-	const roughnessMap = useTexture('/textures/bedroom/roughness_bedroom.webp');
-	const lightMap = useTexture('/textures/bedroom/light_bedroom.webp');
+	const bakedTexture = useKTX2('/textures/bedroom/baked_bedroom_uastc.ktx2');
+	const bumpMap = useKTX2('/textures/bedroom/bump_bedroom_uastc.ktx2');
+	const roughnessMap = useKTX2(
+		'/textures/bedroom/roughness_bedroom_uastc.ktx2'
+	);
+	const lightMap = useKTX2('/textures/bedroom/light_bedroom_uastc.ktx2');
 
 	const [isDetectionActive, setIsDetectionActive] = useState(false);
 	const [isDark, setIsDark] = useState(false);
@@ -253,7 +255,3 @@ export default function Bedroom() {
 }
 
 useGLTF.preload('/models/room/bedroom.glb');
-useTexture.preload('/textures/bedroom/baked_bedroom.webp');
-useTexture.preload('/textures/bedroom/bump_bedroom.webp');
-useTexture.preload('/textures/bedroom/roughness_bedroom.webp');
-useTexture.preload('/textures/bedroom/light_bedroom.webp');

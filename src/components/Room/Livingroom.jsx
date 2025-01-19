@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
-import { useGLTF, useTexture, PositionalAudio } from '@react-three/drei';
+import { useGLTF, useKTX2, PositionalAudio } from '@react-three/drei';
 import * as THREE from 'three';
 import useGame from '../../hooks/useGame';
 import DetectionZone from '../DetectionZone';
@@ -11,12 +11,15 @@ const PROBABILITY_OF_DARKNESS = 20;
 
 export default function Livingroom() {
 	const { scene } = useGLTF('/models/room/livingroom.glb');
-	const bakedTexture = useTexture('/textures/livingroom/baked_livingroom.webp');
-	const bumpMap = useTexture('/textures/livingroom/bump_livingroom.webp');
-	const roughnessMap = useTexture(
-		'/textures/livingroom/roughness_livingroom.webp'
+
+	const bakedTexture = useKTX2(
+		'/textures/livingroom/baked_livingroom_uastc.ktx2'
 	);
-	const lightMap = useTexture('/textures/livingroom/light_livingroom.webp');
+	const bumpMap = useKTX2('/textures/livingroom/bump_livingroom_uastc.ktx2');
+	const roughnessMap = useKTX2(
+		'/textures/livingroom/roughness_livingroom_uastc.ktx2'
+	);
+	const lightMap = useKTX2('/textures/livingroom/light_livingroom_uastc.ktx2');
 
 	const [isDetectionActive, setIsDetectionActive] = useState(false);
 	const [isDark, setIsDark] = useState(false);
@@ -260,9 +263,3 @@ export default function Livingroom() {
 		</>
 	);
 }
-
-useGLTF.preload('/models/room/livingroom.glb');
-useTexture.preload('/textures/livingroom/baked_livingroom.webp');
-useTexture.preload('/textures/livingroom/bump_livingroom.webp');
-useTexture.preload('/textures/livingroom/roughness_livingroom.webp');
-useTexture.preload('/textures/livingroom/light_livingroom.webp');

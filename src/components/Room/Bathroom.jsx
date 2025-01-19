@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { useGLTF, useTexture } from '@react-three/drei';
+import { useGLTF, useKTX2 } from '@react-three/drei';
 import useGame from '../../hooks/useGame';
 import * as THREE from 'three';
 
@@ -8,10 +8,12 @@ const LIGHT_INTENSITY = 4;
 function BathroomMain({ invert, ...props }) {
 	const { scene: originalScene } = useGLTF('/models/room/bathroom.glb');
 	const bathroomLight = useGame((state) => state.bathroomLight);
-	const bakedTexture = useTexture('/textures/bathroom/baked_bathroom.webp');
-	const bumpMap = useTexture('/textures/bathroom/bump_bathroom.webp');
-	const roughnessMap = useTexture('/textures/bathroom/roughness_bathroom.webp');
-	const lightMap = useTexture('/textures/bathroom/light_bathroom.webp');
+	const bakedTexture = useKTX2('/textures/bathroom/baked_bathroom_uastc.ktx2');
+	const bumpMap = useKTX2('/textures/bathroom/bump_bathroom_uastc.ktx2');
+	const roughnessMap = useKTX2(
+		'/textures/bathroom/roughness_bathroom_uastc.ktx2'
+	);
+	const lightMap = useKTX2('/textures/bathroom/light_bathroom_uastc.ktx2');
 	const materialsRef = useRef([]);
 	const scene = originalScene.clone();
 
@@ -127,7 +129,3 @@ export default function Bathroom() {
 }
 
 useGLTF.preload('/models/room/bathroom.glb');
-useTexture.preload('/textures/bathroom/baked_bathroom.webp');
-useTexture.preload('/textures/bathroom/bump_bathroom.webp');
-useTexture.preload('/textures/bathroom/roughness_bathroom.webp');
-useTexture.preload('/textures/bathroom/light_bathroom.webp');

@@ -20,7 +20,8 @@ const useGameStore = create(
 		openDeathScreen: false,
 		setOpenDeathScreen: (state) => set(() => ({ openDeathScreen: state })),
 
-		loading: true,
+		// loading: true,
+		loading: false,
 		setLoading: (state) => set(() => ({ loading: state })),
 
 		isMobile: false,
