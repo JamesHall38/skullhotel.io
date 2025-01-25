@@ -9,14 +9,16 @@ export default defineConfig({
 	},
 	build: {
 		outDir: 'build',
-		assetsDir: 'assets',
-		assetsInclude: [
-			'**/*.glb',
-			'**/*.gltf',
-			'**/*.ktx2',
-			'**/*.otf',
-			'**/*.ttf',
-		],
+		rollupOptions: {
+			input: {
+				main: './index.html',
+			},
+			output: {
+				assetFileNames: 'assets/[name][extname]',
+				chunkFileNames: 'assets/[name].js',
+				entryFileNames: 'assets/[name].js',
+			},
+		},
 	},
 	server: {
 		host: true,
