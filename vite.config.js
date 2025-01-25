@@ -10,6 +10,13 @@ export default defineConfig({
 	build: {
 		outDir: 'build',
 		assetsDir: 'assets',
+		assetsInclude: [
+			'**/*.glb',
+			'**/*.gltf',
+			'**/*.ktx2',
+			'**/*.otf',
+			'**/*.ttf',
+		],
 	},
 	server: {
 		host: true,
