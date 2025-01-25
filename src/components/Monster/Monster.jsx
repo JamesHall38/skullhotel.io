@@ -632,6 +632,9 @@ const Monster = (props) => {
 									geometry={nodes.Ch30_primitive0.geometry}
 									material={materials.Ch30_Body1}
 									skeleton={nodes.Ch30_primitive0.skeleton}
+									castShadow
+									receiveShadow
+									frustumCulled={false}
 								/>
 							)}
 							{visibleParts.arms && (
@@ -640,6 +643,9 @@ const Monster = (props) => {
 									geometry={nodes.Ch30_primitive1.geometry}
 									material={materials.Ch30_Body}
 									skeleton={nodes.Ch30_primitive1.skeleton}
+									castShadow
+									receiveShadow
+									frustumCulled={false}
 								/>
 							)}
 							{visibleParts.head && (
@@ -648,6 +654,9 @@ const Monster = (props) => {
 									geometry={nodes.Ch30_primitive2.geometry}
 									material={materials['Material.001']}
 									skeleton={nodes.Ch30_primitive2.skeleton}
+									castShadow
+									receiveShadow
+									frustumCulled={false}
 								/>
 							)}
 							{visibleParts.legs && (
@@ -656,6 +665,9 @@ const Monster = (props) => {
 									geometry={nodes.Ch30_primitive3.geometry}
 									material={materials.Material}
 									skeleton={nodes.Ch30_primitive3.skeleton}
+									castShadow
+									receiveShadow
+									frustumCulled={false}
 								/>
 							)}
 							{visibleParts.details && (
@@ -665,18 +677,27 @@ const Monster = (props) => {
 										geometry={nodes.Ch30_primitive4.geometry}
 										material={materials['Material.002']}
 										skeleton={nodes.Ch30_primitive4.skeleton}
+										castShadow
+										receiveShadow
+										frustumCulled={false}
 									/>
 									<skinnedMesh
 										name="Ch30_primitive5"
 										geometry={nodes.Ch30_primitive5.geometry}
 										material={materials['Material.011']}
 										skeleton={nodes.Ch30_primitive5.skeleton}
+										castShadow
+										receiveShadow
+										frustumCulled={false}
 									/>
 									<skinnedMesh
 										name="Ch30_primitive6"
 										geometry={nodes.Ch30_primitive6.geometry}
 										material={materials['Material.016']}
 										skeleton={nodes.Ch30_primitive6.skeleton}
+										castShadow
+										receiveShadow
+										frustumCulled={false}
 									/>
 								</>
 							)}
