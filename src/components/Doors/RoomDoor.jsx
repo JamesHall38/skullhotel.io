@@ -21,7 +21,7 @@ export default function RoomDoor({ roomNumber }) {
 	const woodMaterial = WoodMaterial();
 	const textRef = useRef();
 
-	const fontUrl = './EB_Garamond_Regular.json';
+	const fontUrl = '../EB_Garamond_Regular.json';
 
 	const lockMaterial = useMemo(
 		() =>

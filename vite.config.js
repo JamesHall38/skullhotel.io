@@ -9,7 +9,7 @@ export default defineConfig({
 	},
 	build: {
 		outDir: 'build',
-		target: 'esnext',
+		assetsDir: 'assets',
 	},
 	server: {
 		host: true,
