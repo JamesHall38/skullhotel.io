@@ -8,7 +8,7 @@ import CeilingFan from './CeilingFan';
 import Switches from './Switches';
 import Radio from './Events/Radio';
 import Metal from './Metal';
-import Painting from './Events/Painting';
+// import Painting from './Events/Painting';
 import Tv from './Events/Tv';
 import Lights from './Lights';
 import DetectionZone from '../DetectionZone';
@@ -84,11 +84,10 @@ export default function Room() {
 			<Livingroom />
 
 			<CeilingFan />
-
 			<Lights />
 			<Switches />
 			<Radio />
-			<Painting />
+			{/* <Painting /> */}
 			<Metal />
 			<Tv />
 

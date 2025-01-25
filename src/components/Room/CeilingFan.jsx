@@ -45,4 +45,4 @@ export default function Model(props) {
 	);
 }
 
-useGLTF.preload('/models/room/ceiling_fan.glb');
+// useGLTF.preload('/models/room/ceiling_fan.glb');

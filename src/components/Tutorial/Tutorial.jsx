@@ -29,11 +29,10 @@ export default function Tutorial() {
 	const isDead = useInterfaceStore((state) => state.isDead);
 	const corridorDoorOpen = useDoorStore((state) => state.corridor);
 	const playIntro = useGameStore((state) => state.playIntro);
-	const loading = useGameStore((state) => state.loading);
 	const deaths = useGameStore((state) => state.deaths);
 
 	useEffect(() => {
-		if (!playIntro && !loading && currentDialogueIndex === null) {
+		if (!playIntro && currentDialogueIndex === null) {
 			timeoutRef.current = setTimeout(() => {
 				setCurrentDialogueIndex(
 					deaths > 0 ? WELCOME_BACK_DIALOGUE : WELCOME_DIALOGUE
@@ -46,13 +45,7 @@ export default function Tutorial() {
 				}
 			};
 		}
-	}, [
-		playIntro,
-		loading,
-		deaths,
-		currentDialogueIndex,
-		setCurrentDialogueIndex,
-	]);
+	}, [playIntro, deaths, currentDialogueIndex, setCurrentDialogueIndex]);
 
 	useFrame(({ camera }) => {
 		if (hasTriggered.current || currentDialogueIndex !== WELCOME_DIALOGUE) {

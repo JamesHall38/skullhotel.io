@@ -39,27 +39,9 @@ export default function Player() {
 
 	return (
 		<>
-			<Movement
-				playerPosition={playerPosition}
-				playerVelocity={playerVelocity}
-				isCrouchingRef={isCrouchingRef}
-				isRunning={isRunning}
-				crouchProgressRef={crouchProgressRef}
-			/>
 			<Jump
 				playerPosition={playerPosition}
 				playerVelocity={playerVelocity}
-				isCrouchingRef={isCrouchingRef}
-				crouchProgressRef={crouchProgressRef}
-			/>
-			<Rotation
-				playerPosition={playerPosition}
-				playerVelocity={playerVelocity}
-				setIsRunning={setIsRunning}
-			/>
-			<FootSteps playerPosition={playerPosition} />
-			<Flashlight
-				playerRef={playerPosition}
 				isCrouchingRef={isCrouchingRef}
 				crouchProgressRef={crouchProgressRef}
 			/>
@@ -68,6 +50,23 @@ export default function Player() {
 				crouchProgressRef={crouchProgressRef}
 				playerPosition={playerPosition}
 			/>
+			<Flashlight
+				playerRef={playerPosition}
+				crouchProgressRef={crouchProgressRef}
+			/>
+			<Movement
+				playerPosition={playerPosition}
+				playerVelocity={playerVelocity}
+				isCrouchingRef={isCrouchingRef}
+				isRunning={isRunning}
+				crouchProgressRef={crouchProgressRef}
+			/>
+			<Rotation
+				playerPosition={playerPosition}
+				playerVelocity={playerVelocity}
+				setIsRunning={setIsRunning}
+			/>
+			<FootSteps playerPosition={playerPosition} />
 		</>
 	);
 }

@@ -27,4 +27,4 @@ export default function Metal(props) {
 	);
 }
 
-useGLTF.preload('/models/room/metal.glb');
+// useGLTF.preload('/models/room/metal.glb');

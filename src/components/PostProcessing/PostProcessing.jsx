@@ -228,6 +228,7 @@ const Saturation = ({ isListening }) => {
 
 const PostProcessing = () => {
 	const monsterState = useMonster((state) => state.monsterState);
+	const performanceMode = useGame((state) => state.performanceMode);
 	const { playIntro } = useGame();
 	const [isNeonFlickering, setIsNeonFlickering] = useState(false);
 	const [isDistorting, setIsDistorting] = useState(false);
@@ -314,35 +315,28 @@ const PostProcessing = () => {
 		if (playIntro) {
 			const sequence = async () => {
 				const setCameraLocked = useGame.getState().setCameraLocked;
-
 				setCameraLocked(true);
 				setReceptionLight1(receptionLight1.color, 0);
 				setFlashlightEnabled(false);
 				setIsDistorting(true);
 				setCursor('hidden');
-
 				await new Promise((resolve) => setTimeout(resolve, 200));
 				setIsDistorting(false);
-
 				setIsNeonFlickering(true);
 				const startTime = Date.now();
 				const flickerInterval = setInterval(() => {
 					const intensity = Math.random() < 0.5 ? 0 : Math.random() * 0.8 + 0.2;
 					setReceptionLight1(receptionLight1.color, intensity);
-
 					if (Date.now() - startTime > 1000) {
 						clearInterval(flickerInterval);
 						setReceptionLight1(receptionLight1.color, 1);
 						setIsNeonFlickering(false);
 					}
 				}, 50);
-
 				await new Promise((resolve) => setTimeout(resolve, 2000));
-
 				const flashlightStartTime = Date.now();
 				const flashlightFlickerInterval = setInterval(() => {
 					setFlashlightEnabled(Math.random() < 0.5);
-
 					if (Date.now() - flashlightStartTime > 500) {
 						clearInterval(flashlightFlickerInterval);
 						setFlashlightEnabled(true);
@@ -351,7 +345,6 @@ const PostProcessing = () => {
 					}
 				}, 50);
 			};
-
 			sequence();
 			setPlayIntro(false);
 		}
@@ -370,7 +363,7 @@ const PostProcessing = () => {
 			<FOVDistortion playIntro={playIntro} />
 			<CustomBlur />
 			<Saturation isListening={isListening} />
-			<Noise opacity={0.1} />
+			<Noise opacity={performanceMode ? 0.1 : 0.05} />
 			<Glitch strength={glitchStrength} columns={jumpScare ? 0.05 : 0} />
 			<Vignette />
 		</EffectComposer>

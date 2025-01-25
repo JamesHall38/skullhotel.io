@@ -133,4 +133,4 @@ export default function Painting(props) {
 	);
 }
 
-useGLTF.preload('/models/room/painting.glb');
+// useGLTF.preload('/models/room/painting.glb');

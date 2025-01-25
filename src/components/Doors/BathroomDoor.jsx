@@ -1,10 +1,11 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useMemo } from 'react';
 import { useThree, useFrame } from '@react-three/fiber';
 import { useGLTF } from '@react-three/drei';
 import DoorWrapper from './DoorWrapper';
 import useDoor from '../../hooks/useDoor';
 import useGame from '../../hooks/useGame';
 import * as THREE from 'three';
+import useProgressiveLoad from '../../hooks/useProgressiveLoad';
 
 const tutorialRoomCenter = [4.53, 1.11, 5.78];
 const doorOffset = [7.31, 1.11, 4.08];
@@ -13,6 +14,24 @@ const BathroomDoorMesh = ({ isHandlePressed }) => {
 	const { nodes, materials } = useGLTF('/models/doors/bathroom_door.glb');
 	const handleRef = useRef();
 	const handleRotationRef = useRef(0);
+
+	const bathroomDoorParts = useMemo(
+		() => [
+			{ name: 'frame', label: 'Door frame' },
+			{ name: 'door', label: 'Door' },
+			{ name: 'handle', label: 'Door handle' },
+		],
+		[]
+	);
+
+	const { loadedItems } = useProgressiveLoad(bathroomDoorParts, 'BathroomDoor');
+
+	const visibleParts = useMemo(() => {
+		return bathroomDoorParts.reduce((acc, part) => {
+			acc[part.name] = loadedItems.some((item) => item.name === part.name);
+			return acc;
+		}, {});
+	}, [loadedItems, bathroomDoorParts]);
 
 	useFrame((_, delta) => {
 		if (!handleRef.current) return;
@@ -28,26 +47,32 @@ const BathroomDoorMesh = ({ isHandlePressed }) => {
 
 	return (
 		<group rotation={[Math.PI, -1.571, 0]}>
-			<mesh
-				castShadow
-				receiveShadow
-				geometry={nodes.Cube050.geometry}
-				material={materials['metal.011']}
-			/>
-			<mesh
-				castShadow
-				receiveShadow
-				geometry={nodes.Cube050_1.geometry}
-				material={materials['wood.005']}
-			/>
-			<mesh
-				ref={handleRef}
-				castShadow
-				receiveShadow
-				geometry={nodes.Handle.geometry}
-				material={materials['metal.011']}
-				position={[0, 0.09, -0.76]}
-			/>
+			{visibleParts.frame && (
+				<mesh
+					castShadow
+					receiveShadow
+					geometry={nodes.Cube050.geometry}
+					material={materials['metal.011']}
+				/>
+			)}
+			{visibleParts.door && (
+				<mesh
+					castShadow
+					receiveShadow
+					geometry={nodes.Cube050_1.geometry}
+					material={materials['wood.005']}
+				/>
+			)}
+			{visibleParts.handle && (
+				<mesh
+					ref={handleRef}
+					castShadow
+					receiveShadow
+					geometry={nodes.Handle.geometry}
+					material={materials['metal.011']}
+					position={[0, 0.09, -0.76]}
+				/>
+			)}
 		</group>
 	);
 };
@@ -113,4 +138,4 @@ export default function BathroomDoor() {
 	);
 }
 
-useGLTF.preload('/models/doors/bathroom_door.glb');
+// useGLTF.preload('/models/doors/bathroom_door.glb');

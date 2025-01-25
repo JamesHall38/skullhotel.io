@@ -6,23 +6,41 @@ import DetectionZone from '../DetectionZone';
 import { useControls } from 'leva';
 import useLight from '../../hooks/useLight';
 import { usePositionalSound } from '../../utils/audio';
+import useProgressiveLoad from '../../hooks/useProgressiveLoad';
 
 const PROBABILITY_OF_DARKNESS = 20;
 
 export default function Bedroom() {
 	const { scene } = useGLTF('/models/room/bedroom.glb');
-	const bakedTexture = useKTX2('/textures/bedroom/baked_bedroom_uastc.ktx2');
-	const bumpMap = useKTX2('/textures/bedroom/bump_bedroom_uastc.ktx2');
-	const roughnessMap = useKTX2(
-		'/textures/bedroom/roughness_bedroom_uastc.ktx2'
-	);
-	const lightMap = useKTX2('/textures/bedroom/light_bedroom_uastc.ktx2');
+	const materialRef = useRef();
+
+	const textureParts = [
+		{
+			name: 'baked',
+			label: 'Base Textures',
+			texture: useKTX2('/textures/bedroom/baked_bedroom_etc1s.ktx2'),
+			type: 'map',
+		},
+		{
+			name: 'roughness',
+			label: 'Material Properties',
+			texture: useKTX2('/textures/bedroom/roughness_bedroom_etc1s.ktx2'),
+			type: ['roughnessMap', 'bumpMap'],
+		},
+		{
+			name: 'light',
+			label: 'Lighting',
+			texture: useKTX2('/textures/bedroom/light_bedroom_uastc.ktx2'),
+			type: 'lightMap',
+		},
+	];
+
+	const { loadedItems } = useProgressiveLoad(textureParts, 'Bedroom');
 
 	const [isDetectionActive, setIsDetectionActive] = useState(false);
 	const [isDark, setIsDark] = useState(false);
 	const playerPositionRoom = useGame((state) => state.playerPositionRoom);
 	const deaths = useGame((state) => state.deaths);
-	const materialRef = useRef();
 	const lightSoundRef = useRef();
 
 	const { leftLight, radioLight, rightLight } = useLight();
@@ -80,14 +98,6 @@ export default function Bedroom() {
 		Math.floor(Math.random() * PROBABILITY_OF_DARKNESS)
 	);
 
-	bakedTexture.flipY = false;
-	bumpMap.flipY = false;
-	roughnessMap.flipY = false;
-	lightMap.flipY = false;
-
-	bakedTexture.colorSpace = THREE.SRGBColorSpace;
-	lightMap.colorSpace = THREE.SRGBColorSpace;
-
 	const generateRandomRoomNumber = useCallback(
 		() => Math.floor(Math.random() * PROBABILITY_OF_DARKNESS),
 		[]
@@ -106,19 +116,18 @@ export default function Bedroom() {
 		}
 	}, [playerPositionRoom, randomRoomNumber]);
 
+	// Create material once at component mount
 	useEffect(() => {
 		scene.traverse((child) => {
 			if (child.isMesh) {
 				child.geometry.setAttribute('uv', child.geometry.attributes['uv1']);
 
 				const material = new THREE.MeshStandardMaterial({
-					map: bakedTexture,
-					bumpMap: roughnessMap,
-					roughnessMap,
-					lightMap,
-					bumpScale: 8,
+					bumpScale: 12,
 					lightMapIntensity: 0,
+					roughness: 1,
 					onBeforeCompile: (shader) => {
+						shader.uniforms.uRoughnessIntensity = { value: 0.75 };
 						shader.uniforms.uLeftLightColor = {
 							value: new THREE.Color(leftLight.color).convertSRGBToLinear(),
 						};
@@ -142,6 +151,7 @@ export default function Bedroom() {
 
 						shader.fragmentShader =
 							`
+							uniform float uRoughnessIntensity;
 							uniform vec3 uLeftLightColor;
 							uniform float uLeftLightIntensity;
 							uniform vec3 uRadioLightColor;
@@ -149,6 +159,17 @@ export default function Bedroom() {
 							uniform vec3 uRightLightColor;
 							uniform float uRightLightIntensity;
 						` + shader.fragmentShader;
+
+						shader.fragmentShader = shader.fragmentShader.replace(
+							'#include <roughnessmap_fragment>',
+							`
+							float roughnessFactor = roughness;
+							#ifdef USE_ROUGHNESSMAP
+								vec4 texelRoughness = texture2D( roughnessMap, vRoughnessMapUv );
+								roughnessFactor = mix(roughness, texelRoughness.g, uRoughnessIntensity);
+							#endif
+							`
+						);
 
 						const outgoingLightLine =
 							'vec3 outgoingLight = totalDiffuse + totalSpecular + totalEmissiveRadiance;';
@@ -186,20 +207,38 @@ export default function Bedroom() {
 				child.material = material;
 				child.castShadow = true;
 				child.receiveShadow = true;
-				child.material.needsUpdate = true;
+				child.needsUpdate = true;
 			}
 		});
-	}, [
-		scene,
-		leftLight,
-		radioLight,
-		rightLight,
-		bakedTexture,
-		bumpMap,
-		roughnessMap,
-		lightMap,
-	]);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [scene]);
 
+	// Apply textures when they are loaded
+	useEffect(() => {
+		if (!materialRef.current) return;
+
+		loadedItems.forEach((item) => {
+			const texture = item.texture;
+			if (texture) {
+				if (item.name === 'baked' || item.name === 'light') {
+					texture.colorSpace = THREE.SRGBColorSpace;
+				}
+				texture.flipY = false;
+				if (Array.isArray(item.type)) {
+					item.type.forEach((type) => {
+						materialRef.current[type] = texture;
+					});
+				} else {
+					materialRef.current[item.type] = texture;
+				}
+				materialRef.current.castShadow = true;
+				materialRef.current.receiveShadow = true;
+				materialRef.current.needsUpdate = true;
+			}
+		});
+	}, [loadedItems]);
+
+	// Add separate effect for updating uniforms
 	useEffect(() => {
 		if (materialRef.current?.userData.uniforms) {
 			const uniforms = materialRef.current.userData.uniforms;
@@ -253,5 +292,3 @@ export default function Bedroom() {
 		</>
 	);
 }
-
-useGLTF.preload('/models/room/bedroom.glb');

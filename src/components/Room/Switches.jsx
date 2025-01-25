@@ -172,4 +172,4 @@ export default function Switches(props) {
 	);
 }
 
-useGLTF.preload('/models/room/switchs.glb');
+// useGLTF.preload('/models/room/switchs.glb');

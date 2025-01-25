@@ -3,7 +3,7 @@ import { useFrame } from '@react-three/fiber';
 import useGridStore, { CELL_TYPES } from '../../hooks/useGrid';
 import useMonster from '../../hooks/useMonster';
 import useJoysticks from '../../hooks/useJoysticks';
-
+import useGame from '../../hooks/useGame';
 const GRID_OFFSET_X = 600;
 const GRID_OFFSET_Z = 150;
 const LERP_FACTOR = 0.2;
@@ -14,6 +14,7 @@ export default function Crouch({
 	crouchProgressRef,
 	playerPosition,
 }) {
+	const isPlaying = useGame((state) => state.isPlaying);
 	const getCell = useGridStore((state) => state.getCell);
 	const monsterState = useMonster((state) => state.monsterState);
 	const controls = useJoysticks((state) => state.controls);
@@ -94,6 +95,10 @@ export default function Crouch({
 	}, [controls.crouch, handleCrouchChange]);
 
 	useFrame(() => {
+		if (!isPlaying) {
+			return;
+		}
+
 		if (wantsToStandUpRef.current && !checkCrouchArea(playerPosition.current)) {
 			isCrouchingRef.current = false;
 			wantsToStandUpRef.current = false;

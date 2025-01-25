@@ -36,7 +36,7 @@ export default function FootSteps({ playerPosition }) {
 		[]
 	);
 
-	const loading = useGame((state) => state.loading);
+	// const loading = useGame((state) => state.loading);
 	const resetFootstepSound = useGame((state) => state.resetFootstepSound);
 	const setResetFootstepSound = useGame((state) => state.setResetFootstepSound);
 	const isRunning = useGame((state) => state.isRunning);
@@ -72,7 +72,10 @@ export default function FootSteps({ playerPosition }) {
 	}, []);
 
 	useFrame((state) => {
-		if (!loading && !isListening) {
+		if (
+			// !loading &&
+			!isListening
+		) {
 			if (playerPosition.current.y <= floor) {
 				const currentTime = state.clock.getElapsedTime() * 1000;
 				const { forward, backward, left, right } = getKeys();

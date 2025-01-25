@@ -1,4 +1,4 @@
-import { useGLTF, useTexture } from '@react-three/drei';
+import { useGLTF, useKTX2 } from '@react-three/drei';
 import useGame from '../../hooks/useGame';
 import React, { useMemo } from 'react';
 import * as THREE from 'three';
@@ -8,17 +8,14 @@ const CORRIDORLENGHT = 5.95;
 function CorridorMiddle(props) {
 	const { nodes, materials } = useGLTF('/models/corridor.glb');
 
-	const [colorMap, roughnessMap] = useTexture([
-		'/textures/corridor/corridor_color.webp',
-		'/textures/corridor/corridor_roughness.webp',
-	]);
+	const [colorMap] = [useKTX2('/textures/corridor/corridor_color_etc1s.ktx2')];
 
 	useMemo(() => {
-		[colorMap, roughnessMap].forEach((texture) => {
+		[colorMap].forEach((texture) => {
 			texture.flipY = false;
 		});
 		colorMap.colorSpace = THREE.SRGBColorSpace;
-	}, [colorMap, roughnessMap]);
+	}, [colorMap]);
 
 	const geometry = useMemo(() => {
 		const geo = nodes.CorridorMiddle.geometry.clone();
@@ -31,9 +28,8 @@ function CorridorMiddle(props) {
 	const material = useMemo(() => {
 		return new THREE.MeshStandardMaterial({
 			map: colorMap,
-			roughnessMap: roughnessMap,
 		});
-	}, [colorMap, roughnessMap]);
+	}, [colorMap]);
 
 	const frameGeometry = useMemo(
 		() => nodes.Plane006.geometry.clone(),
@@ -112,8 +108,4 @@ function CorridorMiddles(props) {
 
 export default CorridorMiddles;
 
-useGLTF.preload('/models/corridor.glb');
-useTexture.preload([
-	'/textures/corridor/corridor_color.webp',
-	'/textures/corridor/corridor_roughness.webp',
-]);
+// useGLTF.preload('/models/corridor.glb');

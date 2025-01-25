@@ -275,4 +275,4 @@ export default function Bottles() {
 	);
 }
 
-useGLTF.preload('/models/objectives/bottles.glb');
+// useGLTF.preload('/models/objectives/bottles.glb');

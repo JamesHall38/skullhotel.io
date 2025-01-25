@@ -6,39 +6,165 @@ import DetectionZone from '../DetectionZone';
 import useLight from '../../hooks/useLight';
 import { useControls } from 'leva';
 import { usePositionalSound } from '../../utils/audio';
+import useProgressiveLoad from '../../hooks/useProgressiveLoad';
 
 const PROBABILITY_OF_DARKNESS = 20;
 
 export default function Livingroom() {
 	const { scene } = useGLTF('/models/room/livingroom.glb');
+	const materialRef = useRef();
 
-	const bakedTexture = useKTX2(
-		'/textures/livingroom/baked_livingroom_uastc.ktx2'
-	);
-	const bumpMap = useKTX2('/textures/livingroom/bump_livingroom_uastc.ktx2');
-	const roughnessMap = useKTX2(
-		'/textures/livingroom/roughness_livingroom_uastc.ktx2'
-	);
-	const lightMap = useKTX2('/textures/livingroom/light_livingroom_uastc.ktx2');
+	const textureParts = [
+		{
+			name: 'baked',
+			label: 'Base Textures',
+			texture: useKTX2('/textures/livingroom/baked_livingroom_etc1s.ktx2'),
+			type: 'map',
+		},
+		{
+			name: 'roughness',
+			label: 'Material Properties',
+			texture: useKTX2('/textures/livingroom/roughness_livingroom_etc1s.ktx2'),
+			type: ['roughnessMap', 'bumpMap'],
+		},
+		{
+			name: 'light',
+			label: 'Lighting',
+			texture: useKTX2('/textures/livingroom/light_livingroom_uastc.ktx2'),
+			type: 'lightMap',
+		},
+	];
+
+	const { loadedItems } = useProgressiveLoad(textureParts, 'Livingroom');
+
+	// Create material once at component mount
+	useEffect(() => {
+		scene.traverse((child) => {
+			if (child.isMesh) {
+				child.geometry.setAttribute('uv', child.geometry.attributes['uv1']);
+				const material = new THREE.MeshStandardMaterial({
+					bumpScale: 12,
+					lightMapIntensity: 0,
+					roughness: 1,
+					onBeforeCompile: (shader) => {
+						shader.uniforms.uRoughnessIntensity = { value: 0.75 };
+						shader.uniforms.uCouchLightColor = {
+							value: new THREE.Color(couchLight.color).convertSRGBToLinear(),
+						};
+						shader.uniforms.uCouchLightIntensity = {
+							value: couchLight.intensity,
+						};
+						shader.uniforms.uWallLightColor = {
+							value: new THREE.Color(wallLight.color).convertSRGBToLinear(),
+						};
+						shader.uniforms.uWallLightIntensity = {
+							value: wallLight.intensity,
+						};
+						shader.uniforms.uTvLightColor = {
+							value: new THREE.Color(tvLight.color).convertSRGBToLinear(),
+						};
+						shader.uniforms.uTvLightIntensity = {
+							value: tvLight.intensity,
+						};
+
+						material.userData.shader = shader;
+
+						shader.fragmentShader =
+							`
+							uniform float uRoughnessIntensity;
+							uniform vec3 uCouchLightColor;
+							uniform float uCouchLightIntensity;
+							uniform vec3 uWallLightColor;
+							uniform float uWallLightIntensity;
+							uniform vec3 uTvLightColor;
+							uniform float uTvLightIntensity;
+						` + shader.fragmentShader;
+
+						shader.fragmentShader = shader.fragmentShader.replace(
+							'#include <roughnessmap_fragment>',
+							`
+							float roughnessFactor = roughness;
+							#ifdef USE_ROUGHNESSMAP
+								vec4 texelRoughness = texture2D( roughnessMap, vRoughnessMapUv );
+								roughnessFactor = mix(roughness, texelRoughness.g, uRoughnessIntensity);
+							#endif
+							`
+						);
+
+						const outgoingLightLine =
+							'vec3 outgoingLight = totalDiffuse + totalSpecular + totalEmissiveRadiance;';
+						shader.fragmentShader = shader.fragmentShader.replace(
+							outgoingLightLine,
+							`
+							#ifdef USE_LIGHTMAP
+								vec4 customLightMapTexel = texture2D(lightMap, vLightMapUv);
+								
+								float couchLightIntensity = customLightMapTexel.r;
+								float wallLightIntensity = customLightMapTexel.b;
+								float tvLightIntensity = customLightMapTexel.g;
+								
+								vec3 customLights = couchLightIntensity * uCouchLightColor * uCouchLightIntensity +
+												  wallLightIntensity * uWallLightColor * uWallLightIntensity +
+												  tvLightIntensity * uTvLightColor * uTvLightIntensity;
+								
+								vec3 outgoingLight = reflectedLight.directDiffuse + 
+												  reflectedLight.indirectDiffuse + 
+												  diffuseColor.rgb * customLights + 
+												  totalSpecular;
+							#else
+								vec3 outgoingLight = totalDiffuse + totalSpecular + totalEmissiveRadiance;
+							#endif
+							`
+						);
+					},
+				});
+
+				materialRef.current = material;
+				child.material = material;
+				child.castShadow = true;
+				child.receiveShadow = true;
+				child.needsUpdate = true;
+			}
+		});
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [scene]);
+
+	// Apply textures when they are loaded
+	useEffect(() => {
+		if (!materialRef.current) return;
+
+		loadedItems.forEach((item) => {
+			const texture = item.texture;
+			if (texture) {
+				if (item.name === 'baked' || item.name === 'light') {
+					texture.colorSpace = THREE.SRGBColorSpace;
+				}
+				texture.flipY = false;
+
+				if (Array.isArray(item.type)) {
+					item.type.forEach((type) => {
+						materialRef.current[type] = texture;
+					});
+				} else {
+					materialRef.current[item.type] = texture;
+				}
+
+				materialRef.current.castShadow = true;
+				materialRef.current.receiveShadow = true;
+				materialRef.current.needsUpdate = true;
+			}
+		});
+	}, [loadedItems]);
 
 	const [isDetectionActive, setIsDetectionActive] = useState(false);
 	const [isDark, setIsDark] = useState(false);
 	const playerPositionRoom = useGame((state) => state.playerPositionRoom);
 	const deaths = useGame((state) => state.deaths);
-	const materialRef = useRef();
 	const lightSoundRef = useRef();
 
 	const [randomRoomNumber, setRandomRoomNumber] = useState(
 		Math.floor(Math.random() * PROBABILITY_OF_DARKNESS)
 	);
-
-	bakedTexture.flipY = false;
-	bumpMap.flipY = false;
-	roughnessMap.flipY = false;
-	lightMap.flipY = false;
-
-	bakedTexture.colorSpace = THREE.SRGBColorSpace;
-	lightMap.colorSpace = THREE.SRGBColorSpace;
 
 	const generateRandomRoomNumber = useCallback(
 		() => Math.floor(Math.random() * PROBABILITY_OF_DARKNESS),
@@ -106,116 +232,22 @@ export default function Livingroom() {
 		}
 	);
 
+	// Add separate effect for updating uniforms
 	useEffect(() => {
-		scene.traverse((child) => {
-			if (child.isMesh) {
-				child.geometry.setAttribute('uv', child.geometry.attributes['uv1']);
-
-				const material = new THREE.MeshStandardMaterial({
-					map: bakedTexture,
-					bumpMap: roughnessMap,
-					roughnessMap,
-					lightMap,
-					bumpScale: 8,
-					lightMapIntensity: 0,
-					onBeforeCompile: (shader) => {
-						shader.uniforms.uCouchLightColor = {
-							value: new THREE.Color(couchLight.color).convertSRGBToLinear(),
-						};
-						shader.uniforms.uCouchLightIntensity = {
-							value: couchLight.intensity,
-						};
-						shader.uniforms.uWallLightColor = {
-							value: new THREE.Color(wallLight.color).convertSRGBToLinear(),
-						};
-						shader.uniforms.uWallLightIntensity = {
-							value: wallLight.intensity,
-						};
-						shader.uniforms.uTvLightColor = {
-							value: new THREE.Color(tvLight.color).convertSRGBToLinear(),
-						};
-						shader.uniforms.uTvLightIntensity = {
-							value: tvLight.intensity,
-						};
-
-						material.userData.uniforms = shader.uniforms;
-
-						shader.fragmentShader =
-							`
-							uniform vec3 uCouchLightColor;
-							uniform float uCouchLightIntensity;
-							uniform vec3 uWallLightColor;
-							uniform float uWallLightIntensity;
-							uniform vec3 uTvLightColor;
-							uniform float uTvLightIntensity;
-						` + shader.fragmentShader;
-
-						const outgoingLightLine =
-							'vec3 outgoingLight = totalDiffuse + totalSpecular + totalEmissiveRadiance;';
-						const index = shader.fragmentShader.indexOf(outgoingLightLine);
-
-						if (index !== -1) {
-							shader.fragmentShader = shader.fragmentShader.replace(
-								outgoingLightLine,
-								`
-									#ifdef USE_LIGHTMAP
-										vec4 customLightMapTexel = texture2D(lightMap, vLightMapUv);
-										
-										float couchLightIntensity = customLightMapTexel.r;
-										float wallLightIntensity = customLightMapTexel.b;
-										float tvLightIntensity = customLightMapTexel.g;
-										
-										vec3 customLights = couchLightIntensity * uCouchLightColor * uCouchLightIntensity +
-																   wallLightIntensity * uWallLightColor * uWallLightIntensity +
-																   tvLightIntensity * uTvLightColor * uTvLightIntensity;
-										
-										vec3 outgoingLight = reflectedLight.directDiffuse + 
-																	reflectedLight.indirectDiffuse + 
-																	diffuseColor.rgb * customLights + 
-																	totalSpecular;
-									#else
-										vec3 outgoingLight = totalDiffuse + totalSpecular + totalEmissiveRadiance;
-									#endif
-									`
-							);
-						}
-					},
-				});
-
-				materialRef.current = material;
-				child.material = material;
-				child.castShadow = true;
-				child.receiveShadow = true;
-				child.material.needsUpdate = true;
-			}
-		});
-	}, [
-		scene,
-		couchLight,
-		wallLight,
-		tvLight,
-		bakedTexture,
-		bumpMap,
-		roughnessMap,
-		lightMap,
-	]);
-
-	useEffect(() => {
-		if (materialRef.current?.userData.uniforms) {
-			const uniforms = materialRef.current.userData.uniforms;
-			uniforms.uCouchLightColor.value = new THREE.Color(
+		if (materialRef.current?.userData.shader) {
+			const shader = materialRef.current.userData.shader;
+			shader.uniforms.uCouchLightColor.value = new THREE.Color(
 				couchLight.color
 			).convertSRGBToLinear();
-			uniforms.uCouchLightIntensity.value = couchLight.intensity;
-			uniforms.uWallLightColor.value = new THREE.Color(
+			shader.uniforms.uCouchLightIntensity.value = couchLight.intensity;
+			shader.uniforms.uWallLightColor.value = new THREE.Color(
 				wallLight.color
 			).convertSRGBToLinear();
-			uniforms.uWallLightIntensity.value = wallLight.intensity;
-			uniforms.uTvLightColor.value = new THREE.Color(
+			shader.uniforms.uWallLightIntensity.value = wallLight.intensity;
+			shader.uniforms.uTvLightColor.value = new THREE.Color(
 				tvLight.color
 			).convertSRGBToLinear();
-			uniforms.uTvLightIntensity.value = tvLight.intensity;
-			materialRef.current.needsUpdate = true;
+			shader.uniforms.uTvLightIntensity.value = tvLight.intensity;
 		}
 	}, [couchLight, wallLight, tvLight]);
 

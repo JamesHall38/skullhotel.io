@@ -13,6 +13,9 @@ const useGameStore = create(
 		eventData: events,
 		deaths: 0,
 
+		isPlaying: false,
+		setIsPlaying: (state) => set(() => ({ isPlaying: state })),
+
 		setSeedData: (newSeedData) => {
 			set({ seedData: newSeedData });
 		},
@@ -115,7 +118,7 @@ const useGameStore = create(
 		jumpScare: false,
 		setJumpScare: (state) => set({ jumpScare: state }),
 
-		performanceMode: true,
+		performanceMode: false,
 		setPerformanceMode: (mode) => set({ performanceMode: mode }),
 
 		checkObjectiveCompletion: (objective, room, camera) => {

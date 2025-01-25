@@ -394,34 +394,62 @@ const useGridStore = create((set, get) => ({
 
 		const { width, height } = get().gridSize;
 		const walls = [...get().initialWalls, ...get().generateRooms()];
-		const newGrid = {};
 
-		// Initialiser la grille de base
-		for (let x = 0; x < width; x++) {
-			for (let z = 0; z < height; z++) {
-				newGrid[`${x},${z}`] = {
-					type: CELL_TYPES.EMPTY,
-					x,
-					z,
-					boundary: x === 0 || x === width - 1 || z === 0 || z === height - 1,
-				};
-			}
-		}
+		requestIdleCallback(
+			() => {
+				const newGrid = {};
 
-		walls.forEach((wall) => {
-			for (let x = wall.start.x; x <= wall.end.x; x++) {
-				for (let z = wall.start.z; z <= wall.end.z; z++) {
-					newGrid[`${x},${z}`] = {
-						...newGrid[`${x},${z}`],
-						type: wall.type || CELL_TYPES.WALL,
-						hidingSpot: wall.hidingSpot || null,
-					};
+				const updates = [];
+
+				for (let x = 0; x < width; x += 50) {
+					updates.push(() => {
+						for (let xi = x; xi < Math.min(x + 50, width); xi++) {
+							for (let z = 0; z < height; z++) {
+								newGrid[`${xi},${z}`] = {
+									type: CELL_TYPES.EMPTY,
+									x: xi,
+									z,
+									boundary:
+										xi === 0 || xi === width - 1 || z === 0 || z === height - 1,
+								};
+							}
+						}
+					});
 				}
-			}
-		});
 
-		set({ grid: newGrid, isInitialized: true });
-		// get().printGridASCII();
+				const wallChunkSize = 100;
+				for (let i = 0; i < walls.length; i += wallChunkSize) {
+					const wallChunk = walls.slice(i, i + wallChunkSize);
+					updates.push(() => {
+						wallChunk.forEach((wall) => {
+							for (let x = wall.start.x; x <= wall.end.x; x++) {
+								for (let z = wall.start.z; z <= wall.end.z; z++) {
+									newGrid[`${x},${z}`] = {
+										...newGrid[`${x},${z}`],
+										type: wall.type || CELL_TYPES.WALL,
+										hidingSpot: wall.hidingSpot || null,
+									};
+								}
+							}
+						});
+					});
+				}
+
+				const processUpdates = (startIndex = 0) => {
+					const chunk = updates.slice(startIndex, startIndex + 5);
+					chunk.forEach((update) => update());
+
+					if (startIndex + 5 < updates.length) {
+						setTimeout(() => processUpdates(startIndex + 5), 0);
+					} else {
+						set({ grid: newGrid, isInitialized: true });
+					}
+				};
+
+				processUpdates();
+			},
+			{ timeout: 1000 }
+		);
 	},
 
 	getCell: (x, z) => {
@@ -582,7 +610,7 @@ const useGridStore = create((set, get) => ({
 		asciiGrid +=
 			'   0                        50                      100                      150                      200                      250                      300';
 
-		console.group('Grid Display');
+		console.groupCollapsed('Grid Display');
 		console.table(asciiGrid);
 		console.groupEnd();
 		return asciiGrid;
@@ -596,5 +624,19 @@ const useGridStore = create((set, get) => ({
 		}
 	},
 }));
-//
+
+const requestIdleCallback =
+	window.requestIdleCallback ||
+	function (cb) {
+		const start = Date.now();
+		return setTimeout(function () {
+			cb({
+				didTimeout: false,
+				timeRemaining: function () {
+					return Math.max(0, 50 - (Date.now() - start));
+				},
+			});
+		}, 1);
+	};
+
 export default useGridStore;

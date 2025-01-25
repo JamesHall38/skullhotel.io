@@ -2,6 +2,7 @@ import React, { useMemo } from 'react';
 import { useGLTF } from '@react-three/drei';
 import { useThree } from '@react-three/fiber';
 import useGame from '../../hooks/useGame';
+import useProgressiveLoad from '../../hooks/useProgressiveLoad';
 
 const CORRIDORLENGTH = 5.95;
 const offset = [8.83, 0, 6.2];
@@ -11,6 +12,17 @@ export default function Chair() {
 	const { camera } = useThree();
 	const playerPositionRoom = useGame((state) => state.playerPositionRoom);
 	const roomTotal = useGame((state) => state.roomTotal);
+
+	const chairParts = useMemo(() => [{ name: 'chair', label: 'Chair' }], []);
+
+	const { loadedItems } = useProgressiveLoad(chairParts, 'Chair');
+
+	const visibleParts = useMemo(() => {
+		return chairParts.reduce((acc, part) => {
+			acc[part.name] = loadedItems.some((item) => item.name === part.name);
+			return acc;
+		}, {});
+	}, [loadedItems, chairParts]);
 
 	const position = useMemo(() => {
 		let calculatedPosition;
@@ -42,24 +54,26 @@ export default function Chair() {
 
 	return (
 		<group position={position}>
-			<group dispose={null}>
-				<group position={[3.568, 0.3, -0.609]}>
-					<mesh
-						castShadow
-						receiveShadow
-						geometry={nodes.BSurfaceMesh002.geometry}
-						material={materials.NEWCHAIRWITHNORMALS}
-					/>
-					<mesh
-						castShadow
-						receiveShadow
-						geometry={nodes.BSurfaceMesh002_1.geometry}
-						material={materials['Blacl plastic 002 normal']}
-					/>
+			{visibleParts.chair && (
+				<group dispose={null}>
+					<group position={[3.568, 0.3, -0.609]}>
+						<mesh
+							castShadow
+							receiveShadow
+							geometry={nodes.BSurfaceMesh002.geometry}
+							material={materials.NEWCHAIRWITHNORMALS}
+						/>
+						<mesh
+							castShadow
+							receiveShadow
+							geometry={nodes.BSurfaceMesh002_1.geometry}
+							material={materials['Blacl plastic 002 normal']}
+						/>
+					</group>
 				</group>
-			</group>
+			)}
 		</group>
 	);
 }
 
-useGLTF.preload('/models/room/chair.glb');
+// useGLTF.preload('/models/room/chair.glb');

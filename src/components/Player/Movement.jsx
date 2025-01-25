@@ -37,6 +37,7 @@ export default function Movement({
 	const isCameraLocked = useGame((state) => state.isCameraLocked);
 	const playerPositionRoom = useGame((state) => state.realPlayerPositionRoom);
 	const jumpScare = useGame((state) => state.jumpScare);
+	const isPlaying = useGame((state) => state.isPlaying);
 	const getCell = useGridStore((state) => state.getCell);
 	const getKeys = useKeyboardControls()[1];
 	const getGamepadControls = useGamepadControls();
@@ -179,6 +180,10 @@ export default function Movement({
 	};
 
 	useFrame((state, delta) => {
+		if (!isPlaying) {
+			return;
+		}
+
 		if (isCameraLocked) {
 			playerPosition.current.set(10.77, floor, -3);
 

@@ -1,4 +1,4 @@
-import { useEffect, Suspense, useMemo, useRef } from 'react';
+import { useEffect, Suspense, useMemo, useRef, useState } from 'react';
 import { KeyboardControls, PointerLockControls } from '@react-three/drei';
 import { Canvas, useThree, useFrame } from '@react-three/fiber';
 import Interface from './components/Interface/Interface';
@@ -9,6 +9,7 @@ import useDoor from './hooks/useDoor';
 import useMonster from './hooks/useMonster';
 import useGridStore from './hooks/useGrid';
 import useLight from './hooks/useLight';
+// import useProgressiveLoad from './hooks/useProgressiveLoad';
 import PostProcessing from './components/PostProcessing/PostProcessing';
 
 import { Perf } from 'r3f-perf';
@@ -41,7 +42,7 @@ import Triggers from './components/Monster/Triggers/Triggers';
 import Grid from './components/Grid';
 import ReceptionDoors from './components/Reception/ReceptionDoors';
 import Sound from './components/Sound';
-import Chair from './components/Room/Chair';
+// import Chair from './components/Room/Chair';
 import { regenerateData } from './utils/config';
 import generateSeedData from './utils/generateSeedData';
 import ListeningMode from './components/ListeningMode';
@@ -80,20 +81,23 @@ const CORRIDORLENGTH = 5.95;
 function App() {
 	const isMobile = useGame((state) => state.isMobile);
 	const roomTotal = useGame((state) => state.roomTotal);
-	// const playerPositionRoom = useGame((state) => state.playerPositionRoom);
+	const deviceMode = useGame((state) => state.deviceMode);
+	const setSeedData = useGame((state) => state.setSeedData);
+	const setIsLocked = useGame((state) => state.setIsLocked);
+	const openDeathScreen = useGame((state) => state.openDeathScreen);
+	const playerPositionRoom = useGame((state) => state.playerPositionRoom);
 	const realPlayerPositionRoom = useGame(
 		(state) => state.realPlayerPositionRoom
 	);
 	const setRealPlayerPositionRoom = useGame(
 		(state) => state.setRealPlayerPositionRoom
 	);
-	const setEnd = useGame((state) => state.setEnd);
-	const deviceMode = useGame((state) => state.deviceMode);
 	const { camera } = useThree();
-	const setIsLocked = useGame((state) => state.setIsLocked);
-	const openDeathScreen = useGame((state) => state.openDeathScreen);
+	const initializeIfNeeded = useGridStore((state) => state.initializeIfNeeded);
 	const controlsRef = useRef();
-	const timeoutSet = useRef(false);
+	const [isStable, setIsStable] = useState(false);
+	const frameCount = useRef(0);
+	const lastTime = useRef(performance.now());
 
 	const duplicateComponents = (Component) => {
 		return [...Array(roomTotal / 2)].map((_, i) => (
@@ -120,18 +124,14 @@ function App() {
 		},
 	});
 
-	const initializeIfNeeded = useGridStore((state) => state.initializeIfNeeded);
-
 	useEffect(() => {
 		let newSeedData;
 		if (selectedRoom) {
-			// Si une room est sélectionnée, on la met en première position
 			newSeedData = {
 				[selectedRoom]: {
 					...levelData[selectedRoom],
 					type: selectedRoom,
 				},
-				// On ajoute les rooms de cachette
 				empty_1: {
 					type: 'empty',
 					number: 1,
@@ -154,9 +154,9 @@ function App() {
 		} else {
 			newSeedData = generateSeedData(false, selectedRoom);
 		}
-		useGame.getState().setSeedData(newSeedData);
+		setSeedData(newSeedData);
 		initializeIfNeeded();
-	}, [initializeIfNeeded, selectedRoom]);
+	}, [initializeIfNeeded, selectedRoom, setSeedData]);
 
 	useEffect(() => {
 		const controls = controlsRef.current;
@@ -184,6 +184,57 @@ function App() {
 			controlsRef.current.unlock();
 		}
 	}, [openDeathScreen]);
+
+	useEffect(() => {
+		const initialTimer = setTimeout(
+			() => {
+				frameCount.current = 0;
+				lastTime.current = performance.now();
+			},
+			isMobile ? 5000 : 2000
+		);
+
+		return () => clearTimeout(initialTimer);
+	}, [isMobile]);
+
+	useFrame(() => {
+		if (!lastTime.current) return;
+
+		const currentTime = performance.now();
+		const deltaTime = currentTime - lastTime.current;
+
+		const targetDelta = isMobile ? 50 : 33; // ~20 FPS on mobile, ~30 FPS on desktop
+		const requiredFrames = isMobile ? 30 : 60; // Less frames required on mobile
+
+		if (deltaTime < targetDelta) {
+			frameCount.current++;
+		} else {
+			frameCount.current = Math.max(0, frameCount.current - 2); // Régression plus douce
+		}
+
+		if (frameCount.current > requiredFrames && !isStable) {
+			setIsStable(true);
+		}
+
+		lastTime.current = currentTime;
+	});
+
+	useEffect(() => {
+		const handleFirstInteraction = () => {
+			const audioContext = new (window.AudioContext ||
+				window.webkitAudioContext)();
+			if (audioContext.state === 'suspended') {
+				audioContext.resume();
+			}
+			preloadSounds();
+			document.removeEventListener('click', handleFirstInteraction);
+		};
+
+		document.addEventListener('click', handleFirstInteraction);
+		return () => {
+			document.removeEventListener('click', handleFirstInteraction);
+		};
+	}, []);
 
 	useFrame(({ camera }) => {
 		if (
@@ -228,26 +279,6 @@ function App() {
 		}
 	});
 
-	useEffect(() => {
-		const handleFirstInteraction = () => {
-			// Créer et démarrer le contexte audio
-			const audioContext = new (window.AudioContext ||
-				window.webkitAudioContext)();
-			if (audioContext.state === 'suspended') {
-				audioContext.resume();
-			}
-			// Précharger les sons
-			preloadSounds();
-			// Retirer l'écouteur d'événements
-			document.removeEventListener('click', handleFirstInteraction);
-		};
-
-		document.addEventListener('click', handleFirstInteraction);
-		return () => {
-			document.removeEventListener('click', handleFirstInteraction);
-		};
-	}, []);
-
 	return (
 		<>
 			<ListeningMode />
@@ -263,29 +294,21 @@ function App() {
 					{ name: 'action', keys: ['KeyE', 'gamepad5'] },
 				]}
 			>
-				<Player />
-				<Monster />
-				<Triggers />
-				<Grid />
-				<Sound />
-
 				{deviceMode !== 'gamepad' && !isMobile && (
 					<PointerLockControls ref={controlsRef} />
 				)}
 
-				{/* Reception */}
+				<Player />
+				<Triggers />
+				<Grid />
+				<Sound />
 				<ReceptionDoors />
 				<Reception
 					rotation={[0, Math.PI / 2, 0]}
 					position={[9.805, 0, -0.15]}
 				/>
-
-				{/* Tutorial */}
 				<Tutorial />
-
-				{/* Corridor */}
 				{duplicateComponents(RoomDoor)}
-
 				<group position={position}>
 					<CorridorStart position={[1.07, 0, 0]} />
 					<CorridorMiddles />
@@ -294,35 +317,28 @@ function App() {
 					/>
 				</group>
 
-				{/* Room */}
-				{/* <Suspense fallback={null}> */}
-				<group>
-					<Room />
+				<Room />
+				<Monster />
 
-					{/* Doors */}
-					<BathroomDoor />
-					<NightstandDoor />
-					<DeskDoor />
-
-					{/* Curtains */}
-					<RoomCurtain />
-					<BathroomCurtain key="bathroom1" positionOffset={2} />
-					<BathroomCurtain key="bathroom2" />
-
-					{/* Objectives */}
-					<Bedsheets />
-					<Window />
-					<Bottles />
-
-					<Chair />
-				</group>
-				{/* </Suspense> */}
+				<BathroomDoor />
+				<NightstandDoor />
+				<DeskDoor />
+				<RoomCurtain />
+				<BathroomCurtain key="bathroom1" />
+				<BathroomCurtain key="bathroom2" positionOffset={2} />
+				<Bedsheets />
+				<Window />
+				<Bottles />
+				{/* <Chair /> */}
 			</KeyboardControls>
 		</>
 	);
 }
 
 export default function AppCanvas() {
+	const performanceMode = useGame((state) => state.performanceMode);
+	const isMobile = useGame((state) => state.isMobile);
+
 	const { perfVisible } = useControls({
 		perfVisible: { value: false, label: 'Show performances' },
 		'Reset game': button(() => {
@@ -343,9 +359,18 @@ export default function AppCanvas() {
 					camera={{
 						fov: 75,
 						near: 0.1,
-						far: 1000,
+						far: 30,
 					}}
-					shadows
+					gl={{
+						powerPreference: 'default',
+						antialias: false,
+						depth: false,
+						stencil: false,
+					}}
+					dpr={[1, 1.5]}
+					performance={{ min: 0.5 }}
+					// shadows={performanceMode && !isMobile}
+					shadows={true}
 				>
 					{perfVisible ? <Perf position="top-left" /> : null}
 					<App />
