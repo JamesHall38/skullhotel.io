@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, memo, useMemo, useRef } from 'react';
 import { useProgress } from '@react-three/drei';
-import { ReactComponent as SkullHotelLogo } from './logo.svg';
+// import { ReactComponent as SkullHotelLogo } from './logo.svg';
+import SkullHotelLogo from './Logo';
 import { RiFullscreenFill } from 'react-icons/ri';
 import { FaArrowCircleDown, FaArrowCircleUp } from 'react-icons/fa';
 import useDoor from '../../hooks/useDoor';
@@ -14,6 +15,7 @@ import Cursor from './Cursor';
 import { regenerateData } from '../../utils/config';
 import './Interface.css';
 import { measurePerformance } from '../../hooks/usePerformance';
+import useTextureQueue from '../../hooks/useTextureQueue';
 
 function resetGame() {
 	useGame.getState().restart();
@@ -168,21 +170,25 @@ export default function Interface() {
 	const setPlayIntro = useGame((state) => state.setPlayIntro);
 	const { progress } = useProgress();
 	const [displayProgress, setDisplayProgress] = useState(0);
+	const [loading, setLoading] = useState(true);
+
 	const tutorialObjectives = useInterface((state) => state.tutorialObjectives);
 	const setEnd = useGame((state) => state.setEnd);
 	const setMobileClick = useGame((state) => state.setMobileClick);
 	const setReleaseMobileClick = useGame((state) => state.setReleaseMobileClick);
 	const end = useGame((state) => state.end);
-	const loading = useGame((state) => state.loading);
-	const setLoading = useGame((state) => state.setLoading);
+	// const loading = useGame((state) => state.loading);
+	// const setLoading = useGame((state) => state.setLoading);
 	const openDeathScreen = useGame((state) => state.openDeathScreen);
 	const setOpenDeathScreen = useGame((state) => state.setOpenDeathScreen);
 	const playerPositionRoom = useGame((state) => state.playerPositionRoom);
 	const seedData = useGame((state) => state.seedData);
+	const setIsPlaying = useGame((state) => state.setIsPlaying);
 	const [assetsLoaded, setAssetsLoaded] = useState(false);
 	const [performanceMeasured, setPerformanceMeasured] = useState(false);
 	const setPerformanceMode = useGame((state) => state.setPerformanceMode);
 	const [drawCallsStabilized, setDrawCallsStabilized] = useState(false);
+	const [loadedTextureNumber, setLoadedTextureNumber] = useState(0);
 
 	const setIsListening = useGame((state) => state.setIsListening);
 	const setCursor = useInterface((state) => state.setCursor);
@@ -199,6 +205,33 @@ export default function Interface() {
 	const objectives = useInterface((state) => state.interfaceObjectives);
 	const interfaceAction = useInterface((state) => state.interfaceAction);
 	const [activeDialogues, setActiveDialogues] = useState([]);
+
+	// Track texture loading progress
+
+	const queue = useTextureQueue((state) => state.queues);
+	const oldQueue = useRef(queue);
+
+	// Track texture loading progress
+	useEffect(() => {
+		const hasQueueChanged = Object.keys(queue).some((key) => {
+			return queue[key].queue.length !== oldQueue.current[key]?.queue.length;
+		});
+
+		if (hasQueueChanged) {
+			oldQueue.current = queue;
+			setLoadedTextureNumber((value) => value + 1);
+		}
+	}, [queue]);
+
+	useEffect(() => {
+		const texturesDrawCalls = (loadedTextureNumber / 60) * 50; // 50%
+		const modelsLoading = (progress / 10) * 5; // 100 / 10 = 10 % * 5 = 50%
+		const currentProgress = Math.min(
+			Math.max(texturesDrawCalls + modelsLoading, displayProgress),
+			100
+		);
+		setDisplayProgress(currentProgress);
+	}, [loadedTextureNumber, progress, displayProgress]);
 
 	const doneObjectives = useMemo(() => {
 		return objectives.filter((subArray) =>
@@ -250,7 +283,8 @@ export default function Interface() {
 	}, [currentDialogueIndex]);
 
 	useEffect(() => {
-		if (progress === 100 && !assetsLoaded) {
+		if (displayProgress !== 100) {
+			setIsPlaying(true);
 			setTimeout(() => {
 				setAssetsLoaded(true);
 				setTimeout(() => {
@@ -258,10 +292,15 @@ export default function Interface() {
 				}, DRAW_CALLS_STABILIZATION_TIME);
 			}, 1000);
 		}
-	}, [progress, assetsLoaded]);
+	}, [displayProgress, assetsLoaded, setIsPlaying]);
 
 	useEffect(() => {
-		if (assetsLoaded && drawCallsStabilized && !performanceMeasured) {
+		if (
+			assetsLoaded &&
+			drawCallsStabilized &&
+			!performanceMeasured &&
+			!isMobile
+		) {
 			measurePerformance().then((isHighPerformance) => {
 				setPerformanceMode(isHighPerformance);
 				setPerformanceMeasured(true);
@@ -272,55 +311,26 @@ export default function Interface() {
 		drawCallsStabilized,
 		performanceMeasured,
 		setPerformanceMode,
+		isMobile,
 	]);
 
-	// useEffect(() => {
-	// 	let rafId;
+	useEffect(() => {
+		let timeoutId;
 
-	// 	const updateProgress = () => {
-	// 		let targetProgress;
+		const resetMobileClick = () => {
+			timeoutId = setTimeout(() => {
+				if (!activeButtons.leftClick) {
+					setMobileClick(false);
+				}
+			}, 10);
+		};
 
-	// 		if (!assetsLoaded) {
-	// 			targetProgress = progress * 0.6; // 0-60%
-	// 		} else if (!drawCallsStabilized) {
-	// 			targetProgress = 60 + progress * 0.2; // 60-80%
-	// 		} else if (!performanceMeasured) {
-	// 			targetProgress = 80 + progress * 0.2; // 80-100%
-	// 		} else {
-	// 			targetProgress = 100;
-	// 		}
+		resetMobileClick();
 
-	// 		setDisplayProgress((prev) => {
-	// 			const newProgress = Math.min(targetProgress, prev + 0.5);
-	// 			if (newProgress < targetProgress) {
-	// 				rafId = requestAnimationFrame(updateProgress);
-	// 			}
-	// 			return newProgress;
-	// 		});
-	// 	};
-
-	// 	rafId = requestAnimationFrame(updateProgress);
-
-	// 	return () => cancelAnimationFrame(rafId);
-	// }, [progress, assetsLoaded, drawCallsStabilized, performanceMeasured]);
-
-	// useEffect(() => {
-	// 	let timeoutId;
-
-	// 	const resetMobileClick = () => {
-	// 		timeoutId = setTimeout(() => {
-	// 			if (!activeButtons.leftClick) {
-	// 				setMobileClick(false);
-	// 			}
-	// 		}, 10);
-	// 	};
-
-	// 	resetMobileClick();
-
-	// 	return () => {
-	// 		clearTimeout(timeoutId);
-	// 	};
-	// }, [activeButtons.leftClick, setMobileClick]);
+		return () => {
+			clearTimeout(timeoutId);
+		};
+	}, [activeButtons.leftClick, setMobileClick]);
 
 	return (
 		<div className={`interface ${loading ? 'animated' : ''}`}>
@@ -333,6 +343,7 @@ export default function Interface() {
 						} else {
 							setLoading(false);
 							setPlayIntro(true);
+							// setIsPlaying(true);
 						}
 					}}
 				>

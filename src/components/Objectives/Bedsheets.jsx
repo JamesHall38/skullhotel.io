@@ -236,4 +236,4 @@ export default function Bedsheets() {
 	);
 }
 
-useGLTF.preload('/models/objectives/bedsheets.glb');
+// useGLTF.preload('/models/objectives/bedsheets.glb');

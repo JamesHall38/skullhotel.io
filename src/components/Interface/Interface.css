@@ -2,7 +2,7 @@
 
 @font-face {
 	font-family: 'Redrum';
-	src: url('../../../public/Redrum.otf') format('opentype');
+	src: url('../../../Redrum.otf') format('opentype');
 }
 
 .interface {
@@ -28,6 +28,13 @@
 	opacity: 0.1;
 	z-index: 1;
 	pointer-events: none;
+}
+
+.skull-hotel-logo {
+	min-width: 18rem;
+	height: 18rem;
+	display: block;
+	color: #8b0000;
 }
 
 .animated::before {
@@ -219,8 +226,8 @@
 	cursor: auto;
 
 	svg {
-		width: 30dvw;
-		height: 30dvh;
+		width: 18rem;
+		height: 18rem;
 		path {
 			fill: #8b0000;
 		}

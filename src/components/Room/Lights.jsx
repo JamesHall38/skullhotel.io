@@ -31,7 +31,6 @@ export default function Lights() {
 	const redLightSoundRef = useRef();
 	const firstRedLightPlayed = useRef(false);
 	const mainLightRef = useRef();
-	const performanceMode = useGame((state) => state.performanceMode);
 	const bulbSound = usePositionalSound('bulb');
 
 	const doneObjectivesNumber = useMemo(() => {
@@ -182,7 +181,7 @@ export default function Lights() {
 							? 1.2
 							: 0
 					}
-					castShadow={performanceMode}
+					castShadow
 					shadow-mapSize-width={1024}
 					shadow-mapSize-height={1024}
 					shadow-camera-near={1}
@@ -192,7 +191,7 @@ export default function Lights() {
 				<pointLight
 					position={[-1, 2, -3.2]}
 					intensity={delayedBathroomLight ? 0.3 : 0}
-					castShadow={performanceMode}
+					castShadow
 					shadow-camera-near={1}
 					shadow-camera-far={10}
 					shadow-mapSize-width={1024}

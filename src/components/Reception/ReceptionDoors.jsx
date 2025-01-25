@@ -32,19 +32,56 @@ const Door = ({ isHandlePressed }) => {
 
 	return (
 		<group>
-			<mesh geometry={nodes.Cube003_4.geometry} material={woodMaterial()} />
-			<mesh geometry={nodes.Lock.geometry} material={lockMaterial} />
 			<mesh
+				castShadow
+				receiveShadow
+				geometry={nodes.Cube003_4.geometry}
+				material={woodMaterial()}
+			/>
+			<mesh
+				castShadow
+				receiveShadow
+				geometry={nodes.Lock.geometry}
+				material={lockMaterial}
+			/>
+			<mesh
+				castShadow
+				receiveShadow
 				ref={handleRef}
 				geometry={nodes.Handles.geometry}
 				position={[-1.128, 0.105, 0]}
 				material={materials.Handle}
 			/>
-			<mesh geometry={nodes.Cube003.geometry} material={materials.Frame} />
-			<mesh geometry={nodes.Cube003_1.geometry} material={materials.Handle} />
-			<mesh geometry={nodes.Cube003_2.geometry} material={materials.Metal} />
-			<mesh geometry={nodes.Lock.geometry} material={materials.Lock} />
-			<mesh geometry={nodes.Cube003_5.geometry} material={materials.Plastic} />
+			<mesh
+				castShadow
+				receiveShadow
+				geometry={nodes.Cube003.geometry}
+				material={materials.Frame}
+			/>
+			<mesh
+				castShadow
+				receiveShadow
+				geometry={nodes.Cube003_1.geometry}
+				material={materials.Handle}
+			/>
+			<mesh
+				castShadow
+				receiveShadow
+				geometry={nodes.Cube003_2.geometry}
+				material={materials.Metal}
+			/>
+			<mesh
+				castShadow
+				receiveShadow
+				geometry={nodes.Lock.geometry}
+				material={materials.Lock}
+			/>
+			<mesh
+				castShadow
+				receiveShadow
+				geometry={nodes.Cube003_5.geometry}
+				material={materials.Plastic}
+			/>
 		</group>
 	);
 };

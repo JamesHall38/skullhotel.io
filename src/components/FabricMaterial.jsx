@@ -1,9 +1,9 @@
 import { useMemo } from 'react';
-import { useTexture } from '@react-three/drei';
+import { useKTX2 } from '@react-three/drei';
 import * as THREE from 'three';
 
 export default function FabricMaterial({ isGrayscale = false }) {
-	const colorMap = useTexture('/textures/fabric/fabric_color.webp');
+	const colorMap = useKTX2('/textures/fabric/fabric_color_etc1s.ktx2');
 
 	useMemo(() => {
 		colorMap.colorSpace = THREE.SRGBColorSpace;
@@ -38,5 +38,3 @@ export default function FabricMaterial({ isGrayscale = false }) {
 
 	return fabricMaterial;
 }
-
-useTexture.preload('/textures/fabric/fabric_color.webp');

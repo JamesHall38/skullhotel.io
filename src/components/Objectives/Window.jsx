@@ -301,4 +301,4 @@ export default function Window() {
 	);
 }
 
-useGLTF.preload('/models/objectives/window.glb');
+// useGLTF.preload('/models/objectives/window.glb');

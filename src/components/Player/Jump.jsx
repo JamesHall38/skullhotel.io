@@ -23,6 +23,7 @@ export default function Jump({
 	isCrouchingRef,
 	crouchProgressRef,
 }) {
+	const isPlaying = useGame((state) => state.isPlaying);
 	const playerPositionRoom = useGame((state) => state.realPlayerPositionRoom);
 	const monsterState = useMonster((state) => state.monsterState);
 	const getCell = useGridStore((state) => state.getCell);
@@ -220,6 +221,10 @@ export default function Jump({
 	]);
 
 	useFrame((state, delta) => {
+		if (!isPlaying) {
+			return;
+		}
+
 		if (
 			monsterState !== 'run' &&
 			playerVelocity?.current &&

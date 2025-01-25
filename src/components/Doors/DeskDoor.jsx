@@ -118,4 +118,4 @@ export default function DeskDoor() {
 	);
 }
 
-useGLTF.preload('/models/doors/desk_door.glb');
+// useGLTF.preload('/models/doors/desk_door.glb');

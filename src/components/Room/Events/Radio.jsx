@@ -5,7 +5,7 @@ import useGame from '../../../hooks/useGame';
 import * as THREE from 'three';
 import useInterface from '../../../hooks/useInterface';
 import DetectionZone from '../../DetectionZone';
-import { PositionalAudio, useTexture } from '@react-three/drei';
+import { PositionalAudio, useKTX2 } from '@react-three/drei';
 import { usePositionalSound } from '../../../utils/audio';
 
 const PROBABILITY_OF_ACTIVATION = 20;
@@ -25,8 +25,8 @@ const Radio = () => {
 	const radioSoundRef = useRef();
 	const radioSound = usePositionalSound('radio');
 
-	const textureOn = useTexture('/textures/bedroom/radio_on.webp');
-	const textureOff = useTexture('/textures/bedroom/radio_off.webp');
+	const textureOn = useKTX2('/textures/bedroom/radio_on_etc1s.ktx2');
+	const textureOff = useKTX2('/textures/bedroom/radio_off_etc1s.ktx2');
 
 	// Ratio 209 x 715
 	const planeWidth = 2.09;

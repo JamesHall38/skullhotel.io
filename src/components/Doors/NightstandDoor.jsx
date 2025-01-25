@@ -124,4 +124,4 @@ export default function NightstandDoor() {
 	);
 }
 
-useGLTF.preload('/models/doors/nightstand_door.glb');
+// useGLTF.preload('/models/doors/nightstand_door.glb');

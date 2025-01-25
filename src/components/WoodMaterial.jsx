@@ -1,12 +1,12 @@
 import { useMemo } from 'react';
-import { useTexture } from '@react-three/drei';
+import { useKTX2 } from '@react-three/drei';
 import * as THREE from 'three';
 
 export default function WoodMaterial({ transparent = false } = {}) {
-	const [colorMap, roughnessMap] = useTexture([
-		'/textures/wood/wood_color.webp',
-		'/textures/wood/wood_roughness.webp',
-	]);
+	const [colorMap, roughnessMap] = [
+		useKTX2('/textures/wood/wood_color_etc1s.ktx2'),
+		useKTX2('/textures/wood/wood_roughness_etc1s.ktx2'),
+	];
 
 	useMemo(() => {
 		[colorMap, roughnessMap].forEach((texture) => {
@@ -38,8 +38,3 @@ export default function WoodMaterial({ transparent = false } = {}) {
 
 	return () => woodMaterial.clone();
 }
-
-useTexture.preload([
-	'/textures/wood/wood_color.webp',
-	'/textures/wood/wood_roughness.webp',
-]);

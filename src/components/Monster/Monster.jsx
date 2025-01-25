@@ -1,4 +1,4 @@
-import { useRef, useEffect, useCallback, useState } from 'react';
+import { useRef, useEffect, useCallback, useState, useMemo } from 'react';
 import { useGLTF } from '@react-three/drei';
 import { useFrame, useThree } from '@react-three/fiber';
 import Blood from './Blood';
@@ -11,6 +11,7 @@ import useDoor from '../../hooks/useDoor';
 import useHiding from '../../hooks/useHiding';
 import { getSoundUrl } from '../../utils/audio';
 import { KTX2Loader } from 'three/examples/jsm/loaders/KTX2Loader';
+import useProgressiveLoad from '../../hooks/useProgressiveLoad';
 
 const BASE_SPEED = 5;
 const CHASE_SPEED = 0.5;
@@ -50,8 +51,6 @@ const Monster = (props) => {
 		}
 	);
 
-	console.log(nodes);
-
 	const seedData = useGame((state) => state.seedData);
 	const playerPositionRoom = useGame((state) => state.playerPositionRoom);
 	const roomNumber = useGame((state) => state.roomNumber);
@@ -87,6 +86,30 @@ const Monster = (props) => {
 	const headBoneRef = useRef();
 	const lastTargetRef = useRef({ x: 0, z: 0 });
 	const [isWaiting, setIsWaiting] = useState(false);
+
+	const monsterParts = useMemo(
+		() => [
+			{ name: 'skeleton', label: 'Base structure' },
+			{ name: 'legs', label: 'Lower body' },
+			{ name: 'body', label: 'Main body' },
+			{ name: 'arms', label: 'Upper limbs' },
+			{ name: 'head', label: 'Head' },
+			{ name: 'details', label: 'Final details' },
+		],
+		[]
+	);
+
+	const { loadedItems, isLoading } = useProgressiveLoad(
+		monsterParts,
+		'Monster'
+	);
+
+	const visibleParts = useMemo(() => {
+		return monsterParts.reduce((acc, part) => {
+			acc[part.name] = loadedItems.some((item) => item.name === part.name);
+			return acc;
+		}, {});
+	}, [loadedItems, monsterParts]);
 
 	useEffect(() => {
 		const jumpScareSound = jumpScareSoundRef.current;
@@ -596,132 +619,75 @@ const Monster = (props) => {
 				{...props}
 				dispose={null}
 			>
-				<Animations group={group} animations={animations} />
+				{!isLoading && <Animations group={group} animations={animations} />}
 				<group name="Scene">
 					<group name="Armature" scale={0.01}>
 						<group name="Ch30" rotation={[Math.PI / 2, 0, 0]}>
-							{/* <group name="Armature"> */}
-							<primitive object={nodes.mixamorigHips} />
-							{/* </group> */}
-							<skinnedMesh
-								name="Ch30_primitive0"
-								geometry={nodes.Ch30_primitive0.geometry}
-								material={materials.Ch30_Body1}
-								skeleton={nodes.Ch30_primitive0.skeleton}
-							/>
-							<skinnedMesh
-								name="Ch30_primitive1"
-								geometry={nodes.Ch30_primitive1.geometry}
-								material={materials.Ch30_Body}
-								skeleton={nodes.Ch30_primitive1.skeleton}
-							/>
-							<skinnedMesh
-								name="Ch30_primitive2"
-								geometry={nodes.Ch30_primitive2.geometry}
-								material={materials['Material.001']}
-								skeleton={nodes.Ch30_primitive2.skeleton}
-							/>
-							<skinnedMesh
-								name="Ch30_primitive3"
-								geometry={nodes.Ch30_primitive3.geometry}
-								material={materials.Material}
-								skeleton={nodes.Ch30_primitive3.skeleton}
-							/>
-							<skinnedMesh
-								name="Ch30_primitive4"
-								geometry={nodes.Ch30_primitive4.geometry}
-								material={materials['Material.002']}
-								skeleton={nodes.Ch30_primitive4.skeleton}
-							/>
-							<skinnedMesh
-								name="Ch30_primitive5"
-								geometry={nodes.Ch30_primitive5.geometry}
-								material={materials['Material.011']}
-								skeleton={nodes.Ch30_primitive5.skeleton}
-							/>
-							<skinnedMesh
-								name="Ch30_primitive6"
-								geometry={nodes.Ch30_primitive6.geometry}
-								material={materials['Material.016']}
-								skeleton={nodes.Ch30_primitive6.skeleton}
-							/>
+							{visibleParts.skeleton && (
+								<primitive object={nodes.mixamorigHips} />
+							)}
+							{visibleParts.body && (
+								<skinnedMesh
+									name="Ch30_primitive0"
+									geometry={nodes.Ch30_primitive0.geometry}
+									material={materials.Ch30_Body1}
+									skeleton={nodes.Ch30_primitive0.skeleton}
+								/>
+							)}
+							{visibleParts.arms && (
+								<skinnedMesh
+									name="Ch30_primitive1"
+									geometry={nodes.Ch30_primitive1.geometry}
+									material={materials.Ch30_Body}
+									skeleton={nodes.Ch30_primitive1.skeleton}
+								/>
+							)}
+							{visibleParts.head && (
+								<skinnedMesh
+									name="Ch30_primitive2"
+									geometry={nodes.Ch30_primitive2.geometry}
+									material={materials['Material.001']}
+									skeleton={nodes.Ch30_primitive2.skeleton}
+								/>
+							)}
+							{visibleParts.legs && (
+								<skinnedMesh
+									name="Ch30_primitive3"
+									geometry={nodes.Ch30_primitive3.geometry}
+									material={materials.Material}
+									skeleton={nodes.Ch30_primitive3.skeleton}
+								/>
+							)}
+							{visibleParts.details && (
+								<>
+									<skinnedMesh
+										name="Ch30_primitive4"
+										geometry={nodes.Ch30_primitive4.geometry}
+										material={materials['Material.002']}
+										skeleton={nodes.Ch30_primitive4.skeleton}
+									/>
+									<skinnedMesh
+										name="Ch30_primitive5"
+										geometry={nodes.Ch30_primitive5.geometry}
+										material={materials['Material.011']}
+										skeleton={nodes.Ch30_primitive5.skeleton}
+									/>
+									<skinnedMesh
+										name="Ch30_primitive6"
+										geometry={nodes.Ch30_primitive6.geometry}
+										material={materials['Material.016']}
+										skeleton={nodes.Ch30_primitive6.skeleton}
+									/>
+								</>
+							)}
 						</group>
 					</group>
-					{/* <group name="Armature" scale={0.01}>
-						<group name="Ch30" rotation={[Math.PI / 2, 0, 0]}>
-							<primitive object={nodes.mixamorigHips} />
-							<skinnedMesh
-								name="Mesh"
-								geometry={nodes.Mesh.geometry}
-								material={materials.Ch30_Body1}
-								skeleton={nodes.Mesh.skeleton}
-								frustumCulled={false}
-								castShadow
-								receiveShadow
-							/>
-							<skinnedMesh
-								name="Mesh_1"
-								geometry={nodes.Mesh_1.geometry}
-								material={materials.Ch30_Body}
-								skeleton={nodes.Mesh_1.skeleton}
-								frustumCulled={false}
-								castShadow
-								receiveShadow
-							/>
-							<skinnedMesh
-								name="Mesh_2"
-								geometry={nodes.Mesh_2.geometry}
-								material={materials['Material.001']}
-								skeleton={nodes.Mesh_2.skeleton}
-								frustumCulled={false}
-								castShadow
-								receiveShadow
-							/>
-							<skinnedMesh
-								name="Mesh_3"
-								geometry={nodes.Mesh_3.geometry}
-								material={materials.Material}
-								skeleton={nodes.Mesh_3.skeleton}
-								frustumCulled={false}
-								castShadow
-								receiveShadow
-							/>
-							<skinnedMesh
-								name="Mesh_4"
-								geometry={nodes.Mesh_4.geometry}
-								material={materials['Material.002']}
-								skeleton={nodes.Mesh_4.skeleton}
-								frustumCulled={false}
-								castShadow
-								receiveShadow
-							/>
-							<skinnedMesh
-								name="Mesh_5"
-								geometry={nodes.Mesh_5.geometry}
-								material={materials['Material.011']}
-								skeleton={nodes.Mesh_5.skeleton}
-								frustumCulled={false}
-								castShadow
-								receiveShadow
-							/>
-							<skinnedMesh
-								name="Mesh_6"
-								geometry={nodes.Mesh_6.geometry}
-								skeleton={nodes.Mesh_6.skeleton}
-								frustumCulled={false}
-								castShadow
-								receiveShadow
-							>
-								<meshBasicMaterial color="black" />
-							</skinnedMesh>
-						</group>
-					</group> */}
 				</group>
 			</group>
 		</group>
 	);
 };
 
-useGLTF.preload('/models/monster.glb');
+// useGLTF.preload('/models/monster.glb');
 
 export default Monster;
