@@ -224,7 +224,7 @@ export default function Interface() {
 	}, [queue]);
 
 	useEffect(() => {
-		const texturesDrawCalls = (loadedTextureNumber / 60) * 50; // 50%
+		const texturesDrawCalls = (loadedTextureNumber / 58) * 50; // 50%
 		const modelsLoading = (progress / 10) * 5; // 100 / 10 = 10 % * 5 = 50%
 		const currentProgress = Math.min(
 			Math.max(texturesDrawCalls + modelsLoading, displayProgress),
