@@ -49,6 +49,7 @@ export default function RoomCurtain() {
 
 	return (
 		<DoubleCurtain
+			name="room"
 			position={position}
 			rotation={[0, position[2] < 0 ? 0 : Math.PI, 0]}
 			material={material}

@@ -7,7 +7,7 @@ import DoubleCurtain from './DoubleCurtain';
 const CORRIDORLENGTH = 5.95;
 const offset = [8.35, 0.35, 7.75];
 
-export default function BathroomCurtain({ positionOffset }) {
+export default function BathroomCurtain({ positionOffset, name }) {
 	const roomNumber = useGame((state) => state.playerPositionRoom);
 	const roomTotal = useGame((state) => state.roomTotal);
 	const bathroomCurtain = useDoor((state) => state.bathroomCurtain);
@@ -57,6 +57,7 @@ export default function BathroomCurtain({ positionOffset }) {
 	return (
 		<group position={position} scale={[0.75, 1, 1]}>
 			<DoubleCurtain
+				name={name}
 				rotation={[0, position[2] < 0 ? Math.PI : 0, 0]}
 				isCurtainOpen={bathroomCurtain}
 				curtains={bathroomCurtains}

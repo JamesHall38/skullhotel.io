@@ -120,7 +120,6 @@ export default function BathroomDoor() {
 			roomNumber={roomNumber}
 			offset={doorOffset}
 			isOpen={isOpen}
-			isHandlePressed={isHandlePressed}
 			setHandlePressed={setHandlePressed}
 			setOpen={(value) => {
 				setBathroomsDoors(roomNumber, value);
@@ -137,5 +136,3 @@ export default function BathroomDoor() {
 		</DoorWrapper>
 	);
 }
-
-// useGLTF.preload('/models/doors/bathroom_door.glb');

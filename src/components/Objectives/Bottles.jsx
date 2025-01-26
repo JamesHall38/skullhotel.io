@@ -78,22 +78,16 @@ export default function Bottles() {
 	const handleDetection = useCallback(() => {
 		if (camera.position.x > 1.8 && camera.position.z > 3) {
 			if (bathroomCurtain && tutorialObjectives[0] === false) {
-				setCursor('clean');
+				setCursor('clean-bottles');
 				setIsDetected(true);
-			} else {
-				setCursor(null);
-				setIsDetected(false);
 			}
 		} else if (
 			!objective &&
 			Math.abs(camera.position.z) > 0.4 &&
 			bathroomCurtain
 		) {
-			setCursor('clean');
+			setCursor('clean-bottles');
 			setIsDetected(true);
-		} else {
-			setCursor(null);
-			setIsDetected(false);
 		}
 	}, [setCursor, camera, bathroomCurtain, objective, tutorialObjectives]);
 
@@ -224,6 +218,8 @@ export default function Bottles() {
 				onDetect={handleDetection}
 				onDetectEnd={handleDetectionEnd}
 				key={bathroomCurtain}
+				type="clean"
+				name="bottles"
 			/>
 			<group name="Scene">
 				<group name="BottleRight">

@@ -14,7 +14,6 @@ export default function DoorWrapper({
 	roomNumber,
 	isOpen,
 	setOpen,
-	isHandlePressed,
 	setHandlePressed,
 	reverse,
 	rotate,
@@ -101,14 +100,14 @@ export default function DoorWrapper({
 	}, [isOpen, hasInitialized, closet]);
 
 	useEffect(() => {
-		const handlePointerDown = () => {
-			if (canOpenRef.current && setHandlePressed) {
+		const handlePointerDown = (e) => {
+			if (e.button === 0 && canOpenRef.current && setHandlePressed) {
 				setHandlePressed(true);
 			}
 		};
 
-		const handlePointerUp = () => {
-			if (canOpenRef.current) {
+		const handlePointerUp = (e) => {
+			if (e.button === 0 && canOpenRef.current) {
 				if (setHandlePressed) setHandlePressed(false);
 				setOpen(!isOpen);
 				animationProgressRef.current = 0;
@@ -146,7 +145,7 @@ export default function DoorWrapper({
 			const intersects = raycaster.intersectObject(group.current, true);
 
 			if (intersects.length > 0) {
-				if (cursorRef.current !== 'door') {
+				if (!cursorRef.current?.includes('door')) {
 					cursorRef.current = 'door';
 					setCursor('door');
 				}
@@ -154,7 +153,7 @@ export default function DoorWrapper({
 				if (!hasLookedAtGroup.current) hasLookedAtGroup.current = true;
 			} else {
 				if (hasLookedAtGroup.current) {
-					if (cursorRef.current === 'door') {
+					if (cursorRef.current?.includes('door')) {
 						cursorRef.current = null;
 						setCursor(null);
 					}
@@ -166,7 +165,7 @@ export default function DoorWrapper({
 			if (canOpenRef.current) canOpenRef.current = false;
 
 			if (hasLookedAtGroup.current) {
-				if (cursorRef.current === 'door') {
+				if (cursorRef.current?.includes('door')) {
 					cursorRef.current = null;
 					setCursor(null);
 				}
