@@ -119,7 +119,6 @@ export default function ReceptionDoors() {
 				offset={[3.9, 0.965, 0.66]}
 				rotate
 				isOpen={corridorDoor}
-				isHandlePressed={corridorHandle}
 				setHandlePressed={setCorridorHandle}
 				setOpen={(value) => {
 					if (tutorialObjectives.every((value) => value === true)) {
@@ -140,7 +139,6 @@ export default function ReceptionDoors() {
 				<DoorWrapper
 					offset={[6.582, 0.965, 3.2]}
 					isOpen={tutorialDoor}
-					isHandlePressed={tutorialHandle}
 					setHandlePressed={setTutorialHandle}
 					setOpen={(value) => {
 						setTutorialDoor(value);
@@ -152,7 +150,6 @@ export default function ReceptionDoors() {
 				<DoorWrapper
 					offset={[10.025, 0.965, -3.85]}
 					isOpen={exitDoor}
-					isHandlePressed={exitHandle}
 					setHandlePressed={setExitHandle}
 					setOpen={(value) => {
 						setExitDoor(value);

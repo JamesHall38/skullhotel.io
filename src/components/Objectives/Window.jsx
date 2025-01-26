@@ -95,19 +95,21 @@ export default function Window() {
 	const handleDetection = useCallback(() => {
 		if (camera.position.x > 1.8 && camera.position.z > 3) {
 			if (roomCurtain && tutorialObjectives[2] === false) {
-				setCursor('clean');
+				setCursor('clean-window');
 				setIsDetected(true);
-			} else {
-				setCursor(null);
-				setIsDetected(false);
 			}
+			//  else {
+			// 	setCursor(null);
+			// 	setIsDetected(false);
+			// }
 		} else if (!objective && roomCurtain) {
-			setCursor('clean');
+			setCursor('clean-window');
 			setIsDetected(true);
-		} else {
-			setCursor(null);
-			setIsDetected(false);
 		}
+		// else {
+		// 	setCursor(null);
+		// 	setIsDetected(false);
+		// }
 	}, [setCursor, camera, roomCurtain, objective, tutorialObjectives]);
 
 	const handleDetectionEnd = useCallback(() => {
@@ -225,6 +227,8 @@ export default function Window() {
 				onDetect={handleDetection}
 				onDetectEnd={handleDetectionEnd}
 				key={roomCurtain}
+				type="clean"
+				name="window"
 			/>
 			<group name="Scene">
 				<mesh

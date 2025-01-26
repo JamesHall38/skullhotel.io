@@ -91,6 +91,31 @@
 	justify-content: center;
 }
 
+.cursor-icon {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 2rem;
+	height: 2rem;
+}
+.cursor-icon-clean {
+	width: 1.25rem;
+	height: 1.25rem;
+}
+/* 
+.cursor-icon-door {
+}
+.cursor-icon-light {
+} */
+.cursor-icon-power {
+	width: 1.5rem;
+	height: 1.5rem;
+}
+/* .cursor-icon-listening { */
+/* width: 1.25rem; */
+/* height: 1.25rem; */
+/* } */
+
 .progress-circle {
 	position: absolute;
 	top: 50%;
@@ -98,8 +123,8 @@
 	transform: translate(-50%, -50%);
 	pointer-events: none;
 	z-index: 9998;
-	width: 100px !important;
-	height: 100px !important;
+	width: 5rem !important;
+	height: 5rem !important;
 }
 
 .progress-circle-bg {
@@ -288,18 +313,6 @@
 	justify-content: center;
 }
 
-/* .io {
-	padding: 0.25rem;
-	border-radius: 0.15rem;
-	font-size: 1.5rem;
-	font-weight: 800;
-	background: #4a7b6e;
-	position: relative;
-	color: black;
-	z-index: 2;
-	transform: scale(0.5) translateY(20%);
-} */
-
 .full-screen-button {
 	background: rgba(255, 255, 255, 0.1);
 	border: none;
@@ -330,7 +343,14 @@
 	fill: #c1c1c1;
 }
 
+.loading {
+	position: absolute;
+	bottom: 4rem;
+}
+
 .start {
+	position: absolute;
+	bottom: 4rem;
 	animation: blink 2s ease-in-out infinite;
 }
 

@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useCallback, useState } from 'react';
+import { useRef, useEffect, useCallback, useState } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { useThree } from '@react-three/fiber';
 import useGame from '../../../hooks/useGame';
@@ -12,15 +12,12 @@ const PROBABILITY_OF_ACTIVATION = 20;
 
 const Radio = () => {
 	const meshRef = useRef();
+	const [isDetected, setIsDetected] = useState(false);
 	const radio = useGame((state) => state.radio);
 	const setRadio = useGame((state) => state.setRadio);
 	const setMobileClick = useGame((state) => state.setMobileClick);
 	const mobileClick = useGame((state) => state.mobileClick);
 	const { camera } = useThree();
-	const cursorStateRef = useRef(null);
-	const prevDetectedRef = useRef(false);
-	const processedInFrameRef = useRef(false);
-	const cursor = useInterface((state) => state.cursor);
 	const setCursor = useInterface((state) => state.setCursor);
 	const radioSoundRef = useRef();
 	const radioSound = usePositionalSound('radio');
@@ -46,78 +43,6 @@ const Radio = () => {
 		[]
 	);
 
-	const checkProximityAndVisibility = useCallback(() => {
-		if (!meshRef.current) return false;
-
-		const cameraPosition = new THREE.Vector3();
-		camera.getWorldPosition(cameraPosition);
-
-		const meshPosition = new THREE.Vector3();
-		meshRef.current.getWorldPosition(meshPosition);
-
-		const distanceFromMesh = cameraPosition.distanceTo(meshPosition);
-
-		if (distanceFromMesh > 2.5) return false;
-
-		const raycaster = new THREE.Raycaster();
-		const cameraDirection = new THREE.Vector3();
-		camera.getWorldDirection(cameraDirection);
-
-		raycaster.set(cameraPosition, cameraDirection);
-
-		const intersects = raycaster.intersectObject(meshRef.current);
-
-		return intersects.length > 0;
-	}, [camera]);
-
-	useEffect(() => {
-		processedInFrameRef.current = false;
-	}, [mobileClick]);
-
-	useFrame(() => {
-		const detected = checkProximityAndVisibility();
-		if (detected !== prevDetectedRef.current) {
-			prevDetectedRef.current = detected;
-			const newCursorState = detected
-				? 'power'
-				: cursor !== 'power'
-				? cursor
-				: null;
-
-			if (cursorStateRef.current !== newCursorState) {
-				cursorStateRef.current = newCursorState;
-				setCursor(newCursorState);
-			}
-		}
-
-		if (mobileClick && detected && !processedInFrameRef.current) {
-			processedInFrameRef.current = true;
-			setRadio(!radio);
-			setActiveRadio(playerPositionRoom);
-			setMobileClick(false);
-		}
-	});
-
-	useEffect(() => {
-		const handleDocumentClick = () => {
-			if (checkProximityAndVisibility()) {
-				setRadio(!radio);
-				setActiveRadio(playerPositionRoom);
-			}
-		};
-
-		document.addEventListener('click', handleDocumentClick);
-		return () => {
-			document.removeEventListener('click', handleDocumentClick);
-		};
-	}, [
-		checkProximityAndVisibility,
-		playerPositionRoom,
-		setRadio,
-		setActiveRadio,
-		radio,
-	]);
-
 	useEffect(() => {
 		setRandomRoomNumber(generateRandomRoomNumber());
 	}, [deaths, generateRandomRoomNumber]);
@@ -142,20 +67,38 @@ const Radio = () => {
 		}
 	}, [radio]);
 
+	useEffect(() => {
+		const handleClick = () => {
+			if (isDetected) {
+				setRadio(!radio);
+				setActiveRadio(playerPositionRoom);
+			}
+		};
+
+		document.addEventListener('click', handleClick);
+
+		return () => {
+			document.removeEventListener('click', handleClick);
+		};
+	}, [isDetected]);
+
 	return (
 		<group position={[4.12, 0.927, 0.295]}>
-			{isDetectionActive && (
-				<DetectionZone
-					position={[-1, -1, 0]}
-					scale={[1, 1, 1]}
-					onDetect={() => {
-						setRadio(true);
-						setActiveRadio(playerPositionRoom);
-					}}
-					onDetectEnd={() => {}}
-					downward={true}
-				/>
-			)}
+			<DetectionZone
+				position={[0.1, 0, -0.1]}
+				scale={[0.5, 0.2, 0.5]}
+				onDetect={() => {
+					setCursor('power-radio');
+					setIsDetected(true);
+				}}
+				onDetectEnd={() => {
+					setCursor(null);
+					setIsDetected(false);
+				}}
+				downward={true}
+				name="radio"
+				type="power"
+			/>
 			<mesh visible={false} position={[0, 0, -0.1]} ref={meshRef}>
 				<boxGeometry args={[0.2, 0.2, 0.5]} />
 			</mesh>

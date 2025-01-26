@@ -117,12 +117,12 @@ export default function Switches(props) {
 	]);
 
 	const handleDetectionSwitch1 = useCallback(() => {
-		setCursor('light');
+		setCursor('light-switch1');
 		setSwitch1Clickable(true);
 	}, [setCursor, setSwitch1Clickable]);
 
 	const handleDetectionSwitch2 = useCallback(() => {
-		setCursor('light');
+		setCursor('light-switch2');
 		setSwitch2Clickable(true);
 	}, [setCursor, setSwitch2Clickable]);
 
@@ -152,6 +152,8 @@ export default function Switches(props) {
 				distance={1.5}
 				onDetect={handleDetectionSwitch1}
 				onDetectEnd={handleDetectionEnd1}
+				name="switch1"
+				type="light"
 			/>
 			<mesh
 				ref={switch2Ref}
@@ -167,6 +169,8 @@ export default function Switches(props) {
 				distance={1.5}
 				onDetect={handleDetectionSwitch2}
 				onDetectEnd={handleDetectionEnd2}
+				name="switch2"
+				type="light"
 			/>
 		</group>
 	);

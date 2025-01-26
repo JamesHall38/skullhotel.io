@@ -66,15 +66,15 @@ export default create(
 				tvLight: { ...state.tvLight, color, intensity },
 			})),
 		setReceptionLight1: (color, intensity) =>
-			set((state) => ({
+			set(() => ({
 				receptionLight1: { color, intensity },
 			})),
 		setReceptionLight2: (color, intensity) =>
-			set((state) => ({
+			set(() => ({
 				receptionLight2: { color, intensity },
 			})),
 		setReceptionLight3: (color, intensity) =>
-			set((state) => ({
+			set(() => ({
 				receptionLight3: { color, intensity },
 			})),
 		restart: () =>

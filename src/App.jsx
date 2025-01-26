@@ -2,6 +2,7 @@ import { useEffect, Suspense, useMemo, useRef, useState } from 'react';
 import { KeyboardControls, PointerLockControls } from '@react-three/drei';
 import { Canvas, useThree, useFrame } from '@react-three/fiber';
 import Interface from './components/Interface/Interface';
+// import Settings from './components/Interface/Settings';
 import './style.css';
 import useGame from './hooks/useGame';
 import useInterface from './hooks/useInterface';
@@ -85,7 +86,7 @@ function App() {
 	const setSeedData = useGame((state) => state.setSeedData);
 	const setIsLocked = useGame((state) => state.setIsLocked);
 	const openDeathScreen = useGame((state) => state.openDeathScreen);
-	const playerPositionRoom = useGame((state) => state.playerPositionRoom);
+	const setEnd = useGame((state) => state.setEnd);
 	const realPlayerPositionRoom = useGame(
 		(state) => state.realPlayerPositionRoom
 	);
@@ -114,7 +115,7 @@ function App() {
 			calculatedPosition = [24.5, 0, 14.5];
 		}
 		return calculatedPosition;
-	}, [camera.position]);
+	}, [camera]);
 
 	const { selectedRoom } = useControls({
 		selectedRoom: {
@@ -209,7 +210,7 @@ function App() {
 		if (deltaTime < targetDelta) {
 			frameCount.current++;
 		} else {
-			frameCount.current = Math.max(0, frameCount.current - 2); // Régression plus douce
+			frameCount.current = Math.max(0, frameCount.current - 2);
 		}
 
 		if (frameCount.current > requiredFrames && !isStable) {
@@ -236,6 +237,8 @@ function App() {
 		};
 	}, []);
 
+	const timeoutSet = useRef(false);
+
 	useFrame(({ camera }) => {
 		if (
 			camera.position.x > 8 &&
@@ -257,7 +260,6 @@ function App() {
 				timeoutSet.current = false;
 			}, 1000);
 		}
-		// }
 
 		const x = camera.position.x;
 		const z = camera.position.z;
@@ -324,8 +326,8 @@ function App() {
 				<NightstandDoor />
 				<DeskDoor />
 				<RoomCurtain />
-				<BathroomCurtain key="bathroom1" />
-				<BathroomCurtain key="bathroom2" positionOffset={2} />
+				<BathroomCurtain key="bathroom1" name="bathroom1" />
+				<BathroomCurtain key="bathroom2" name="bathroom2" positionOffset={2} />
 				<Bedsheets />
 				<Window />
 				<Bottles />
@@ -369,8 +371,7 @@ export default function AppCanvas() {
 					}}
 					dpr={[1, 1.5]}
 					performance={{ min: 0.5 }}
-					// shadows={performanceMode && !isMobile}
-					shadows={true}
+					shadows={performanceMode && !isMobile}
 				>
 					{perfVisible ? <Perf position="top-left" /> : null}
 					<App />

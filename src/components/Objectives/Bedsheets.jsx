@@ -99,11 +99,13 @@ export default function Bedsheets() {
 						tutorialObjectives[2],
 					]);
 				}
+
+				setCursor(null);
+				setIsDetected(false);
 			}
 		};
 
 		document.addEventListener('progressComplete', handleProgressComplete);
-
 		return () => {
 			document.removeEventListener('progressComplete', handleProgressComplete);
 		};
@@ -118,7 +120,6 @@ export default function Bedsheets() {
 		isDetected,
 		objective,
 		setCursor,
-		camera,
 	]);
 
 	const isInit = useRef(false);
@@ -139,8 +140,9 @@ export default function Bedsheets() {
 	}, [objective, roomNumber]);
 
 	useEffect(() => {
-		if (mobileClick && isDetected && !objective && visibleMesh === 'Start') {
-			// setCursor('clean');
+		if (mobileClick && isDetected && visibleMesh === 'Start') {
+			console.log(mobileClick, isDetected, visibleMesh);
+			// setCursor('clean-bedsheets');
 			setIsDetected(true);
 			// setMobileClick(false);
 		}
@@ -172,13 +174,13 @@ export default function Bedsheets() {
 
 	const handleDetection = useCallback(() => {
 		if (tutorialObjectives[1] === false) {
-			setCursor('clean');
+			setCursor('clean-bedsheets');
 			setIsDetected(true);
 			return;
 		}
 
 		if (!objective && visibleMesh === 'Start') {
-			setCursor('clean');
+			setCursor('clean-bedsheets');
 			setIsDetected(true);
 		}
 	}, [setCursor, objective, tutorialObjectives, visibleMesh]);
@@ -201,6 +203,8 @@ export default function Bedsheets() {
 				distance={3}
 				onDetect={handleDetection}
 				onDetectEnd={handleDetectionEnd}
+				type="clean"
+				name="bedsheets"
 			/>
 
 			<group scale={0.96} name="Scene">

@@ -1,0 +1,15 @@
+{
+	"name": "Skull Hotel .io",
+	"short_name": "skullhotel.io",
+	"start_url": "/",
+	"display": "standalone",
+	"background_color": "#ffffff",
+	"theme_color": "#000000",
+	"icons": [
+		{
+			"src": "logo.png",
+			"sizes": "256x256",
+			"type": "image/png"
+		}
+	]
+}

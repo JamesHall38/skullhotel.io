@@ -4,11 +4,11 @@ import * as THREE from 'three';
 import Metal from './Metal';
 import { useControls } from 'leva';
 import useLight from '../../hooks/useLight';
-import useGame from '../../hooks/useGame';
+// import useGame from '../../hooks/useGame';
 import useProgressiveLoad from '../../hooks/useProgressiveLoad';
 
 export default function Reception() {
-	const performanceMode = useGame((state) => state.performanceMode);
+	// const performanceMode = useGame((state) => state.performanceMode);
 	const { scene } = useGLTF('/models/reception/reception.glb');
 	const materialRef = useRef();
 

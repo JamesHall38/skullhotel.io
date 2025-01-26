@@ -7,6 +7,7 @@ import useGame from '../../hooks/useGame';
 import { usePositionalSound } from '../../utils/audio';
 
 export default function DoubleCurtain({
+	name,
 	modelPath = '/models/doors/curtain.glb',
 	material,
 	position,
@@ -38,7 +39,6 @@ export default function DoubleCurtain({
 		open: 0.6,
 		closed: 1.1,
 	},
-	...props
 }) {
 	const group = useRef();
 	const mixerRightRef = useRef(new THREE.AnimationMixer(null));
@@ -49,8 +49,6 @@ export default function DoubleCurtain({
 	const mesh1Ref = useRef();
 	const setCursor = useInterface((state) => state.setCursor);
 	const cursor = useInterface((state) => state.cursor);
-	const prevDetectedRef = useRef(false);
-	const cursorStateRef = useRef(null);
 	const isInitial = useRef(true);
 	const curtainsRef = useRef();
 	const roomNumberRef = useRef();
@@ -175,69 +173,51 @@ export default function DoubleCurtain({
 		}
 	}, [roomNumber, setCurtain, handleCurtainAnimation]);
 
-	const checkProximityAndVisibility = useCallback(() => {
-		const cameraPosition = new THREE.Vector3();
-		camera.getWorldPosition(cameraPosition);
-
-		const checkMesh = (meshRef) => {
-			if (!meshRef.current) return false;
-
-			const meshPosition = new THREE.Vector3();
-			meshRef.current.getWorldPosition(meshPosition);
-
-			const distanceFromMesh = cameraPosition.distanceTo(meshPosition);
-
-			if (distanceFromMesh > 2) return false;
-
+	const checkProximityAndVisibility = useCallback(
+		(camera) => {
+			const cameraPosition = new THREE.Vector3();
+			camera.getWorldPosition(cameraPosition);
 			const raycaster = new THREE.Raycaster();
+			raycaster.far = 2;
 			const cameraDirection = new THREE.Vector3();
 			camera.getWorldDirection(cameraDirection);
 
+			const meshes = [mesh0Ref.current, mesh1Ref.current];
+
 			raycaster.set(cameraPosition, cameraDirection);
+			raycaster.set(cameraPosition, cameraDirection);
+			return raycaster.intersectObjects(meshes).length > 0;
+		},
+		[mesh0Ref, mesh1Ref]
+	);
 
-			const intersects = raycaster.intersectObjects([
-				mesh0Ref.current,
-				mesh1Ref.current,
-			]);
+	let frameCount = 0;
 
-			return intersects.some(
-				(intersect) => intersect.object === meshRef.current
-			);
-		};
+	useFrame(() => {
+		frameCount++;
+		if (frameCount % 10 === 0) {
+			const detected = checkProximityAndVisibility(camera);
+			if (cursor === `door-${name}` && !detected) {
+				setCursor(null);
+			} else if (cursor !== `door-${name}` && detected) {
+				setCursor(`door-${name}`);
+			}
 
-		return checkMesh(mesh0Ref) || checkMesh(mesh1Ref);
-	}, [camera]);
+			if (mobileClick && detected && !processedInFrameRef.current) {
+				processedInFrameRef.current = true;
+				setCurtain(!isCurtainOpen);
+				setMobileClick(false);
+			}
+		}
+	});
 
 	useEffect(() => {
 		processedInFrameRef.current = false;
 	}, [mobileClick]);
 
-	useFrame(() => {
-		const detected = checkProximityAndVisibility();
-		if (detected !== prevDetectedRef.current) {
-			prevDetectedRef.current = detected;
-			const newCursorState = detected
-				? 'door'
-				: cursor !== 'door'
-				? cursor
-				: null;
-
-			if (cursorStateRef.current !== newCursorState) {
-				cursorStateRef.current = newCursorState;
-				setCursor(newCursorState);
-			}
-		}
-
-		if (mobileClick && detected && !processedInFrameRef.current) {
-			processedInFrameRef.current = true;
-			setCurtain(!isCurtainOpen);
-			setMobileClick(false);
-		}
-	});
-
 	useEffect(() => {
 		const handleDocumentClick = () => {
-			if (checkProximityAndVisibility()) {
+			if (checkProximityAndVisibility(camera)) {
 				setCurtain(!isCurtainOpen);
 			}
 		};
@@ -246,7 +226,7 @@ export default function DoubleCurtain({
 		return () => {
 			document.removeEventListener('click', handleDocumentClick);
 		};
-	}, [checkProximityAndVisibility, setCurtain, isCurtainOpen]);
+	}, [checkProximityAndVisibility, setCurtain, isCurtainOpen, camera]);
 
 	const easeInQuad = (t) => t * t;
 	let time0 = 0;

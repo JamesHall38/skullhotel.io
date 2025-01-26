@@ -18,6 +18,7 @@ const PROBABILITY_OF_ACTIVATION = 20;
 
 export default function Tv() {
 	const meshRef = useRef();
+	const [isDetected, setIsDetected] = useState(false);
 	const tv = useGame((state) => state.tv);
 	const setTv = useGame((state) => state.setTv);
 	const setMobileClick = useGame((state) => state.setMobileClick);
@@ -51,73 +52,6 @@ export default function Tv() {
 		[]
 	);
 
-	const checkProximityAndVisibility = useCallback(() => {
-		const cameraPosition = new THREE.Vector3();
-		camera.getWorldPosition(cameraPosition);
-
-		const meshPosition = new THREE.Vector3();
-		meshRef.current.getWorldPosition(meshPosition);
-
-		const distanceFromMesh = cameraPosition.distanceTo(meshPosition);
-
-		if (distanceFromMesh > 2.5) return false;
-
-		const raycaster = new THREE.Raycaster();
-		const direction = new THREE.Vector3();
-
-		direction.subVectors(meshPosition, cameraPosition).normalize();
-
-		raycaster.set(cameraPosition, direction);
-
-		const intersects = raycaster.intersectObject(meshRef.current);
-
-		return intersects.length > 0;
-	}, [camera]);
-
-	useEffect(() => {
-		processedInFrameRef.current = false;
-	}, [mobileClick]);
-
-	useFrame(() => {
-		const detected = checkProximityAndVisibility();
-
-		if (detected !== prevDetectedRef.current) {
-			prevDetectedRef.current = detected;
-			const newCursorState = detected
-				? 'power'
-				: cursor !== 'power'
-				? cursor
-				: null;
-
-			if (cursorStateRef.current !== newCursorState) {
-				cursorStateRef.current = newCursorState;
-				setCursor(newCursorState);
-			}
-		}
-
-		if (mobileClick && detected && !processedInFrameRef.current) {
-			processedInFrameRef.current = true;
-			setTv(!tv);
-			setActiveTv(playerPositionRoom);
-			setMobileClick(false);
-		}
-	});
-
-	useEffect(() => {
-		const handleDocumentClick = () => {
-			if (checkProximityAndVisibility()) {
-				setTv(!tv);
-				setActiveTv(playerPositionRoom);
-			}
-		};
-
-		document.addEventListener('click', handleDocumentClick);
-
-		return () => {
-			document.removeEventListener('click', handleDocumentClick);
-		};
-	}, [checkProximityAndVisibility, playerPositionRoom, setTv, setActiveTv, tv]);
-
 	useFrame((state) => {
 		const { clock } = state;
 		if (meshRef.current) {
@@ -149,20 +83,37 @@ export default function Tv() {
 		setTv(activeTvs.includes(playerPositionRoom));
 	}, [playerPositionRoom, activeTvs, setTv]);
 
+	useEffect(() => {
+		const handleClick = () => {
+			if (isDetected) {
+				setTv(!tv);
+				setActiveTv(playerPositionRoom);
+			}
+		};
+
+		document.addEventListener('click', handleClick);
+		return () => {
+			document.removeEventListener('click', handleClick);
+		};
+	}, [isDetected]);
+
 	return (
 		<group position={[-1.285, 0.9, 3.65]}>
-			{isDetectionActive && (
-				<DetectionZone
-					position={[3, -1, 0]}
-					scale={[2, 1, 2]}
-					onDetect={() => {
-						setTv(true);
-						setActiveTv(playerPositionRoom);
-					}}
-					onDetectEnd={() => {}}
-					downward={true}
-				/>
-			)}
+			<DetectionZone
+				position={[0.1, 0, -0.1]}
+				scale={[0.2, 1, 1.5]}
+				onDetect={() => {
+					setCursor('power-tv');
+					setIsDetected(true);
+				}}
+				onDetectEnd={() => {
+					setCursor(null);
+					setIsDetected(false);
+				}}
+				downward={true}
+				name="tv"
+				type="power"
+			/>
 			<mesh
 				visible={tv}
 				scale={0.087}

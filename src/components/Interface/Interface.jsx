@@ -2,8 +2,10 @@ import { useState, useEffect, useCallback, memo, useMemo, useRef } from 'react';
 import { useProgress } from '@react-three/drei';
 // import { ReactComponent as SkullHotelLogo } from './logo.svg';
 import SkullHotelLogo from './Logo';
-import { RiFullscreenFill } from 'react-icons/ri';
+import Settings from './Settings';
 import { FaArrowCircleDown, FaArrowCircleUp } from 'react-icons/fa';
+import { TbXboxXFilled } from 'react-icons/tb';
+import { TbXboxYFilled } from 'react-icons/tb';
 import useDoor from '../../hooks/useDoor';
 import useMonster from '../../hooks/useMonster';
 import dialogues from '../../data/dialogues';
@@ -334,6 +336,7 @@ export default function Interface() {
 
 	return (
 		<div className={`interface ${loading ? 'animated' : ''}`}>
+			<Settings />
 			{loading ? (
 				<div
 					className={`loading-page ${displayProgress === 100 ? 'ready' : ''}`}
@@ -352,42 +355,6 @@ export default function Interface() {
 						<div className="title">SKULL HOTEL</div>
 						{/* <div className="io">.io</div> */}
 					</div>
-					<button
-						className="full-screen-button"
-						onClick={(e) => {
-							e.stopPropagation();
-							if (!document.fullscreenElement) {
-								if (document.documentElement.requestFullscreen) {
-									document.documentElement.requestFullscreen();
-								} else if (document.documentElement.mozRequestFullScreen) {
-									// Firefox
-									document.documentElement.mozRequestFullScreen();
-								} else if (document.documentElement.webkitRequestFullscreen) {
-									// Chrome, Safari and Opera
-									document.documentElement.webkitRequestFullscreen();
-								} else if (document.documentElement.msRequestFullscreen) {
-									// IE/Edge
-									document.documentElement.msRequestFullscreen();
-								}
-							} else {
-								if (document.exitFullscreen) {
-									document.exitFullscreen();
-								} else if (document.mozCancelFullScreen) {
-									// Firefox
-									document.mozCancelFullScreen();
-								} else if (document.webkitExitFullscreen) {
-									// Chrome, Safari and Opera
-									document.webkitExitFullscreen();
-								} else if (document.msExitFullscreen) {
-									// IE/Edge
-									document.msExitFullscreen();
-								}
-							}
-						}}
-					>
-						<RiFullscreenFill />
-						Full Screen
-					</button>
 					<div className={displayProgress !== 100 ? 'loading' : 'start'}>
 						{displayProgress !== 100
 							? `loading: ${displayProgress.toFixed(0)}%`
@@ -434,7 +401,7 @@ export default function Interface() {
 								setCursor(null);
 							}}
 						>
-							B
+							<TbXboxYFilled />
 						</button>
 						<button
 							className={`mobile-button bottom ${
@@ -462,7 +429,7 @@ export default function Interface() {
 								setMobileClick(true);
 
 								const cursor = useInterface.getState().cursor;
-								if (cursor === 'clean') {
+								if (cursor?.includes('clean')) {
 									const event = new CustomEvent('startProgress');
 									document.dispatchEvent(event);
 								}
@@ -481,7 +448,7 @@ export default function Interface() {
 								setReleaseMobileClick(true);
 							}}
 						>
-							A
+							<TbXboxXFilled />
 						</button>
 					</div>
 

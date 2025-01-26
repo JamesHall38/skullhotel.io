@@ -81,7 +81,6 @@ export default function RoomDoor({ roomNumber }) {
 				setOpen(roomNumber, value);
 				setPlayerPositionRoom(roomNumber);
 			}}
-			isHandlePressed={isHandlePressed}
 			setHandlePressed={(value) => setHandlePressed(roomNumber, value)}
 		>
 			<mesh
