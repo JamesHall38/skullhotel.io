@@ -145,7 +145,8 @@ export default function Jump({
 		const cell = getCell(cellX, cellZ);
 		return (
 			cell.type === CELL_TYPES.RAISED_AREA_HIGH ||
-			cell.type === CELL_TYPES.BATHROOM_CURTAIN_CLOSED
+			cell.type === CELL_TYPES.BATHROOM_CURTAIN_CLOSED ||
+			cell.type === CELL_TYPES.CEILING
 		);
 	};
 

@@ -235,7 +235,9 @@ const PostProcessing = () => {
 	const jumpScareAmbianceRef = useRef(
 		new Audio(getSoundUrl('jumpScareAmbiance'))
 	);
+	const whiteNoiseRef = useRef(new Audio('/sounds/boom.mp3'));
 	const currentVolumeRef = useRef(0);
+	const whiteNoiseVolumeRef = useRef(0);
 	const setReceptionLight1 = useLight((state) => state.setReceptionLight1);
 	const setFlashlightEnabled = useLight((state) => state.setFlashlightEnabled);
 	const receptionLight1 = useLight((state) => state.receptionLight1);
@@ -256,12 +258,21 @@ const PostProcessing = () => {
 
 	useEffect(() => {
 		const audio = jumpScareAmbianceRef.current;
+		const whiteNoise = whiteNoiseRef.current;
 		audio.loop = true;
 		audio.volume = 0;
+
+		whiteNoise.loop = false;
+		whiteNoise.volume = 0;
+
+		// adjust the end of the white noise
+		whiteNoise.playbackRate = 0.5;
 
 		return () => {
 			audio.pause();
 			audio.currentTime = 0;
+			whiteNoise.pause();
+			whiteNoise.currentTime = 0;
 		};
 	}, []);
 
@@ -278,6 +289,15 @@ const PostProcessing = () => {
 		currentVolumeRef.current = newVolume;
 		jumpScareAmbianceRef.current.volume = newVolume;
 
+		// Fade out white noise gradually
+		if (whiteNoiseVolumeRef.current > 0) {
+			whiteNoiseVolumeRef.current = Math.max(
+				0,
+				whiteNoiseVolumeRef.current - delta * 0.2
+			);
+			whiteNoiseRef.current.volume = whiteNoiseVolumeRef.current;
+		}
+
 		if (newVolume > 0 && !jumpScareAmbianceRef.current.playing) {
 			jumpScareAmbianceRef.current.play();
 		}
@@ -285,7 +305,7 @@ const PostProcessing = () => {
 
 	useFrame(({ camera }, delta) => {
 		if (useGame.getState().isCameraLocked) {
-			const targetLookAt = new THREE.Vector3(10.77, 6, 100);
+			const targetLookAt = new THREE.Vector3(10.77, 1.5, 100);
 
 			lerpTimeRef.current = Math.min(lerpTimeRef.current + delta, 2);
 
@@ -320,6 +340,13 @@ const PostProcessing = () => {
 				setFlashlightEnabled(false);
 				setIsDistorting(true);
 				setCursor('hidden');
+
+				// Start white noise with fade in
+				whiteNoiseRef.current.play();
+				whiteNoiseRef.current.currentTime = 0.2;
+				whiteNoiseVolumeRef.current = 0.5;
+				whiteNoiseRef.current.volume = whiteNoiseVolumeRef.current;
+
 				await new Promise((resolve) => setTimeout(resolve, 200));
 				setIsDistorting(false);
 				setIsNeonFlickering(true);

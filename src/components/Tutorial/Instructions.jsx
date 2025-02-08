@@ -454,5 +454,25 @@ export default function Instructions() {
 		]
 	);
 
-	return <group>{instructions.map(renderInstructions)}</group>;
+	return (
+		<group
+			onPointerDown={(e) => {
+				if (e.button !== 0) {
+					e.stopPropagation();
+				}
+			}}
+			onPointerUp={(e) => {
+				if (e.button !== 0) {
+					e.stopPropagation();
+				}
+			}}
+			onClick={(e) => {
+				if (e.button !== 0) {
+					e.stopPropagation();
+				}
+			}}
+		>
+			{instructions.map(renderInstructions)}
+		</group>
+	);
 }

@@ -5,7 +5,7 @@ import useDoor from '../../hooks/useDoor';
 import useGame from '../../hooks/useGame';
 import DoorWrapper from './DoorWrapper';
 import * as THREE from 'three';
-import WoodMaterial from '../WoodMaterial';
+import WoodMaterial from '../materials/WoodMaterial';
 import { FontLoader } from 'three/examples/jsm/loaders/FontLoader';
 import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry';
 

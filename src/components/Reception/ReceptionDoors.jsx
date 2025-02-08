@@ -6,7 +6,7 @@ import * as THREE from 'three';
 import useDoor from '../../hooks/useDoor';
 import useGame from '../../hooks/useGame';
 import useInterface from '../../hooks/useInterface';
-import WoodMaterial from '../WoodMaterial';
+import WoodMaterial from '../materials/WoodMaterial';
 
 const Door = ({ isHandlePressed }) => {
 	const { nodes, materials } = useGLTF('/models/doors/door.glb');

@@ -4,7 +4,7 @@ import DoorWrapper from './DoorWrapper';
 import useGame from '../../hooks/useGame';
 import useDoor from '../../hooks/useDoor';
 import { useThree } from '@react-three/fiber';
-import WoodMaterial from '../WoodMaterial';
+import WoodMaterial from '../materials/WoodMaterial';
 import useGridStore, { CELL_TYPES } from '../../hooks/useGrid';
 import useHiding from '../../hooks/useHiding';
 import { useSpring, a } from '@react-spring/three';

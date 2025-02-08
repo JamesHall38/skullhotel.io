@@ -7,43 +7,56 @@ import useLight from '../../hooks/useLight';
 import { useControls } from 'leva';
 import { usePositionalSound } from '../../utils/audio';
 import useProgressiveLoad from '../../hooks/useProgressiveLoad';
+import FloorLightMaterial from '../materials/FloorLightMaterial';
+import WallsLightMaterial from '../materials/WallsLightMaterial';
+import WoodLightMaterial from '../materials/WoodLightMaterial';
 
 const PROBABILITY_OF_DARKNESS = 20;
 
 export default function Livingroom() {
-	const { scene } = useGLTF('/models/room/livingroom.glb');
+	const { scene, nodes } = useGLTF('/models/room/livingroom.glb');
+	const performanceMode = useGame((state) => state.performanceMode);
 	const materialRef = useRef();
 
 	const textureParts = [
 		{
 			name: 'baked',
 			label: 'Base Textures',
-			texture: useKTX2('/textures/livingroom/baked_livingroom_etc1s.ktx2'),
+			texture: useKTX2('/textures/baked_color_etc1s.ktx2'),
 			type: 'map',
+			uvChannel: 0,
 		},
 		{
 			name: 'roughness',
 			label: 'Material Properties',
-			texture: useKTX2('/textures/livingroom/roughness_livingroom_etc1s.ktx2'),
+			texture: useKTX2('/textures/baked_roughness_etc1s.ktx2'),
 			type: ['roughnessMap', 'bumpMap'],
+			uvChannel: 0,
 		},
 		{
 			name: 'light',
 			label: 'Lighting',
-			texture: useKTX2('/textures/livingroom/light_livingroom_uastc.ktx2'),
+			texture: useKTX2('/textures/livingroom_light_uastc.ktx2'),
 			type: 'lightMap',
+			uvChannel: 2,
 		},
 	];
 
 	const { loadedItems } = useProgressiveLoad(textureParts, 'Livingroom');
 
+	const couchLight = useLight((state) => state.couchLight);
+	const wallLight = useLight((state) => state.wallLight);
+	const tvLight = useLight((state) => state.tvLight);
+
 	// Create material once at component mount
 	useEffect(() => {
 		scene.traverse((child) => {
-			if (child.isMesh) {
+			if (child.isMesh && child.name === 'livingroom') {
 				child.geometry.setAttribute('uv', child.geometry.attributes['uv1']);
+				child.geometry.setAttribute('uv2', child.geometry.attributes['uv2']);
+
 				const material = new THREE.MeshStandardMaterial({
-					bumpScale: 12,
+					bumpScale: 4,
 					lightMapIntensity: 0,
 					roughness: 1,
 					onBeforeCompile: (shader) => {
@@ -140,6 +153,7 @@ export default function Livingroom() {
 					texture.colorSpace = THREE.SRGBColorSpace;
 				}
 				texture.flipY = false;
+				texture.channel = item.uvChannel;
 
 				if (Array.isArray(item.type)) {
 					item.type.forEach((type) => {
@@ -154,7 +168,26 @@ export default function Livingroom() {
 				materialRef.current.needsUpdate = true;
 			}
 		});
-	}, [loadedItems]);
+	}, [loadedItems, performanceMode]);
+
+	// Add separate effect for updating uniforms
+	useEffect(() => {
+		if (materialRef.current?.userData.shader) {
+			const shader = materialRef.current.userData.shader;
+			shader.uniforms.uCouchLightColor.value = new THREE.Color(
+				couchLight.color
+			).convertSRGBToLinear();
+			shader.uniforms.uCouchLightIntensity.value = couchLight.intensity;
+			shader.uniforms.uWallLightColor.value = new THREE.Color(
+				wallLight.color
+			).convertSRGBToLinear();
+			shader.uniforms.uWallLightIntensity.value = wallLight.intensity;
+			shader.uniforms.uTvLightColor.value = new THREE.Color(
+				tvLight.color
+			).convertSRGBToLinear();
+			shader.uniforms.uTvLightIntensity.value = tvLight.intensity;
+		}
+	}, [couchLight, wallLight, tvLight]);
 
 	const [isDetectionActive, setIsDetectionActive] = useState(false);
 	const [isDark, setIsDark] = useState(false);
@@ -184,9 +217,7 @@ export default function Livingroom() {
 		}
 	}, [playerPositionRoom, randomRoomNumber]);
 
-	const couchLight = useLight((state) => state.couchLight);
-	const wallLight = useLight((state) => state.wallLight);
-	const tvLight = useLight((state) => state.tvLight);
+	const isTvOn = useGame((state) => state.tv);
 
 	useControls(
 		'Livingroom Lights',
@@ -232,25 +263,6 @@ export default function Livingroom() {
 		}
 	);
 
-	// Add separate effect for updating uniforms
-	useEffect(() => {
-		if (materialRef.current?.userData.shader) {
-			const shader = materialRef.current.userData.shader;
-			shader.uniforms.uCouchLightColor.value = new THREE.Color(
-				couchLight.color
-			).convertSRGBToLinear();
-			shader.uniforms.uCouchLightIntensity.value = couchLight.intensity;
-			shader.uniforms.uWallLightColor.value = new THREE.Color(
-				wallLight.color
-			).convertSRGBToLinear();
-			shader.uniforms.uWallLightIntensity.value = wallLight.intensity;
-			shader.uniforms.uTvLightColor.value = new THREE.Color(
-				tvLight.color
-			).convertSRGBToLinear();
-			shader.uniforms.uTvLightIntensity.value = tvLight.intensity;
-		}
-	}, [couchLight, wallLight, tvLight]);
-
 	useEffect(() => {
 		if (isDark && lightSoundRef.current) {
 			lightSoundRef.current.play();
@@ -265,12 +277,10 @@ export default function Livingroom() {
 		}
 	}, [isDark]);
 
-	const isTvOn = useGame((state) => state.tv);
-
 	useEffect(() => {
 		if (!isDark) {
 			if (isTvOn) {
-				useLight.getState().setTvLight('#ffffff', 0.3);
+				useLight.getState().setTvLight('#ffffff', 5);
 			} else {
 				useLight.getState().setTvLight('#000000', 0);
 			}
@@ -290,7 +300,48 @@ export default function Livingroom() {
 					downward={true}
 				/>
 			)}
-			<primitive object={scene} />
+			<mesh
+				castShadow
+				receiveShadow
+				geometry={nodes.livingroom.geometry}
+				material={materialRef.current}
+			/>
+
+			<WoodLightMaterial
+				lightMapPath="/textures/livingroom_light_uastc.ktx2"
+				geometry={nodes.LivingroomWood.geometry}
+				redLightColor={couchLight.color}
+				redLightIntensity={couchLight.intensity}
+				greenLightColor={tvLight.color}
+				greenLightIntensity={tvLight.intensity}
+				blueLightColor={wallLight.color}
+				blueLightIntensity={wallLight.intensity}
+				uvScale={10}
+			/>
+
+			<FloorLightMaterial
+				lightMapPath="/textures/livingroom_light_uastc.ktx2"
+				geometry={nodes.LivingroomFloor.geometry}
+				redLightColor={couchLight.color}
+				redLightIntensity={couchLight.intensity}
+				greenLightColor={tvLight.color}
+				greenLightIntensity={tvLight.intensity}
+				blueLightColor={wallLight.color}
+				blueLightIntensity={wallLight.intensity}
+			/>
+
+			<WallsLightMaterial
+				lightMapPath="/textures/livingroom_light_uastc.ktx2"
+				geometry={nodes.LivingroomWalls.geometry}
+				redLightColor={couchLight.color}
+				redLightIntensity={couchLight.intensity}
+				greenLightColor={tvLight.color}
+				greenLightIntensity={tvLight.intensity}
+				blueLightColor={wallLight.color}
+				blueLightIntensity={wallLight.intensity}
+				uvScale={10}
+			/>
+
 			<PositionalAudio ref={lightSoundRef} {...usePositionalSound('bulb')} />
 		</>
 	);

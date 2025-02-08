@@ -1,86 +1,55 @@
-import { useGLTF, useKTX2 } from '@react-three/drei';
+import { useGLTF } from '@react-three/drei';
 import useGame from '../../hooks/useGame';
 import React, { useMemo } from 'react';
-import * as THREE from 'three';
+import WoodMaterial from '../materials/WoodMaterial';
+import WallsMaterial from '../materials/WallsMaterial';
+import CarpetMaterial from '../materials/CarpetMaterial';
+import DoorFrameMaterial from '../materials/DoorFrameMaterial';
+import LampMaterial from '../materials/LampMaterial';
 
 const CORRIDORLENGHT = 5.95;
 
 function CorridorMiddle(props) {
-	const { nodes, materials } = useGLTF('/models/corridor.glb');
+	const { nodes } = useGLTF('/models/corridor.glb');
 
-	const [colorMap] = [useKTX2('/textures/corridor/corridor_color_etc1s.ktx2')];
-
-	useMemo(() => {
-		[colorMap].forEach((texture) => {
-			texture.flipY = false;
-		});
-		colorMap.colorSpace = THREE.SRGBColorSpace;
-	}, [colorMap]);
-
-	const geometry = useMemo(() => {
-		const geo = nodes.CorridorMiddle.geometry.clone();
-		if (geo.attributes['uv1']) {
-			geo.setAttribute('uv', geo.attributes['uv1']);
-		}
-		return geo;
-	}, [nodes.CorridorMiddle.geometry]);
-
-	const material = useMemo(() => {
-		return new THREE.MeshStandardMaterial({
-			map: colorMap,
-		});
-	}, [colorMap]);
-
-	const frameGeometry = useMemo(
-		() => nodes.Plane006.geometry.clone(),
-		[nodes.Plane006.geometry]
-	);
-	const luminariaGeometry = useMemo(
-		() => nodes.Plane006_1.geometry.clone(),
-		[nodes.Plane006_1.geometry]
-	);
-	const lampGeometry = useMemo(
-		() => nodes.Plane006_2.geometry.clone(),
-		[nodes.Plane006_2.geometry]
-	);
-
-	const staticMeshes = useMemo(
-		() => (
-			<>
-				<mesh
-					castShadow
-					receiveShadow
-					geometry={frameGeometry}
-					material={materials.Frame}
-				/>
-				<mesh
-					castShadow
-					receiveShadow
-					geometry={luminariaGeometry}
-					material={materials.Luminaria}
-				/>
-				<mesh
-					castShadow
-					receiveShadow
-					geometry={lampGeometry}
-					material={materials.Lamp}
-				/>
-			</>
-		),
-		[
-			frameGeometry,
-			luminariaGeometry,
-			lampGeometry,
-			materials.Frame,
-			materials.Luminaria,
-			materials.Lamp,
-		]
-	);
+	const woodMaterial = WoodMaterial();
+	const wallsMaterial = WallsMaterial();
+	const carpetMaterial = CarpetMaterial();
+	const doorFrameMaterial = DoorFrameMaterial();
+	const lampMaterial = LampMaterial();
 
 	return (
 		<group {...props}>
-			{staticMeshes}
-			<mesh geometry={geometry} material={material} castShadow receiveShadow />
+			<mesh
+				castShadow
+				receiveShadow
+				geometry={nodes.Lamp.geometry}
+				material={lampMaterial()}
+			/>
+			<mesh
+				castShadow
+				receiveShadow
+				geometry={nodes.Metal.geometry}
+				material={doorFrameMaterial()}
+			/>
+			<mesh
+				castShadow
+				receiveShadow
+				geometry={nodes.MiddleFloor.geometry}
+				material={carpetMaterial()}
+			/>
+			<mesh
+				castShadow
+				receiveShadow
+				geometry={nodes.MiddleWalls.geometry}
+				material={wallsMaterial()}
+			/>
+			<mesh
+				castShadow
+				receiveShadow
+				geometry={nodes.MiddleWood.geometry}
+				material={woodMaterial()}
+			/>
 		</group>
 	);
 }

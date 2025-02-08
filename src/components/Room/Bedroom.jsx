@@ -7,31 +7,37 @@ import { useControls } from 'leva';
 import useLight from '../../hooks/useLight';
 import { usePositionalSound } from '../../utils/audio';
 import useProgressiveLoad from '../../hooks/useProgressiveLoad';
+import FloorLightMaterial from '../materials/FloorLightMaterial';
+import WallsLightMaterial from '../materials/WallsLightMaterial';
+import WoodLightMaterial from '../materials/WoodLightMaterial';
 
 const PROBABILITY_OF_DARKNESS = 20;
 
 export default function Bedroom() {
-	const { scene } = useGLTF('/models/room/bedroom.glb');
+	const { scene, nodes } = useGLTF('/models/room/bedroom.glb');
 	const materialRef = useRef();
 
 	const textureParts = [
 		{
 			name: 'baked',
 			label: 'Base Textures',
-			texture: useKTX2('/textures/bedroom/baked_bedroom_etc1s.ktx2'),
+			texture: useKTX2('/textures/baked_color_etc1s.ktx2'),
 			type: 'map',
+			uvChannel: 0,
 		},
 		{
 			name: 'roughness',
 			label: 'Material Properties',
-			texture: useKTX2('/textures/bedroom/roughness_bedroom_etc1s.ktx2'),
+			texture: useKTX2('/textures/baked_roughness_etc1s.ktx2'),
 			type: ['roughnessMap', 'bumpMap'],
+			uvChannel: 0,
 		},
 		{
 			name: 'light',
 			label: 'Lighting',
-			texture: useKTX2('/textures/bedroom/light_bedroom_uastc.ktx2'),
+			texture: useKTX2('/textures/bedroom_light_uastc.ktx2'),
 			type: 'lightMap',
+			uvChannel: 2,
 		},
 	];
 
@@ -43,7 +49,9 @@ export default function Bedroom() {
 	const deaths = useGame((state) => state.deaths);
 	const lightSoundRef = useRef();
 
-	const { leftLight, radioLight, rightLight } = useLight();
+	const leftLight = useLight((state) => state.leftLight);
+	const radioLight = useLight((state) => state.radioLight);
+	const rightLight = useLight((state) => state.rightLight);
 
 	const isRadioOn = useGame((state) => state.radio);
 
@@ -116,14 +124,14 @@ export default function Bedroom() {
 		}
 	}, [playerPositionRoom, randomRoomNumber]);
 
-	// Create material once at component mount
 	useEffect(() => {
 		scene.traverse((child) => {
-			if (child.isMesh) {
+			if (child.isMesh && child.name === 'bedroom') {
 				child.geometry.setAttribute('uv', child.geometry.attributes['uv1']);
+				child.geometry.setAttribute('uv2', child.geometry.attributes['uv2']);
 
 				const material = new THREE.MeshStandardMaterial({
-					bumpScale: 12,
+					bumpScale: 4,
 					lightMapIntensity: 0,
 					roughness: 1,
 					onBeforeCompile: (shader) => {
@@ -224,6 +232,8 @@ export default function Bedroom() {
 					texture.colorSpace = THREE.SRGBColorSpace;
 				}
 				texture.flipY = false;
+				texture.channel = item.uvChannel;
+
 				if (Array.isArray(item.type)) {
 					item.type.forEach((type) => {
 						materialRef.current[type] = texture;
@@ -287,7 +297,48 @@ export default function Bedroom() {
 					downward={true}
 				/>
 			)}
-			<primitive object={scene} />
+			<mesh
+				castShadow
+				receiveShadow
+				geometry={nodes.bedroom.geometry}
+				material={materialRef.current}
+			/>
+
+			<WoodLightMaterial
+				lightMapPath="/textures/bedroom_light_uastc.ktx2"
+				geometry={nodes.BedroomWood.geometry}
+				redLightColor={leftLight.color}
+				redLightIntensity={leftLight.intensity}
+				greenLightColor={radioLight.color}
+				greenLightIntensity={radioLight.intensity}
+				blueLightColor={rightLight.color}
+				blueLightIntensity={rightLight.intensity}
+				uvScale={20}
+			/>
+
+			<FloorLightMaterial
+				lightMapPath="/textures/bedroom_light_uastc.ktx2"
+				geometry={nodes.BedroomFloor.geometry}
+				redLightColor={leftLight.color}
+				redLightIntensity={leftLight.intensity}
+				greenLightColor={radioLight.color}
+				greenLightIntensity={radioLight.intensity}
+				blueLightColor={rightLight.color}
+				blueLightIntensity={rightLight.intensity}
+			/>
+
+			<WallsLightMaterial
+				lightMapPath="/textures/bedroom_light_uastc.ktx2"
+				geometry={nodes.BedRoomWalls.geometry}
+				redLightColor={leftLight.color}
+				redLightIntensity={leftLight.intensity}
+				greenLightColor={radioLight.color}
+				greenLightIntensity={radioLight.intensity}
+				blueLightColor={rightLight.color}
+				blueLightIntensity={rightLight.intensity}
+				uvScale={10}
+			/>
+
 			<PositionalAudio ref={lightSoundRef} {...bulbSound} loop={false} />
 		</>
 	);

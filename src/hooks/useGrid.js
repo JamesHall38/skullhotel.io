@@ -4,6 +4,7 @@ import useGame from './useGame';
 export const CELL_TYPES = {
 	EMPTY: 'empty',
 	WALL: 'wall',
+	CEILING: 'ceiling',
 	RAISED_AREA_LOW: 'raised_area_low',
 	RAISED_AREA_HIGH: 'raised_area_high',
 	CROUCH_ONLY: 'crouch_only',
@@ -40,6 +41,13 @@ const useGridStore = create((set, get) => ({
 		{ start: { x: 680, z: 112 }, end: { x: 701, z: 114 } }, // door right
 		{ start: { x: 680, z: 112 }, end: { x: 680, z: 139 } }, // right corner
 		{ start: { x: 664, z: 160 }, end: { x: 680, z: 185 } }, // left corner
+
+		{
+			start: { x: 630, z: 160 },
+			end: { x: 665, z: 185 },
+			type: CELL_TYPES.CEILING,
+		}, // left corner
+
 		{
 			start: { x: 640, z: 139 },
 			end: { x: 680, z: 139 },

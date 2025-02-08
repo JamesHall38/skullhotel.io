@@ -28,39 +28,88 @@ function resetGame() {
 	useLight.getState().restart();
 }
 
-const SPEED = 50;
-
 const Dialogue = memo(({ id, text, index, onRemove }) => {
 	const [displayedText, setDisplayedText] = useState('');
 	const [isFadingOut, setIsFadingOut] = useState(false);
+	const animationFrameRef = useRef();
+	const accumulatedTimeRef = useRef(0);
+	const textIndexRef = useRef(0);
+
+	const keySound = useMemo(() => {
+		const audio = new Audio('/sounds/key.mp3');
+		return audio;
+	}, []);
 
 	useEffect(() => {
 		let isCancelled = false;
+		let lastTime = performance.now();
 		setDisplayedText('');
+		textIndexRef.current = 0;
 
-		const displayText = async () => {
-			const displayDuration = Math.max(3000, text?.length * SPEED + 2000);
+		const CHARS_PER_SECOND = 20;
+		const TIME_PER_CHAR = 1000 / CHARS_PER_SECOND;
+		const DISPLAY_DURATION = 5000;
 
-			if (!isCancelled) {
-				setTimeout(() => {
-					setIsFadingOut(true);
-					setTimeout(() => onRemove(id), 250);
-				}, displayDuration);
+		const animate = (currentTime) => {
+			if (isCancelled) return;
+
+			const deltaTime = currentTime - lastTime;
+			lastTime = currentTime;
+
+			accumulatedTimeRef.current += deltaTime;
+
+			while (accumulatedTimeRef.current >= TIME_PER_CHAR) {
+				if (textIndexRef.current < text.length) {
+					const currentChar = text[textIndexRef.current];
+
+					if (currentChar !== ' ') {
+						try {
+							const audioClone = keySound.cloneNode();
+							audioClone.volume = 0.25;
+							audioClone.play().catch(console.warn);
+						} catch (error) {
+							console.warn('Audio playback failed:', error);
+						}
+					}
+
+					setDisplayedText((prev) => prev + currentChar);
+					textIndexRef.current++;
+				}
+				accumulatedTimeRef.current -= TIME_PER_CHAR;
 			}
 
-			for (let i = 0; i < text?.length; i++) {
-				if (isCancelled) break;
-				setDisplayedText((prev) => prev + text[i]);
-				await new Promise((resolve) => setTimeout(resolve, SPEED));
+			if (textIndexRef.current < text.length) {
+				animationFrameRef.current = requestAnimationFrame(animate);
+			} else {
+				setTimeout(() => {
+					if (!isCancelled) {
+						setIsFadingOut(true);
+						setTimeout(() => {
+							if (!isCancelled) {
+								onRemove(id);
+							}
+						}, 250);
+					}
+				}, DISPLAY_DURATION);
 			}
 		};
 
-		displayText();
+		keySound.load();
+		keySound.addEventListener(
+			'loadedmetadata',
+			() => {
+				animationFrameRef.current = requestAnimationFrame(animate);
+			},
+			{ once: true }
+		);
 
 		return () => {
 			isCancelled = true;
+			if (animationFrameRef.current) {
+				cancelAnimationFrame(animationFrameRef.current);
+			}
 		};
-	}, [text, onRemove, id]);
+	}, [text, onRemove, id, keySound]);
 
 	return (
 		<div
@@ -226,13 +275,19 @@ export default function Interface() {
 	}, [queue]);
 
 	useEffect(() => {
-		const texturesDrawCalls = (loadedTextureNumber / 58) * 50; // 50%
+		const texturesDrawCalls = (loadedTextureNumber / 44) * 50; // 50% // 44 textures
 		const modelsLoading = (progress / 10) * 5; // 100 / 10 = 10 % * 5 = 50%
 		const currentProgress = Math.min(
 			Math.max(texturesDrawCalls + modelsLoading, displayProgress),
 			100
 		);
-		setDisplayProgress(currentProgress);
+		if (currentProgress === 100) {
+			setTimeout(() => {
+				setDisplayProgress(currentProgress);
+			}, 1000);
+		} else {
+			setDisplayProgress(currentProgress);
+		}
 	}, [loadedTextureNumber, progress, displayProgress]);
 
 	const doneObjectives = useMemo(() => {
@@ -531,7 +586,7 @@ export default function Interface() {
 			{openDeathScreen && (
 				<div
 					className="death-screen"
-					onClick={(e) => {
+					onClick={() => {
 						regenerateData();
 						resetGame();
 						setOpenDeathScreen(false);
