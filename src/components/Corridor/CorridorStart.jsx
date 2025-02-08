@@ -1,32 +1,17 @@
-import React, { useMemo } from 'react';
-import { useGLTF, useKTX2 } from '@react-three/drei';
-import * as THREE from 'three';
+import React from 'react';
+import { useGLTF } from '@react-three/drei';
+import WoodMaterial from '../materials/WoodMaterial';
+import WallsMaterial from '../materials/WallsMaterial';
+import CarpetMaterial from '../materials/CarpetMaterial';
+import DoorFrameMaterial from '../materials/DoorFrameMaterial';
 
 export default function CorridorStart(props) {
-	const { nodes, materials } = useGLTF('/models/corridor.glb');
+	const { nodes } = useGLTF('/models/corridor.glb');
 
-	const [colorMap] = [useKTX2('/textures/corridor/corridor_color_etc1s.ktx2')];
-
-	useMemo(() => {
-		[colorMap].forEach((texture) => {
-			texture.flipY = false;
-		});
-		colorMap.colorSpace = THREE.SRGBColorSpace;
-	}, [colorMap]);
-
-	const geometry = useMemo(() => {
-		const geo = nodes.CorridorStart.geometry.clone();
-		if (geo.attributes['uv1']) {
-			geo.setAttribute('uv', geo.attributes['uv1']);
-		}
-		return geo;
-	}, [nodes.CorridorStart.geometry]);
-
-	const material = useMemo(() => {
-		return new THREE.MeshStandardMaterial({
-			map: colorMap,
-		});
-	}, [colorMap]);
+	const woodMaterial = WoodMaterial();
+	const wallsMaterial = WallsMaterial();
+	const carpetMaterial = CarpetMaterial();
+	const doorFrameMaterial = DoorFrameMaterial();
 
 	return (
 		<group {...props} dispose={null}>
@@ -34,9 +19,26 @@ export default function CorridorStart(props) {
 				castShadow
 				receiveShadow
 				geometry={nodes.DoorFrame.geometry}
-				material={materials.Frame}
+				material={doorFrameMaterial()}
 			/>
-			<mesh castShadow receiveShadow geometry={geometry} material={material} />
+			<mesh
+				castShadow
+				receiveShadow
+				geometry={nodes.StartFloor.geometry}
+				material={carpetMaterial()}
+			/>
+			<mesh
+				castShadow
+				receiveShadow
+				geometry={nodes.StartWalls.geometry}
+				material={wallsMaterial()}
+			/>
+			<mesh
+				castShadow
+				receiveShadow
+				geometry={nodes.StartWood.geometry}
+				material={woodMaterial()}
+			/>
 		</group>
 	);
 }

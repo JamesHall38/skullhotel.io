@@ -23,7 +23,7 @@ export default function DoubleCurtain({
 	},
 	primitivePositions = {
 		left: [-1.28, 1.1, -5.35],
-		right: [-1.7, 1.1, -5.32],
+		right: [-1.7, 1.08, -5.32],
 	},
 	meshTargets = {
 		mesh0: {
@@ -55,6 +55,7 @@ export default function DoubleCurtain({
 	const mobileClick = useGame((state) => state.mobileClick);
 	const setMobileClick = useGame((state) => state.setMobileClick);
 	const processedInFrameRef = useRef(false);
+	const instantChangeRef = useRef(false);
 
 	const { nodes, animations } = useGLTF(modelPath);
 
@@ -133,28 +134,32 @@ export default function DoubleCurtain({
 	);
 
 	const openCurtain = useCallback(() => {
-		setTimeout(() => {
-			curtainSoundRef.current.play();
-		}, 500);
+		if (!instantChangeRef.current) {
+			setTimeout(() => {
+				curtainSoundRef.current.play();
+			}, 500);
+		}
 
 		setCurtains(roomNumberRef.current, true);
 		handleCurtainAnimation(1, 1);
 	}, [handleCurtainAnimation, setCurtains]);
 
 	const closeCurtain = useCallback(() => {
-		setTimeout(() => {
-			curtainSoundRef.current.currentTime = 0;
-			curtainSoundRef.current.play();
-		}, 500);
+		if (!instantChangeRef.current) {
+			setTimeout(() => {
+				curtainSoundRef.current.currentTime = 0;
+				curtainSoundRef.current.play();
+			}, 500);
+		}
 
 		setCurtains(roomNumberRef.current, false);
 		handleCurtainAnimation(-1);
 	}, [handleCurtainAnimation, setCurtains]);
 
 	useEffect(() => {
-		if (isCurtainOpen && Math.abs(camera.position.z) > 0.4) {
+		if (isCurtainOpen) {
 			openCurtain();
-		} else if (!isCurtainOpen && Math.abs(camera.position.z) > 0.4) {
+		} else if (!isCurtainOpen) {
 			if (isInitial.current) {
 				isInitial.current = false;
 			} else {
@@ -191,23 +196,28 @@ export default function DoubleCurtain({
 		[mesh0Ref, mesh1Ref]
 	);
 
-	let frameCount = 0;
-
 	useFrame(() => {
-		frameCount++;
-		if (frameCount % 10 === 0) {
-			const detected = checkProximityAndVisibility(camera);
-			if (cursor === `door-${name}` && !detected) {
-				setCursor(null);
-			} else if (cursor !== `door-${name}` && detected) {
-				setCursor(`door-${name}`);
-			}
+		// Calcul de instantChange
+		instantChangeRef.current = Math.abs(camera.position.x) < 1;
 
-			if (mobileClick && detected && !processedInFrameRef.current) {
-				processedInFrameRef.current = true;
-				setCurtain(!isCurtainOpen);
-				setMobileClick(false);
-			}
+		// Mise à jour des mixers avec la nouvelle valeur
+		if (mixerRightRef.current) {
+			mixerRightRef.current.timeScale = instantChangeRef.current ? 10 : 1;
+		}
+		if (mixerLeftRef.current) {
+			mixerLeftRef.current.timeScale = instantChangeRef.current ? 10 : 1;
+		}
+
+		const detected = checkProximityAndVisibility(camera);
+		if (cursor === `door-${name}` && !detected) {
+			setCursor(null);
+		} else if (cursor !== `door-${name}` && detected) {
+			setCursor(`door-${name}`);
+		}
+
+		if (mobileClick && detected) {
+			setCurtain(!isCurtainOpen);
+			setMobileClick(false);
 		}
 	});
 
@@ -216,7 +226,8 @@ export default function DoubleCurtain({
 	}, [mobileClick]);
 
 	useEffect(() => {
-		const handleDocumentClick = () => {
+		const handleDocumentClick = (e) => {
+			if (e.button !== 0) return;
 			if (checkProximityAndVisibility(camera)) {
 				setCurtain(!isCurtainOpen);
 			}
@@ -233,6 +244,22 @@ export default function DoubleCurtain({
 	let time1 = 0;
 
 	useFrame(() => {
+		if (instantChangeRef.current) {
+			mesh0Ref.current.position.x = isCurtainOpen
+				? meshTargets.mesh0.open
+				: meshTargets.mesh0.closed;
+			mesh0Ref.current.scale.x = isCurtainOpen
+				? meshScales.open
+				: meshScales.closed;
+			mesh1Ref.current.position.x = isCurtainOpen
+				? meshTargets.mesh1.open
+				: meshTargets.mesh1.closed;
+			mesh1Ref.current.scale.x = isCurtainOpen
+				? meshScales.open
+				: meshScales.closed;
+			return;
+		}
+
 		time0 += 0.004;
 		if (time0 > 1) time0 = 1;
 		const easedTime = easeInQuad(time0);
@@ -248,24 +275,21 @@ export default function DoubleCurtain({
 		mesh0Ref.current.position.x = currentX + (targetX - currentX) * easedTime;
 		mesh0Ref.current.scale.x =
 			currentScaleX + (targetScaleX - currentScaleX) * easedTime;
-	});
 
-	useFrame(() => {
 		time1 += 0.004;
 		if (time1 > 1) time1 = 1;
-		const easedTime = easeInQuad(time1);
+		const easedTime1 = easeInQuad(time1);
 
-		const targetX = isCurtainOpen
+		const targetX1 = isCurtainOpen
 			? meshTargets.mesh1.open
 			: meshTargets.mesh1.closed;
-		const targetScaleX = isCurtainOpen ? meshScales.open : meshScales.closed;
 
-		const currentX = mesh1Ref.current.position.x;
-		const currentScaleX = mesh1Ref.current.scale.x;
+		const currentX1 = mesh1Ref.current.position.x;
 
-		mesh1Ref.current.position.x = currentX + (targetX - currentX) * easedTime;
+		mesh1Ref.current.position.x =
+			currentX1 + (targetX1 - currentX1) * easedTime1;
 		mesh1Ref.current.scale.x =
-			currentScaleX + (targetScaleX - currentScaleX) * easedTime;
+			currentScaleX + (targetScaleX - currentScaleX) * easedTime1;
 	});
 
 	useFrame((_, delta) => {
@@ -285,12 +309,42 @@ export default function DoubleCurtain({
 					castShadow
 					receiveShadow
 					object={animationMeshCloneLeft}
+					onPointerDown={(e) => {
+						if (e.button !== 0) {
+							e.stopPropagation();
+						}
+					}}
+					onPointerUp={(e) => {
+						if (e.button !== 0) {
+							e.stopPropagation();
+						}
+					}}
+					onClick={(e) => {
+						if (e.button !== 0) {
+							e.stopPropagation();
+						}
+					}}
 				/>
 				<primitive
 					position={primitivePositions.right}
 					castShadow
 					receiveShadow
 					object={animationMeshCloneRight}
+					onPointerDown={(e) => {
+						if (e.button !== 0) {
+							e.stopPropagation();
+						}
+					}}
+					onPointerUp={(e) => {
+						if (e.button !== 0) {
+							e.stopPropagation();
+						}
+					}}
+					onClick={(e) => {
+						if (e.button !== 0) {
+							e.stopPropagation();
+						}
+					}}
 				/>
 			</group>
 			<PositionalAudio ref={curtainSoundRef} {...curtainSound} loop={false} />

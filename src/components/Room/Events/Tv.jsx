@@ -1,49 +1,24 @@
-import React, {
-	useRef,
-	useMemo,
-	useEffect,
-	useCallback,
-	useState,
-} from 'react';
+import React, { useRef, useMemo, useEffect, useState } from 'react';
 import { useFrame } from '@react-three/fiber';
-import { useThree } from '@react-three/fiber';
 import useGame from '../../../hooks/useGame';
-import * as THREE from 'three';
 import useInterface from '../../../hooks/useInterface';
 import DetectionZone from '../../DetectionZone';
 import { PositionalAudio } from '@react-three/drei';
 import { usePositionalSound } from '../../../utils/audio';
-
-const PROBABILITY_OF_ACTIVATION = 20;
 
 export default function Tv() {
 	const meshRef = useRef();
 	const [isDetected, setIsDetected] = useState(false);
 	const tv = useGame((state) => state.tv);
 	const setTv = useGame((state) => state.setTv);
-	const setMobileClick = useGame((state) => state.setMobileClick);
-	const { camera } = useThree();
-	const cursorStateRef = useRef(null);
-	const prevDetectedRef = useRef(false);
-	const cursor = useInterface((state) => state.cursor);
 	const setCursor = useInterface((state) => state.setCursor);
 	const tvSoundRef = useRef();
-	const [isDetectionActive, setIsDetectionActive] = useState(false);
 	const playerPositionRoom = useGame((state) => state.playerPositionRoom);
-	const deaths = useGame((state) => state.deaths);
 	const activeTvs = useGame((state) => state.activeTvs);
 	const setActiveTv = useGame((state) => state.setActiveTvs);
-	const [randomRoomNumber, setRandomRoomNumber] = useState(
-		Math.floor(Math.random() * PROBABILITY_OF_ACTIVATION)
-	);
-	const mobileClick = useGame((state) => state.mobileClick);
-	const processedInFrameRef = useRef(false);
 	const whiteNoiseSound = usePositionalSound('whiteNoise');
-
-	const generateRandomRoomNumber = useCallback(
-		() => Math.floor(Math.random() * PROBABILITY_OF_ACTIVATION),
-		[]
-	);
+	const mobileClick = useGame((state) => state.mobileClick);
+	const setMobileClick = useGame((state) => state.setMobileClick);
 
 	const uniforms = useMemo(
 		() => ({
@@ -68,34 +43,23 @@ export default function Tv() {
 	}, [tv]);
 
 	useEffect(() => {
-		setRandomRoomNumber(generateRandomRoomNumber());
-	}, [deaths, generateRandomRoomNumber]);
-
-	useEffect(() => {
-		if (playerPositionRoom === randomRoomNumber) {
-			setIsDetectionActive(true);
-		} else {
-			setIsDetectionActive(false);
-		}
-	}, [playerPositionRoom, randomRoomNumber]);
-
-	useEffect(() => {
 		setTv(activeTvs.includes(playerPositionRoom));
 	}, [playerPositionRoom, activeTvs, setTv]);
 
 	useEffect(() => {
-		const handleClick = () => {
-			if (isDetected) {
-				setTv(!tv);
-				setActiveTv(playerPositionRoom);
-			}
-		};
-
-		document.addEventListener('click', handleClick);
-		return () => {
-			document.removeEventListener('click', handleClick);
-		};
-	}, [isDetected]);
+		if (isDetected && mobileClick) {
+			setTv(true);
+			setActiveTv(playerPositionRoom);
+			setMobileClick(false);
+		}
+	}, [
+		isDetected,
+		mobileClick,
+		playerPositionRoom,
+		setActiveTv,
+		setMobileClick,
+		setTv,
+	]);
 
 	return (
 		<group position={[-1.285, 0.9, 3.65]}>
@@ -115,6 +79,12 @@ export default function Tv() {
 				type="power"
 			/>
 			<mesh
+				onPointerDown={(e) => {
+					if (e.button === 0) {
+						setTv(!tv);
+						setActiveTv(playerPositionRoom);
+					}
+				}}
 				visible={tv}
 				scale={0.087}
 				rotation={[0, Math.PI / 2, 0]}

@@ -121,7 +121,7 @@ const useGameStore = create(
 		performanceMode: false,
 		setPerformanceMode: (mode) => set({ performanceMode: mode }),
 
-		checkObjectiveCompletion: (objective, room, camera) => {
+		checkObjectiveCompletion: (objective, room) => {
 			const state = get();
 			const roomData =
 				state.seedData[

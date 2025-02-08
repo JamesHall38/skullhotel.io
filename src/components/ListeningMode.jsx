@@ -9,6 +9,7 @@ export default function ListeningMode() {
 	useEffect(() => {
 		const handleMouseDown = (e) => {
 			if (e.button === 2) {
+				e.stopPropagation();
 				setIsListening(true);
 				setCursor('listening');
 			}
@@ -16,6 +17,7 @@ export default function ListeningMode() {
 
 		const handleMouseUp = (e) => {
 			if (e.button === 2) {
+				e.stopPropagation();
 				setIsListening(false);
 				setCursor(null);
 			}

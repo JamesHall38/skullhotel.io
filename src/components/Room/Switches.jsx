@@ -71,7 +71,8 @@ export default function Switches(props) {
 	]);
 
 	useEffect(() => {
-		const handleClickSwitch1 = () => {
+		const handleClickSwitch1 = (e) => {
+			if (e.button !== 0) return;
 			if (switch1Clickable) {
 				setBathroomLight(!bathroomLight);
 				if (!bathroomLight) {
@@ -88,7 +89,8 @@ export default function Switches(props) {
 			}
 		};
 
-		const handleClickSwitch2 = () => {
+		const handleClickSwitch2 = (e) => {
+			if (e.button !== 0) return;
 			if (switch2Clickable) {
 				setRoomLight(!roomLight);
 				if (!roomLight) {

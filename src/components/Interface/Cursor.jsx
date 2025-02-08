@@ -80,14 +80,16 @@ export default function Cursor() {
 	}, []);
 
 	useEffect(() => {
-		const handleMouseDown = () => {
-			if (cursorFirstPart === 'clean') {
+		const handleMouseDown = (e) => {
+			if (e.button === 0 && cursorFirstPart === 'clean') {
 				startHolding();
 			}
 		};
 
-		const handleMouseUp = () => {
-			stopHolding();
+		const handleMouseUp = (e) => {
+			if (e.button === 0) {
+				stopHolding();
+			}
 		};
 
 		const handleStartProgress = () => {

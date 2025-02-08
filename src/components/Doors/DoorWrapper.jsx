@@ -29,13 +29,15 @@ export default function DoorWrapper({
 	const closeRef = useRef();
 	const beepRef = useRef();
 	const roomTotal = useGame((state) => state.roomTotal);
+	const playerPositionRoom = useGame((state) => state.playerPositionRoom);
 	const cursorRef = useRef(null);
 	const setCursor = useInterface((state) => state.setCursor);
 	const canOpenRef = useRef(false);
-	const [hasInitialized, setHasInitialized] = useState(false);
 	const rotationAngleRef = useRef(0);
 	const animationProgressRef = useRef(0);
 	const hasLookedAtGroup = useRef(false);
+	const [isInRoom, setIsInRoom] = useState(false);
+	const [hasInitialized, setHasInitialized] = useState(false);
 
 	const targetAngle = useMemo(() => {
 		let angle = reverse ? -Math.PI / 2 : Math.PI / 2;
@@ -63,8 +65,24 @@ export default function DoorWrapper({
 			calculatedPosition = tutorialRoomOffset;
 		}
 
+		// Adjust Y position for adjacent doors when in a room (not in corridor)
+		if (playerPositionRoom !== null && !closet && isInRoom) {
+			const isAdjacent = Math.abs(roomNumber - playerPositionRoom) === 1;
+			if (isAdjacent) {
+				calculatedPosition[1] = 10;
+			}
+		}
+
 		return !roomNumber && roomNumber !== 0 ? offset : calculatedPosition;
-	}, [roomNumber, roomTotal, offset, tutorialRoomOffset]);
+	}, [
+		roomNumber,
+		roomTotal,
+		offset,
+		tutorialRoomOffset,
+		playerPositionRoom,
+		closet,
+		isInRoom,
+	]);
 
 	const initialRotationY = useMemo(() => {
 		let rotation = rotate ? Math.PI : position[2] < 0 ? Math.PI : 0;
@@ -132,6 +150,9 @@ export default function DoorWrapper({
 	useFrame(({ camera }, delta) => {
 		if (!doorRef.current) return;
 
+		// Update isInRoom based on camera position
+		setIsInRoom(Math.abs(camera.position.z) > 1.3);
+
 		const doorPosition = doorRef.current.position;
 		const distance = new THREE.Vector3(
 			doorPosition.x,
@@ -176,23 +197,28 @@ export default function DoorWrapper({
 		const directionMultiplier = reverse ? -1 : 1;
 		const currentTargetAngle = !isOpen ? 0 : targetAngle * directionMultiplier;
 
-		animationProgressRef.current = Math.min(
-			animationProgressRef.current +
-				delta * DOOR_SPEED * (instantChange ? 20 : 1),
-			1
-		);
-		const easeInOut = (t) => t * t * (3 - 2 * t) * 0.05;
-		const easedProgress = easeInOut(animationProgressRef.current);
+		if (instantChange) {
+			rotationAngleRef.current = currentTargetAngle;
+		} else {
+			animationProgressRef.current = Math.min(
+				animationProgressRef.current + delta * DOOR_SPEED,
+				1
+			);
+			const easeInOut = (t) => t * t * (3 - 2 * t) * 0.05;
+			const easedProgress = easeInOut(animationProgressRef.current);
 
-		const newAngle = THREE.MathUtils.lerp(
-			rotationAngleRef.current,
-			currentTargetAngle,
-			easedProgress
-		);
-		rotationAngleRef.current = newAngle;
+			const newAngle = THREE.MathUtils.lerp(
+				rotationAngleRef.current,
+				currentTargetAngle,
+				easedProgress
+			);
+			rotationAngleRef.current = newAngle;
+		}
 
 		const quaternion = new THREE.Quaternion();
-		quaternion.setFromEuler(new THREE.Euler(0, initialRotationY + newAngle, 0));
+		quaternion.setFromEuler(
+			new THREE.Euler(0, initialRotationY + rotationAngleRef.current, 0)
+		);
 		if (doorRef.current) {
 			doorRef.current.setRotationFromQuaternion(quaternion);
 		}

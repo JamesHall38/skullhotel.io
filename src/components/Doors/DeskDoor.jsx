@@ -6,7 +6,7 @@ import useDoor from '../../hooks/useDoor';
 import useHiding from '../../hooks/useHiding';
 import DoorWrapper from './DoorWrapper';
 import { useThree } from '@react-three/fiber';
-import WoodMaterial from '../WoodMaterial';
+import WoodMaterial from '../materials/WoodMaterial';
 import useGridStore, { CELL_TYPES } from '../../hooks/useGrid';
 
 const tutorialRoomCenter = [6.69, 0.41, 8.52];

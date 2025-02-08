@@ -47,6 +47,8 @@ import Sound from './components/Sound';
 import { regenerateData } from './utils/config';
 import generateSeedData from './utils/generateSeedData';
 import ListeningMode from './components/ListeningMode';
+// import WallsMaterial from './components/materials/WallsMaterial';
+// import FloorMaterial from './components/materials/FloorMaterial';
 
 // import Posterize from './components/Posterize';
 
@@ -304,11 +306,6 @@ function App() {
 				<Triggers />
 				<Grid />
 				<Sound />
-				<ReceptionDoors />
-				<Reception
-					rotation={[0, Math.PI / 2, 0]}
-					position={[9.805, 0, -0.15]}
-				/>
 				<Tutorial />
 				{duplicateComponents(RoomDoor)}
 				<group position={position}>
@@ -318,9 +315,14 @@ function App() {
 						position={[-1.19 - (roomTotal / 2 - 1) * CORRIDORLENGTH, 0, 0]}
 					/>
 				</group>
-
+				{/* 
+				<WallsMaterial />
+				<FloorMaterial /> */}
 				<Room />
 				<Monster />
+
+				<ReceptionDoors />
+				<Reception />
 
 				<BathroomDoor />
 				<NightstandDoor />
@@ -331,7 +333,6 @@ function App() {
 				<Bedsheets />
 				<Window />
 				<Bottles />
-				{/* <Chair /> */}
 			</KeyboardControls>
 		</>
 	);

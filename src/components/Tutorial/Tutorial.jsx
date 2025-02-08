@@ -30,20 +30,18 @@ export default function Tutorial() {
 	const corridorDoorOpen = useDoorStore((state) => state.corridor);
 	const playIntro = useGameStore((state) => state.playIntro);
 	const deaths = useGameStore((state) => state.deaths);
+	const hasStarted = useRef(false);
 
 	useEffect(() => {
-		if (!playIntro && currentDialogueIndex === null) {
-			timeoutRef.current = setTimeout(() => {
-				setCurrentDialogueIndex(
-					deaths > 0 ? WELCOME_BACK_DIALOGUE : WELCOME_DIALOGUE
-				);
-			}, 3000);
-
-			return () => {
-				if (timeoutRef.current) {
-					clearTimeout(timeoutRef.current);
-				}
-			};
+		if (playIntro === false && currentDialogueIndex === null) {
+			if (hasStarted.current) {
+				timeoutRef.current = setTimeout(() => {
+					setCurrentDialogueIndex(
+						deaths > 0 ? WELCOME_BACK_DIALOGUE : WELCOME_DIALOGUE
+					);
+				}, 4000);
+			}
+			hasStarted.current = true;
 		}
 	}, [playIntro, deaths, currentDialogueIndex, setCurrentDialogueIndex]);
 

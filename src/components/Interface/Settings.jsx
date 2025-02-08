@@ -31,7 +31,7 @@ export default function Settings() {
 
 		window.addEventListener('resize', handleResize);
 		return () => window.removeEventListener('resize', handleResize);
-	}, [isOpen]);
+	}, [isOpen, currentWidth, api]);
 
 	useEffect(() => {
 		const handleClickOutside = (event) => {
@@ -53,16 +53,10 @@ export default function Settings() {
 			immediate: false,
 			config: config.stiff,
 		});
-	}, [isOpen, currentWidth]);
+	}, [isOpen, currentWidth, api]);
 
 	const bind = useDrag(
-		({
-			last,
-			velocity: [vx],
-			direction: [dx],
-			movement: [mx],
-			offset: [ox],
-		}) => {
+		({ last, velocity: [vx], direction: [dx], offset: [ox] }) => {
 			if (last) {
 				const shouldClose = ox < -currentWidth * 0.5 || (vx < -0.5 && dx < 0);
 				setIsOpen(!shouldClose);

@@ -112,15 +112,27 @@ export default function Lights() {
 	}, [playerPositionRoom, randomRoomNumber, activeRedLights]);
 
 	const [delayedBathroomLight, setDelayedBathroomLight] = useState(false);
+	const [flickerIntensity, setFlickerIntensity] = useState(0);
 
 	useEffect(() => {
+		let intervalId;
 		if (bathroomLight) {
+			intervalId = setInterval(() => {
+				setFlickerIntensity(Math.random() * 0.3);
+			}, 50);
+
 			const timer = setTimeout(() => {
+				clearInterval(intervalId);
+				setFlickerIntensity(0.3);
 				setDelayedBathroomLight(true);
 			}, 1600);
-			return () => clearTimeout(timer);
+			return () => {
+				clearTimeout(timer);
+				clearInterval(intervalId);
+			};
 		} else {
 			setDelayedBathroomLight(false);
+			setFlickerIntensity(0);
 		}
 	}, [bathroomLight]);
 
@@ -190,7 +202,7 @@ export default function Lights() {
 				/>
 				<pointLight
 					position={[-1, 2, -3.2]}
-					intensity={delayedBathroomLight ? 0.3 : 0}
+					intensity={delayedBathroomLight ? 0.3 : flickerIntensity}
 					castShadow
 					shadow-camera-near={1}
 					shadow-camera-far={10}

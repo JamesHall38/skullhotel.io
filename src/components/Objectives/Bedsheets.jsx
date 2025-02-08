@@ -141,10 +141,7 @@ export default function Bedsheets() {
 
 	useEffect(() => {
 		if (mobileClick && isDetected && visibleMesh === 'Start') {
-			console.log(mobileClick, isDetected, visibleMesh);
-			// setCursor('clean-bedsheets');
 			setIsDetected(true);
-			// setMobileClick(false);
 		}
 	}, [mobileClick, isDetected, objective, visibleMesh, setMobileClick]);
 

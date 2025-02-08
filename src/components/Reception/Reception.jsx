@@ -1,16 +1,21 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useGLTF, useKTX2 } from '@react-three/drei';
 import * as THREE from 'three';
+import useGame from '../../hooks/useGame';
 import Metal from './Metal';
 import { useControls } from 'leva';
 import useLight from '../../hooks/useLight';
-// import useGame from '../../hooks/useGame';
 import useProgressiveLoad from '../../hooks/useProgressiveLoad';
+import { useFrame } from '@react-three/fiber';
+import WoodLightMaterial from '../materials/WoodLightMaterial';
+import WallsLightMaterial from '../materials/WallsLightMaterial';
+import CarpetLightMaterial from '../materials/CarpetLightMaterial';
 
-export default function Reception() {
-	// const performanceMode = useGame((state) => state.performanceMode);
-	const { scene } = useGLTF('/models/reception/reception.glb');
+export default function Reception(props) {
+	const { scene, nodes } = useGLTF('/models/reception/reception.glb');
+	const performanceMode = useGame((state) => state.performanceMode);
 	const materialRef = useRef();
+	const [isVisible, setIsVisible] = useState(true);
 
 	const receptionLight1 = useLight((state) => state.receptionLight1);
 	const receptionLight2 = useLight((state) => state.receptionLight2);
@@ -20,24 +25,35 @@ export default function Reception() {
 		{
 			name: 'baked',
 			label: 'Base Textures',
-			texture: useKTX2('/textures/reception/baked_reception_etc1s.ktx2'),
+			texture: useKTX2('/textures/reception/reception_color_etc1s.ktx2'),
 			type: 'map',
+			uvChannel: 0,
 		},
-		// {
-		// 	name: 'roughness',
-		// 	label: 'Material Properties',
-		// 	texture: useKTX2('/textures/reception/roughness_reception_etc1s.ktx2'),
-		// 	type: ['roughnessMap', 'bumpMap'],
-		// },
+		{
+			name: 'roughness',
+			label: 'Material Properties',
+			texture: useKTX2('/textures/reception/reception_roughness_etc1s.ktx2'),
+			type: ['roughnessMap', 'bumpMap'],
+			uvChannel: 0,
+		},
 		{
 			name: 'light',
 			label: 'Lighting',
-			texture: useKTX2('/textures/reception/light_reception_uastc.ktx2'),
+			texture: useKTX2('/textures/reception/reception_light_uastc.ktx2'),
 			type: 'lightMap',
+			uvChannel: 2,
 		},
 	];
 
 	const { loadedItems } = useProgressiveLoad(textureParts, 'Reception');
+
+	useFrame(({ camera }) => {
+		const isInRoom = Math.abs(camera.position.z) > 1;
+		const isInTutorial =
+			(camera.position.x > 1 && camera.position.z > -1) ||
+			camera.position.x > 7;
+		setIsVisible(isInTutorial ? true : !isInRoom);
+	});
 
 	useEffect(() => {
 		if (!materialRef.current) return;
@@ -49,6 +65,7 @@ export default function Reception() {
 					texture.colorSpace = THREE.SRGBColorSpace;
 				}
 				texture.flipY = false;
+				texture.channel = item.uvChannel;
 
 				if (Array.isArray(item.type)) {
 					item.type.forEach((type) => {
@@ -70,9 +87,10 @@ export default function Reception() {
 			if (child.isMesh) {
 				// Utiliser les UV1 comme UV principal
 				child.geometry.setAttribute('uv', child.geometry.attributes['uv1']);
+				child.geometry.setAttribute('uv2', child.geometry.attributes['uv2']);
 
 				const material = new THREE.MeshStandardMaterial({
-					bumpScale: 12,
+					bumpScale: 8,
 					lightMapIntensity: 0,
 					roughness: 1,
 					onBeforeCompile: (shader) => {
@@ -239,15 +257,65 @@ export default function Reception() {
 		}
 	);
 
+	useEffect(() => {
+		if (performanceMode) {
+			materialRef.current.needsUpdate = true;
+		}
+	}, [performanceMode]);
+
 	return (
-		<group rotation={[0, Math.PI / 2, 0]} position={[9.8, 0, -0.15]}>
-			{/* <Receptionist /> */}
+		<group
+			rotation={[0, Math.PI / 2, 0]}
+			position={[9.8, 0, -0.15]}
+			visible={isVisible}
+			{...props}
+			dispose={null}
+		>
 			<Metal />
-			{/* <ExitSign /> */}
-			<primitive object={scene} castShadow receiveShadow />
-			{/* <pointLight intensity={100} color={'#4a7b6e'} position={[0, 2, 0]} /> */}
+			<mesh
+				castShadow
+				receiveShadow
+				geometry={nodes.baked.geometry}
+				material={materialRef.current}
+			/>
+
+			<WoodLightMaterial
+				lightMapPath="/textures/reception/reception_light_uastc.ktx2"
+				geometry={nodes.ReceptionWood.geometry}
+				redLightColor={receptionLight1.color}
+				redLightIntensity={receptionLight1.intensity}
+				greenLightColor={receptionLight2.color}
+				greenLightIntensity={receptionLight2.intensity}
+				blueLightColor={receptionLight3.color}
+				blueLightIntensity={receptionLight3.intensity}
+				uvScale={10}
+			/>
+
+			<CarpetLightMaterial
+				lightMapPath="/textures/reception/reception_light_uastc.ktx2"
+				geometry={nodes.ReceptionFloor.geometry}
+				redLightColor={receptionLight1.color}
+				redLightIntensity={receptionLight1.intensity}
+				greenLightColor={receptionLight2.color}
+				greenLightIntensity={receptionLight2.intensity}
+				blueLightColor={receptionLight3.color}
+				blueLightIntensity={receptionLight3.intensity}
+				uvScale={35}
+			/>
+
+			<WallsLightMaterial
+				lightMapPath="/textures/reception/reception_light_uastc.ktx2"
+				geometry={nodes.ReceptionWalls.geometry}
+				redLightColor={receptionLight1.color}
+				redLightIntensity={receptionLight1.intensity}
+				greenLightColor={receptionLight2.color}
+				greenLightIntensity={receptionLight2.intensity}
+				blueLightColor={receptionLight3.color}
+				blueLightIntensity={receptionLight3.intensity}
+				uvScale={10}
+			/>
 		</group>
 	);
 }
 
-// useGLTF.preload('/models/reception/reception.glb');
+useGLTF.preload('/models/reception/reception.glb');

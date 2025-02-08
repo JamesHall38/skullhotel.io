@@ -4,9 +4,67 @@ import * as THREE from 'three';
 import useGame from '../../hooks/useGame';
 import { usePositionalSound } from '../../utils/audio';
 import useProgressiveLoad from '../../hooks/useProgressiveLoad';
+import WallsMaterial from '../../components/materials/WallsMaterial';
+import FloorMaterial from '../../components/materials/FloorMaterial';
+
+function BathroomTextures({ scene, nodes, materialsRef }) {
+	const wallsMaterial = WallsMaterial();
+	const floorMaterial = FloorMaterial();
+
+	useEffect(() => {
+		scene.traverse((child) => {
+			if (child.isMesh) {
+				if (child.name === 'BathroomWalls') {
+					const material = wallsMaterial();
+					materialsRef.current.push(material);
+					child.material = material;
+				}
+
+				if (child.name === 'BathroomFloor') {
+					const material = floorMaterial();
+					materialsRef.current.push(material);
+					child.material = material;
+				}
+			}
+		});
+	}, [scene, wallsMaterial, floorMaterial, materialsRef]);
+
+	if (!nodes?.BathroomWalls?.geometry || !nodes?.BathroomFloor?.geometry) {
+		return null;
+	}
+
+	return (
+		<>
+			<mesh
+				geometry={nodes.BathroomWalls.geometry}
+				material={wallsMaterial()}
+				castShadow
+				receiveShadow
+			/>
+			<mesh
+				geometry={nodes.BathroomFloor.geometry}
+				material={floorMaterial()}
+				receiveShadow
+			/>
+			<group position={[-3.32, 0.0, 0]} scale={[-1, 1, 1]}>
+				<mesh
+					geometry={nodes.BathroomWalls.geometry}
+					material={wallsMaterial()}
+					castShadow
+					receiveShadow
+				/>
+				<mesh
+					geometry={nodes.BathroomFloor.geometry}
+					material={floorMaterial()}
+					receiveShadow
+				/>
+			</group>
+		</>
+	);
+}
 
 export default function Bathroom() {
-	const { scene } = useGLTF('/models/room/bathroom.glb');
+	const { scene, nodes } = useGLTF('/models/room/bathroom.glb');
 	const materialRef = useRef();
 	const [lightIntensity, setLightIntensity] = useState(0);
 	const timeoutRef = useRef();
@@ -17,20 +75,23 @@ export default function Bathroom() {
 		{
 			name: 'baked',
 			label: 'Base Textures',
-			texture: useKTX2('/textures/bathroom/baked_bathroom_etc1s.ktx2'),
+			texture: useKTX2('/textures/baked_color_etc1s.ktx2'),
 			type: 'map',
+			uvChannel: 0,
 		},
 		{
 			name: 'roughness',
 			label: 'Material Properties',
-			texture: useKTX2('/textures/bathroom/roughness_bathroom_etc1s.ktx2'),
+			texture: useKTX2('/textures/baked_roughness_etc1s.ktx2'),
 			type: ['roughnessMap', 'bumpMap'],
+			uvChannel: 0,
 		},
 		{
 			name: 'light',
 			label: 'Lighting',
-			texture: useKTX2('/textures/bathroom/light_bathroom_uastc.ktx2'),
+			texture: useKTX2('/textures/bathroom_light_uastc.ktx2'),
 			type: 'lightMap',
+			uvChannel: 2,
 		},
 	];
 
@@ -48,6 +109,7 @@ export default function Bathroom() {
 					texture.colorSpace = THREE.SRGBColorSpace;
 				}
 				texture.flipY = false;
+				texture.channel = item.uvChannel;
 
 				if (Array.isArray(item.type)) {
 					item.type.forEach((type) => {
@@ -67,37 +129,38 @@ export default function Bathroom() {
 	// Create material once at component mount
 	useEffect(() => {
 		scene.traverse((child) => {
-			if (child.isMesh) {
+			if (child.isMesh && child.name === 'bathroom') {
 				child.geometry.setAttribute('uv', child.geometry.attributes['uv1']);
+				child.geometry.setAttribute('uv2', child.geometry.attributes['uv2']);
 
 				const material = new THREE.MeshStandardMaterial({
-					bumpScale: 12,
+					bumpScale: 4,
 					lightMapIntensity: lightIntensity,
 					roughness: 1,
 					roughnessMap: null,
 					onBeforeCompile: (shader) => {
 						shader.uniforms.uRoughnessIntensity = { value: 0.75 };
 						shader.uniforms.uBathroomLightIntensity = {
-							value: bathroomLight ? 4 : 0,
+							value: 2,
 						};
 
 						material.userData.uniforms = shader.uniforms;
 
 						shader.fragmentShader =
 							`
-							uniform float uRoughnessIntensity;
-							uniform float uBathroomLightIntensity;
-						` + shader.fragmentShader;
+					uniform float uRoughnessIntensity;
+					uniform float uBathroomLightIntensity;
+				` + shader.fragmentShader;
 
 						shader.fragmentShader = shader.fragmentShader.replace(
 							'#include <roughnessmap_fragment>',
 							`
-							float roughnessFactor = roughness;
-							#ifdef USE_ROUGHNESSMAP
-								vec4 texelRoughness = texture2D( roughnessMap, vRoughnessMapUv );
-								roughnessFactor = mix(roughness, texelRoughness.g, uRoughnessIntensity);
-							#endif
-							`
+					float roughnessFactor = roughness;
+					#ifdef USE_ROUGHNESSMAP
+						vec4 texelRoughness = texture2D( roughnessMap, vRoughnessMapUv );
+						roughnessFactor = mix(roughness, texelRoughness.g, uRoughnessIntensity);
+					#endif
+					`
 						);
 
 						const outgoingLightLine =
@@ -105,21 +168,21 @@ export default function Bathroom() {
 						shader.fragmentShader = shader.fragmentShader.replace(
 							outgoingLightLine,
 							`
-								#ifdef USE_LIGHTMAP
-									vec4 customLightMapTexel = texture2D(lightMap, vLightMapUv);
-									
-									float bathroomLightIntensity = customLightMapTexel.r;
-									
-									vec3 customLights = bathroomLightIntensity * vec3(1.0) * uBathroomLightIntensity;
-									
-									vec3 outgoingLight = reflectedLight.directDiffuse + 
-															reflectedLight.indirectDiffuse + 
-															diffuseColor.rgb * customLights + 
-															totalSpecular;
-								#else
-									vec3 outgoingLight = totalDiffuse + totalSpecular + totalEmissiveRadiance;
-								#endif
-								`
+						#ifdef USE_LIGHTMAP
+							vec4 customLightMapTexel = texture2D(lightMap, vLightMapUv);
+							
+							float bathroomLightIntensity = customLightMapTexel.r;
+							
+							vec3 customLights = bathroomLightIntensity * vec3(1.0) * uBathroomLightIntensity;
+							
+							vec3 outgoingLight = reflectedLight.directDiffuse + 
+													reflectedLight.indirectDiffuse + 
+													diffuseColor.rgb * customLights + 
+													totalSpecular;
+						#else
+							vec3 outgoingLight = totalDiffuse + totalSpecular + totalEmissiveRadiance;
+						#endif
+						`
 						);
 					},
 				});
@@ -138,10 +201,10 @@ export default function Bathroom() {
 	useEffect(() => {
 		if (materialRef.current?.userData.uniforms) {
 			materialRef.current.userData.uniforms.uBathroomLightIntensity.value =
-				bathroomLight ? 4 : 0;
+				lightIntensity * 2;
 			materialRef.current.needsUpdate = true;
 		}
-	}, [bathroomLight]);
+	}, [lightIntensity]);
 
 	// Effet pour mettre à jour l'intensité des matériaux
 	useEffect(() => {
@@ -158,7 +221,7 @@ export default function Bathroom() {
 		if (bathroomLight) {
 			let intensity = 0;
 			intervalId = setInterval(() => {
-				intensity = Math.random() * 4;
+				intensity = Math.random();
 				setLightIntensity(intensity);
 			}, 50);
 
@@ -168,7 +231,7 @@ export default function Bathroom() {
 
 			timeoutRef.current = setTimeout(() => {
 				clearInterval(intervalId);
-				setLightIntensity(4);
+				setLightIntensity(1);
 			}, 1600);
 		} else {
 			if (intervalId) clearInterval(intervalId);
@@ -184,12 +247,23 @@ export default function Bathroom() {
 
 	return (
 		<group>
-			<primitive object={scene} />
-			<primitive
-				object={scene.clone()}
-				position={[-3.32, 0.0, 0]}
-				scale={[-1, 1, 1]}
-			/>
+			<group>
+				<mesh
+					castShadow
+					receiveShadow
+					geometry={nodes.bathroom.geometry}
+					material={materialRef.current}
+				/>
+			</group>
+
+			<group position={[-3.32, 0.0, 0]} scale={[-1, 1, 1]}>
+				<mesh
+					castShadow
+					receiveShadow
+					geometry={nodes.bathroom.geometry}
+					material={materialRef.current}
+				/>
+			</group>
 			<mesh
 				position={[-1.65, 1.3, -3.25]}
 				rotation={[0, Math.PI / 2, 0]}
@@ -211,6 +285,11 @@ export default function Bathroom() {
 				ref={lightSoundRef}
 				{...usePositionalSound('bulb')}
 				loop={false}
+			/>
+			<BathroomTextures
+				scene={scene}
+				nodes={nodes}
+				materialsRef={materialsRef}
 			/>
 		</group>
 	);

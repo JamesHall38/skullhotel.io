@@ -69,23 +69,46 @@ export default function useProgressiveLoad(items, componentName = '') {
 
 	// Add items to queue when component becomes current and system is stable
 	useEffect(() => {
-		if (
-			currentComponent === componentName &&
-			// isStable &&
-			!hasAddedToQueue.current
-		) {
+		if (currentComponent === componentName && !hasAddedToQueue.current) {
+			// Filtrer les items pour ne garder que ceux qui n'ont pas encore été chargés
 			const formattedItems = items.map((item) => ({
 				...item,
 				componentName,
 				label: `${componentName} - ${item.label || item.name}`,
+				// Utiliser le chemin comme identifiant unique
+				id: item.path || `${componentName}-${item.name}`,
 			}));
-			addToQueue(formattedItems, componentName);
-			itemsRef.current = formattedItems;
-			hasAddedToQueue.current = true;
-			// Reset currentItemIndex when adding new items
-			currentItemIndex.current = 0;
+
+			// Vérifier si l'item existe déjà dans une autre queue
+			const uniqueItems = formattedItems.filter((item) => {
+				const queues = useTextureQueue.getState().queues;
+				return !Object.values(queues).some(
+					(queue) =>
+						queue.queue.some((qItem) => qItem.id === item.id) ||
+						(queue.currentlyLoading && queue.currentlyLoading.id === item.id)
+				);
+			});
+
+			if (uniqueItems.length > 0) {
+				addToQueue(uniqueItems, componentName);
+				itemsRef.current = uniqueItems;
+				hasAddedToQueue.current = true;
+				currentItemIndex.current = 0;
+			} else {
+				// Si tous les items sont déjà chargés, marquer comme terminé
+				setIsLoading(false);
+				setProgress(100);
+				completeCurrentItem(componentName);
+			}
 		}
-	}, [currentComponent, isStable, componentName, items, addToQueue]);
+	}, [
+		currentComponent,
+		isStable,
+		componentName,
+		items,
+		addToQueue,
+		completeCurrentItem,
+	]);
 
 	// Reset when component changes
 	useEffect(() => {
