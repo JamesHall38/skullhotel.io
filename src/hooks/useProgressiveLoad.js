@@ -3,6 +3,8 @@ import useTextureQueue from './useTextureQueue';
 
 const FPS_THRESHOLD = 30; // Consider system stable if FPS is above this
 const STABILITY_FRAMES = 4; // Number of stable frames needed
+const MAX_RETRIES = 3;
+const RETRY_DELAY = 1000;
 
 export default function useProgressiveLoad(items, componentName = '') {
 	const [loadedItems, setLoadedItems] = useState([]);
@@ -11,222 +13,142 @@ export default function useProgressiveLoad(items, componentName = '') {
 	const [isStable, setIsStable] = useState(false);
 	const frameCount = useRef(0);
 	const lastTime = useRef(performance.now());
-	const currentItemIndex = useRef(0);
 	const itemsRef = useRef(items);
 	const hasAddedToQueue = useRef(false);
+	const retryCount = useRef(0);
+	const mountedRef = useRef(true);
 
 	const addToQueue = useTextureQueue((state) => state.addToQueue);
-	const getCurrentItem = useTextureQueue((state) => state.getCurrentItem);
-	const completeCurrentItem = useTextureQueue(
-		(state) => state.completeCurrentItem
-	);
-	const addComponent = useTextureQueue((state) => state.addComponent);
 	const currentComponent = useTextureQueue((state) => state.currentComponent);
+	const addComponent = useTextureQueue((state) => state.addComponent);
+	const completeComponent = useTextureQueue((state) => state.completeComponent);
+	const queues = useTextureQueue((state) => state.queues);
+	const currentQueue = queues[componentName];
+
+	// Cleanup on unmount
+	useEffect(() => {
+		mountedRef.current = true;
+
+		return () => {
+			mountedRef.current = false;
+			// Reset state on unmount
+			hasAddedToQueue.current = false;
+			retryCount.current = 0;
+		};
+	}, [componentName, items.length]);
 
 	// Add component to queue when component mounts
 	useEffect(() => {
-		addComponent(componentName);
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, []); // Empty dependency array as we want this only on mount
+		if (mountedRef.current) {
+			addComponent(componentName);
+		}
+	}, [addComponent, componentName]);
 
 	// Monitor FPS and system stability
 	useEffect(() => {
-		let animationFrameId;
-		let isCheckingStability = true;
+		const checkStability = (time) => {
+			if (!mountedRef.current) return;
 
-		const checkStability = () => {
-			if (!isCheckingStability) return;
+			const deltaTime = time - lastTime.current;
+			lastTime.current = time;
 
-			const currentTime = performance.now();
-			const deltaTime = currentTime - lastTime.current;
-			const currentFPS = 1000 / deltaTime;
+			const fps = 1000 / deltaTime;
 
-			if (currentFPS >= FPS_THRESHOLD) {
+			if (fps >= FPS_THRESHOLD) {
 				frameCount.current++;
+				if (frameCount.current >= STABILITY_FRAMES) {
+					setIsStable(true);
+				}
 			} else {
-				frameCount.current = Math.max(0, frameCount.current - 2);
-			}
-
-			if (frameCount.current >= STABILITY_FRAMES) {
-				setIsStable(true);
-				// Reset frame count for next stability check
 				frameCount.current = 0;
+				setIsStable(false);
 			}
 
-			lastTime.current = currentTime;
-			animationFrameId = requestAnimationFrame(checkStability);
-		};
-
-		checkStability();
-
-		return () => {
-			isCheckingStability = false;
-			if (animationFrameId) {
-				cancelAnimationFrame(animationFrameId);
+			if (!isStable) {
+				requestAnimationFrame(checkStability);
 			}
 		};
-	}, []);
 
-	// Add items to queue when component becomes current and system is stable
+		requestAnimationFrame(checkStability);
+	}, [isStable]);
+
+	// Add items to queue when component becomes current
 	useEffect(() => {
-		if (currentComponent === componentName && !hasAddedToQueue.current) {
-			// Filtrer les items pour ne garder que ceux qui n'ont pas encore été chargés
-			const formattedItems = items.map((item) => ({
-				...item,
-				componentName,
-				label: `${componentName} - ${item.label || item.name}`,
-				// Utiliser le chemin comme identifiant unique
-				id: item.path || `${componentName}-${item.name}`,
-			}));
+		const addItemsToQueue = () => {
+			if (!mountedRef.current) return;
 
-			// Vérifier si l'item existe déjà dans une autre queue
-			const uniqueItems = formattedItems.filter((item) => {
-				const queues = useTextureQueue.getState().queues;
-				return !Object.values(queues).some(
-					(queue) =>
-						queue.queue.some((qItem) => qItem.id === item.id) ||
-						(queue.currentlyLoading && queue.currentlyLoading.id === item.id)
-				);
-			});
+			if (currentComponent === componentName && !hasAddedToQueue.current) {
+				const formattedItems = items.map((item) => ({
+					...item,
+					componentName,
+					label: `${componentName} - ${item.label || item.name}`,
+					id: item.path || `${componentName}-${item.name}`,
+				}));
 
-			if (uniqueItems.length > 0) {
-				addToQueue(uniqueItems, componentName);
-				itemsRef.current = uniqueItems;
-				hasAddedToQueue.current = true;
-				currentItemIndex.current = 0;
-			} else {
-				// Si tous les items sont déjà chargés, marquer comme terminé
-				setIsLoading(false);
-				setProgress(100);
-				completeCurrentItem(componentName);
+				const uniqueItems = formattedItems.filter((item) => {
+					const isInQueue = !Object.values(queues).some(
+						(queue) =>
+							queue.queue.some((qItem) => qItem.id === item.id) ||
+							(queue.currentlyLoading && queue.currentlyLoading.id === item.id)
+					);
+					return isInQueue;
+				});
+
+				if (uniqueItems.length > 0) {
+					try {
+						addToQueue(uniqueItems, componentName);
+						itemsRef.current = uniqueItems;
+						hasAddedToQueue.current = true;
+					} catch (error) {
+						console.error(
+							`[${componentName}] Failed to add items to queue:`,
+							error
+						);
+						if (retryCount.current < MAX_RETRIES && mountedRef.current) {
+							retryCount.current++;
+							setTimeout(addItemsToQueue, RETRY_DELAY);
+						} else {
+							console.error(
+								`[${componentName}] Max retries reached or component unmounted`
+							);
+							if (mountedRef.current) {
+								setIsLoading(false);
+								setProgress(100);
+							}
+						}
+					}
+				} else {
+					if (mountedRef.current) {
+						setIsLoading(false);
+						setProgress(100);
+						completeComponent(componentName);
+					}
+				}
 			}
-		}
+		};
+
+		addItemsToQueue();
 	}, [
 		currentComponent,
-		isStable,
 		componentName,
 		items,
 		addToQueue,
-		completeCurrentItem,
+		completeComponent,
+		queues,
 	]);
 
-	// Reset when component changes
+	// Update progress based on queue state
 	useEffect(() => {
-		if (currentComponent === componentName) {
-			setIsStable(false);
-			frameCount.current = 0;
-			hasAddedToQueue.current = false;
-			// Reset progress and loaded items when component changes
-			setProgress(0);
-			setLoadedItems([]);
-			currentItemIndex.current = 0;
+		if (currentQueue && mountedRef.current) {
+			const totalItems = itemsRef.current.length;
+			const loadedCount = currentQueue.loadedItems?.length || 0;
+			const newProgress = Math.round((loadedCount / totalItems) * 100);
+
+			setProgress(newProgress);
+			setLoadedItems(currentQueue.loadedItems || []);
+			setIsLoading(newProgress < 100);
 		}
-	}, [currentComponent, componentName]);
-
-	// Process items when system is stable
-	useEffect(() => {
-		if (!isStable || componentName !== currentComponent) {
-			return;
-		}
-
-		const currentItem = getCurrentItem(componentName);
-		if (!currentItem) {
-			return;
-		}
-
-		// Only process items that belong to this component
-		if (currentItem.componentName === componentName) {
-			const texture = currentItem.texture;
-
-			if (texture) {
-				// Check if texture is actually loaded
-				if (!texture.image) {
-					// If texture is not loaded yet, wait for it
-					const checkTextureLoaded = () => {
-						if (texture.image) {
-							// Texture is loaded
-							setLoadedItems((prev) => [...prev, currentItem]);
-
-							// Update progress
-							const newProgress =
-								((currentItemIndex.current + 1) / itemsRef.current.length) *
-								100;
-							setProgress(Math.round(newProgress));
-
-							currentItemIndex.current++;
-
-							// Check if we're done loading
-							if (currentItemIndex.current >= itemsRef.current.length) {
-								setIsLoading(false);
-							}
-
-							// Reset stability check for next item
-							setIsStable(false);
-							frameCount.current = 0;
-
-							// Mark item as complete in queue
-							completeCurrentItem(componentName);
-						} else {
-							// Check again in the next frame
-							requestAnimationFrame(checkTextureLoaded);
-						}
-					};
-
-					checkTextureLoaded();
-				} else {
-					// Texture is already loaded
-					setLoadedItems((prev) => [...prev, currentItem]);
-
-					// Update progress
-					const newProgress =
-						((currentItemIndex.current + 1) / itemsRef.current.length) * 100;
-					setProgress(Math.round(newProgress));
-
-					currentItemIndex.current++;
-
-					// Check if we're done loading
-					// if (currentItemIndex.current >= itemsRef.current.length) {
-					setIsLoading(false);
-					// }
-
-					// Reset stability check for next item
-					setIsStable(false);
-					frameCount.current = 0;
-
-					// Mark item as complete in queue
-					completeCurrentItem(componentName);
-				}
-			} else {
-				// If there's no texture (like for components), just process it
-				setLoadedItems((prev) => [...prev, currentItem]);
-
-				// Update progress
-				const newProgress =
-					((currentItemIndex.current + 1) / itemsRef.current.length) * 100;
-				setProgress(Math.round(newProgress));
-
-				currentItemIndex.current++;
-
-				// Check if we're done loading
-				// if (currentItemIndex.current >= itemsRef.current.length) {
-				setIsLoading(false);
-				// }
-
-				// Reset stability check for next item
-				setIsStable(false);
-				frameCount.current = 0;
-
-				// Mark item as complete in queue
-				completeCurrentItem(componentName);
-			}
-		}
-	}, [
-		isStable,
-		componentName,
-		getCurrentItem,
-		completeCurrentItem,
-		currentComponent,
-	]);
+	}, [currentQueue]);
 
 	return {
 		loadedItems,

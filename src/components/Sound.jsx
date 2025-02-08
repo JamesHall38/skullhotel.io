@@ -1,7 +1,8 @@
-import { useRef, useMemo, useEffect } from 'react';
+import { useRef, useMemo, useEffect, useState } from 'react';
 import useInterface from '../hooks/useInterface';
 import useGame from '../hooks/useGame';
 import KnockingSound from './KnockingSound';
+import { getAudioInstance, areSoundsLoaded } from '../utils/audio';
 
 const Sound = () => {
 	const objectives = useInterface((state) => state.interfaceObjectives);
@@ -11,10 +12,11 @@ const Sound = () => {
 	// const roomNumber = useGame((state) => state.roomNumber);
 	const roomNumber = 20;
 
-	const ambiant1Ref = useRef(new Audio('/sounds/ambiant1.mp3'));
-	const boomRef = useRef(new Audio('/sounds/boom.mp3'));
-	const ambiant2Ref = useRef(new Audio('/sounds/ambiant2.mp3'));
-	const tenseRef = useRef(new Audio('/sounds/tense.mp3'));
+	const [soundsReady, setSoundsReady] = useState(false);
+	const ambiant1Ref = useRef(null);
+	const boomRef = useRef(null);
+	const ambiant2Ref = useRef(null);
+	const tenseRef = useRef(null);
 
 	const defaultVolumes = useRef({
 		ambiant1: 0.7,
@@ -30,7 +32,35 @@ const Sound = () => {
 	}, [objectives]);
 
 	useEffect(() => {
+		const checkSounds = () => {
+			if (areSoundsLoaded()) {
+				ambiant1Ref.current = getAudioInstance('ambiant1');
+				boomRef.current = getAudioInstance('boom');
+				ambiant2Ref.current = getAudioInstance('ambiant2');
+				tenseRef.current = getAudioInstance('tense');
+
+				if (
+					ambiant1Ref.current &&
+					boomRef.current &&
+					ambiant2Ref.current &&
+					tenseRef.current
+				) {
+					setSoundsReady(true);
+				}
+			} else {
+				setTimeout(checkSounds, 100);
+			}
+		};
+
+		checkSounds();
+	}, []);
+
+	// Setup audio properties once sounds are loaded
+	useEffect(() => {
+		if (!soundsReady) return;
+
 		const setupAudio = (audioRef, volume, loop = true) => {
+			if (!audioRef.current) return;
 			audioRef.current.volume = volume;
 			audioRef.current.loop = loop;
 			if (audioRef === boomRef) {
@@ -45,57 +75,70 @@ const Sound = () => {
 
 		return () => {
 			[ambiant1Ref, boomRef, ambiant2Ref, tenseRef].forEach((ref) => {
-				ref.current.pause();
-				ref.current.currentTime = 0;
+				if (ref.current) {
+					ref.current.pause();
+					ref.current.currentTime = 0;
+				}
 			});
 		};
-	}, []);
+	}, [soundsReady]);
 
 	useEffect(() => {
+		if (!soundsReady) return;
+
 		if (doneObjectives > roomNumber / 2 - 2) {
-			tenseRef.current.play().catch(() => {});
+			tenseRef.current?.play().catch(() => {});
 		} else if (doneObjectives > roomNumber / 3 - 1) {
-			ambiant2Ref.current.play().catch(() => {});
+			ambiant2Ref.current?.play().catch(() => {});
 		} else if (doneObjectives > roomNumber / 6 - 1) {
-			boomRef.current.play().catch(() => {});
+			boomRef.current?.play().catch(() => {});
 		} else if (doneObjectives > 0) {
-			ambiant1Ref.current.play().catch(() => {});
+			ambiant1Ref.current?.play().catch(() => {});
 		}
-	}, [objectives, doneObjectives, roomNumber]);
+	}, [objectives, doneObjectives, roomNumber, soundsReady]);
 
 	useEffect(() => {
+		if (!soundsReady) return;
+
 		if (end || openDeathScreen) {
 			[ambiant1Ref, boomRef, ambiant2Ref, tenseRef].forEach((ref) => {
-				ref.current.pause();
-				ref.current.currentTime = 0;
+				if (ref.current) {
+					ref.current.pause();
+					ref.current.currentTime = 0;
+				}
 			});
 		}
-	}, [end, openDeathScreen]);
+	}, [end, openDeathScreen, soundsReady]);
 
 	useEffect(() => {
+		if (!soundsReady) return;
+
 		let fadeInterval;
 
 		if (isListening) {
 			// Fade out
 			fadeInterval = setInterval(() => {
 				[ambiant1Ref, boomRef, ambiant2Ref, tenseRef].forEach((ref) => {
-					if (ref.current.volume > 0.1) {
+					if (ref.current && ref.current.volume > 0.1) {
 						ref.current.volume = Math.max(0.1, ref.current.volume - 0.1);
 					}
 				});
 			}, 100);
 		} else {
 			// Restore original volumes
-			ambiant1Ref.current.volume = defaultVolumes.current.ambiant1;
-			boomRef.current.volume = defaultVolumes.current.boom;
-			ambiant2Ref.current.volume = defaultVolumes.current.ambiant2;
-			tenseRef.current.volume = defaultVolumes.current.tense;
+			if (ambiant1Ref.current)
+				ambiant1Ref.current.volume = defaultVolumes.current.ambiant1;
+			if (boomRef.current) boomRef.current.volume = defaultVolumes.current.boom;
+			if (ambiant2Ref.current)
+				ambiant2Ref.current.volume = defaultVolumes.current.ambiant2;
+			if (tenseRef.current)
+				tenseRef.current.volume = defaultVolumes.current.tense;
 		}
 
 		return () => {
 			if (fadeInterval) clearInterval(fadeInterval);
 		};
-	}, [isListening]);
+	}, [isListening, soundsReady]);
 
 	return <KnockingSound />;
 };

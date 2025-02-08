@@ -3,7 +3,7 @@ import { useGLTF } from '@react-three/drei';
 import useGame from '../../hooks/useGame';
 import useInterface from '../../hooks/useInterface';
 import DetectionZone from '../DetectionZone';
-import { getSoundUrl } from '../../utils/audio';
+import { getAudioInstance, areSoundsLoaded } from '../../utils/audio';
 
 export default function Switches(props) {
 	const roomLight = useGame((state) => state.roomLight);
@@ -15,15 +15,52 @@ export default function Switches(props) {
 	const { nodes, materials } = useGLTF('/models/room/switchs.glb');
 	const [switch1Clickable, setSwitch2Clickable] = useState(false);
 	const [switch2Clickable, setSwitch1Clickable] = useState(false);
+	const [soundsReady, setSoundsReady] = useState(false);
 	const switch1Ref = useRef();
 	const switch2Ref = useRef();
 
-	const switchOnSoundRef = useRef(new Audio(getSoundUrl('switchOn')));
-	const switchOffSoundRef = useRef(new Audio(getSoundUrl('switchOff')));
-	const neonSoundRef = useRef(new Audio(getSoundUrl('neon')));
+	const switchOnSoundRef = useRef(null);
+	const switchOffSoundRef = useRef(null);
+	const neonSoundRef = useRef(null);
 
 	const bathroomLightRef = useRef(bathroomLight);
 	const roomLightRef = useRef(roomLight);
+
+	useEffect(() => {
+		const checkSounds = () => {
+			if (areSoundsLoaded()) {
+				switchOnSoundRef.current = getAudioInstance('switchOn');
+				switchOffSoundRef.current = getAudioInstance('switchOff');
+				neonSoundRef.current = getAudioInstance('neon');
+				if (
+					switchOnSoundRef.current &&
+					switchOffSoundRef.current &&
+					neonSoundRef.current
+				) {
+					setSoundsReady(true);
+				}
+			} else {
+				setTimeout(checkSounds, 100);
+			}
+		};
+
+		checkSounds();
+
+		return () => {
+			if (switchOnSoundRef.current) {
+				switchOnSoundRef.current.pause();
+				switchOnSoundRef.current.currentTime = 0;
+			}
+			if (switchOffSoundRef.current) {
+				switchOffSoundRef.current.pause();
+				switchOffSoundRef.current.currentTime = 0;
+			}
+			if (neonSoundRef.current) {
+				neonSoundRef.current.pause();
+				neonSoundRef.current.currentTime = 0;
+			}
+		};
+	}, []);
 
 	useEffect(() => {
 		bathroomLightRef.current = bathroomLight;
@@ -34,6 +71,8 @@ export default function Switches(props) {
 	}, [roomLight]);
 
 	useEffect(() => {
+		if (!soundsReady) return;
+
 		if (mobileClick) {
 			if (switch1Clickable) {
 				const newBathroomLight = !bathroomLightRef.current;
@@ -68,9 +107,12 @@ export default function Switches(props) {
 		switch2Clickable,
 		setBathroomLight,
 		setRoomLight,
+		soundsReady,
 	]);
 
 	useEffect(() => {
+		if (!soundsReady) return;
+
 		const handleClickSwitch1 = (e) => {
 			if (e.button !== 0) return;
 			if (switch1Clickable) {
@@ -116,6 +158,7 @@ export default function Switches(props) {
 		setRoomLight,
 		switch1Clickable,
 		switch2Clickable,
+		soundsReady,
 	]);
 
 	const handleDetectionSwitch1 = useCallback(() => {

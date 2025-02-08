@@ -4,7 +4,7 @@ import useMonster from '../../hooks/useMonster';
 import useLight from '../../hooks/useLight';
 import useHiding from '../../hooks/useHiding';
 import { useFrame, useThree } from '@react-three/fiber';
-import { getSoundUrl } from '../../utils/audio';
+import { getAudioInstance, areSoundsLoaded } from '../../utils/audio';
 
 const LERP_FACTOR = 0.05;
 const DEFAULT_INTENSITY = 8;
@@ -23,7 +23,8 @@ export default function Flashlight({ playerRef, crouchProgressRef }) {
 	const { scene } = useThree();
 	const [intensity, setIntensity] = useState(0);
 	const recoveryTimeoutRef = useRef(null);
-	const flashlightSoundRef = useRef(new Audio(getSoundUrl('flashlight')));
+	const [soundsReady, setSoundsReady] = useState(false);
+	const flashlightSoundRef = useRef(null);
 	const [isRecoveringFromHiding, setIsRecoveringFromHiding] = useState(false);
 	const lightTextureRef = useRef(null);
 
@@ -240,17 +241,42 @@ export default function Flashlight({ playerRef, crouchProgressRef }) {
 		lastCameraQuaternion.current.copy(currentQuaternion);
 	});
 
-	const playFlashlightSound = useCallback(() => {
-		const volume = 0 + Math.random() * 0.2;
+	useEffect(() => {
+		const checkSounds = () => {
+			if (areSoundsLoaded()) {
+				flashlightSoundRef.current = getAudioInstance('flashlight');
+				if (flashlightSoundRef.current) {
+					setSoundsReady(true);
+				}
+			} else {
+				setTimeout(checkSounds, 100);
+			}
+		};
 
-		flashlightSoundRef.current.pause();
-		flashlightSoundRef.current.currentTime = 0;
-		flashlightSoundRef.current.volume = volume;
+		checkSounds();
+
+		return () => {
+			if (flashlightSoundRef.current) {
+				flashlightSoundRef.current.pause();
+				flashlightSoundRef.current.currentTime = 0;
+			}
+		};
+	}, []);
+
+	const playFlashlightSound = useCallback(() => {
+		if (!soundsReady) return;
+
+		const volume = 0 + Math.random() * 0.2;
+		const audio = flashlightSoundRef.current;
+
+		audio.pause();
+		audio.currentTime = 0;
+		audio.volume = volume;
 
 		setTimeout(() => {
-			flashlightSoundRef.current.play().catch(() => {});
+			audio.play().catch(() => {});
 		}, 1);
-	}, []);
+	}, [soundsReady]);
 
 	useEffect(() => {
 		if (!isPlayerHidden && spotLightRef.current) {

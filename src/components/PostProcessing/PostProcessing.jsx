@@ -15,7 +15,7 @@ import { useControls, button } from 'leva';
 import useGame from '../../hooks/useGame';
 import useInterface from '../../hooks/useInterface';
 import * as THREE from 'three';
-import { getSoundUrl } from '../../utils/audio';
+import { getAudioInstance, areSoundsLoaded } from '../../utils/audio';
 
 const DISTORTION_SPEED = 5;
 
@@ -232,10 +232,9 @@ const PostProcessing = () => {
 	const { playIntro } = useGame();
 	const [isNeonFlickering, setIsNeonFlickering] = useState(false);
 	const [isDistorting, setIsDistorting] = useState(false);
-	const jumpScareAmbianceRef = useRef(
-		new Audio(getSoundUrl('jumpScareAmbiance'))
-	);
-	const whiteNoiseRef = useRef(new Audio('/sounds/boom.mp3'));
+	const [soundsReady, setSoundsReady] = useState(false);
+	const jumpScareAmbianceRef = useRef(null);
+	const whiteNoiseRef = useRef(null);
 	const currentVolumeRef = useRef(0);
 	const whiteNoiseVolumeRef = useRef(0);
 	const setReceptionLight1 = useLight((state) => state.setReceptionLight1);
@@ -257,26 +256,42 @@ const PostProcessing = () => {
 	}, [isDistorting, isNeonFlickering, jumpScare, monsterState, shakeIntensity]);
 
 	useEffect(() => {
-		const audio = jumpScareAmbianceRef.current;
-		const whiteNoise = whiteNoiseRef.current;
-		audio.loop = true;
-		audio.volume = 0;
+		const checkSounds = () => {
+			if (areSoundsLoaded()) {
+				jumpScareAmbianceRef.current = getAudioInstance('jumpScareAmbiance');
+				whiteNoiseRef.current = getAudioInstance('boom');
 
-		whiteNoise.loop = false;
-		whiteNoise.volume = 0;
+				if (jumpScareAmbianceRef.current && whiteNoiseRef.current) {
+					// Configuration initiale
+					jumpScareAmbianceRef.current.loop = true;
+					jumpScareAmbianceRef.current.volume = 0;
+					whiteNoiseRef.current.loop = false;
+					whiteNoiseRef.current.volume = 0;
+					whiteNoiseRef.current.playbackRate = 0.5;
+					setSoundsReady(true);
+				}
+			} else {
+				setTimeout(checkSounds, 100);
+			}
+		};
 
-		// adjust the end of the white noise
-		whiteNoise.playbackRate = 0.5;
+		checkSounds();
 
 		return () => {
-			audio.pause();
-			audio.currentTime = 0;
-			whiteNoise.pause();
-			whiteNoise.currentTime = 0;
+			if (jumpScareAmbianceRef.current) {
+				jumpScareAmbianceRef.current.pause();
+				jumpScareAmbianceRef.current.currentTime = 0;
+			}
+			if (whiteNoiseRef.current) {
+				whiteNoiseRef.current.pause();
+				whiteNoiseRef.current.currentTime = 0;
+			}
 		};
 	}, []);
 
 	useFrame((_, delta) => {
+		if (!soundsReady) return;
+
 		const LERP_FACTOR = 2;
 		const targetVolume =
 			isDistorting || isNeonFlickering ? 0 : glitchStrength * 2;
@@ -298,8 +313,8 @@ const PostProcessing = () => {
 			whiteNoiseRef.current.volume = whiteNoiseVolumeRef.current;
 		}
 
-		if (newVolume > 0 && !jumpScareAmbianceRef.current.playing) {
-			jumpScareAmbianceRef.current.play();
+		if (newVolume > 0 && jumpScareAmbianceRef.current.paused) {
+			jumpScareAmbianceRef.current.play().catch(() => {});
 		}
 	});
 
@@ -332,6 +347,8 @@ const PostProcessing = () => {
 	});
 
 	useEffect(() => {
+		if (!soundsReady) return;
+
 		if (playIntro) {
 			const sequence = async () => {
 				const setCameraLocked = useGame.getState().setCameraLocked;
@@ -342,7 +359,7 @@ const PostProcessing = () => {
 				setCursor('hidden');
 
 				// Start white noise with fade in
-				whiteNoiseRef.current.play();
+				whiteNoiseRef.current.play().catch(() => {});
 				whiteNoiseRef.current.currentTime = 0.2;
 				whiteNoiseVolumeRef.current = 0.5;
 				whiteNoiseRef.current.volume = whiteNoiseVolumeRef.current;
@@ -382,6 +399,7 @@ const PostProcessing = () => {
 		receptionLight1.color,
 		setCursor,
 		setPlayIntro,
+		soundsReady,
 	]);
 
 	return (
