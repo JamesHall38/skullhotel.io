@@ -9,7 +9,7 @@ import useGame from '../../hooks/useGame';
 import { findPath } from './pathfinding';
 import useDoor from '../../hooks/useDoor';
 import useHiding from '../../hooks/useHiding';
-import { getSoundUrl } from '../../utils/audio';
+import { getAudioInstance, areSoundsLoaded } from '../../utils/audio';
 import { KTX2Loader } from 'three/examples/jsm/loaders/KTX2Loader';
 import useProgressiveLoad from '../../hooks/useProgressiveLoad';
 
@@ -34,8 +34,9 @@ function lerpCameraLookAt(camera, targetPosition, lerpFactor) {
 
 const Monster = (props) => {
 	const group = useRef();
-	const jumpScareSoundRef = useRef(new Audio(getSoundUrl('jumpScare')));
+	const jumpScareSoundRef = useRef(null);
 	const [hasPlayedJumpScare, setHasPlayedJumpScare] = useState(false);
+	const [soundsReady, setSoundsReady] = useState(false);
 	const { gl } = useThree();
 	const { nodes, materials, animations } = useGLTF(
 		'/models/monster-opt.glb',
@@ -112,13 +113,27 @@ const Monster = (props) => {
 	}, [loadedItems, monsterParts]);
 
 	useEffect(() => {
-		const jumpScareSound = jumpScareSoundRef.current;
-		jumpScareSound.volume = 1;
-		jumpScareSound.loop = false;
+		const checkSounds = () => {
+			if (areSoundsLoaded()) {
+				const sound = getAudioInstance('jumpScare');
+				if (sound) {
+					jumpScareSoundRef.current = sound;
+					jumpScareSoundRef.current.volume = 1;
+					jumpScareSoundRef.current.loop = false;
+					setSoundsReady(true);
+				}
+			} else {
+				setTimeout(checkSounds, 100);
+			}
+		};
+
+		checkSounds();
 
 		return () => {
-			jumpScareSound.pause();
-			jumpScareSound.currentTime = 0;
+			if (jumpScareSoundRef.current) {
+				jumpScareSoundRef.current.pause();
+				jumpScareSoundRef.current.currentTime = 0;
+			}
 		};
 	}, []);
 
@@ -180,7 +195,7 @@ const Monster = (props) => {
 				playAnimation('Attack');
 				setAnimationSpeed(1);
 
-				if (!hasPlayedJumpScare) {
+				if (!hasPlayedJumpScare && soundsReady && jumpScareSoundRef.current) {
 					jumpScareSoundRef.current.currentTime = 0;
 					jumpScareSoundRef.current.play().catch(() => {});
 					setHasPlayedJumpScare(true);
@@ -388,6 +403,7 @@ const Monster = (props) => {
 			pathfindingFailures,
 			setJumpScare,
 			hasPlayedJumpScare,
+			soundsReady,
 			animationName,
 			roomDoors,
 			playerPositionRoom,

@@ -102,6 +102,34 @@ function App() {
 	const frameCount = useRef(0);
 	const lastTime = useRef(performance.now());
 
+	// Préchargement des sons au démarrage
+	useEffect(() => {
+		const audioContext = new (window.AudioContext ||
+			window.webkitAudioContext)();
+
+		const initAudio = async () => {
+			try {
+				if (audioContext.state === 'suspended') {
+					await audioContext.resume();
+				}
+				await preloadSounds();
+			} catch (error) {
+				console.error('Error loading sounds:', error);
+			}
+		};
+
+		const handleFirstInteraction = () => {
+			initAudio();
+			document.removeEventListener('click', handleFirstInteraction);
+		};
+
+		document.addEventListener('click', handleFirstInteraction);
+		return () => {
+			document.removeEventListener('click', handleFirstInteraction);
+			audioContext.close();
+		};
+	}, []);
+
 	const duplicateComponents = (Component) => {
 		return [...Array(roomTotal / 2)].map((_, i) => (
 			<group key={i}>
@@ -221,23 +249,6 @@ function App() {
 
 		lastTime.current = currentTime;
 	});
-
-	useEffect(() => {
-		const handleFirstInteraction = () => {
-			const audioContext = new (window.AudioContext ||
-				window.webkitAudioContext)();
-			if (audioContext.state === 'suspended') {
-				audioContext.resume();
-			}
-			preloadSounds();
-			document.removeEventListener('click', handleFirstInteraction);
-		};
-
-		document.addEventListener('click', handleFirstInteraction);
-		return () => {
-			document.removeEventListener('click', handleFirstInteraction);
-		};
-	}, []);
 
 	const timeoutSet = useRef(false);
 

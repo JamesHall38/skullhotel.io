@@ -1,9 +1,9 @@
-import { useRef, useEffect, useMemo } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import { useFrame } from '@react-three/fiber';
 import useGame from '../../hooks/useGame';
 import { useKeyboardControls } from '@react-three/drei';
 import * as THREE from 'three';
-import { getSoundUrl } from '../../utils/audio';
+import { getAudioInstance, areSoundsLoaded } from '../../utils/audio';
 import useJoysticksStore from '../../hooks/useJoysticks';
 import useGamepadControls from '../../hooks/useGamepadControls';
 
@@ -23,22 +23,45 @@ const JUMP_SOUND_DELAY = 400;
 const MOVEMENT_THRESHOLD = 0.00001;
 
 export default function FootSteps({ playerPosition }) {
-	const footstepSounds = useMemo(
-		() => [
-			new Audio(getSoundUrl('step1')),
-			new Audio(getSoundUrl('step2')),
-			new Audio(getSoundUrl('step3')),
-			new Audio(getSoundUrl('step4')),
-			new Audio(getSoundUrl('step5')),
-			new Audio(getSoundUrl('step6')),
-			new Audio(getSoundUrl('step7')),
-			new Audio(getSoundUrl('step8')),
-			new Audio(getSoundUrl('step9')),
-		],
-		[]
-	);
+	const [soundsReady, setSoundsReady] = useState(false);
+	const footstepRefs = useRef(null);
 
-	// const loading = useGame((state) => state.loading);
+	useEffect(() => {
+		const checkSounds = () => {
+			if (areSoundsLoaded()) {
+				footstepRefs.current = [
+					getAudioInstance('step1'),
+					getAudioInstance('step2'),
+					getAudioInstance('step3'),
+					getAudioInstance('step4'),
+					getAudioInstance('step5'),
+					getAudioInstance('step6'),
+					getAudioInstance('step7'),
+					getAudioInstance('step8'),
+					getAudioInstance('step9'),
+				];
+				if (footstepRefs.current.every((sound) => sound)) {
+					setSoundsReady(true);
+				}
+			} else {
+				setTimeout(checkSounds, 100);
+			}
+		};
+
+		checkSounds();
+
+		return () => {
+			if (footstepRefs.current) {
+				footstepRefs.current.forEach((sound) => {
+					if (sound) {
+						sound.pause();
+						sound.currentTime = 0;
+					}
+				});
+			}
+		};
+	}, []);
+
 	const resetFootstepSound = useGame((state) => state.resetFootstepSound);
 	const setResetFootstepSound = useGame((state) => state.setResetFootstepSound);
 	const isRunning = useGame((state) => state.isRunning);
@@ -50,12 +73,13 @@ export default function FootSteps({ playerPosition }) {
 	const controls = useJoysticksStore((state) => state.controls);
 
 	const lastPosition = useRef(new THREE.Vector3());
-	const footstepRefs = useRef(footstepSounds);
 	const footstepIndexRef = useRef(0);
 	const lastStepTime = useRef(0);
 	const wasMovingRef = useRef(false);
 
 	useEffect(() => {
+		if (!soundsReady) return;
+
 		const handleJumpSound = () => {
 			setTimeout(() => {
 				const soundIndex = Math.floor(
@@ -82,9 +106,11 @@ export default function FootSteps({ playerPosition }) {
 				window.removeEventListener('keydown', handleKeyDown);
 			};
 		}
-	}, [isMobile]);
+	}, [isMobile, soundsReady]);
 
 	useEffect(() => {
+		if (!soundsReady) return;
+
 		if (isMobile && controls.jump) {
 			setTimeout(() => {
 				const soundIndex = Math.floor(
@@ -98,13 +124,10 @@ export default function FootSteps({ playerPosition }) {
 				}
 			}, JUMP_SOUND_DELAY);
 		}
-	}, [controls.jump, isMobile]);
+	}, [controls.jump, isMobile, soundsReady]);
 
 	useFrame((state) => {
-		if (
-			// !loading &&
-			!isListening
-		) {
+		if (!soundsReady || !isListening) {
 			if (playerPosition.current.y <= floor) {
 				const currentTime = state.clock.getElapsedTime() * 1000;
 

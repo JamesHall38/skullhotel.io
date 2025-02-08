@@ -18,6 +18,11 @@ import { regenerateData } from '../../utils/config';
 import './Interface.css';
 import { measurePerformance } from '../../hooks/usePerformance';
 import useTextureQueue from '../../hooks/useTextureQueue';
+import {
+	getKeyAudioPool,
+	areSoundsLoaded,
+	preloadSounds,
+} from '../../utils/audio';
 
 function resetGame() {
 	useGame.getState().restart();
@@ -31,16 +36,40 @@ function resetGame() {
 const Dialogue = memo(({ id, text, index, onRemove }) => {
 	const [displayedText, setDisplayedText] = useState('');
 	const [isFadingOut, setIsFadingOut] = useState(false);
+	const [soundsReady, setSoundsReady] = useState(false);
 	const animationFrameRef = useRef();
 	const accumulatedTimeRef = useRef(0);
 	const textIndexRef = useRef(0);
+	const currentAudioIndex = useRef(0);
+	const keySoundsRef = useRef(null);
 
-	const keySound = useMemo(() => {
-		const audio = new Audio('/sounds/key.mp3');
-		return audio;
+	useEffect(() => {
+		const checkSounds = () => {
+			if (areSoundsLoaded()) {
+				keySoundsRef.current = getKeyAudioPool();
+				if (keySoundsRef.current) {
+					setSoundsReady(true);
+				}
+			} else {
+				setTimeout(checkSounds, 100);
+			}
+		};
+
+		checkSounds();
+
+		return () => {
+			if (keySoundsRef.current) {
+				keySoundsRef.current.forEach((audio) => {
+					audio.pause();
+					audio.currentTime = 0;
+				});
+			}
+		};
 	}, []);
 
 	useEffect(() => {
+		if (!soundsReady) return;
+
 		let isCancelled = false;
 		let lastTime = performance.now();
 		setDisplayedText('');
@@ -62,11 +91,13 @@ const Dialogue = memo(({ id, text, index, onRemove }) => {
 				if (textIndexRef.current < text.length) {
 					const currentChar = text[textIndexRef.current];
 
-					if (currentChar !== ' ') {
+					if (currentChar !== ' ' && keySoundsRef.current) {
 						try {
-							const audioClone = keySound.cloneNode();
-							audioClone.volume = 0.25;
-							audioClone.play().catch(console.warn);
+							const audio = keySoundsRef.current[currentAudioIndex.current];
+							audio.currentTime = 0;
+							audio.play().catch(console.warn);
+							currentAudioIndex.current =
+								(currentAudioIndex.current + 1) % keySoundsRef.current.length;
 						} catch (error) {
 							console.warn('Audio playback failed:', error);
 						}
@@ -94,22 +125,21 @@ const Dialogue = memo(({ id, text, index, onRemove }) => {
 			}
 		};
 
-		keySound.load();
-		keySound.addEventListener(
-			'loadedmetadata',
-			() => {
-				animationFrameRef.current = requestAnimationFrame(animate);
-			},
-			{ once: true }
-		);
+		animationFrameRef.current = requestAnimationFrame(animate);
 
 		return () => {
 			isCancelled = true;
 			if (animationFrameRef.current) {
 				cancelAnimationFrame(animationFrameRef.current);
 			}
+			if (keySoundsRef.current) {
+				keySoundsRef.current.forEach((audio) => {
+					audio.pause();
+					audio.currentTime = 0;
+				});
+			}
 		};
-	}, [text, onRemove, id, keySound]);
+	}, [text, onRemove, id, soundsReady]);
 
 	return (
 		<div
@@ -257,12 +287,9 @@ export default function Interface() {
 	const interfaceAction = useInterface((state) => state.interfaceAction);
 	const [activeDialogues, setActiveDialogues] = useState([]);
 
-	// Track texture loading progress
-
 	const queue = useTextureQueue((state) => state.queues);
 	const oldQueue = useRef(queue);
 
-	// Track texture loading progress
 	useEffect(() => {
 		const hasQueueChanged = Object.keys(queue).some((key) => {
 			return queue[key].queue.length !== oldQueue.current[key]?.queue.length;
@@ -275,18 +302,29 @@ export default function Interface() {
 	}, [queue]);
 
 	useEffect(() => {
-		const texturesDrawCalls = (loadedTextureNumber / 44) * 50; // 50% // 44 textures
-		const modelsLoading = (progress / 10) * 5; // 100 / 10 = 10 % * 5 = 50%
-		const currentProgress = Math.min(
+		const texturesDrawCalls = (loadedTextureNumber / 29) * 85;
+		const modelsLoading =
+			(Math.min(progress, 80) / 2 + (Math.max(progress - 80, 0) * 5) / 2) / 10;
+
+		const calculatedProgress = Math.min(
 			Math.max(texturesDrawCalls + modelsLoading, displayProgress),
-			100
+			95
 		);
-		if (currentProgress === 100) {
-			setTimeout(() => {
-				setDisplayProgress(currentProgress);
-			}, 1000);
-		} else {
-			setDisplayProgress(currentProgress);
+
+		if (calculatedProgress >= 95) {
+			const initAudio = async () => {
+				try {
+					await preloadSounds();
+					setDisplayProgress(100);
+				} catch (error) {
+					console.error('Error loading sounds:', error);
+					setDisplayProgress(100);
+				}
+			};
+
+			initAudio();
+		} else if (calculatedProgress < 95) {
+			setDisplayProgress(calculatedProgress);
 		}
 	}, [loadedTextureNumber, progress, displayProgress]);
 

@@ -4,13 +4,31 @@ const useTextureQueue = create((set, get) => ({
 	queues: {},
 	componentQueue: [],
 	currentComponent: null,
-	componentTimeout: null,
+	totalItemsToLoad: 0,
+	loadedItems: 0,
 
 	addComponent: (componentName) => {
-		set((state) => ({
-			componentQueue: [...state.componentQueue, componentName],
-		}));
-		get().processComponentQueue();
+		const state = get();
+		if (!state.queues[componentName]) {
+			set((state) => ({
+				queues: {
+					...state.queues,
+					[componentName]: {
+						queue: [],
+						currentlyLoading: null,
+						isProcessing: false,
+						retryCount: 0,
+						loadedItems: [],
+					},
+				},
+				componentQueue: [...state.componentQueue, componentName],
+			}));
+
+			// Start processing if this is the first component
+			if (!state.currentComponent) {
+				setTimeout(() => get().processComponentQueue(), 0);
+			}
+		}
 	},
 
 	processComponentQueue: () => {
@@ -29,110 +47,134 @@ const useTextureQueue = create((set, get) => ({
 			componentQueue: state.componentQueue.slice(1),
 		}));
 
-		// Trigger processing for the new component
+		// Check if there are items in the queue before completing
+		const componentQueue = get().queues[nextComponent];
+		if (!componentQueue?.queue?.length) {
+			return;
+		}
+
 		get().processQueue(nextComponent);
 	},
 
-	completeComponent: () => {
-		// Clear any existing timeout
-		if (get().componentTimeout) {
-			clearTimeout(get().componentTimeout);
+	addToQueue: (items, componentName) => {
+		const state = get();
+		const queue = state.queues[componentName];
+
+		if (!queue) {
+			console.error(`[TextureQueue] Queue ${componentName} does not exist`);
+			return;
 		}
 
-		// Use rAF as a fallback for requestIdleCallback
-		const timeout = requestAnimationFrame(() => {
-			set({ currentComponent: null, componentTimeout: null });
-			get().processComponentQueue();
-		});
-
-		set({ componentTimeout: timeout });
-	},
-
-	addToQueue: (items, queueId) => {
 		set((state) => {
-			const queue = state.queues[queueId] || {
-				queue: [],
-				currentlyLoading: null,
-				isProcessing: false,
+			const updatedQueue = {
+				...state.queues[componentName],
+				queue: [...state.queues[componentName].queue, ...items],
 			};
+
 			return {
 				queues: {
 					...state.queues,
-					[queueId]: {
-						...queue,
-						queue: [...queue.queue, ...items],
-					},
+					[componentName]: updatedQueue,
 				},
+				totalItemsToLoad: state.totalItemsToLoad + items.length,
 			};
 		});
 
-		// Only process if this is the current component
-		if (queueId === get().currentComponent) {
-			get().processQueue(queueId);
+		// Start processing if this is the current component and not already processing
+		const updatedState = get();
+		const updatedQueue = updatedState.queues[componentName];
+		if (
+			updatedState.currentComponent === componentName &&
+			!updatedQueue.isProcessing
+		) {
+			get().processQueue(componentName);
 		}
 	},
 
-	processQueue: (queueId) => {
+	processQueue: async (componentName) => {
 		const state = get();
-		const queue = state.queues[queueId];
+		const queue = state.queues[componentName];
 
-		// Only process if this is the current component
-		if (queueId !== state.currentComponent) {
+		if (!queue || queue.isProcessing || !queue.queue.length) {
+			if (queue && !queue.queue.length && !queue.isProcessing) {
+				get().completeComponent(componentName);
+			}
 			return;
 		}
-		if (!queue || queue.isProcessing || queue.queue.length === 0) {
-			return;
-		}
+
+		const nextItem = queue.queue[0];
 
 		set((state) => ({
 			queues: {
 				...state.queues,
-				[queueId]: {
-					...queue,
+				[componentName]: {
+					...state.queues[componentName],
+					currentlyLoading: nextItem,
 					isProcessing: true,
-					currentlyLoading: queue.queue[0],
-				},
-			},
-		}));
-	},
-
-	completeCurrentItem: (queueId) => {
-		const state = get();
-		const queue = state.queues[queueId];
-
-		if (!queue) return;
-
-		// if (queue.currentlyLoading) {
-		// 	console.log(
-		// 		`✅ Loaded texture: ${queue.currentlyLoading.label} (${queue.currentlyLoading.name})`
-		// 	);
-		// }
-
-		const remainingItems = queue.queue.length - 1;
-
-		set((state) => ({
-			queues: {
-				...state.queues,
-				[queueId]: {
-					...queue,
-					queue: queue.queue.slice(1),
-					currentlyLoading: null,
-					isProcessing: false,
+					queue: state.queues[componentName].queue.slice(1),
 				},
 			},
 		}));
 
-		// If the queue is empty, complete the component
-		if (remainingItems === 0) {
-			get().completeComponent();
-		} else {
-			get().processQueue(queueId);
+		try {
+			// Simulate texture loading with a delay
+			await new Promise((resolve) => setTimeout(resolve, 100));
+
+			set((state) => {
+				const loadedCount = state.loadedItems + 1;
+
+				return {
+					queues: {
+						...state.queues,
+						[componentName]: {
+							...state.queues[componentName],
+							currentlyLoading: null,
+							isProcessing: false,
+							loadedItems: [
+								...(state.queues[componentName].loadedItems || []),
+								nextItem,
+							],
+						},
+					},
+					loadedItems: loadedCount,
+				};
+			});
+
+			// Process next item
+			get().processQueue(componentName);
+		} catch (error) {
+			console.error(
+				`[TextureQueue] Error processing item for ${componentName}:`,
+				error
+			);
+			set((state) => ({
+				queues: {
+					...state.queues,
+					[componentName]: {
+						...state.queues[componentName],
+						isProcessing: false,
+						retryCount: state.queues[componentName].retryCount + 1,
+					},
+				},
+			}));
 		}
 	},
 
-	getCurrentItem: (queueId) => {
-		const state = get();
-		return state.queues[queueId]?.currentlyLoading;
+	completeComponent: (componentName) => {
+		set((state) => ({
+			queues: {
+				...state.queues,
+				[componentName]: {
+					...state.queues[componentName],
+					isProcessing: false,
+					completed: true,
+				},
+			},
+			currentComponent: null,
+		}));
+
+		// Process next component
+		setTimeout(() => get().processComponentQueue(), 0);
 	},
 }));
 

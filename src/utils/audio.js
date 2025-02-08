@@ -203,13 +203,53 @@ export const SOUNDS = {
 	},
 };
 
+const audioInstances = {};
+let soundsLoaded = false;
+
 export function preloadSounds() {
-	Object.values(SOUNDS).forEach((sound) => {
+	if (soundsLoaded) return Promise.resolve();
+
+	Object.entries(SOUNDS).forEach(([key, sound]) => {
 		if (sound.mp3) {
 			const audio = new Audio(sound.mp3);
 			audio.preload = 'auto';
+			audioInstances[key] = audio;
 		}
 	});
+
+	audioInstances.keyPool = Array(5)
+		.fill(null)
+		.map(() => {
+			const audio = new Audio('/sounds/key.mp3');
+			audio.volume = 0.25;
+			return audio;
+		});
+
+	return Promise.all(
+		Object.values(audioInstances)
+			.flat()
+			.map(
+				(audio) =>
+					new Promise((resolve) => {
+						audio.addEventListener('loadedmetadata', resolve, { once: true });
+						audio.load();
+					})
+			)
+	).then(() => {
+		soundsLoaded = true;
+	});
+}
+
+export function areSoundsLoaded() {
+	return soundsLoaded;
+}
+
+export function getAudioInstance(key) {
+	return audioInstances[key];
+}
+
+export function getKeyAudioPool() {
+	return audioInstances.keyPool;
 }
 
 export const getSoundUrl = (soundName) => {
