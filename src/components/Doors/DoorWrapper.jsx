@@ -5,6 +5,7 @@ import useGame from '../../hooks/useGame';
 import useInterface from '../../hooks/useInterface';
 import { usePositionalSound } from '../../utils/audio';
 import * as THREE from 'three';
+import useGameplaySettings from '../../hooks/useGameplaySettings';
 
 const CORRIDORLENGTH = 5.95;
 const DOOR_SPEED = 2;
@@ -28,7 +29,7 @@ export default function DoorWrapper({
 	const openRef = useRef();
 	const closeRef = useRef();
 	const beepRef = useRef();
-	const roomTotal = useGame((state) => state.roomTotal);
+	const roomCount = useGameplaySettings((state) => state.roomCount);
 	const playerPositionRoom = useGame((state) => state.playerPositionRoom);
 	const cursorRef = useRef(null);
 	const setCursor = useInterface((state) => state.setCursor);
@@ -46,11 +47,11 @@ export default function DoorWrapper({
 
 	const position = useMemo(() => {
 		let calculatedPosition = null;
-		if (roomNumber >= roomTotal / 2)
+		if (roomNumber >= roomCount / 2)
 			calculatedPosition = [
 				offset[0] -
 					CORRIDORLENGTH -
-					(roomNumber - roomTotal / 2) * CORRIDORLENGTH,
+					(roomNumber - roomCount / 2) * CORRIDORLENGTH,
 				offset[1],
 				-offset[2],
 			];
@@ -76,7 +77,7 @@ export default function DoorWrapper({
 		return !roomNumber && roomNumber !== 0 ? offset : calculatedPosition;
 	}, [
 		roomNumber,
-		roomTotal,
+		roomCount,
 		offset,
 		tutorialRoomOffset,
 		playerPositionRoom,

@@ -6,14 +6,15 @@ import useInterface from '../../hooks/useInterface';
 import { usePositionalSound } from '../../utils/audio';
 import * as THREE from 'three';
 import DetectionZone from '../DetectionZone';
-import FabricMaterial from '../FabricMaterial';
+import FabricMaterial from '../materials/FabricMaterial';
+import useGameplaySettings from '../../hooks/useGameplaySettings';
 
 const CORRIDORLENGTH = 5.95;
 const offset = [8.833, 0.014, 6.2];
 
 export default function Bedsheets() {
 	const roomNumber = useGame((state) => state.playerPositionRoom);
-	const roomTotal = useGame((state) => state.roomTotal);
+	const roomCount = useGameplaySettings((state) => state.roomCount);
 	const mobileClick = useGame((state) => state.mobileClick);
 	const setMobileClick = useGame((state) => state.setMobileClick);
 	const setCursor = useInterface((state) => state.setCursor);
@@ -45,11 +46,11 @@ export default function Bedsheets() {
 	const position = useMemo(() => {
 		let calculatedPosition;
 
-		if (playerPositionRoom >= roomTotal / 2) {
+		if (playerPositionRoom >= roomCount / 2) {
 			calculatedPosition = [
 				offset[0] -
 					CORRIDORLENGTH -
-					(playerPositionRoom - roomTotal / 2) * CORRIDORLENGTH,
+					(playerPositionRoom - roomCount / 2) * CORRIDORLENGTH,
 				offset[1],
 				-offset[2],
 			];
@@ -68,7 +69,7 @@ export default function Bedsheets() {
 		}
 
 		return calculatedPosition;
-	}, [playerPositionRoom, roomTotal, camera]);
+	}, [playerPositionRoom, roomCount, camera]);
 
 	useEffect(() => {
 		const handleProgressComplete = () => {

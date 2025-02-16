@@ -7,13 +7,14 @@ import useDoor from '../../hooks/useDoor';
 import * as THREE from 'three';
 import DetectionZone from '../DetectionZone';
 import { usePositionalSound } from '../../utils/audio';
+import useGameplaySettings from '../../hooks/useGameplaySettings';
 
 const CORRIDORLENGTH = 5.95;
 const offset = [9.53, 0.83, 1.6];
 
 export default function Bottles() {
 	const roomNumber = useGame((state) => state.playerPositionRoom);
-	const roomTotal = useGame((state) => state.roomTotal);
+	const roomCount = useGameplaySettings((state) => state.roomCount);
 	const playerPositionRoom = useGame((state) => state.playerPositionRoom);
 	const group = useRef();
 	const { nodes, materials, animations } = useGLTF(
@@ -50,11 +51,11 @@ export default function Bottles() {
 	const position = useMemo(() => {
 		let calculatedPosition;
 
-		if (playerPositionRoom >= roomTotal / 2) {
+		if (playerPositionRoom >= roomCount / 2) {
 			calculatedPosition = [
 				offset[0] -
 					CORRIDORLENGTH -
-					(playerPositionRoom - roomTotal / 2) * CORRIDORLENGTH,
+					(playerPositionRoom - roomCount / 2) * CORRIDORLENGTH,
 				offset[1],
 				-offset[2],
 			];
@@ -73,7 +74,7 @@ export default function Bottles() {
 		}
 
 		return calculatedPosition;
-	}, [playerPositionRoom, roomTotal, camera]);
+	}, [playerPositionRoom, roomCount, camera]);
 
 	const handleDetection = useCallback(() => {
 		if (camera.position.x > 1.8 && camera.position.z > 3) {

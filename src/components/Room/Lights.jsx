@@ -31,6 +31,7 @@ export default function Lights() {
 	const redLightSoundRef = useRef();
 	const firstRedLightPlayed = useRef(false);
 	const mainLightRef = useRef();
+	const bathroomLightRef = useRef();
 	const bulbSound = usePositionalSound('bulb');
 
 	const doneObjectivesNumber = useMemo(() => {
@@ -137,7 +138,7 @@ export default function Lights() {
 	}, [bathroomLight]);
 
 	const jumpScare = useCallback(() => {
-		if (!mainLightRef.current) return;
+		if (!mainLightRef.current || !bathroomLightRef.current) return;
 
 		let progress = 0;
 		const duration = 1500;
@@ -145,7 +146,7 @@ export default function Lights() {
 		const maxIntensity = 1;
 
 		const timer = setInterval(() => {
-			if (!mainLightRef.current) {
+			if (!mainLightRef.current || !bathroomLightRef.current) {
 				clearInterval(timer);
 				return;
 			}
@@ -155,6 +156,8 @@ export default function Lights() {
 
 			mainLightRef.current.color = new THREE.Color('#ff0000');
 			mainLightRef.current.intensity = intensity;
+			bathroomLightRef.current.color = new THREE.Color('#ff0000');
+			bathroomLightRef.current.intensity = intensity;
 
 			if (progress >= 1) {
 				clearInterval(timer);
@@ -201,14 +204,23 @@ export default function Lights() {
 					color={isJumpscareActive ? mainLightRef.current?.color : '#fff5e6'}
 				/>
 				<pointLight
+					ref={bathroomLightRef}
 					position={[-1, 2, -3.2]}
-					intensity={delayedBathroomLight ? 0.3 : flickerIntensity}
+					intensity={
+						isJumpscareActive
+							? bathroomLightRef.current?.intensity
+							: delayedBathroomLight
+							? 0.3
+							: flickerIntensity
+					}
 					castShadow
 					shadow-camera-near={1}
 					shadow-camera-far={10}
 					shadow-mapSize-width={1024}
 					shadow-mapSize-height={1024}
-					color="#fff5e6"
+					color={
+						isJumpscareActive ? bathroomLightRef.current?.color : '#fff5e6'
+					}
 				/>
 			</group>
 			{/* )} */}

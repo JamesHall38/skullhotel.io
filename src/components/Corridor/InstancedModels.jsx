@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import * as THREE from 'three';
-import useGame from '../../useGame';
+import useGameplaySettings from '../../hooks/useGameplaySettings';
 
 const CORRIDORLENGTH = 5.95;
 
@@ -34,14 +34,14 @@ function InstancedModel({ model, count, positions, rotations }) {
 }
 
 const InstancedModels = ({ children }) => {
-	const roomTotal = useGame((state) => state.roomTotal);
+	const roomCount = useGameplaySettings((state) => state.roomCount);
 	const [instancedChildren, setInstancedChildren] = useState([]);
 
 	useEffect(() => {
 		const positions = [];
 		const rotations = [];
 
-		for (let i = 0; i < roomTotal / 2; i++) {
+		for (let i = 0; i < roomCount / 2; i++) {
 			positions.push([-2.925 - i * CORRIDORLENGTH, 0, 6.2]);
 			rotations.push([0, 0, 0]);
 
@@ -65,7 +65,7 @@ const InstancedModels = ({ children }) => {
 		});
 
 		setInstancedChildren(newChildren);
-	}, [children, roomTotal]);
+	}, [children, roomCount]);
 
 	return <>{instancedChildren}</>;
 };

@@ -2,15 +2,16 @@ import { useMemo } from 'react';
 import { useThree } from '@react-three/fiber';
 import useGame from '../../hooks/useGame';
 import useDoor from '../../hooks/useDoor';
+import useGameplaySettings from '../../hooks/useGameplaySettings';
 import DoubleCurtain from './DoubleCurtain';
-import FabricMaterial from '../FabricMaterial';
+import FabricMaterial from '../materials/FabricMaterial';
 
 const CORRIDORLENGTH = 5.95;
 const offset = [8.9, 0, 6.1];
 
 export default function RoomCurtain() {
 	const roomNumber = useGame((state) => state.playerPositionRoom);
-	const roomTotal = useGame((state) => state.roomTotal);
+	const roomCount = useGameplaySettings((state) => state.roomCount);
 	const roomCurtain = useDoor((state) => state.roomCurtain);
 	const roomCurtains = useDoor((state) => state.roomCurtains);
 	const setRoomCurtain = useDoor((state) => state.setRoomCurtain);
@@ -22,11 +23,11 @@ export default function RoomCurtain() {
 	const position = useMemo(() => {
 		let calculatedPosition;
 
-		if (playerPositionRoom >= roomTotal / 2) {
+		if (playerPositionRoom >= roomCount / 2) {
 			calculatedPosition = [
 				offset[0] -
 					CORRIDORLENGTH -
-					(playerPositionRoom - roomTotal / 2) * CORRIDORLENGTH,
+					(playerPositionRoom - roomCount / 2) * CORRIDORLENGTH,
 				offset[1],
 				-offset[2],
 			];
@@ -45,7 +46,7 @@ export default function RoomCurtain() {
 		}
 
 		return calculatedPosition;
-	}, [playerPositionRoom, roomTotal, camera]);
+	}, [playerPositionRoom, roomCount, camera]);
 
 	return (
 		<DoubleCurtain

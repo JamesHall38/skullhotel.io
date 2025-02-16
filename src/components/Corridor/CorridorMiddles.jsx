@@ -1,5 +1,5 @@
 import { useGLTF } from '@react-three/drei';
-import useGame from '../../hooks/useGame';
+import useGameplaySettings from '../../hooks/useGameplaySettings';
 import React, { useMemo } from 'react';
 import WoodMaterial from '../materials/WoodMaterial';
 import WallsMaterial from '../materials/WallsMaterial';
@@ -55,17 +55,17 @@ function CorridorMiddle(props) {
 }
 
 function CorridorMiddles(props) {
-	const roomTotal = useGame((state) => state.roomTotal / 2);
+	const roomCount = useGameplaySettings((state) => state.roomCount);
 
 	const corridors = useMemo(
 		() =>
-			[...Array(roomTotal)].map((_, index) => (
+			[...Array(roomCount / 2)].map((_, index) => (
 				<CorridorMiddle
 					key={index}
 					position={[-index * CORRIDORLENGHT, 0, 0]}
 				/>
 			)),
-		[roomTotal]
+		[roomCount]
 	);
 
 	return (

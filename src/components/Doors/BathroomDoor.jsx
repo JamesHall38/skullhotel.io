@@ -4,6 +4,7 @@ import { useGLTF } from '@react-three/drei';
 import DoorWrapper from './DoorWrapper';
 import useDoor from '../../hooks/useDoor';
 import useGame from '../../hooks/useGame';
+import useGameplaySettings from '../../hooks/useGameplaySettings';
 import * as THREE from 'three';
 import useProgressiveLoad from '../../hooks/useProgressiveLoad';
 
@@ -79,7 +80,7 @@ const BathroomDoorMesh = ({ isHandlePressed }) => {
 
 export default function BathroomDoor() {
 	const roomNumber = useGame((state) => state.playerPositionRoom);
-	const roomTotal = useGame((state) => state.roomTotal);
+	const roomCount = useGameplaySettings((state) => state.roomCount);
 	const bathroomDoors = useDoor((state) => state.bathroomDoors);
 	const setBathroomsDoors = useDoor((state) => state.setBathroomDoors);
 	const isOpen = useDoor((state) => state.bathroomDoor);
@@ -125,7 +126,7 @@ export default function BathroomDoor() {
 				setBathroomsDoors(roomNumber, value);
 				setOpen(value);
 			}}
-			rotate={roomNumber >= roomTotal / 2}
+			rotate={roomNumber >= roomCount / 2}
 			doubleRotate={true}
 			instantChange={instantChange}
 			setInstantChange={setInstantChange}

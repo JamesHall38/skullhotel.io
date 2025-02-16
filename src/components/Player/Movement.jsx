@@ -7,6 +7,7 @@ import useGamepadControls from '../../hooks/useGamepadControls';
 import useJoysticksStore from '../../hooks/useJoysticks';
 import useGridStore, { CELL_TYPES } from '../../hooks/useGrid';
 import useDoorStore from '../../hooks/useDoor';
+import useGameplaySettings from '../../hooks/useGameplaySettings';
 
 const WALK_SPEED = 0.5;
 const RUN_SPEED = 1;
@@ -20,7 +21,6 @@ const frontVector = new THREE.Vector3();
 const sideVector = new THREE.Vector3();
 const floor = -0.2;
 
-const GRID_OFFSET_X = 600;
 const GRID_OFFSET_Z = 150;
 
 const LISTENING_SPEED_MULTIPLIER = 0;
@@ -65,6 +65,13 @@ export default function Movement({
 	const isListening = useGame((state) => state.isListening);
 	const [listeningProgress, setListeningProgress] = useState(0);
 
+	const [gridOffsetX, setGridOffsetX] = useState(0);
+	const roomCount = useGameplaySettings((state) => state.roomCount);
+
+	useEffect(() => {
+		setGridOffsetX(roomCount * 29.5 + 10);
+	}, [roomCount]);
+
 	useEffect(() => {
 		let interval;
 		if (isListening) {
@@ -80,7 +87,7 @@ export default function Movement({
 	}, [isListening]);
 
 	useEffect(() => {
-		const cellX = Math.floor(playerPosition.current.x * 10 + GRID_OFFSET_X);
+		const cellX = Math.floor(playerPosition.current.x * 10 + gridOffsetX);
 		const cellZ = Math.floor(playerPosition.current.z * 10 + GRID_OFFSET_Z);
 		const cell = getCell(cellX, cellZ);
 
@@ -112,10 +119,11 @@ export default function Movement({
 		playerPosition,
 		getCell,
 		playerPositionRoom,
+		gridOffsetX,
 	]);
 
 	const checkCollision = (pos) => {
-		const cellX = Math.floor(pos.x * 10 + GRID_OFFSET_X);
+		const cellX = Math.floor(pos.x * 10 + gridOffsetX);
 		const cellZ = Math.floor(pos.z * 10 + GRID_OFFSET_Z);
 		const cell = getCell(cellX, cellZ);
 

@@ -1,7 +1,6 @@
 import { useRef, useEffect, useCallback, useState, useMemo } from 'react';
 import { useGLTF } from '@react-three/drei';
 import { useFrame, useThree } from '@react-three/fiber';
-import Blood from './Blood';
 import * as THREE from 'three';
 import Animations from './Animations';
 import useMonster from '../../hooks/useMonster';
@@ -18,12 +17,17 @@ const CHASE_SPEED = 0.5;
 const NEXT_POINT_THRESHOLD = 0.5;
 const MIN_DISTANCE_FOR_RECALCULATION = 2;
 const ATTACK_DISTANCE = 0.8;
+const IDEAL_ATTACK_DISTANCE = 0.8;
+const ATTACK_POSITION_LERP_SPEED = 0.15;
 
 function lerpCameraLookAt(camera, targetPosition, lerpFactor) {
 	const targetQuaternion = new THREE.Quaternion();
 	const cameraDirection = new THREE.Vector3();
 
-	cameraDirection.subVectors(targetPosition, camera.position).normalize();
+	cameraDirection.subVectors(targetPosition, camera.position);
+	cameraDirection.y = 0;
+	cameraDirection.normalize();
+
 	targetQuaternion.setFromUnitVectors(
 		new THREE.Vector3(0, 0, -1),
 		cameraDirection
@@ -206,10 +210,14 @@ const Monster = (props) => {
 					.subVectors(group.current.position, targetPosition)
 					.normalize();
 
-				const distanceToMove = (ATTACK_DISTANCE - distanceToCamera) * delta;
-				group.current.position.x += direction.x * distanceToMove;
+				const idealPosition = new THREE.Vector3();
+				const directionToIdeal = direction.clone();
+				idealPosition
+					.copy(targetPosition)
+					.add(directionToIdeal.multiplyScalar(IDEAL_ATTACK_DISTANCE));
+
+				group.current.position.lerp(idealPosition, ATTACK_POSITION_LERP_SPEED);
 				group.current.position.y = 0;
-				group.current.position.z += direction.z * distanceToMove;
 
 				const targetLookAtPosition = new THREE.Vector3(
 					group.current.position.x,
@@ -413,17 +421,15 @@ const Monster = (props) => {
 		]
 	);
 
-	// useEffect(() => {
-	// 	if (nodes.Mesh.skeleton) {
-	// 		const headBone = nodes.Mesh.skeleton.bones.find(
-	// 			(bone) => bone.name === 'mixamorigHead'
-	// 		);
+	useEffect(() => {
+		if (!nodes || !nodes.mixamorigHips) return;
 
-	// 		if (headBone) {
-	// 			headBoneRef.current = headBone;
-	// 		}
-	// 	}
-	// }, [nodes]);
+		nodes.mixamorigHips.traverse((bone) => {
+			if (bone.name === 'mixamorigHead') {
+				headBoneRef.current = bone;
+			}
+		});
+	}, [nodes, isLoading, visibleParts]);
 
 	useEffect(() => {
 		if (monsterState === 'leaving') {
@@ -432,46 +438,49 @@ const Monster = (props) => {
 		}
 	}, [monsterState]);
 
-	useFrame(({ camera, clock }) => {
+	useFrame(({ camera }) => {
 		if (
-			headBoneRef.current &&
-			monsterState !== 'run' &&
-			monsterState !== 'chase' &&
-			monsterState !== 'leaving' &&
-			monsterState !== 'facingCamera'
-		) {
-			const headOffset =
-				Object.values(seedData)[playerPositionRoom]?.headOffset || 0;
-			const headPosition = new THREE.Vector3();
+			!headBoneRef.current ||
+			monsterState === 'run' ||
+			monsterState === 'chase' ||
+			monsterState === 'leaving' ||
+			monsterState === 'facingCamera'
+		)
+			return;
 
-			headBoneRef.current.getWorldPosition(headPosition);
-			const targetPosition = new THREE.Vector3();
-			targetPosition.copy(camera.position);
-			const lookAtVector = new THREE.Vector3();
-			lookAtVector.subVectors(targetPosition, headPosition).normalize();
+		const headOffset =
+			Object.values(seedData)[playerPositionRoom]?.headOffset || 0;
+		const headPosition = new THREE.Vector3();
 
-			const isBottomRow =
-				playerPositionRoom >= Math.floor(Object.keys(seedData).length / 2);
+		headBoneRef.current.getWorldPosition(headPosition);
+		const targetPosition = new THREE.Vector3();
+		targetPosition.copy(camera.position);
+		const lookAtVector = new THREE.Vector3();
+		lookAtVector.subVectors(targetPosition, headPosition).normalize();
 
-			const targetAngle =
-				Math.atan2(lookAtVector.x, lookAtVector.z) -
-				headOffset +
-				(isBottomRow ? Math.PI : 0);
-			const currentAngle = headBoneRef.current.rotation.y;
+		const isBottomRow =
+			playerPositionRoom >= Math.floor(Object.keys(seedData).length / 2);
 
-			const angleDiff = THREE.MathUtils.degToRad(
-				(((THREE.MathUtils.radToDeg(targetAngle - currentAngle) % 360) + 540) %
-					360) -
-					180
-			);
+		const targetAngle =
+			Math.atan2(lookAtVector.x, lookAtVector.z) -
+			headOffset +
+			(isBottomRow ? Math.PI : 0);
+		const currentAngle = headBoneRef.current.rotation.y;
 
-			headBoneRef.current.rotation.y = THREE.MathUtils.lerp(
-				currentAngle,
-				currentAngle + angleDiff,
-				0.1
-			);
-		}
+		const angleDiff = THREE.MathUtils.degToRad(
+			(((THREE.MathUtils.radToDeg(targetAngle - currentAngle) % 360) + 540) %
+				360) -
+				180
+		);
 
+		headBoneRef.current.rotation.y = THREE.MathUtils.lerp(
+			currentAngle,
+			currentAngle + angleDiff,
+			0.1
+		);
+	});
+
+	useFrame(({ camera, clock }) => {
 		if (monsterState === 'facingCamera') {
 			lookAtCamera(camera);
 			if (
@@ -621,12 +630,6 @@ const Monster = (props) => {
 
 	return (
 		<group>
-			<group scale={1.1} position={monsterPosition}>
-				{Object.keys(seedData)[playerPositionRoom] === 'bloodOnBath' ||
-					(Object.keys(seedData)[playerPositionRoom] === 'bloodOnDoor' && (
-						<Blood />
-					))}
-			</group>
 			<group
 				position={monsterPosition}
 				rotation={monsterRotation}

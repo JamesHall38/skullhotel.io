@@ -1,10 +1,11 @@
-import { useEffect, useRef, useCallback } from 'react';
+import { useEffect, useRef, useCallback, useState } from 'react';
 import { useFrame } from '@react-three/fiber';
 import useGridStore, { CELL_TYPES } from '../../hooks/useGrid';
 import useMonster from '../../hooks/useMonster';
 import useJoysticks from '../../hooks/useJoysticks';
 import useGame from '../../hooks/useGame';
-const GRID_OFFSET_X = 600;
+import useGameplaySettings from '../../hooks/useGameplaySettings';
+
 const GRID_OFFSET_Z = 150;
 const LERP_FACTOR = 0.2;
 const PROGRESS_THRESHOLD = 0.001;
@@ -19,6 +20,8 @@ export default function Crouch({
 	const monsterState = useMonster((state) => state.monsterState);
 	const controls = useJoysticks((state) => state.controls);
 	const wantsToStandUpRef = useRef(false);
+	const [gridOffsetX, setGridOffsetX] = useState(0);
+	const roomCount = useGameplaySettings((state) => state.roomCount);
 
 	const resetCrouchState = useCallback(() => {
 		isCrouchingRef.current = false;
@@ -32,9 +35,13 @@ export default function Crouch({
 		}
 	}, [monsterState, resetCrouchState]);
 
+	useEffect(() => {
+		setGridOffsetX(roomCount * 29.5 + 10);
+	}, [roomCount]);
+
 	const checkCrouchArea = useCallback(
 		(position) => {
-			const cellX = Math.floor(position.x * 10 + GRID_OFFSET_X);
+			const cellX = Math.floor(position.x * 10 + gridOffsetX);
 			const cellZ = Math.floor(position.z * 10 + GRID_OFFSET_Z);
 			const cell = getCell(cellX, cellZ);
 			return (
@@ -43,7 +50,7 @@ export default function Crouch({
 				cell.type === CELL_TYPES.NIGHTSTAND_DOOR_CLOSED
 			);
 		},
-		[getCell]
+		[getCell, gridOffsetX]
 	);
 
 	const handleCrouchChange = useCallback(

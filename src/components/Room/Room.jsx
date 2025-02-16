@@ -11,13 +11,14 @@ import Metal from './Metal';
 import Tv from './Events/Tv';
 import Lights from './Lights';
 import DetectionZone from '../DetectionZone';
+import useGameplaySettings from '../../hooks/useGameplaySettings';
 
 const CORRIDORLENGTH = 5.95;
 const offset = [8.83, 0, 6.2];
 const PROBABILITY_OF_FLICKER = 20;
 
 export default function Room() {
-	const roomTotal = useGame((state) => state.roomTotal);
+	const roomCount = useGameplaySettings((state) => state.roomCount);
 	const playerPositionRoom = useGame((state) => state.playerPositionRoom);
 	const deaths = useGame((state) => state.deaths);
 	const { camera } = useThree();
@@ -46,11 +47,11 @@ export default function Room() {
 
 	const position = useMemo(() => {
 		let calculatedPosition;
-		if (playerPositionRoom >= roomTotal / 2) {
+		if (playerPositionRoom >= roomCount / 2) {
 			calculatedPosition = [
 				offset[0] -
 					CORRIDORLENGTH -
-					(playerPositionRoom - roomTotal / 2) * CORRIDORLENGTH,
+					(playerPositionRoom - roomCount / 2) * CORRIDORLENGTH,
 				offset[1],
 				-offset[2],
 			];
@@ -67,7 +68,7 @@ export default function Room() {
 			calculatedPosition = [3.02, 0, 7.9];
 		}
 		return calculatedPosition;
-	}, [playerPositionRoom, roomTotal, camera]);
+	}, [playerPositionRoom, roomCount, camera]);
 
 	const handleFlickerDetection = useCallback(() => {
 		setIsFlashlightFlickering(true);
@@ -76,7 +77,7 @@ export default function Room() {
 	return (
 		<group
 			position={position}
-			rotation={[0, playerPositionRoom >= roomTotal / 2 ? Math.PI : 0, 0]}
+			rotation={[0, playerPositionRoom >= roomCount / 2 ? Math.PI : 0, 0]}
 		>
 			<Bathroom />
 			<Bedroom />

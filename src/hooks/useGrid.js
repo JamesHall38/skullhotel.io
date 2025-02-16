@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import useGame from './useGame';
+import useGameplaySettings from './useGameplaySettings';
 
 export const CELL_TYPES = {
 	EMPTY: 'empty',
@@ -30,72 +31,79 @@ export const CELL_TYPES = {
 
 const useGridStore = create((set, get) => ({
 	grid: {},
-	gridSize: { width: 750, height: 300 },
+
 	isInitialized: false,
 
-	initialWalls: [
-		// Reception
-		{ start: { x: 733, z: 112 }, end: { x: 735, z: 185 } }, // left wall
-		{ start: { x: 713, z: 112 }, end: { x: 735, z: 114 } }, // door left
-		{ start: { x: 680, z: 183 }, end: { x: 735, z: 185 } }, // reception wall
-		{ start: { x: 680, z: 112 }, end: { x: 701, z: 114 } }, // door right
-		{ start: { x: 680, z: 112 }, end: { x: 680, z: 139 } }, // right corner
-		{ start: { x: 664, z: 160 }, end: { x: 680, z: 185 } }, // left corner
+	initialWalls: (roomCount) => {
+		const baseX = 110 + (roomCount / 2) * 59; // Starting point based on total size
 
-		{
-			start: { x: 630, z: 160 },
-			end: { x: 665, z: 185 },
-			type: CELL_TYPES.CEILING,
-		}, // left corner
+		return [
+			// Reception
+			{ start: { x: baseX + 33, z: 112 }, end: { x: baseX + 35, z: 185 } }, // left wall
+			{ start: { x: baseX + 13, z: 112 }, end: { x: baseX + 35, z: 114 } }, // door left
+			{ start: { x: baseX - 20, z: 183 }, end: { x: baseX + 35, z: 185 } }, // reception wall
+			{ start: { x: baseX - 20, z: 112 }, end: { x: baseX + 1, z: 114 } }, // door right
+			{ start: { x: baseX - 20, z: 112 }, end: { x: baseX - 20, z: 139 } }, // right corner
+			{ start: { x: baseX - 36, z: 160 }, end: { x: baseX - 20, z: 185 } }, // left corner
 
-		{
-			start: { x: 640, z: 139 },
-			end: { x: 680, z: 139 },
-		}, // corridor left
+			{
+				start: { x: baseX - 70, z: 160 },
+				end: { x: baseX - 35, z: 185 },
+				type: CELL_TYPES.CEILING,
+			}, // left corner
 
-		{
-			start: { x: 701, z: 112 },
-			end: { x: 713, z: 114 },
-			type: CELL_TYPES.EXIT_DOOR_CLOSED,
-		},
-		{
-			start: { x: 654, z: 180 },
-			end: { x: 664, z: 184 },
-			type: CELL_TYPES.TUTORIAL_DOOR_CLOSED,
-		},
-		{
-			start: { x: 664, z: 183 },
-			end: { x: 667, z: 196 },
-			type: CELL_TYPES.TUTORIAL_DOOR_OPEN,
-		},
-		{
-			start: { x: 637, z: 145 },
-			end: { x: 640, z: 155 },
-			type: CELL_TYPES.CORRIDOR_DOOR_CLOSED,
-		},
-		{
-			start: { x: 625, z: 155 },
-			end: { x: 637, z: 158 },
-			type: CELL_TYPES.CORRIDOR_DOOR_OPEN,
-		},
+			{
+				start: { x: baseX - 60, z: 139 },
+				end: { x: baseX - 20, z: 139 },
+			}, // corridor left
 
-		{ start: { x: 640, z: 160 }, end: { x: 654, z: 185 } }, // tutorial right
-		{ start: { x: 637, z: 137 }, end: { x: 640, z: 144 } }, // door right
-		{ start: { x: 637, z: 155 }, end: { x: 640, z: 162 } }, // door left
-		{
-			start: { x: 615, z: 163 },
-			end: { x: 638, z: 164 },
-		}, // corridor left first wall
+			{
+				start: { x: baseX + 1, z: 112 },
+				end: { x: baseX + 13, z: 114 },
+				type: CELL_TYPES.EXIT_DOOR_CLOSED,
+			},
+			{
+				start: { x: baseX - 46, z: 180 },
+				end: { x: baseX - 36, z: 184 },
+				type: CELL_TYPES.TUTORIAL_DOOR_CLOSED,
+			},
+			{
+				start: { x: baseX - 36, z: 183 },
+				end: { x: baseX - 33, z: 196 },
+				type: CELL_TYPES.TUTORIAL_DOOR_OPEN,
+			},
+			{
+				start: { x: baseX - 63, z: 145 },
+				end: { x: baseX - 60, z: 155 },
+				type: CELL_TYPES.CORRIDOR_DOOR_CLOSED,
+			},
+			{
+				start: { x: baseX - 75, z: 155 },
+				end: { x: baseX - 63, z: 158 },
+				type: CELL_TYPES.CORRIDOR_DOOR_OPEN,
+			},
 
-		{ start: { x: 688, z: 161 }, end: { x: 726, z: 172 } }, // reception desk
-		{ start: { x: 705, z: 171 }, end: { x: 710, z: 176 } }, // receptionnist
+			{ start: { x: baseX - 60, z: 160 }, end: { x: baseX - 46, z: 185 } }, // tutorial right
+			{ start: { x: baseX - 63, z: 137 }, end: { x: baseX - 60, z: 144 } }, // door right
+			{ start: { x: baseX - 63, z: 155 }, end: { x: baseX - 60, z: 162 } }, // door left
+			{
+				start: { x: baseX - 85, z: 163 },
+				end: { x: baseX - 62, z: 164 },
+			}, // corridor left first wall
 
-		{ start: { x: 24, z: 135 }, end: { x: 50, z: 136 } }, // corridor end right
-		{ start: { x: 23, z: 135 }, end: { x: 24, z: 162 } }, // corridor end
-	],
+			{ start: { x: baseX - 12, z: 161 }, end: { x: baseX + 26, z: 172 } }, // reception desk
+			{ start: { x: baseX + 5, z: 171 }, end: { x: baseX + 10, z: 176 } }, // receptionnist
+
+			// Ces deux derniers restent inchangés car ils sont au début du corridor
+			{ start: { x: 24, z: 135 }, end: { x: 50, z: 136 } }, // corridor end right
+			{ start: { x: 23, z: 135 }, end: { x: 24, z: 162 } }, // corridor end
+		];
+	},
 
 	generateRooms: () => {
 		const seedData = useGame.getState().seedData;
+		const roomCount = useGameplaySettings.getState().roomCount;
+		const baseX = 110 + (roomCount / 2) * 59; // Même calcul que pour initialWalls
 
 		const closedDoorPositions = [
 			{
@@ -253,15 +261,16 @@ const useGridStore = create((set, get) => ({
 		const gap = 0;
 		const rooms = [];
 
+		const roomsPerRow = roomCount / 2;
 		const startX = 20;
 		const startZ = 162;
-		const roomsPerRow = 10;
-		// const roomsPerRow = 1;
-		const adjustEveryXRooms = 2;
-		const adjustment = 1;
+		// const adjustEveryXRooms = 2;
+		// const adjustment = 1;
 
-		const tutorialRoomX = 615;
+		const tutorialRoomX = baseX - 85;
 		const tutorialRoomZ = 180;
+
+		// Ajouter les murs de la salle tutorial
 		baseRoom.forEach((wall) => {
 			const newWall = {
 				start: {
@@ -274,24 +283,49 @@ const useGridStore = create((set, get) => ({
 				},
 				type: wall.type,
 				hidingSpot: wall.hidingSpot,
+				roomType: 'tutorial',
 			};
 			rooms.push(newWall);
 		});
 
+		// Générer les salles normales
 		for (let row = 0; row < 2; row++) {
 			for (let col = 0; col < roomsPerRow; col++) {
-				const roomIndex = row * roomsPerRow + col + 1;
-				const extraOffset = Math.floor(col / adjustEveryXRooms) * adjustment;
+				const extraOffset = Math.floor(col / 2);
 				const offsetX =
 					startX + col * (roomWidth + gap) + extraOffset + (row === 0 ? 0 : 0);
 				const offsetZ = startZ + row * (roomHeight + gap) + (row === 0 ? 1 : 4);
 				const isTopRow = row === 0;
 
+				// Modification du calcul de l'index pour avoir le bon ordre des salles
+				let roomIndex;
+				if (row === 0) {
+					// Première colonne: de bas en haut
+					roomIndex = col;
+				} else {
+					// Deuxième colonne: de bas en haut
+					roomIndex = roomsPerRow + col;
+				}
+
+				const seedDataArray = Object.values(seedData);
+				let monsterRoomIndex;
+				if (isTopRow) {
+					// Pour la rangée du haut, on commence par le bas
+					monsterRoomIndex = roomsPerRow - 1 - col;
+				} else {
+					// Pour la rangée du bas, on commence par le bas aussi
+					monsterRoomIndex = seedDataArray.length - 1 - col;
+				}
+				const roomData = seedDataArray[monsterRoomIndex];
+
+				const roomType = roomData?.type || 'empty';
+
 				const roomDoorClosed = {
 					start: { x: 41, z: 0 },
 					end: { x: 48, z: 4 },
 					type: CELL_TYPES.ROOM_DOOR_CLOSED,
-					roomIndex,
+					roomIndex: roomIndex + 1,
+					roomType,
 				};
 
 				baseRoom.push(roomDoorClosed);
@@ -301,10 +335,12 @@ const useGridStore = create((set, get) => ({
 					end: { x: 52, z: 16 },
 					type: CELL_TYPES.ROOM_DOOR_OPEN,
 					roomIndex: 0,
+					roomType,
 				};
 
 				baseRoom.push(roomDoorOpen);
 
+				// Ajouter le type de salle à tous les murs de la salle
 				baseRoom.forEach((wall) => {
 					let newWall;
 					if (isTopRow) {
@@ -319,6 +355,7 @@ const useGridStore = create((set, get) => ({
 							},
 							type: wall.type,
 							hidingSpot: wall.hidingSpot,
+							roomType,
 						};
 					} else {
 						newWall = {
@@ -332,16 +369,11 @@ const useGridStore = create((set, get) => ({
 							},
 							type: wall.type,
 							hidingSpot: wall.hidingSpot,
+							roomType,
 						};
 					}
 					rooms.push(newWall);
 				});
-
-				const seedDataArray = Object.values(seedData);
-				const monsterRoomIndex = isTopRow
-					? roomsPerRow - col
-					: Math.floor(seedDataArray.length / 2) + (roomsPerRow - col);
-				const roomData = seedDataArray[monsterRoomIndex - 1];
 
 				if (roomData?.monsterInitialPosition) {
 					const monsterX = Math.round(
@@ -398,10 +430,11 @@ const useGridStore = create((set, get) => ({
 	},
 
 	initializeGrid: () => {
-		if (get().isInitialized) return;
+		const width = 160 + (useGameplaySettings.getState().roomCount / 2) * 59;
+		const height = 300;
 
-		const { width, height } = get().gridSize;
-		const walls = [...get().initialWalls, ...get().generateRooms()];
+		const roomCount = useGameplaySettings.getState().roomCount;
+		const walls = [...get().initialWalls(roomCount), ...get().generateRooms()];
 		const newGrid = {};
 
 		// Initialiser la grille de base
@@ -416,6 +449,59 @@ const useGridStore = create((set, get) => ({
 			}
 		}
 
+		// Remplir l'intérieur des salles avec leur type
+		const roomsPerRow = roomCount / 2;
+		const roomWidth = 59;
+		const roomHeight = 100;
+		const startX = 20;
+		const startZ = 162;
+
+		// Remplir la salle tutorial
+		const tutorialX = 110 + (roomCount / 2) * 59 - 85;
+		const tutorialZ = 180;
+		for (let x = tutorialX; x < tutorialX + roomWidth; x++) {
+			for (let z = tutorialZ; z < tutorialZ + roomHeight; z++) {
+				if (newGrid[`${x},${z}`]) {
+					newGrid[`${x},${z}`].roomType = 'tutorial';
+				}
+			}
+		}
+
+		// Remplir les salles normales
+		const seedDataArray = Object.values(useGame.getState().seedData);
+		for (let row = 0; row < 2; row++) {
+			for (let col = 0; col < roomsPerRow; col++) {
+				const gap = 0;
+				const extraOffset = Math.floor(col / 2);
+				const offsetX =
+					startX + col * (roomWidth + gap) + extraOffset + (row === 0 ? 0 : 0);
+				const offsetZ = startZ + row * (roomHeight + gap) + (row === 0 ? 1 : 4);
+
+				// Modification du calcul de l'index pour avoir le bon ordre des salles
+				let roomIndex;
+				if (row === 0) {
+					// Première colonne: de bas en haut
+					roomIndex = col;
+				} else {
+					// Deuxième colonne: de bas en haut
+					roomIndex = roomsPerRow + col;
+				}
+
+				const roomData = seedDataArray[roomIndex];
+				const roomType = roomData?.type || 'empty';
+
+				// Remplir l'intérieur de la salle avec le type de salle
+				for (let x = offsetX; x < offsetX + roomWidth; x++) {
+					for (let z = offsetZ; z < offsetZ + roomHeight; z++) {
+						const cell = newGrid[`${x},${z}`];
+						if (cell && !cell.boundary && !cell.type) {
+							cell.roomType = roomType;
+						}
+					}
+				}
+			}
+		}
+
 		// Ajouter les murs et autres éléments
 		walls.forEach((wall) => {
 			for (let x = wall.start.x; x <= wall.end.x; x++) {
@@ -424,6 +510,7 @@ const useGridStore = create((set, get) => ({
 						...newGrid[`${x},${z}`],
 						type: wall.type || CELL_TYPES.WALL,
 						hidingSpot: wall.hidingSpot || null,
+						roomType: wall.roomType || newGrid[`${x},${z}`].roomType,
 					};
 				}
 			}
@@ -463,21 +550,44 @@ const useGridStore = create((set, get) => ({
 	},
 
 	printGridASCII: () => {
-		const { width, height } = get().gridSize;
+		const width = 160 + (useGameplaySettings.getState().roomCount / 2) * 59;
+		const height = 300;
+		// const seedData = useGame.getState().seedData;
+
 		let asciiGrid = '';
 		const heightScaleFactor = 2;
 		const widthScaleFactor = 4;
 		const scaledHeight = Math.ceil(height / heightScaleFactor);
 		const scaledWidth = Math.ceil(width / widthScaleFactor);
 
-		const brightGreen = '\x1b[92m■\x1b[0m'; // Bright green
-		const darkGreen = '\x1b[32m■\x1b[0m'; // Dark green
-		const mediumGreen = '\x1b[32;1m■\x1b[0m'; // Medium green
-		const cyan = '\x1b[36m■\x1b[0m'; // Cyan
-		const darkGreenDoor = '\x1b[32m■\x1b[0m'; // Dark green
-		const redMonster = '\x1b[31m██\x1b[0m'; // Bright red
-		const brightCyan = '\x1b[36;1m■\x1b[0m'; // Bright cyan
-		const magentaHiding = '\x1b[35m■\x1b[0m'; // Magenta pour les cachettes
+		// Colors for existing elements
+		const darkGray = '\x1b[90m■\x1b[0m'; // Dark gray
+		const mediumGray = '\x1b[37m■\x1b[0m'; // Medium gray
+		const lightGray = '\x1b[97m■\x1b[0m'; // Light gray
+		const darkBlue = '\x1b[34m■\x1b[0m'; // Dark blue for doors
+		const brightBlue = '\x1b[94m■\x1b[0m'; // Bright blue for open doors
+		const redMonster = '\x1b[31m██\x1b[0m'; // Bright red for monster
+
+		// Nouvelles couleurs pour les types de salles
+		const hideoutColor = '\x1b[95m█\x1b[0m';
+		const landmineColor = '\x1b[91m█\x1b[0m';
+		const claymoreColor = '\x1b[93m█\x1b[0m';
+		const hunterColor = '\x1b[96m█\x1b[0m';
+		const sonarColor = '\x1b[94m█\x1b[0m';
+		const raidColor = '\x1b[92m█\x1b[0m';
+		const emptyColor = '\x1b[90m█\x1b[0m';
+		const tutorialColor = '\x1b[97m█\x1b[0m';
+
+		// Légende
+		asciiGrid += 'Room Types: ';
+		asciiGrid += hideoutColor + ' Hideout  ';
+		asciiGrid += landmineColor + ' Landmine  ';
+		asciiGrid += claymoreColor + ' Claymore  ';
+		asciiGrid += hunterColor + ' Hunter  ';
+		asciiGrid += sonarColor + ' Sonar  ';
+		asciiGrid += raidColor + ' Raid  ';
+		asciiGrid += emptyColor + ' Empty  ';
+		asciiGrid += tutorialColor + ' Tutorial\n\n';
 
 		asciiGrid +=
 			'   0                       50                      100                      150                      200                      250                      300';
@@ -496,6 +606,7 @@ const useGridStore = create((set, get) => ({
 				let hasOpenDoor = false;
 				let hasBed = false;
 				let hasHidingSpot = false;
+				let cellRoomType = null;
 
 				let hasMonsterTopLeft = false;
 				let hasMonsterTopRight = false;
@@ -508,7 +619,9 @@ const useGridStore = create((set, get) => ({
 							x * widthScaleFactor + dx,
 							z * heightScaleFactor + dz
 						);
-						// Log les cellules avec hidingSpot
+						if (!cellRoomType && cell.roomType) {
+							cellRoomType = cell.roomType;
+						}
 						if (cell.hidingSpot) {
 							hasHidingSpot = true;
 						} else if (cell.type === CELL_TYPES.MONSTER_POSITION) {
@@ -554,6 +667,33 @@ const useGridStore = create((set, get) => ({
 					}
 				}
 
+				let baseColor = '·';
+				switch (cellRoomType) {
+					case 'hideout':
+						baseColor = hideoutColor;
+						break;
+					case 'landmine':
+						baseColor = landmineColor;
+						break;
+					case 'claymore':
+						baseColor = claymoreColor;
+						break;
+					case 'hunter':
+						baseColor = hunterColor;
+						break;
+					case 'sonar':
+						baseColor = sonarColor;
+						break;
+					case 'raid':
+						baseColor = raidColor;
+						break;
+					case 'empty':
+						baseColor = emptyColor;
+						break;
+					default:
+						baseColor = '·';
+				}
+
 				if (
 					hasMonsterTopLeft ||
 					hasMonsterTopRight ||
@@ -561,27 +701,28 @@ const useGridStore = create((set, get) => ({
 					hasMonsterBottomRight
 				) {
 					asciiGrid += redMonster;
-					z++;
-				} else if (hasHidingSpot) {
-					asciiGrid += magentaHiding;
-				} else if (hasBed) {
-					asciiGrid += brightCyan;
-				} else if (hasWall) {
+				} else if (hasWall && !cellRoomType) {
 					asciiGrid += '█';
-				} else if (hasDoor) {
-					asciiGrid += cyan;
+				} else if (hasBed) {
+					asciiGrid += darkGray;
+				} else if (hasHidingSpot) {
+					asciiGrid += mediumGray;
 				} else if (hasOpenDoor) {
-					asciiGrid += darkGreenDoor;
-				} else if (hasLowArea) {
-					asciiGrid += brightGreen;
+					asciiGrid += brightBlue;
+				} else if (hasDoor) {
+					asciiGrid += darkBlue;
 				} else if (hasHighArea) {
-					asciiGrid += darkGreen;
+					asciiGrid += lightGray;
+				} else if (hasLowArea) {
+					asciiGrid += darkGray;
 				} else if (hasCrouchOnly) {
-					asciiGrid += mediumGreen;
+					asciiGrid += mediumGray;
 				} else if (hasBoundary) {
 					asciiGrid += '▒';
+				} else if (cellRoomType === 'tutorial' && hasWall) {
+					asciiGrid += '█';
 				} else {
-					asciiGrid += '·';
+					asciiGrid += baseColor;
 				}
 			}
 			asciiGrid += '\n';
@@ -598,8 +739,10 @@ const useGridStore = create((set, get) => ({
 
 	initializeIfNeeded: () => {
 		const state = get();
-		if (!state.isInitialized) {
-			state.initializeGrid();
+		state.initializeGrid();
+
+		// Only print grid in debug mode
+		if (window.location.hash === '#debug') {
 			state.printGridASCII();
 		}
 	},

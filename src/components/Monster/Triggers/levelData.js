@@ -1,6 +1,7 @@
 const levelData = {
-	// HIDING SPOTS
+	// HIDEOUT
 	underBed: {
+		type: 'hideout',
 		probability: 0.1,
 		deathReason: 'The client was hiding under the bed',
 		position: [1.9, 0, 1.8],
@@ -16,6 +17,7 @@ const levelData = {
 	},
 
 	bathroomVent: {
+		type: 'hideout',
 		probability: 0.1,
 		deathReason: 'The client was hiding in the bathroom vent',
 		position: [2.5, 0, -1],
@@ -26,6 +28,7 @@ const levelData = {
 	},
 
 	roomVent: {
+		type: 'hideout',
 		probability: 0.1,
 		deathReason: 'The client was hiding in the room vent',
 		position: [1.5, 0, 4.5],
@@ -36,6 +39,7 @@ const levelData = {
 	},
 
 	bedBasket: {
+		type: 'hideout',
 		probability: 0.1,
 		deathReason: 'The client was hiding in the basket near the bed',
 		position: [1.9, 0, 1.8],
@@ -52,6 +56,7 @@ const levelData = {
 	},
 
 	windowBasket: {
+		type: 'hideout',
 		probability: 0.1,
 		deathReason: 'The client was hiding in the window basket',
 		position: [0, 0, 2.2],
@@ -68,6 +73,7 @@ const levelData = {
 	},
 
 	behindDoor: {
+		type: 'hideout',
 		probability: 0.1,
 		deathReason: 'The client was hiding behind the door',
 		position: [2.5, 0, -1],
@@ -81,8 +87,9 @@ const levelData = {
 		animation: 'BehindDoor',
 	},
 
-	// HIDING IN CORNERS
+	// LANDMINE
 	bathroomCorner: {
+		type: 'landmine',
 		probability: 0.1,
 		deathReason: 'If you see the client, run away',
 		monsterPosition: [-1, 0, -3],
@@ -95,6 +102,7 @@ const levelData = {
 	},
 
 	nearBed: {
+		type: 'landmine',
 		probability: 0.1,
 		deathReason: 'If you see the client, run away',
 		monsterPosition: [1.5, 0, 1],
@@ -107,6 +115,7 @@ const levelData = {
 	},
 
 	nearWindow: {
+		type: 'landmine',
 		probability: 0.1,
 		deathReason: 'If you see the client, run away',
 		monsterPosition: [3.2, 0, 2],
@@ -119,6 +128,7 @@ const levelData = {
 	},
 
 	bedCorner: {
+		type: 'landmine',
 		probability: 0.1,
 		deathReason: 'If you see the client, run away',
 		position: [1, 0, -1],
@@ -133,6 +143,7 @@ const levelData = {
 	},
 
 	windowCorner: {
+		type: 'landmine',
 		probability: 0.1,
 		deathReason: 'If you see the client, run away',
 		position: [0.2, 0, 2.5],
@@ -147,6 +158,7 @@ const levelData = {
 	},
 
 	ceilingCornerBeforeBed: {
+		type: 'landmine',
 		probability: 0.1,
 		deathReason: 'If you see the client, run away',
 		position: [1, 0, -1],
@@ -162,6 +174,7 @@ const levelData = {
 	},
 
 	ceilingCornerCouch: {
+		type: 'landmine',
 		probability: 0.1,
 		deathReason: 'If you see the client, run away',
 		monsterPosition: [4.35, -0.25, 2.8],
@@ -176,6 +189,7 @@ const levelData = {
 	},
 
 	behindCouch: {
+		type: 'landmine',
 		probability: 0.1,
 		deathReason: 'If you see the client, run away',
 		position: [0, 0, 0],
@@ -192,6 +206,7 @@ const levelData = {
 	},
 
 	behindDesk: {
+		type: 'landmine',
 		probability: 0.1,
 		deathReason: 'If you see the client, run away',
 		position: [1.9, 0, 0],
@@ -208,6 +223,7 @@ const levelData = {
 	},
 
 	insideDesk: {
+		type: 'landmine',
 		probability: 0.1,
 		deathReason: 'If you see the client, run away',
 		position: [1.9, 0, 0],
@@ -224,6 +240,7 @@ const levelData = {
 	},
 
 	ceilingCenter: {
+		type: 'landmine',
 		probability: 0.1,
 		deathReason: 'If you see the client, run away',
 		position: [1.9, 0, 0],
@@ -253,18 +270,10 @@ const levelData = {
 	// 	headOffset: -Math.PI / 2,
 	// },
 
-	// DO NOT OPEN
-	windowNoSound: {
-		probability: 0.1,
-		deathReason: "The client's feet were visible under the curtain",
-		monsterPosition: [1.35, 0, 4.8],
-		monsterInitialPosition: [1.42, 0, 5.43],
-		monsterInitialRotation: [0, Math.PI, 0],
-		animation: 'BehindWindow',
-		headOffset: Math.PI,
-	},
+	// SONAR
 
-	windowSound: {
+	sonarWindow: {
+		type: 'sonar',
 		probability: 0.1,
 		deathReason: 'If you hear the client, run away',
 		monsterPosition: [1.35, 0, 8],
@@ -284,7 +293,8 @@ const levelData = {
 	// 	animation: 'Crouch',
 	// },
 
-	bathSound: {
+	sonarBath: {
+		type: 'sonar',
 		probability: 0.1,
 		deathReason: 'If you hear the client, run away',
 		monsterPosition: [1.35, 0, 8],
@@ -295,7 +305,8 @@ const levelData = {
 		headOffset: Math.PI / 7 + 0.05,
 	},
 
-	deskSound: {
+	sonarDesk: {
+		type: 'sonar',
 		probability: 0.1,
 		deathReason: 'If you hear the client, run away',
 		monsterPosition: [1.35, 0, 8],
@@ -306,7 +317,8 @@ const levelData = {
 		headOffset: -Math.PI / 2,
 	},
 
-	nightstandSound: {
+	sonarNightstand: {
+		type: 'sonar',
 		probability: 0.1,
 		deathReason: 'If you hear the client, run away',
 		monsterPosition: [1.35, 0, 8],
@@ -317,8 +329,9 @@ const levelData = {
 		headOffset: Math.PI / 2,
 	},
 
-	// CLOSE QUICKLY
-	quickWindow: {
+	// CLAYMORE
+	claymoreWindow: {
+		type: 'claymore',
 		probability: 0.1,
 		deathReason: 'Close quickly before the client attacks you',
 		monsterPosition: [0, 0, 10],
@@ -326,7 +339,8 @@ const levelData = {
 		animation: 'Crouch',
 	},
 
-	quickBath: {
+	claymoreBath: {
+		type: 'claymore',
 		probability: 0.1,
 		deathReason: 'Close quickly before the client attacks you',
 		monsterPosition: [0, 0, 10],
@@ -334,7 +348,8 @@ const levelData = {
 		animation: 'Crouch',
 	},
 
-	quickDesk: {
+	claymoreDesk: {
+		type: 'claymore',
 		probability: 0.1,
 		deathReason: 'Close quickly before the client attacks you',
 		monsterPosition: [0, 0, 10],
@@ -344,7 +359,8 @@ const levelData = {
 		headOffset: -Math.PI / 2,
 	},
 
-	quickNightstand: {
+	claymoreNightstand: {
+		type: 'claymore',
 		probability: 0.1,
 		deathReason: 'Close quickly before the client attacks you',
 		monsterPosition: [0, 0, 10],
@@ -354,7 +370,8 @@ const levelData = {
 		headOffset: Math.PI / 2,
 	},
 
-	quickBathroom: {
+	claymoreBathroom: {
+		type: 'claymore',
 		probability: 0.1,
 		deathReason: 'Close quickly before the client attacks you',
 		monsterPosition: [0, 0, 10],
@@ -362,37 +379,20 @@ const levelData = {
 		animation: 'Crouch',
 	},
 
-	// DO NOT LOOK
-	// bloodOnBath: {
-	// 	probability: 0.1,
-	// 	deathReason: 'Do not look at the client',
-	// 	position: [-0.75, 0, -3.2],
-	// 	scale: [2, 1, 2],
-	// 	monsterPosition: [-0.75, 1.8, -4.2],
-	// 	monsterInitialPosition: [-0.65, -0.27, -4.2],
-	// 	animation: 'BathCeiling',
-	// },
-
-	bloodOnDoor: {
+	claymoreFootWindow: {
+		type: 'claymore',
 		probability: 0.1,
-		deathReason: 'Do not look at the client',
-		position: [2.75, 0, -3.55],
-		scale: [1.5, 1, 1.5],
-		monsterPosition: [2.75, 8, -3.55],
-		monsterInitialPosition: [3, -0.27, -4],
+		deathReason: "The client's feet were visible under the curtain",
+		monsterPosition: [1.35, 0, 4.85],
+		monsterInitialPosition: [1.45, 0, 5.5],
 		monsterInitialRotation: [0, Math.PI, 0],
-		animation: 'DoorCeiling',
+		animation: 'BehindWindow',
+		headOffset: Math.PI,
 	},
 
-	// bloodOnBathroom: {
-	// 	probability: 0.1,
-	// 	deathReason: 'Do not look at the client',
-	// 	position: [-0.75, 0, -3.2],
-	// 	scale: [2, 1, 2],
-	// },
-
-	// RUNNING
-	runningWindowToDoor: {
+	// HUNTER
+	hunterWindow: {
+		type: 'hunter',
 		probability: 0.1,
 		deathReason: 'If you see the client, run away',
 		position: [2.85, 0, -4.4],
@@ -402,7 +402,8 @@ const levelData = {
 		animation: 'Idle',
 	},
 
-	runningWindowCurtainToBed: {
+	hunterCurtain: {
+		type: 'hunter',
 		probability: 0.1,
 		deathReason: 'If you see the client, run away',
 		position: [2, 0, 1.5],
