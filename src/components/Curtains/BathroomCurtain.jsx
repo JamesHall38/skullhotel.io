@@ -3,13 +3,13 @@ import { useThree } from '@react-three/fiber';
 import useGame from '../../hooks/useGame';
 import useDoor from '../../hooks/useDoor';
 import DoubleCurtain from './DoubleCurtain';
-
+import useGameplaySettings from '../../hooks/useGameplaySettings';
 const CORRIDORLENGTH = 5.95;
 const offset = [8.35, 0.35, 7.75];
 
 export default function BathroomCurtain({ positionOffset, name }) {
 	const roomNumber = useGame((state) => state.playerPositionRoom);
-	const roomTotal = useGame((state) => state.roomTotal);
+	const roomCount = useGameplaySettings((state) => state.roomCount);
 	const bathroomCurtain = useDoor((state) => state.bathroomCurtain);
 	const bathroomCurtains = useDoor((state) => state.bathroomCurtains);
 	const setBathroomCurtain = useDoor((state) => state.setBathroomCurtain);
@@ -20,11 +20,11 @@ export default function BathroomCurtain({ positionOffset, name }) {
 	const position = useMemo(() => {
 		let calculatedPosition;
 
-		if (playerPositionRoom >= roomTotal / 2) {
+		if (playerPositionRoom >= roomCount / 2) {
 			calculatedPosition = [
 				offset[0] -
 					CORRIDORLENGTH -
-					(playerPositionRoom - roomTotal / 2) * CORRIDORLENGTH,
+					(playerPositionRoom - roomCount / 2) * CORRIDORLENGTH,
 				offset[1],
 				-offset[2],
 			];
@@ -45,14 +45,14 @@ export default function BathroomCurtain({ positionOffset, name }) {
 		return [
 			calculatedPosition[0] +
 				((positionOffset
-					? roomNumber >= roomTotal / 2
+					? roomNumber >= roomCount / 2
 						? positionOffset
 						: -positionOffset
 					: 0) || 0),
 			calculatedPosition[1],
 			calculatedPosition[2],
 		];
-	}, [playerPositionRoom, roomTotal, positionOffset, roomNumber, camera]);
+	}, [playerPositionRoom, roomCount, positionOffset, roomNumber, camera]);
 
 	return (
 		<group position={position} scale={[0.75, 1, 1]}>

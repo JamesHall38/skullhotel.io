@@ -8,6 +8,7 @@ import { getMonsterInitialPosition } from './triggersUtils';
 import { useControls } from 'leva';
 import { useFrame } from '@react-three/fiber';
 import { usePositionalSound } from '../../../utils/audio';
+import useGameplaySettings from '../../../hooks/useGameplaySettings';
 
 const boxGeometry = new THREE.BoxGeometry(1, 1, 1);
 const CORRIDORLENGTH = 5.95;
@@ -55,7 +56,7 @@ const MONSTER_CONFIG = {
 
 export default function Triggers() {
 	const seedData = useGame((state) => state.seedData);
-	const roomTotal = useGame((state) => state.roomTotal);
+	const roomCount = useGameplaySettings((state) => state.roomCount);
 	const isListening = useGame((state) => state.isListening);
 	const playerPositionRoom = useGame((state) => state.playerPositionRoom);
 	const setMonsterRotation = useMonster((state) => state.setMonsterRotation);
@@ -81,54 +82,58 @@ export default function Triggers() {
 		[]
 	);
 
-	const [controls, set] = useControls(() => ({
-		visible: {
-			value: false,
-			label: 'Show Trigger Boxes',
-		},
-		monsterInitialPosition: {
-			value: MONSTER_CONFIG.getInitialPosition(
-				Object.values(seedData),
-				playerPositionRoom
+	const [controls, set] = useControls(
+		'Trigger Controls',
+		() => ({
+			visible: {
+				value: false,
+				label: 'Show Trigger Boxes',
+			},
+			monsterInitialPosition: {
+				value: MONSTER_CONFIG.getInitialPosition(
+					Object.values(seedData),
+					playerPositionRoom
+				),
+				label: 'Monster Position',
+			},
+			monsterInitialRotation: {
+				value: MONSTER_CONFIG.getInitialRotation(
+					Object.values(seedData),
+					playerPositionRoom
+				),
+				label: 'Monster Rotation',
+			},
+			...Object.entries(BOXES_CONFIG).reduce(
+				(acc, [color, config]) => ({
+					...acc,
+					[`${color}Position`]: {
+						value: config.getInitialPosition(
+							Object.values(seedData),
+							playerPositionRoom
+						),
+						label: `${config.label} Position`,
+					},
+					[`${color}Scale`]: {
+						value: config.getInitialScale(
+							Object.values(seedData),
+							playerPositionRoom
+						),
+						label: `${config.label} Scale`,
+					},
+				}),
+				{}
 			),
-			label: 'Monster Position',
-		},
-		monsterInitialRotation: {
-			value: MONSTER_CONFIG.getInitialRotation(
-				Object.values(seedData),
-				playerPositionRoom
-			),
-			label: 'Monster Rotation',
-		},
-		...Object.entries(BOXES_CONFIG).reduce(
-			(acc, [color, config]) => ({
-				...acc,
-				[`${color}Position`]: {
-					value: config.getInitialPosition(
-						Object.values(seedData),
-						playerPositionRoom
-					),
-					label: `${config.label} Position`,
-				},
-				[`${color}Scale`]: {
-					value: config.getInitialScale(
-						Object.values(seedData),
-						playerPositionRoom
-					),
-					label: `${config.label} Scale`,
-				},
-			}),
-			{}
-		),
-	}));
+		}),
+		{ collapsed: true }
+	);
 
 	const position = useMemo(() => {
-		if (playerPositionRoom >= roomTotal / 2) {
+		if (playerPositionRoom >= roomCount / 2) {
 			return [
 				-CORRIDORLENGTH * 2 +
 					offset[0] +
-					(playerPositionRoom - roomTotal / 2) * CORRIDORLENGTH +
-					(playerPositionRoom >= roomTotal / 2 ? 0.2 : 0),
+					(playerPositionRoom - roomCount / 2) * CORRIDORLENGTH +
+					(playerPositionRoom >= roomCount / 2 ? 0.2 : 0),
 				offset[1],
 				-offset[2] + 12.4,
 			];
@@ -139,7 +144,7 @@ export default function Triggers() {
 				offset[2],
 			];
 		}
-	}, [roomTotal, playerPositionRoom]);
+	}, [roomCount, playerPositionRoom]);
 
 	// Update effect
 	useEffect(() => {
@@ -188,7 +193,7 @@ export default function Triggers() {
 
 		const newPosition = getMonsterInitialPosition(
 			playerPositionRoom,
-			roomTotal,
+			roomCount,
 			position,
 			monsterPosition
 		);
@@ -200,11 +205,11 @@ export default function Triggers() {
 		setMonsterPosition([newPosition[0], newPosition[1], newPosition[2]]);
 		setMonsterRotation([
 			controls.monsterInitialRotation[0] *
-				(playerPositionRoom >= roomTotal / 2 ? -1 : 1),
+				(playerPositionRoom >= roomCount / 2 ? -1 : 1),
 			controls.monsterInitialRotation[1] +
-				(playerPositionRoom >= roomTotal / 2 ? Math.PI : 0),
+				(playerPositionRoom >= roomCount / 2 ? Math.PI : 0),
 			controls.monsterInitialRotation[2] +
-				(playerPositionRoom >= roomTotal / 2 ? 0 : 0),
+				(playerPositionRoom >= roomCount / 2 ? 0 : 0),
 		]);
 		playAnimation(Object.values(seedData)[playerPositionRoom].animation);
 	}, [
@@ -214,7 +219,7 @@ export default function Triggers() {
 		setMonsterPosition,
 		setMonsterRotation,
 		setMonsterState,
-		roomTotal,
+		roomCount,
 		position,
 		controls,
 	]);
@@ -228,7 +233,7 @@ export default function Triggers() {
 			return undefined;
 		}
 
-		const isFacingRoom = playerPositionRoom >= roomTotal / 2;
+		const isFacingRoom = playerPositionRoom >= roomCount / 2;
 
 		const getBox3 = (pos, scale) => {
 			const min = new THREE.Vector3(
@@ -272,7 +277,7 @@ export default function Triggers() {
 
 			boxRefs[color].current = getBox3(boxPosition, boxScale);
 		});
-	}, [seedData, position, playerPositionRoom, roomTotal, controls, boxRefs]);
+	}, [seedData, position, playerPositionRoom, roomCount, controls, boxRefs]);
 
 	const refs = Object.entries(BOXES_CONFIG).reduce(
 		(acc, [color, config]) => ({
@@ -312,7 +317,7 @@ export default function Triggers() {
 			<TriggersConditions {...refs} position={position} />
 			{controls.visible && (
 				<group
-					rotation={[0, playerPositionRoom >= roomTotal / 2 ? Math.PI : 0, 0]}
+					rotation={[0, playerPositionRoom >= roomCount / 2 ? Math.PI : 0, 0]}
 					visible={
 						!seedData[playerPositionRoom] ||
 						seedData[playerPositionRoom].type !== 'empty'

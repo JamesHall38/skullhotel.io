@@ -43,17 +43,12 @@ import Triggers from './components/Monster/Triggers/Triggers';
 import Grid from './components/Grid';
 import ReceptionDoors from './components/Reception/ReceptionDoors';
 import Sound from './components/Sound';
-// import Chair from './components/Room/Chair';
 import { regenerateData } from './utils/config';
 import generateSeedData from './utils/generateSeedData';
 import ListeningMode from './components/ListeningMode';
-// import WallsMaterial from './components/materials/WallsMaterial';
-// import FloorMaterial from './components/materials/FloorMaterial';
-
-// import Posterize from './components/Posterize';
-
 import levelData from './components/Monster/Triggers/levelData';
 import { preloadSounds } from './utils/audio';
+import useGameplaySettings from './hooks/useGameplaySettings';
 
 const generateLevelOptions = () => {
 	const options = {
@@ -83,7 +78,6 @@ const CORRIDORLENGTH = 5.95;
 
 function App() {
 	const isMobile = useGame((state) => state.isMobile);
-	const roomTotal = useGame((state) => state.roomTotal);
 	const deviceMode = useGame((state) => state.deviceMode);
 	const setSeedData = useGame((state) => state.setSeedData);
 	const setIsLocked = useGame((state) => state.setIsLocked);
@@ -101,6 +95,24 @@ function App() {
 	const [isStable, setIsStable] = useState(false);
 	const frameCount = useRef(0);
 	const lastTime = useRef(performance.now());
+	const {
+		roomCount,
+		emptyRoomPercentage,
+		hideoutPercentage,
+		landminePercentage,
+		claymorePercentage,
+		hunterPercentage,
+		sonarPercentage,
+		raidPercentage,
+		setRoomCount,
+		setEmptyRoomPercentage,
+		setHideoutPercentage,
+		setLandminePercentage,
+		setClaymorePercentage,
+		setHunterPercentage,
+		setSonarPercentage,
+		setRaidPercentage,
+	} = useGameplaySettings();
 
 	// Préchargement des sons au démarrage
 	useEffect(() => {
@@ -131,10 +143,10 @@ function App() {
 	}, []);
 
 	const duplicateComponents = (Component) => {
-		return [...Array(roomTotal / 2)].map((_, i) => (
+		return [...Array(roomCount / 2)].map((_, i) => (
 			<group key={i}>
 				<Component roomNumber={i} />
-				<Component roomNumber={i + roomTotal / 2} />
+				<Component roomNumber={i + roomCount / 2} />
 			</group>
 		));
 	};
@@ -156,38 +168,49 @@ function App() {
 	});
 
 	useEffect(() => {
-		let newSeedData;
-		if (selectedRoom) {
-			newSeedData = {
-				[selectedRoom]: {
-					...levelData[selectedRoom],
-					type: selectedRoom,
-				},
-				empty_1: {
-					type: 'empty',
-					number: 1,
-					hideObjective: 'window',
-					hideSpot: 'roomCurtain',
-				},
-				empty_2: {
-					type: 'empty',
-					number: 2,
-					hideObjective: 'bedsheets',
-					hideSpot: 'desk',
-				},
-				empty_3: {
-					type: 'empty',
-					number: 3,
-					hideObjective: 'bottles',
-					hideSpot: 'bathroomCurtain',
-				},
-			};
-		} else {
-			newSeedData = generateSeedData(false, selectedRoom);
-		}
+		// Regenerate seed data with new percentages
+		const newSeedData = selectedRoom
+			? {
+					[selectedRoom]: {
+						...levelData[selectedRoom],
+						type: selectedRoom,
+					},
+					empty_1: {
+						type: 'empty',
+						number: 1,
+						hideObjective: 'window',
+						hideSpot: 'roomCurtain',
+					},
+					empty_2: {
+						type: 'empty',
+						number: 2,
+						hideObjective: 'bedsheets',
+						hideSpot: 'desk',
+					},
+					empty_3: {
+						type: 'empty',
+						number: 3,
+						hideObjective: 'bottles',
+						hideSpot: 'bathroomCurtain',
+					},
+			  }
+			: generateSeedData(false, selectedRoom);
+
 		setSeedData(newSeedData);
 		initializeIfNeeded();
-	}, [initializeIfNeeded, selectedRoom, setSeedData]);
+	}, [
+		initializeIfNeeded,
+		roomCount,
+		emptyRoomPercentage,
+		hideoutPercentage,
+		landminePercentage,
+		claymorePercentage,
+		hunterPercentage,
+		sonarPercentage,
+		raidPercentage,
+		selectedRoom,
+		setSeedData,
+	]);
 
 	useEffect(() => {
 		const controls = controlsRef.current;
@@ -281,9 +304,9 @@ function App() {
 		const baseRoomIndex = Math.floor((x - 8) / CORRIDORLENGTH);
 		const roomIndex = isTopSide
 			? Math.abs(baseRoomIndex) - 2
-			: Math.abs(baseRoomIndex) + roomTotal / 2 - 2;
+			: Math.abs(baseRoomIndex) + roomCount / 2 - 2;
 
-		if (roomIndex >= 0 && roomIndex < roomTotal) {
+		if (roomIndex >= 0 && roomIndex < roomCount) {
 			if (realPlayerPositionRoom !== roomIndex) {
 				setRealPlayerPositionRoom(roomIndex);
 			}
@@ -293,6 +316,85 @@ function App() {
 			}
 		}
 	});
+
+	useControls(
+		'Gameplay Settings',
+		{
+			'Room Count': {
+				value: roomCount,
+				min: 4,
+				max: 40,
+				step: 2,
+				onChange: (value) => setRoomCount(value),
+			},
+			'Empty Room %': {
+				value: emptyRoomPercentage,
+				min: 0,
+				max: 100,
+				step: 5,
+				onChange: (value) => setEmptyRoomPercentage(value),
+			},
+			'Raid %': {
+				value: raidPercentage,
+				min: 0,
+				max: 100,
+				step: 5,
+				onChange: (value) => setRaidPercentage(value),
+			},
+			'Hideout %': {
+				value: hideoutPercentage,
+				min: 0,
+				max: 100,
+				step: 5,
+				onChange: (value) => setHideoutPercentage(value),
+			},
+			'Landmine %': {
+				value: landminePercentage,
+				min: 0,
+				max: 100,
+				step: 5,
+				onChange: (value) => setLandminePercentage(value),
+			},
+			'Claymore %': {
+				value: claymorePercentage,
+				min: 0,
+				max: 100,
+				step: 5,
+				onChange: (value) => setClaymorePercentage(value),
+			},
+			'Hunter %': {
+				value: hunterPercentage,
+				min: 0,
+				max: 100,
+				step: 5,
+				onChange: (value) => setHunterPercentage(value),
+			},
+			'Sonar %': {
+				value: sonarPercentage,
+				min: 0,
+				max: 100,
+				step: 5,
+				onChange: (value) => setSonarPercentage(value),
+			},
+		},
+		{
+			collapsed: true,
+		}
+	);
+
+	useEffect(() => {
+		initializeIfNeeded();
+	}, [
+		initializeIfNeeded,
+		roomCount,
+		emptyRoomPercentage,
+		hideoutPercentage,
+		landminePercentage,
+		claymorePercentage,
+		hunterPercentage,
+		sonarPercentage,
+		raidPercentage,
+	]);
 
 	return (
 		<>
@@ -323,7 +425,7 @@ function App() {
 					<CorridorStart position={[1.07, 0, 0]} />
 					<CorridorMiddles />
 					<CorridorEnd
-						position={[-1.19 - (roomTotal / 2 - 1) * CORRIDORLENGTH, 0, 0]}
+						position={[-1.19 - (roomCount / 2 - 1) * CORRIDORLENGTH, 0, 0]}
 					/>
 				</group>
 				{/* 
@@ -352,14 +454,24 @@ function App() {
 export default function AppCanvas() {
 	const performanceMode = useGame((state) => state.performanceMode);
 	const isMobile = useGame((state) => state.isMobile);
+	const setPlayIntro = useGame((state) => state.setPlayIntro);
 
-	const { perfVisible } = useControls({
-		perfVisible: { value: false, label: 'Show performances' },
-		'Reset game': button(() => {
-			regenerateData();
-			resetGame();
-		}),
-	});
+	const { perfVisible } = useControls(
+		{
+			perfVisible: { value: false, label: 'Show performances' },
+			'Reset game': button(() => {
+				regenerateData();
+				resetGame();
+			}),
+			'Play Intro Animation': button(() => {
+				setPlayIntro(true);
+			}),
+		},
+
+		{
+			collapsed: true,
+		}
+	);
 
 	const isDebugMode = window.location.hash === '#debug';
 

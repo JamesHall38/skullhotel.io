@@ -8,6 +8,7 @@ import * as THREE from 'three';
 import levelData from '../Monster/Triggers/levelData';
 import DetectionZone from '../DetectionZone';
 import { usePositionalSound } from '../../utils/audio';
+import useGameplaySettings from '../../hooks/useGameplaySettings';
 
 const CORRIDORLENGTH = 5.95;
 const offset = [8.43, 1.13, 12];
@@ -15,7 +16,7 @@ const offset = [8.43, 1.13, 12];
 export default function Window() {
 	const roomCurtain = useDoor((state) => state.roomCurtain);
 	const roomNumber = useGame((state) => state.playerPositionRoom);
-	const roomTotal = useGame((state) => state.roomTotal);
+	const roomCount = useGameplaySettings((state) => state.roomCount);
 	const playerPositionRoom = useGame((state) => state.playerPositionRoom);
 	const group = useRef();
 	const { nodes, animations } = useGLTF('/models/objectives/window.glb');
@@ -67,11 +68,11 @@ export default function Window() {
 	const position = useMemo(() => {
 		let calculatedPosition;
 
-		if (playerPositionRoom >= roomTotal / 2) {
+		if (playerPositionRoom >= roomCount / 2) {
 			calculatedPosition = [
 				offset[0] -
 					CORRIDORLENGTH -
-					(playerPositionRoom - roomTotal / 2) * CORRIDORLENGTH,
+					(playerPositionRoom - roomCount / 2) * CORRIDORLENGTH,
 				offset[1],
 				-offset[2],
 			];
@@ -90,7 +91,7 @@ export default function Window() {
 		}
 
 		return calculatedPosition;
-	}, [playerPositionRoom, roomTotal, camera]);
+	}, [playerPositionRoom, roomCount, camera]);
 
 	const handleDetection = useCallback(() => {
 		if (camera.position.x > 1.8 && camera.position.z > 3) {

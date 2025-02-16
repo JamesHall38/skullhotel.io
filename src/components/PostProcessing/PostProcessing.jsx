@@ -11,7 +11,7 @@ import { Uniform } from 'three';
 import useMonster from '../../hooks/useMonster';
 import useLight from '../../hooks/useLight';
 import { useFrame } from '@react-three/fiber';
-import { useControls, button } from 'leva';
+import { useControls } from 'leva';
 import useGame from '../../hooks/useGame';
 import useInterface from '../../hooks/useInterface';
 import * as THREE from 'three';
@@ -164,36 +164,40 @@ const FOVDistortion = ({ playIntro }) => {
 
 const CustomBlur = () => {
 	const { intensity, vignetteRadius, vignetteSoftness, vignetteStrength } =
-		useControls('Blur Effect', {
-			intensity: {
-				value: 0,
-				min: 0,
-				max: 5,
-				step: 0.1,
-				label: 'Base Blur',
+		useControls(
+			'Blur Effect',
+			{
+				intensity: {
+					value: 0,
+					min: 0,
+					max: 5,
+					step: 0.1,
+					label: 'Base Blur',
+				},
+				vignetteRadius: {
+					value: 0.3,
+					min: 0,
+					max: 1,
+					step: 0.01,
+					label: 'Vignette Radius',
+				},
+				vignetteSoftness: {
+					value: 0.15,
+					min: 0,
+					max: 1,
+					step: 0.01,
+					label: 'Vignette Softness',
+				},
+				vignetteStrength: {
+					value: 0.5,
+					min: 0,
+					max: 5,
+					step: 0.1,
+					label: 'Vignette Strength',
+				},
 			},
-			vignetteRadius: {
-				value: 0.3,
-				min: 0,
-				max: 1,
-				step: 0.01,
-				label: 'Vignette Radius',
-			},
-			vignetteSoftness: {
-				value: 0.15,
-				min: 0,
-				max: 1,
-				step: 0.01,
-				label: 'Vignette Softness',
-			},
-			vignetteStrength: {
-				value: 0.5,
-				min: 0,
-				max: 5,
-				step: 0.1,
-				label: 'Vignette Strength',
-			},
-		});
+			{ collapsed: true }
+		);
 
 	const effect = useMemo(() => createBlurEffect(), []);
 
@@ -338,12 +342,6 @@ const PostProcessing = () => {
 		} else {
 			lerpTimeRef.current = 0;
 		}
-	});
-
-	useControls({
-		'Play Intro Animation': button(() => {
-			setPlayIntro(true);
-		}),
 	});
 
 	useEffect(() => {

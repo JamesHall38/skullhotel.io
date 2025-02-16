@@ -8,16 +8,16 @@ import DoorWrapper from './DoorWrapper';
 import { useThree } from '@react-three/fiber';
 import WoodMaterial from '../materials/WoodMaterial';
 import useGridStore, { CELL_TYPES } from '../../hooks/useGrid';
+import useGameplaySettings from '../../hooks/useGameplaySettings';
 
 const tutorialRoomCenter = [6.69, 0.41, 8.52];
 const doorOffset = [5.15, 0.41, 6.82];
 
-const GRID_OFFSET_X = 600;
 const GRID_OFFSET_Z = 150;
 
 export default function DeskDoor() {
 	const playerPositionRoom = useGame((state) => state.playerPositionRoom);
-	const roomTotal = useGame((state) => state.roomTotal);
+	const roomCount = useGameplaySettings((state) => state.roomCount);
 	const deskDoors = useDoor((state) => state.desks);
 	const setDeskDoors = useDoor((state) => state.setDesks);
 	const { nodes } = useGLTF('/models/doors/desk_door.glb');
@@ -32,6 +32,7 @@ export default function DeskDoor() {
 	const isHidden = useHiding(
 		(state) => state.isPlayerHidden && state.hideSpot === 'desk'
 	);
+	const [gridOffsetX, setGridOffsetX] = useState(0);
 
 	const { opacity } = useSpring({
 		opacity: isHidden ? 0.05 : 1,
@@ -41,6 +42,10 @@ export default function DeskDoor() {
 			friction: 26,
 		},
 	});
+
+	useEffect(() => {
+		setGridOffsetX(roomCount * 29.5 + 10);
+	}, [roomCount]);
 
 	useEffect(() => {
 		if (deskDoors[playerPositionRoom] === true && !isOpen) {
@@ -67,7 +72,7 @@ export default function DeskDoor() {
 	}, [playerPositionRoom, camera]);
 
 	useEffect(() => {
-		const cellX = Math.floor(camera.position.x * 10 + GRID_OFFSET_X);
+		const cellX = Math.floor(camera.position.x * 10 + gridOffsetX);
 		const cellZ = Math.floor(camera.position.z * 10 + GRID_OFFSET_Z);
 		const cell = getCell(cellX, cellZ);
 
@@ -84,6 +89,7 @@ export default function DeskDoor() {
 		setDeskDoors,
 		setOpen,
 		getCell,
+		gridOffsetX,
 	]);
 
 	useEffect(() => {
@@ -99,7 +105,7 @@ export default function DeskDoor() {
 				setDeskDoors(playerPositionRoom, value);
 				setOpen(value);
 			}}
-			rotate={playerPositionRoom >= roomTotal / 2}
+			rotate={playerPositionRoom >= roomCount / 2}
 			instantChange={instantChange}
 			setInstantChange={setInstantChange}
 			closet

@@ -1,9 +1,10 @@
 import { create } from 'zustand';
 import { subscribeWithSelector } from 'zustand/middleware';
-import { seed, roomNumber, events } from '../utils/config';
+import { seed, events } from '../utils/config';
 import useHiding from './useHiding';
 import useMonster from './useMonster';
 import useDoor from './useDoor';
+import useGameplaySettings from './useGameplaySettings';
 
 const CORRIDORLENGTH = 5.95;
 
@@ -50,8 +51,6 @@ const useGameStore = create(
 		playIntro: false,
 		setPlayIntro: (value) => set({ playIntro: value }),
 
-		// Room
-		roomTotal: roomNumber,
 		realPlayerPositionRoom: null,
 		setRealPlayerPositionRoom: (position) =>
 			set(() => ({ realPlayerPositionRoom: position })),
@@ -123,6 +122,8 @@ const useGameStore = create(
 
 		checkObjectiveCompletion: (objective, room) => {
 			const state = get();
+			const roomCount = useGameplaySettings.getState().roomCount;
+
 			const roomData =
 				state.seedData[
 					`hiding_${room === 'window' ? 1 : room === 'bedsheets' ? 2 : 3}`
@@ -134,8 +135,8 @@ const useGameStore = create(
 				const doors = useDoor.getState();
 
 				let monsterX;
-				if (room >= roomNumber / 2) {
-					monsterX = -(room - roomNumber / 2) * CORRIDORLENGTH;
+				if (room >= roomCount / 2) {
+					monsterX = -(room - roomCount / 2) * CORRIDORLENGTH;
 				} else {
 					monsterX = -room * CORRIDORLENGTH;
 				}
@@ -193,7 +194,6 @@ const useGameStore = create(
 				// seedData: seed, // commented for easy debug but should be uncommented for production
 				eventData: events,
 				deaths: state.deaths + 1,
-				roomTotal: roomNumber,
 				playerPositionRoom: null,
 				resetFootstepSound: true,
 				cameraShakingWhenLookingAtMonster: false,

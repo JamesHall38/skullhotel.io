@@ -6,8 +6,8 @@ import useGame from '../../hooks/useGame';
 import useDoorStore from '../../hooks/useDoor';
 import useMonster from '../../hooks/useMonster';
 import useJoysticks from '../../hooks/useJoysticks';
+import useGameplaySettings from '../../hooks/useGameplaySettings';
 
-const GRID_OFFSET_X = 600;
 const GRID_OFFSET_Z = 150;
 const RAISED_AREA_LOW_HEIGHT = 0.5;
 const RAISED_AREA_HIGH_HEIGHT = 0.7;
@@ -47,8 +47,15 @@ export default function Jump({
 	const tutorial = useDoorStore((state) => state.tutorial);
 	const corridor = useDoorStore((state) => state.corridor);
 
+	const [gridOffsetX, setGridOffsetX] = useState(0);
+	const roomCount = useGameplaySettings((state) => state.roomCount);
+
+	useEffect(() => {
+		setGridOffsetX(roomCount * 29.5 + 10);
+	}, [roomCount]);
+
 	const isRaisedArea = (pos) => {
-		const cellX = Math.floor(pos.x * 10 + GRID_OFFSET_X);
+		const cellX = Math.floor(pos.x * 10 + gridOffsetX);
 		const cellZ = Math.floor(pos.z * 10 + GRID_OFFSET_Z);
 		const cell = getCell(cellX, cellZ);
 		return (
@@ -60,7 +67,7 @@ export default function Jump({
 	};
 
 	const getRaisedAreaHeight = (pos) => {
-		const cellX = Math.floor(pos.x * 10 + GRID_OFFSET_X);
+		const cellX = Math.floor(pos.x * 10 + gridOffsetX);
 		const cellZ = Math.floor(pos.z * 10 + GRID_OFFSET_Z);
 		const cell = getCell(cellX, cellZ);
 		if (cell.type === CELL_TYPES.RAISED_AREA_LOW) {
@@ -76,7 +83,7 @@ export default function Jump({
 	};
 
 	const checkCollision = (pos) => {
-		const cellX = Math.floor(pos.x * 10 + GRID_OFFSET_X);
+		const cellX = Math.floor(pos.x * 10 + gridOffsetX);
 		const cellZ = Math.floor(pos.z * 10 + GRID_OFFSET_Z);
 		const cell = getCell(cellX, cellZ);
 
@@ -140,7 +147,7 @@ export default function Jump({
 	};
 
 	const isHighRaisedArea = (pos) => {
-		const cellX = Math.floor(pos.x * 10 + GRID_OFFSET_X);
+		const cellX = Math.floor(pos.x * 10 + gridOffsetX);
 		const cellZ = Math.floor(pos.z * 10 + GRID_OFFSET_Z);
 		const cell = getCell(cellX, cellZ);
 		return (
@@ -187,7 +194,7 @@ export default function Jump({
 	}, [controls.jump, spacePressed, isListening, isMobile]);
 
 	useEffect(() => {
-		const cellX = Math.floor(playerPosition.current.x * 10 + GRID_OFFSET_X);
+		const cellX = Math.floor(playerPosition.current.x * 10 + gridOffsetX);
 		const cellZ = Math.floor(playerPosition.current.z * 10 + GRID_OFFSET_Z);
 		const cell = getCell(cellX, cellZ);
 
@@ -219,6 +226,7 @@ export default function Jump({
 		playerPosition,
 		getCell,
 		playerPositionRoom,
+		gridOffsetX,
 	]);
 
 	useFrame((state, delta) => {
@@ -238,7 +246,7 @@ export default function Jump({
 				!isHighRaisedArea(playerPosition.current)
 			) {
 				const currentCell = getCell(
-					Math.floor(playerPosition.current.x * 10 + GRID_OFFSET_X),
+					Math.floor(playerPosition.current.x * 10 + gridOffsetX),
 					Math.floor(playerPosition.current.z * 10 + GRID_OFFSET_Z)
 				);
 				setJumpedFromBed(currentCell.type === CELL_TYPES.BED);
@@ -334,6 +342,12 @@ export default function Jump({
 			) {
 				setJumpedFromBed(false);
 			}
+		} else if (monsterState === 'run') {
+			state.camera.position.y = THREE.MathUtils.lerp(
+				state.camera.position.y,
+				1.5,
+				0.1 * delta * 60
+			);
 		}
 	});
 }

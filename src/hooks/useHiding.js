@@ -2,17 +2,19 @@ import { create } from 'zustand';
 import { subscribeWithSelector } from 'zustand/middleware';
 import useDoor from './useDoor';
 import useGridStore from './useGrid';
+import useGameplaySettings from './useGameplaySettings';
 
 const checkIfPlayerIsHidden = (camera) => {
 	const doors = useDoor.getState();
 	const hiding = useHiding.getState();
 	const getCell = useGridStore.getState().getCell;
+	const roomCount = useGameplaySettings.getState().roomCount;
+	const gridOffsetX = roomCount * 29.5 + 10;
 
 	if (!camera) return false;
 
-	const GRID_OFFSET_X = 600;
 	const GRID_OFFSET_Z = 150;
-	const playerX = Math.round(camera.position.x * 10 + GRID_OFFSET_X);
+	const playerX = Math.round(camera.position.x * 10 + gridOffsetX);
 	const playerZ = Math.round(camera.position.z * 10 + GRID_OFFSET_Z);
 
 	const currentCell = getCell(playerX, playerZ);

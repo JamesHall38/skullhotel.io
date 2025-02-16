@@ -1,99 +1,198 @@
 import levelData from '../components/Monster/Triggers/levelData';
+import useGameplaySettings from '../hooks/useGameplaySettings';
 
-const numberOfRooms = 20;
+// Helper function to get random room data of a specific type
+function getRandomRoomDataByType(type, usedRoomData = []) {
+	const roomsOfType = Object.entries(levelData)
+		.filter(([, data]) => data.type === type)
+		.filter(([, data]) => !usedRoomData.includes(data));
 
-function getHidingRooms() {
-	return {
-		empty_1: { type: 'empty', number: 1 },
-		hiding_1: {
-			type: 'empty',
-			number: 2,
-			hideObjective: 'window',
-			hideSpot: 'roomCurtain',
-		},
-		hiding_2: {
-			type: 'empty',
-			number: 3,
-			hideObjective: 'bedsheets',
-			hideSpot: 'desk',
-		},
-		hiding_3: {
-			type: 'empty',
-			number: 4,
-			hideObjective: 'bottles',
-			hideSpot: 'bathroomCurtain',
-		},
-	};
+	if (roomsOfType.length === 0) {
+		// If all rooms have been used, return any room of this type
+		const anyRoomOfType = Object.entries(levelData).filter(
+			([, data]) => data.type === type
+		);
+		if (anyRoomOfType.length === 0) return null;
+		const randomIndex = Math.floor(Math.random() * anyRoomOfType.length);
+		return anyRoomOfType[randomIndex][1];
+	}
+
+	const randomIndex = Math.floor(Math.random() * roomsOfType.length);
+	return roomsOfType[randomIndex][1];
 }
 
-export default function generateSeedData(
-	isTestMode = false,
-	selectedRoom = null
-) {
-	if (selectedRoom && levelData[selectedRoom]) {
-		return {
-			[selectedRoom]: {
-				...levelData[selectedRoom],
-				type: selectedRoom,
-			},
+export default function generateSeedData() {
+	const roomCount = useGameplaySettings.getState().roomCount;
+	const emptyRoomPercentage =
+		useGameplaySettings.getState().emptyRoomPercentage;
+	const hideoutPercentage = useGameplaySettings.getState().hideoutPercentage;
+	const landminePercentage = useGameplaySettings.getState().landminePercentage;
+	const claymorePercentage = useGameplaySettings.getState().claymorePercentage;
+	const hunterPercentage = useGameplaySettings.getState().hunterPercentage;
+	const sonarPercentage = useGameplaySettings.getState().sonarPercentage;
+	const raidPercentage = useGameplaySettings.getState().raidPercentage;
+
+	const seed = {};
+	const hidingRooms = {};
+
+	// Add hiding rooms first (these are the mandatory rooms)
+	Object.entries(hidingRooms).forEach(([key, room]) => {
+		seed[key] = room;
+	});
+
+	// Calculate remaining rooms (roomCount - 1 car nous avons déjà une pièce empty)
+	const remainingRooms = roomCount - Object.keys(hidingRooms).length;
+
+	// Calculate rooms for each type based on percentages
+	const totalPercentage =
+		hideoutPercentage +
+		landminePercentage +
+		claymorePercentage +
+		hunterPercentage +
+		sonarPercentage +
+		raidPercentage +
+		emptyRoomPercentage;
+
+	// Calculate exact numbers first
+	const hideoutRoomsExact =
+		remainingRooms * (hideoutPercentage / totalPercentage);
+	const landmineRoomsExact =
+		remainingRooms * (landminePercentage / totalPercentage);
+	const claymoreRoomsExact =
+		remainingRooms * (claymorePercentage / totalPercentage);
+	const hunterRoomsExact =
+		remainingRooms * (hunterPercentage / totalPercentage);
+	const sonarRoomsExact = remainingRooms * (sonarPercentage / totalPercentage);
+	const raidRoomsExact = remainingRooms * (raidPercentage / totalPercentage);
+
+	// Round to nearest integer instead of floor
+	const hideoutRooms = Math.round(hideoutRoomsExact);
+	const landmineRooms = Math.round(landmineRoomsExact);
+	const claymoreRooms = Math.round(claymoreRoomsExact);
+	const hunterRooms = Math.round(hunterRoomsExact);
+	const sonarRooms = Math.round(sonarRoomsExact);
+	const raidRooms = Math.round(raidRoomsExact);
+
+	// Ensure total rooms equals roomCount by adjusting empty rooms if necessary
+	const totalRoomsBeforeEmpty =
+		hideoutRooms +
+		landmineRooms +
+		claymoreRooms +
+		hunterRooms +
+		sonarRooms +
+		raidRooms +
+		Object.keys(hidingRooms).length;
+
+	// Adjust empty rooms to make total equal to roomCount
+	const emptyRoomsAdjusted = roomCount - totalRoomsBeforeEmpty;
+
+	let currentRoom = Object.keys(seed).length;
+
+	const usedRoomData = [];
+
+	// Add hideout rooms
+	for (let i = 0; i < hideoutRooms; i++) {
+		const roomData = getRandomRoomDataByType('hideout', usedRoomData);
+		if (roomData) {
+			usedRoomData.push(roomData);
+			seed[`hideout_${i + 1}`] = {
+				...roomData,
+				type: 'hideout',
+				number: currentRoom + i + 1,
+			};
+		}
+	}
+	currentRoom += hideoutRooms;
+
+	// Add landmine rooms
+	for (let i = 0; i < landmineRooms; i++) {
+		const roomData = getRandomRoomDataByType('landmine', usedRoomData);
+		if (roomData) {
+			usedRoomData.push(roomData);
+			seed[`landmine_${i + 1}`] = {
+				...roomData,
+				type: 'landmine',
+				number: currentRoom + i + 1,
+			};
+		}
+	}
+	currentRoom += landmineRooms;
+
+	// Add claymore rooms
+	for (let i = 0; i < claymoreRooms; i++) {
+		const roomData = getRandomRoomDataByType('claymore', usedRoomData);
+		if (roomData) {
+			usedRoomData.push(roomData);
+			seed[`claymore_${i + 1}`] = {
+				...roomData,
+				type: 'claymore',
+				number: currentRoom + i + 1,
+			};
+		}
+	}
+	currentRoom += claymoreRooms;
+
+	// Add hunter rooms
+	for (let i = 0; i < hunterRooms; i++) {
+		const roomData = getRandomRoomDataByType('hunter', usedRoomData);
+		if (roomData) {
+			usedRoomData.push(roomData);
+			seed[`hunter_${i + 1}`] = {
+				...roomData,
+				type: 'hunter',
+				number: currentRoom + i + 1,
+			};
+		}
+	}
+	currentRoom += hunterRooms;
+
+	// Add sonar rooms
+	for (let i = 0; i < sonarRooms; i++) {
+		const roomData = getRandomRoomDataByType('sonar', usedRoomData);
+		if (roomData) {
+			usedRoomData.push(roomData);
+			seed[`sonar_${i + 1}`] = {
+				...roomData,
+				type: 'sonar',
+				number: currentRoom + i + 1,
+			};
+		}
+	}
+	currentRoom += sonarRooms;
+
+	// Add empty rooms
+	for (let i = 0; i < emptyRoomsAdjusted; i++) {
+		seed[`empty_${i + Object.keys(hidingRooms).length + 1}`] = {
+			type: 'empty',
+			number: currentRoom + i + 1,
 		};
 	}
 
-	if (isTestMode) {
-		let selectedRooms = getHidingRooms();
-		let allNonEmptyRooms = Object.entries(levelData).flat();
+	// Add raid rooms
+	for (let i = 0; i < raidRooms; i++) {
+		const hideObjectives = ['window', 'bedsheets', 'bottles'];
 
-		allNonEmptyRooms.forEach((room, index) => {
-			if (Array.isArray(room)) return; // Skip array entries
-			if (index < 5) return; // Skip first 5 rooms which are hiding rooms
-			selectedRooms[`${room.type || 'room'}_${index}`] = { ...room };
-		});
-
-		return selectedRooms;
+		seed[`raid_${i + 1}`] = {
+			type: 'raid',
+			number: currentRoom + i + 1,
+			hideObjective:
+				hideObjectives[Math.floor(Math.random() * hideObjectives.length)],
+		};
 	}
+	currentRoom += raidRooms;
 
-	const numberOfEmptyRooms = Math.floor(numberOfRooms * 0.5) - 2;
-	const numberOfFilledRooms = numberOfRooms - numberOfEmptyRooms + 2;
-	const hidingRooms = getHidingRooms();
+	// Randomly shuffle the rooms
+	const shuffledSeed = {};
+	const roomKeys = Object.keys(seed);
+	const shuffledKeys = [...roomKeys].sort(() => Math.random() - 0.5);
 
-	let selectedRooms = { ...hidingRooms };
-	let allNonEmptyRooms = Object.entries(levelData);
-	allNonEmptyRooms.sort(() => Math.random() - 0.5);
+	shuffledKeys.forEach((key, index) => {
+		const newKey = roomKeys[index];
+		shuffledSeed[newKey] = {
+			...seed[key],
+			number: index + 1,
+		};
+	});
 
-	// Ensure one room from each category
-	for (let categoryIndex = 0; categoryIndex < 5; categoryIndex++) {
-		const categoryRoom = allNonEmptyRooms.find(
-			([key, room]) => room.type === categoryIndex
-		);
-		if (categoryRoom) {
-			const [key, room] = categoryRoom;
-			selectedRooms[key] = room;
-			allNonEmptyRooms = allNonEmptyRooms.filter(([k]) => k !== key);
-		}
-	}
-
-	// Fill remaining rooms
-	let currentIndex = Object.keys(selectedRooms).length;
-	while (currentIndex < numberOfFilledRooms && allNonEmptyRooms.length > 0) {
-		const randomIndex = Math.floor(Math.random() * allNonEmptyRooms.length);
-		const [key, room] = allNonEmptyRooms[randomIndex];
-		selectedRooms[key] = room;
-		allNonEmptyRooms.splice(randomIndex, 1);
-		currentIndex++;
-	}
-
-	// Modify empty rooms loop to account for hiding rooms
-	for (
-		let i = 0;
-		i < numberOfEmptyRooms - Object.keys(hidingRooms).length;
-		i++
-	) {
-		selectedRooms[`empty_${i + 5}`] = { type: 'empty', number: i + 5 };
-	}
-
-	// Randomize order
-	const entries = Object.entries(selectedRooms);
-	entries.sort(() => Math.random() - 0.5);
-
-	return Object.fromEntries(entries);
+	return shuffledSeed;
 }

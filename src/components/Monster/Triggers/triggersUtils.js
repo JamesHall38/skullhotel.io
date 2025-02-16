@@ -8,11 +8,11 @@ let accumulatedDelta = 0;
 
 export const getMonsterInitialPosition = (
 	playerPositionRoom,
-	roomTotal,
+	roomCount,
 	position,
 	controlsPosition
 ) => {
-	const isFacingRoom = playerPositionRoom >= roomTotal / 2;
+	const isFacingRoom = playerPositionRoom >= roomCount / 2;
 	const initialPosition = [
 		position[0] + (controlsPosition[0] || 0),
 		position[1] + (controlsPosition[1] || 0),
@@ -23,7 +23,7 @@ export const getMonsterInitialPosition = (
 		initialPosition,
 		isFacingRoom,
 		playerPositionRoom,
-		roomTotal
+		roomCount
 	);
 };
 
@@ -31,7 +31,7 @@ export const getAdjustedPosition = (
 	initialPosition,
 	isFacingRoom
 	// playerPositionRoom,
-	// roomTotal
+	// roomCount
 ) => {
 	if (!isFacingRoom) return initialPosition;
 	return [-initialPosition[0], initialPosition[1], -initialPosition[2]];
@@ -99,7 +99,7 @@ export const placeMonsterAtSecondPosition = (
 	setMonsterState,
 	setMonsterPosition,
 	position,
-	roomTotal
+	roomCount
 ) => {
 	setMonsterState('facingCamera');
 	setMonsterPosition(
@@ -115,9 +115,9 @@ export const placeMonsterAtSecondPosition = (
 					(Object.values(seedData)[playerPositionRoom].monsterPosition?.[2] ||
 						0),
 			],
-			playerPositionRoom >= roomTotal / 2,
+			playerPositionRoom >= roomCount / 2,
 			playerPositionRoom,
-			roomTotal
+			roomCount
 		)
 	);
 };

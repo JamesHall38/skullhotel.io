@@ -1,9 +1,17 @@
-// import React from 'react';
+// import React, { useState, useEffect } from 'react';
 // import { Box } from '@react-three/drei';
 // import useGridStore, { CELL_TYPES } from '../hooks/useGrid';
+// import useGameplaySettings from '../hooks/useGameplaySettings';
 
 const Grid = () => {
 	// const { grid } = useGridStore();
+	// const roomCount = useGameplaySettings((state) => state.roomCount);
+	// const [gridOffsetX, setGridOffsetX] = useState(0);
+
+	// useEffect(() => {
+	// 	setGridOffsetX(roomCount * 29.5 + 10);
+	// }, [roomCount]);
+
 	// const getCellColor = (cellType, hidingSpot) => {
 	// 	if (hidingSpot) {
 	// 		return 'magenta';
@@ -40,12 +48,14 @@ const Grid = () => {
 	// );
 
 	return (
-		<group position={[-60, 0.5, -15]}>
-			{/* {Object.values(grid).map((cell) =>
+		<group>
+			{/* <group position={[-gridOffsetX / 10, 0.5, -15]}>
+			{Object.values(grid).map((cell) =>
 				cell.type !== CELL_TYPES.EMPTY || cell.hidingSpot
 					? renderCell(cell, `cell-${cell.x},${cell.z}`)
 					: null
-			)} */}
+			)}
+		</group> */}
 		</group>
 	);
 };
