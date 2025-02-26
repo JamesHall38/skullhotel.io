@@ -5,6 +5,8 @@ import * as THREE from 'three';
 import useInterface from '../../hooks/useInterface';
 import useGame from '../../hooks/useGame';
 import { usePositionalSound } from '../../utils/audio';
+import useDoor from '../../hooks/useDoor';
+import useGamepadControls from '../../hooks/useGamepadControls';
 
 export default function DoubleCurtain({
 	name,
@@ -56,6 +58,11 @@ export default function DoubleCurtain({
 	const setMobileClick = useGame((state) => state.setMobileClick);
 	const processedInFrameRef = useRef(false);
 	const instantChangeRef = useRef(false);
+	const isJustAfterDoorChangeRef = useRef(false);
+	const roomDoors = useDoor((state) => state.roomDoor);
+	const deviceMode = useGame((state) => state.deviceMode);
+	const gamepadControlsRef = useGamepadControls();
+	const wasActionPressedRef = useRef(false);
 
 	const { nodes, animations } = useGLTF(modelPath);
 
@@ -100,6 +107,13 @@ export default function DoubleCurtain({
 		curtainsRef.current = curtains;
 	}, [curtains]);
 
+	useEffect(() => {
+		isJustAfterDoorChangeRef.current = true;
+		setTimeout(() => {
+			isJustAfterDoorChangeRef.current = false;
+		}, 2000);
+	}, [roomDoors, roomNumber]);
+
 	const configureAction = useCallback(
 		(action, timeScale = 1, startTime = null) => {
 			action.clampWhenFinished = true;
@@ -134,7 +148,7 @@ export default function DoubleCurtain({
 	);
 
 	const openCurtain = useCallback(() => {
-		if (!instantChangeRef.current) {
+		if (!instantChangeRef.current && !isJustAfterDoorChangeRef.current) {
 			setTimeout(() => {
 				curtainSoundRef.current.play();
 			}, 500);
@@ -145,7 +159,7 @@ export default function DoubleCurtain({
 	}, [handleCurtainAnimation, setCurtains]);
 
 	const closeCurtain = useCallback(() => {
-		if (!instantChangeRef.current) {
+		if (!instantChangeRef.current && !isJustAfterDoorChangeRef.current) {
 			setTimeout(() => {
 				curtainSoundRef.current.currentTime = 0;
 				curtainSoundRef.current.play();
@@ -197,10 +211,9 @@ export default function DoubleCurtain({
 	);
 
 	useFrame(() => {
-		// Calcul de instantChange
-		instantChangeRef.current = Math.abs(camera.position.x) < 1;
+		instantChangeRef.current =
+			Math.abs(camera.position.x) < 1 || isJustAfterDoorChangeRef.current;
 
-		// Mise à jour des mixers avec la nouvelle valeur
 		if (mixerRightRef.current) {
 			mixerRightRef.current.timeScale = instantChangeRef.current ? 10 : 1;
 		}
@@ -209,10 +222,15 @@ export default function DoubleCurtain({
 		}
 
 		const detected = checkProximityAndVisibility(camera);
-		if (cursor === `door-${name}` && !detected) {
+		const currentCursor =
+			deviceMode === 'gamepad' ? `door-${name}-gamepad` : `door-${name}`;
+
+		if (detected) {
+			if (cursor !== currentCursor) {
+				setCursor(currentCursor);
+			}
+		} else if (cursor === `door-${name}` || cursor === `door-${name}-gamepad`) {
 			setCursor(null);
-		} else if (cursor !== `door-${name}` && detected) {
-			setCursor(`door-${name}`);
 		}
 
 		if (mobileClick && detected) {
@@ -226,6 +244,8 @@ export default function DoubleCurtain({
 	}, [mobileClick]);
 
 	useEffect(() => {
+		if (deviceMode !== 'keyboard') return;
+
 		const handleDocumentClick = (e) => {
 			if (e.button !== 0) return;
 			if (checkProximityAndVisibility(camera)) {
@@ -237,7 +257,41 @@ export default function DoubleCurtain({
 		return () => {
 			document.removeEventListener('click', handleDocumentClick);
 		};
-	}, [checkProximityAndVisibility, setCurtain, isCurtainOpen, camera]);
+	}, [
+		checkProximityAndVisibility,
+		setCurtain,
+		isCurtainOpen,
+		camera,
+		deviceMode,
+	]);
+
+	useEffect(() => {
+		if (deviceMode !== 'gamepad') return;
+
+		const checkGamepad = () => {
+			const gamepadControls = gamepadControlsRef();
+			if (
+				gamepadControls.action &&
+				!wasActionPressedRef.current &&
+				checkProximityAndVisibility(camera)
+			) {
+				wasActionPressedRef.current = true;
+				setCurtain(!isCurtainOpen);
+			} else if (!gamepadControls.action && wasActionPressedRef.current) {
+				wasActionPressedRef.current = false;
+			}
+		};
+
+		const interval = setInterval(checkGamepad, 16);
+		return () => clearInterval(interval);
+	}, [
+		deviceMode,
+		gamepadControlsRef,
+		checkProximityAndVisibility,
+		camera,
+		setCurtain,
+		isCurtainOpen,
+	]);
 
 	const easeInQuad = (t) => t * t;
 	let time0 = 0;

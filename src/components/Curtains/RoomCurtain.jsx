@@ -17,6 +17,7 @@ export default function RoomCurtain() {
 	const setRoomCurtain = useDoor((state) => state.setRoomCurtain);
 	const setRoomCurtains = useDoor((state) => state.setRoomCurtains);
 	const playerPositionRoom = useGame((state) => state.playerPositionRoom);
+	const isTutorialOpen = useGame((state) => state.isTutorialOpen);
 	const { camera } = useThree();
 	const material = new FabricMaterial({ isGrayscale: true });
 
@@ -39,14 +40,14 @@ export default function RoomCurtain() {
 			];
 		}
 
-		if (camera.position.x > 8) {
-			calculatedPosition = [14.5, 0, 14.5];
-		} else if (camera.position.x <= 8 && camera.position.x > 4.4) {
+		if (isTutorialOpen) {
 			calculatedPosition = [2.9, 0, 7.78];
+		} else if (camera.position.x > 8) {
+			calculatedPosition = [14.5, 0, 14.5];
 		}
 
 		return calculatedPosition;
-	}, [playerPositionRoom, roomCount, camera]);
+	}, [playerPositionRoom, roomCount, camera, isTutorialOpen]);
 
 	return (
 		<DoubleCurtain

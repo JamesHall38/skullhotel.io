@@ -77,6 +77,29 @@
 	border: none;
 	border-radius: 0.25rem;
 	padding: 0.55rem;
+	margin-top: 1rem;
 
 	cursor: pointer;
+}
+
+.settings-group {
+	margin-bottom: 1.5rem;
+	color: var(--text-color);
+}
+
+.settings-group label {
+	display: block;
+	margin-bottom: 0.5rem;
+}
+
+.settings-group input[type='range'] {
+	width: 100%;
+	margin-bottom: 0.5rem;
+}
+
+.sensitivity-value {
+	display: block;
+	text-align: center;
+	font-size: 0.9rem;
+	color: var(--text-color);
 }

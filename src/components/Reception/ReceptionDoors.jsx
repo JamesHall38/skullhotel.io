@@ -1,4 +1,4 @@
-import React, { useMemo, useRef } from 'react';
+import React, { useMemo, useRef, useEffect } from 'react';
 import { useGLTF } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
 import DoorWrapper from '../Doors/DoorWrapper';
@@ -103,6 +103,7 @@ export default function ReceptionDoors() {
 	const setCorridorHandle = useDoor((state) => state.setCorridorHandle);
 
 	const setPlayerPositionRoom = useGame((state) => state.setPlayerPositionRoom);
+	const setIsTutorialOpen = useGame((state) => state.setIsTutorialOpen);
 	const currentDialogueIndex = useInterface(
 		(state) => state.currentDialogueIndex
 	);
@@ -110,6 +111,20 @@ export default function ReceptionDoors() {
 		(state) => state.setCurrentDialogueIndex
 	);
 	const tutorialObjectives = useInterface((state) => state.tutorialObjectives);
+	const objectives = useInterface((state) => state.interfaceObjectives);
+	const doneObjectives = useMemo(() => {
+		return objectives.filter((subArray) =>
+			subArray.every((value) => value === true)
+		).length;
+	}, [objectives]);
+
+	useEffect(() => {
+		if (tutorialDoor) {
+			setIsTutorialOpen(true);
+		} else if (corridorDoor) {
+			setIsTutorialOpen(false);
+		}
+	}, [tutorialDoor, corridorDoor, setIsTutorialOpen]);
 
 	const initialPosition = 0.5;
 
@@ -132,6 +147,7 @@ export default function ReceptionDoors() {
 					}
 				}}
 				doubleRotate
+				isReceptionDoor={true}
 			>
 				<Door isHandlePressed={corridorHandle} />
 			</DoorWrapper>
@@ -152,7 +168,14 @@ export default function ReceptionDoors() {
 					isOpen={exitDoor}
 					setHandlePressed={setExitHandle}
 					setOpen={(value) => {
-						setExitDoor(value);
+						if (doneObjectives === 10) {
+							setExitDoor(value);
+						} else {
+							if (currentDialogueIndex !== 0) {
+								setCurrentDialogueIndex(0);
+								setTimeout(() => setCurrentDialogueIndex(null), 3000);
+							}
+						}
 					}}
 				>
 					<Door isHandlePressed={exitHandle} />

@@ -24,8 +24,6 @@ export default function NightstandDoor() {
 	const isOpen = useDoor((state) => state.nightStand);
 	const setOpen = useDoor((state) => state.setNightStand);
 	const [instantChange, setInstantChange] = useState(false);
-	const playerPositionRoom = useGame((state) => state.playerPositionRoom);
-	const [tutorialRoomOffset, setTutorialRoomOffset] = useState(null);
 	const { camera } = useThree();
 	const getCell = useGridStore((state) => state.getCell);
 	const isHidden = useHiding(
@@ -81,14 +79,6 @@ export default function NightstandDoor() {
 	]);
 
 	useEffect(() => {
-		setTutorialRoomOffset(
-			camera.position.x <= 8 && camera.position.x > 4.4
-				? tutorialRoomCenter
-				: null
-		);
-	}, [playerPositionRoom, camera]);
-
-	useEffect(() => {
 		doorMaterial.current.transparent = true;
 	}, [doorMaterial]);
 
@@ -109,7 +99,7 @@ export default function NightstandDoor() {
 			instantChange={instantChange}
 			setInstantChange={setInstantChange}
 			closet
-			tutorialRoomOffset={tutorialRoomOffset}
+			tutorialRoomOffset={tutorialRoomCenter}
 		>
 			<group dispose={null}>
 				<a.mesh

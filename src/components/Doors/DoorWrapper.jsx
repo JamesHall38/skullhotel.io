@@ -6,6 +6,7 @@ import useInterface from '../../hooks/useInterface';
 import { usePositionalSound } from '../../utils/audio';
 import * as THREE from 'three';
 import useGameplaySettings from '../../hooks/useGameplaySettings';
+import useGamepadControls from '../../hooks/useGamepadControls';
 
 const CORRIDORLENGTH = 5.95;
 const DOOR_SPEED = 2;
@@ -31,6 +32,7 @@ export default function DoorWrapper({
 	const beepRef = useRef();
 	const roomCount = useGameplaySettings((state) => state.roomCount);
 	const playerPositionRoom = useGame((state) => state.playerPositionRoom);
+	const isTutorialOpen = useGame((state) => state.isTutorialOpen);
 	const cursorRef = useRef(null);
 	const setCursor = useInterface((state) => state.setCursor);
 	const canOpenRef = useRef(false);
@@ -39,6 +41,9 @@ export default function DoorWrapper({
 	const hasLookedAtGroup = useRef(false);
 	const [isInRoom, setIsInRoom] = useState(false);
 	const [hasInitialized, setHasInitialized] = useState(false);
+	const deviceMode = useGame((state) => state.deviceMode);
+	const gamepadControlsRef = useGamepadControls();
+	const wasActionPressedRef = useRef(false);
 
 	const targetAngle = useMemo(() => {
 		let angle = reverse ? -Math.PI / 2 : Math.PI / 2;
@@ -62,8 +67,8 @@ export default function DoorWrapper({
 				offset[2],
 			];
 
-		if (tutorialRoomOffset) {
-			calculatedPosition = tutorialRoomOffset;
+		if (isTutorialOpen && tutorialRoomOffset) {
+			return tutorialRoomOffset;
 		}
 
 		// Adjust Y position for adjacent doors when in a room (not in corridor)
@@ -83,6 +88,7 @@ export default function DoorWrapper({
 		playerPositionRoom,
 		closet,
 		isInRoom,
+		isTutorialOpen,
 	]);
 
 	const initialRotationY = useMemo(() => {
@@ -119,6 +125,8 @@ export default function DoorWrapper({
 	}, [isOpen, hasInitialized, closet]);
 
 	useEffect(() => {
+		if (deviceMode !== 'keyboard') return;
+
 		const handlePointerDown = (e) => {
 			if (e.button === 0 && canOpenRef.current && setHandlePressed) {
 				setHandlePressed(true);
@@ -140,7 +148,43 @@ export default function DoorWrapper({
 			window.removeEventListener('pointerdown', handlePointerDown);
 			window.removeEventListener('pointerup', handlePointerUp);
 		};
-	}, [canOpenRef, isOpen, setOpen, setHandlePressed]);
+	}, [canOpenRef, isOpen, setOpen, setHandlePressed, deviceMode]);
+
+	useEffect(() => {
+		if (deviceMode !== 'gamepad') return;
+
+		const checkGamepad = () => {
+			const gamepadControls = gamepadControlsRef();
+			if (
+				gamepadControls.action &&
+				!wasActionPressedRef.current &&
+				canOpenRef.current
+			) {
+				if (setHandlePressed) setHandlePressed(true);
+				wasActionPressedRef.current = true;
+			} else if (
+				!gamepadControls.action &&
+				wasActionPressedRef.current &&
+				canOpenRef.current
+			) {
+				if (setHandlePressed) setHandlePressed(false);
+				setOpen(!isOpen);
+				animationProgressRef.current = 0;
+				wasActionPressedRef.current = false;
+			}
+		};
+
+		const interval = setInterval(checkGamepad, 16); // ~60fps
+
+		return () => clearInterval(interval);
+	}, [
+		deviceMode,
+		gamepadControlsRef,
+		canOpenRef,
+		isOpen,
+		setOpen,
+		setHandlePressed,
+	]);
 
 	useEffect(() => {
 		if (doorRef.current) {

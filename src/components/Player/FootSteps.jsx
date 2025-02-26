@@ -145,6 +145,13 @@ export default function FootSteps({ playerPosition }) {
 				let left = keyLeft || gamepadControls.left;
 				let right = keyRight || gamepadControls.right;
 
+				const isGamepadRunning =
+					gamepadControls.run &&
+					(gamepadControls.forward ||
+						gamepadControls.backward ||
+						gamepadControls.left ||
+						gamepadControls.right);
+
 				// Mobile joystick's controls
 				if (isMobile && leftStickRef.current) {
 					if (Math.abs(leftStickRef.current.y) > 0.1) {
@@ -170,10 +177,12 @@ export default function FootSteps({ playerPosition }) {
 
 				const isMoving = keysPressed && actuallyMoving;
 
+				const isPlayerRunning = isRunning || isGamepadRunning;
+
 				if (isMoving && !wasMovingRef.current) {
 					const sound = footstepRefs.current[footstepIndexRef.current];
 					if (sound) {
-						sound.volume = isRunning ? VOLUMES.run : VOLUMES.walk;
+						sound.volume = isPlayerRunning ? VOLUMES.run : VOLUMES.walk;
 						sound.currentTime = 0;
 						if (!resetFootstepSound) {
 							sound.play().catch(() => {});
@@ -186,11 +195,13 @@ export default function FootSteps({ playerPosition }) {
 						(footstepIndexRef.current + 1) % footstepRefs.current.length;
 					lastStepTime.current = currentTime;
 				} else if (isMoving) {
-					const interval = isRunning ? STEP_INTERVAL.run : STEP_INTERVAL.walk;
+					const interval = isPlayerRunning
+						? STEP_INTERVAL.run
+						: STEP_INTERVAL.walk;
 					if (currentTime - lastStepTime.current > interval) {
 						const sound = footstepRefs.current[footstepIndexRef.current];
 						if (sound) {
-							sound.volume = isRunning ? VOLUMES.run : VOLUMES.walk;
+							sound.volume = isPlayerRunning ? VOLUMES.run : VOLUMES.walk;
 							sound.currentTime = 0;
 							if (!resetFootstepSound) {
 								sound.play().catch(() => {});

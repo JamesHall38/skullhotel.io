@@ -1,10 +1,12 @@
-import { useEffect, useRef, useCallback, useState } from 'react';
+import { useEffect, useRef, useCallback, useState, useMemo } from 'react';
 import * as THREE from 'three';
 import useMonster from '../../hooks/useMonster';
 import useLight from '../../hooks/useLight';
 import useHiding from '../../hooks/useHiding';
 import { useFrame, useThree } from '@react-three/fiber';
 import { getAudioInstance, areSoundsLoaded } from '../../utils/audio';
+import useInterface from '../../hooks/useInterface';
+import useGameplaySettings from '../../hooks/useGameplaySettings';
 
 const LERP_FACTOR = 0.05;
 const DEFAULT_INTENSITY = 8;
@@ -27,6 +29,23 @@ export default function Flashlight({ playerRef, crouchProgressRef }) {
 	const flashlightSoundRef = useRef(null);
 	const [isRecoveringFromHiding, setIsRecoveringFromHiding] = useState(false);
 	const lightTextureRef = useRef(null);
+	const doneObjectives = useInterface((state) => state.interfaceObjectives);
+	const roomCount = useGameplaySettings((state) => state.roomCount);
+	const doneObjectivesNumberRef = useRef(doneObjectives);
+
+	const doneObjectivesNumber = useMemo(() => {
+		const count = doneObjectives?.reduce((acc, subArray) => {
+			if (subArray.every(Boolean)) {
+				return acc + 1;
+			}
+			return acc;
+		}, 0);
+		return count;
+	}, [doneObjectives]);
+
+	useEffect(() => {
+		doneObjectivesNumberRef.current = doneObjectivesNumber || 0;
+	}, [doneObjectivesNumber]);
 
 	useEffect(() => {
 		const canvas = document.createElement('canvas');
@@ -191,7 +210,7 @@ export default function Flashlight({ playerRef, crouchProgressRef }) {
 		};
 	}, [monsterState, monsterRunFlicker]);
 
-	useFrame((state) => {
+	useFrame((state, delta) => {
 		if (!playerRef.current) return;
 
 		const position = playerRef.current;
@@ -239,6 +258,19 @@ export default function Flashlight({ playerRef, crouchProgressRef }) {
 		spotLightRef.current.target.position.copy(targetRef.current);
 
 		lastCameraQuaternion.current.copy(currentQuaternion);
+
+		if (flashlightEnabled && !isPlayerHidden) {
+			const progressPercentage = doneObjectivesNumberRef.current / roomCount;
+			const flickerProbability =
+				progressPercentage * progressPercentage * 0.0006;
+
+			if (Math.random() < flickerProbability * (1 / delta)) {
+				setIntensity(DEFAULT_INTENSITY * SIZE * 0.5);
+				setTimeout(() => {
+					setIntensity(DEFAULT_INTENSITY * SIZE);
+				}, 50);
+			}
+		}
 	});
 
 	useEffect(() => {
@@ -333,6 +365,26 @@ export default function Flashlight({ playerRef, crouchProgressRef }) {
 			return () => clearTimeout(timeout);
 		}
 	}, [isPlayerHidden, playFlashlightSound]);
+
+	// useEffect(() => {
+	// 	if (!flashlightEnabled || isPlayerHidden) return;
+
+	// 	const progressPercentage = doneObjectivesNumberRef.current / roomCount;
+	// 	// const multiplier = 0.15; // 15% max de chance de scintiller
+	// 	const multiplier = 0;
+	// 	const flickerProbability = progressPercentage * multiplier;
+
+	// 	const flickerInterval = setInterval(() => {
+	// 		if (Math.random() < flickerProbability) {
+	// 			setIntensity(DEFAULT_INTENSITY * SIZE * 0.5); // Réduit l'intensité à 50%
+	// 			setTimeout(() => {
+	// 				setIntensity(DEFAULT_INTENSITY * SIZE);
+	// 			}, 50);
+	// 		}
+	// 	}, 1000); // Vérifie toutes les secondes
+
+	// 	return () => clearInterval(flickerInterval);
+	// }, [flashlightEnabled, isPlayerHidden, doneObjectivesNumber, roomCount]);
 
 	return (
 		<spotLight

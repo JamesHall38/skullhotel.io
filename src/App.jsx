@@ -216,7 +216,11 @@ function App() {
 		const controls = controlsRef.current;
 
 		const handleLock = () => setIsLocked(true);
-		const handleUnlock = () => setIsLocked(false);
+		const handleUnlock = () => {
+			if (deviceMode === 'keyboard') {
+				setIsLocked(false);
+			}
+		};
 
 		if (controls) {
 			controls.addEventListener('lock', handleLock);
@@ -227,7 +231,13 @@ function App() {
 				controls.removeEventListener('unlock', handleUnlock);
 			};
 		}
-	}, [setIsLocked]);
+	}, [setIsLocked, deviceMode]);
+
+	useEffect(() => {
+		if (deviceMode === 'keyboard' && controlsRef.current && !openDeathScreen) {
+			controlsRef.current.lock();
+		}
+	}, [deviceMode, openDeathScreen]);
 
 	useEffect(() => {
 		camera.rotation.set(0, Math.PI, 0);

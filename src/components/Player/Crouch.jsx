@@ -5,6 +5,7 @@ import useMonster from '../../hooks/useMonster';
 import useJoysticks from '../../hooks/useJoysticks';
 import useGame from '../../hooks/useGame';
 import useGameplaySettings from '../../hooks/useGameplaySettings';
+import useGamepadControls from '../../hooks/useGamepadControls';
 
 const GRID_OFFSET_Z = 150;
 const LERP_FACTOR = 0.2;
@@ -19,6 +20,9 @@ export default function Crouch({
 	const getCell = useGridStore((state) => state.getCell);
 	const monsterState = useMonster((state) => state.monsterState);
 	const controls = useJoysticks((state) => state.controls);
+	const isMobile = useGame((state) => state.isMobile);
+	const deviceMode = useGame((state) => state.deviceMode);
+	const gamepadControlsRef = useGamepadControls();
 	const wantsToStandUpRef = useRef(false);
 	const [gridOffsetX, setGridOffsetX] = useState(0);
 	const roomCount = useGameplaySettings((state) => state.roomCount);
@@ -69,6 +73,9 @@ export default function Crouch({
 	);
 
 	useEffect(() => {
+		if (isMobile) return;
+		if (deviceMode !== 'keyboard') return;
+
 		const handleKeyDown = (event) => {
 			if (event.code === 'ControlLeft' || event.code === 'ControlRight') {
 				handleCrouchChange(true);
@@ -90,16 +97,35 @@ export default function Crouch({
 			window.removeEventListener('keydown', handleKeyDown);
 			window.removeEventListener('keyup', handleKeyUp);
 		};
-	}, [handleCrouchChange]);
+	}, [handleCrouchChange, isMobile, deviceMode]);
 
-	// Add effect to handle mobile crouch button
 	useEffect(() => {
+		if (isMobile) return;
+		if (deviceMode !== 'gamepad') return;
+
+		const checkGamepad = () => {
+			const gamepadControls = gamepadControlsRef();
+			if (gamepadControls.crouch) {
+				handleCrouchChange(true);
+			} else {
+				handleCrouchChange(false);
+			}
+		};
+
+		const interval = setInterval(checkGamepad, 16); // ~60fps
+
+		return () => clearInterval(interval);
+	}, [handleCrouchChange, deviceMode, gamepadControlsRef, isMobile]);
+
+	useEffect(() => {
+		if (!isMobile) return;
+
 		if (controls.crouch) {
 			handleCrouchChange(true);
 		} else {
 			handleCrouchChange(false);
 		}
-	}, [controls.crouch, handleCrouchChange]);
+	}, [controls.crouch, handleCrouchChange, isMobile]);
 
 	useFrame(() => {
 		if (!isPlaying) {

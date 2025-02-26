@@ -1,11 +1,10 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
-import { useGLTF, useKTX2, PositionalAudio } from '@react-three/drei';
+import { useGLTF, useKTX2 } from '@react-three/drei';
 import * as THREE from 'three';
 import useGame from '../../hooks/useGame';
 import DetectionZone from '../DetectionZone';
 import useLight from '../../hooks/useLight';
 import { useControls } from 'leva';
-import { usePositionalSound } from '../../utils/audio';
 import useProgressiveLoad from '../../hooks/useProgressiveLoad';
 import FloorLightMaterial from '../materials/FloorLightMaterial';
 import WallsLightMaterial from '../materials/WallsLightMaterial';
@@ -193,7 +192,6 @@ export default function Livingroom() {
 	const [isDark, setIsDark] = useState(false);
 	const playerPositionRoom = useGame((state) => state.playerPositionRoom);
 	const deaths = useGame((state) => state.deaths);
-	const lightSoundRef = useRef();
 
 	const [randomRoomNumber, setRandomRoomNumber] = useState(
 		Math.floor(Math.random() * PROBABILITY_OF_DARKNESS)
@@ -262,12 +260,6 @@ export default function Livingroom() {
 			collapsed: true,
 		}
 	);
-
-	useEffect(() => {
-		if (isDark && lightSoundRef.current) {
-			lightSoundRef.current.play();
-		}
-	}, [isDark]);
 
 	useEffect(() => {
 		if (isDark) {
@@ -341,8 +333,6 @@ export default function Livingroom() {
 				blueLightIntensity={wallLight.intensity}
 				uvScale={10}
 			/>
-
-			<PositionalAudio ref={lightSoundRef} {...usePositionalSound('bulb')} />
 		</>
 	);
 }

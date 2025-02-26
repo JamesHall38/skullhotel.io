@@ -298,6 +298,9 @@ export default function Triggers() {
 				position[1] + controls.monsterInitialPosition[1],
 				position[2] + controls.monsterInitialPosition[2]
 			);
+			if (playerPositionRoom >= roomCount / 2) {
+				monsterPos.applyAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI);
+			}
 			const distance = camera.position.distanceTo(monsterPos);
 
 			if (distance > 3.5) {
@@ -344,15 +347,20 @@ export default function Triggers() {
 				</group>
 			)}
 			{Object.values(seedData)[playerPositionRoom]?.sound && (
-				<PositionalAudio
-					ref={monsterSoundRef}
-					{...breathingSound}
-					position={[
-						position[0] + controls.monsterInitialPosition[0],
-						position[1] + controls.monsterInitialPosition[1],
-						position[2] + controls.monsterInitialPosition[2],
-					]}
-				/>
+				<group
+					rotation={[0, playerPositionRoom >= roomCount / 2 ? Math.PI : 0, 0]}
+				>
+					<PositionalAudio
+						ref={monsterSoundRef}
+						{...breathingSound}
+						volume={10}
+						position={[
+							position[0] + controls.monsterInitialPosition[0],
+							position[1] + controls.monsterInitialPosition[1],
+							position[2] + controls.monsterInitialPosition[2],
+						]}
+					/>
+				</group>
 			)}
 		</>
 	);

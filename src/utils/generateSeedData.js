@@ -8,17 +8,22 @@ function getRandomRoomDataByType(type, usedRoomData = []) {
 		.filter(([, data]) => !usedRoomData.includes(data));
 
 	if (roomsOfType.length === 0) {
-		// If all rooms have been used, return any room of this type
 		const anyRoomOfType = Object.entries(levelData).filter(
 			([, data]) => data.type === type
 		);
 		if (anyRoomOfType.length === 0) return null;
 		const randomIndex = Math.floor(Math.random() * anyRoomOfType.length);
-		return anyRoomOfType[randomIndex][1];
+		return {
+			key: anyRoomOfType[randomIndex][0],
+			data: anyRoomOfType[randomIndex][1],
+		};
 	}
 
 	const randomIndex = Math.floor(Math.random() * roomsOfType.length);
-	return roomsOfType[randomIndex][1];
+	return {
+		key: roomsOfType[randomIndex][0],
+		data: roomsOfType[randomIndex][1],
+	};
 }
 
 export default function generateSeedData() {
@@ -94,9 +99,9 @@ export default function generateSeedData() {
 	for (let i = 0; i < hideoutRooms; i++) {
 		const roomData = getRandomRoomDataByType('hideout', usedRoomData);
 		if (roomData) {
-			usedRoomData.push(roomData);
-			seed[`hideout_${i + 1}`] = {
-				...roomData,
+			usedRoomData.push(roomData.data);
+			seed[roomData.key] = {
+				...roomData.data,
 				type: 'hideout',
 				number: currentRoom + i + 1,
 			};
@@ -106,11 +111,11 @@ export default function generateSeedData() {
 
 	// Add landmine rooms
 	for (let i = 0; i < landmineRooms; i++) {
-		const roomData = getRandomRoomDataByType('landmine', usedRoomData);
-		if (roomData) {
-			usedRoomData.push(roomData);
-			seed[`landmine_${i + 1}`] = {
-				...roomData,
+		const room = getRandomRoomDataByType('landmine', usedRoomData);
+		if (room) {
+			usedRoomData.push(room.data);
+			seed[room.key] = {
+				...room.data,
 				type: 'landmine',
 				number: currentRoom + i + 1,
 			};
@@ -122,9 +127,9 @@ export default function generateSeedData() {
 	for (let i = 0; i < claymoreRooms; i++) {
 		const roomData = getRandomRoomDataByType('claymore', usedRoomData);
 		if (roomData) {
-			usedRoomData.push(roomData);
-			seed[`claymore_${i + 1}`] = {
-				...roomData,
+			usedRoomData.push(roomData.data);
+			seed[roomData.key] = {
+				...roomData.data,
 				type: 'claymore',
 				number: currentRoom + i + 1,
 			};
@@ -136,9 +141,9 @@ export default function generateSeedData() {
 	for (let i = 0; i < hunterRooms; i++) {
 		const roomData = getRandomRoomDataByType('hunter', usedRoomData);
 		if (roomData) {
-			usedRoomData.push(roomData);
-			seed[`hunter_${i + 1}`] = {
-				...roomData,
+			usedRoomData.push(roomData.data);
+			seed[roomData.key] = {
+				...roomData.data,
 				type: 'hunter',
 				number: currentRoom + i + 1,
 			};
@@ -150,9 +155,9 @@ export default function generateSeedData() {
 	for (let i = 0; i < sonarRooms; i++) {
 		const roomData = getRandomRoomDataByType('sonar', usedRoomData);
 		if (roomData) {
-			usedRoomData.push(roomData);
-			seed[`sonar_${i + 1}`] = {
-				...roomData,
+			usedRoomData.push(roomData.data);
+			seed[roomData.key] = {
+				...roomData.data,
 				type: 'sonar',
 				number: currentRoom + i + 1,
 			};
@@ -172,26 +177,37 @@ export default function generateSeedData() {
 	for (let i = 0; i < raidRooms; i++) {
 		const hideObjectives = ['window', 'bedsheets', 'bottles'];
 
+		const hideSpot =
+			hideObjectives[Math.floor(Math.random() * hideObjectives.length)];
+
 		seed[`raid_${i + 1}`] = {
-			type: 'raid',
+			type: 'empty',
+			hideSpot,
+			isRaid: true,
 			number: currentRoom + i + 1,
-			hideObjective:
-				hideObjectives[Math.floor(Math.random() * hideObjectives.length)],
+			hideObjective: hideSpot,
 		};
 	}
 	currentRoom += raidRooms;
 
-	// Randomly shuffle the rooms
 	const shuffledSeed = {};
 	const roomKeys = Object.keys(seed);
-	const shuffledKeys = [...roomKeys].sort(() => Math.random() - 0.5);
+	const shuffledIndices = [...Array(roomKeys.length).keys()].sort(
+		() => Math.random() - 0.5
+	);
 
-	shuffledKeys.forEach((key, index) => {
-		const newKey = roomKeys[index];
-		shuffledSeed[newKey] = {
-			...seed[key],
-			number: index + 1,
+	const tempSeed = {};
+	shuffledIndices.forEach((newIndex, originalIndex) => {
+		const originalKey = roomKeys[originalIndex];
+		tempSeed[newIndex + 1] = {
+			...seed[originalKey],
+			originalKey,
+			number: newIndex + 1,
 		};
+	});
+
+	Object.values(tempSeed).forEach((room) => {
+		shuffledSeed[room.originalKey] = room;
 	});
 
 	return shuffledSeed;

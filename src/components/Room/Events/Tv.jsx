@@ -2,6 +2,7 @@ import React, { useRef, useMemo, useEffect, useState } from 'react';
 import { useFrame } from '@react-three/fiber';
 import useGame from '../../../hooks/useGame';
 import useInterface from '../../../hooks/useInterface';
+import useGamepadControls from '../../../hooks/useGamepadControls';
 import DetectionZone from '../../DetectionZone';
 import { PositionalAudio } from '@react-three/drei';
 import { usePositionalSound } from '../../../utils/audio';
@@ -19,6 +20,8 @@ export default function Tv() {
 	const whiteNoiseSound = usePositionalSound('whiteNoise');
 	const mobileClick = useGame((state) => state.mobileClick);
 	const setMobileClick = useGame((state) => state.setMobileClick);
+	const gamepadControls = useGamepadControls();
+	const prevXButtonRef = useRef(false);
 
 	const uniforms = useMemo(
 		() => ({
@@ -46,9 +49,18 @@ export default function Tv() {
 		setTv(activeTvs.includes(playerPositionRoom));
 	}, [playerPositionRoom, activeTvs, setTv]);
 
+	useFrame(() => {
+		const xButtonPressed = gamepadControls().action;
+		if (isDetected && xButtonPressed && !prevXButtonRef.current) {
+			setTv(!tv);
+			setActiveTv(playerPositionRoom);
+		}
+		prevXButtonRef.current = xButtonPressed;
+	});
+
 	useEffect(() => {
 		if (isDetected && mobileClick) {
-			setTv(true);
+			setTv(!tv);
 			setActiveTv(playerPositionRoom);
 			setMobileClick(false);
 		}
@@ -59,6 +71,7 @@ export default function Tv() {
 		setActiveTv,
 		setMobileClick,
 		setTv,
+		tv,
 	]);
 
 	return (

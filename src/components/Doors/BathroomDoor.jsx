@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef, useMemo } from 'react';
-import { useThree, useFrame } from '@react-three/fiber';
+import { useFrame } from '@react-three/fiber';
 import { useGLTF } from '@react-three/drei';
 import DoorWrapper from './DoorWrapper';
 import useDoor from '../../hooks/useDoor';
@@ -88,9 +88,6 @@ export default function BathroomDoor() {
 	const isHandlePressed = useDoor((state) => state.bathroomDoorHandle);
 	const setHandlePressed = useDoor((state) => state.setBathroomDoorHandle);
 	const [instantChange, setInstantChange] = useState(false);
-	const playerPositionRoom = useGame((state) => state.playerPositionRoom);
-	const [tutorialRoomOffset, setTutorialRoomOffset] = useState(null);
-	const { camera } = useThree();
 
 	useEffect(() => {
 		if (bathroomDoors[roomNumber] === true && !isOpen) {
@@ -108,14 +105,6 @@ export default function BathroomDoor() {
 		}
 	}, [bathroomDoors, roomNumber, setOpen, isOpen]);
 
-	useEffect(() => {
-		setTutorialRoomOffset(
-			camera.position.x <= 8 && camera.position.x > 4.4
-				? tutorialRoomCenter
-				: null
-		);
-	}, [playerPositionRoom, camera]);
-
 	return (
 		<DoorWrapper
 			roomNumber={roomNumber}
@@ -130,7 +119,7 @@ export default function BathroomDoor() {
 			doubleRotate={true}
 			instantChange={instantChange}
 			setInstantChange={setInstantChange}
-			tutorialRoomOffset={tutorialRoomOffset}
+			tutorialRoomOffset={tutorialRoomCenter}
 			closet
 		>
 			<BathroomDoorMesh isHandlePressed={isHandlePressed} />

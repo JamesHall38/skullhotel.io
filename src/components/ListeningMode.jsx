@@ -1,14 +1,18 @@
 import { useEffect } from 'react';
 import useInterface from '../hooks/useInterface';
 import useGame from '../hooks/useGame';
+import useGamepadControls from '../hooks/useGamepadControls';
 
 export default function ListeningMode() {
 	const setIsListening = useGame((state) => state.setIsListening);
 	const setCursor = useInterface((state) => state.setCursor);
+	const cursor = useInterface((state) => state.cursor);
+	const gamepadControlsRef = useGamepadControls();
+	const deviceMode = useGame((state) => state.deviceMode);
 
 	useEffect(() => {
 		const handleMouseDown = (e) => {
-			if (e.button === 2) {
+			if (e.button === 2 && deviceMode === 'keyboard') {
 				e.stopPropagation();
 				setIsListening(true);
 				setCursor('listening');
@@ -16,7 +20,7 @@ export default function ListeningMode() {
 		};
 
 		const handleMouseUp = (e) => {
-			if (e.button === 2) {
+			if (e.button === 2 && deviceMode === 'keyboard') {
 				e.stopPropagation();
 				setIsListening(false);
 				setCursor(null);
@@ -30,7 +34,26 @@ export default function ListeningMode() {
 			window.removeEventListener('mousedown', handleMouseDown);
 			window.removeEventListener('mouseup', handleMouseUp);
 		};
-	}, [setIsListening, setCursor]);
+	}, [setIsListening, setCursor, deviceMode]);
+
+	useEffect(() => {
+		if (deviceMode !== 'gamepad') return;
+
+		const checkGamepad = () => {
+			const gamepadControls = gamepadControlsRef();
+			if (gamepadControls.rightClick && cursor !== 'listening') {
+				setIsListening(true);
+				setCursor('listening');
+			} else if (!gamepadControls.rightClick && cursor === 'listening') {
+				setIsListening(false);
+				setCursor(null);
+			}
+		};
+
+		const interval = setInterval(checkGamepad, 16); // ~60fps
+
+		return () => clearInterval(interval);
+	}, [gamepadControlsRef, setIsListening, setCursor, deviceMode, cursor]);
 
 	return null;
 }

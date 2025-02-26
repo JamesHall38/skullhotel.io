@@ -312,6 +312,7 @@
 	color: #8b0000;
 	position: relative;
 	z-index: 2;
+	transform: translateX(0.5rem);
 }
 
 @media (max-height: 500px) {
@@ -319,6 +320,11 @@
 		font-size: 2rem;
 		padding-bottom: 2.5rem;
 	}
+}
+
+.death-message {
+	max-width: 80dvw;
+	text-align: center;
 }
 
 .flex {
@@ -366,6 +372,7 @@
 	position: absolute;
 	bottom: 4rem;
 	animation: blink 2s ease-in-out infinite;
+	white-space: nowrap;
 }
 
 @media (max-height: 500px) {

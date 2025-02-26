@@ -1,6 +1,8 @@
 import { useRef, useEffect, useState } from 'react';
+import { useFrame } from '@react-three/fiber';
 import useGame from '../../../hooks/useGame';
 import useInterface from '../../../hooks/useInterface';
+import useGamepadControls from '../../../hooks/useGamepadControls';
 import DetectionZone from '../../DetectionZone';
 import { PositionalAudio, useKTX2 } from '@react-three/drei';
 import { usePositionalSound } from '../../../utils/audio';
@@ -15,6 +17,8 @@ const Radio = () => {
 	const setCursor = useInterface((state) => state.setCursor);
 	const radioSoundRef = useRef();
 	const radioSound = usePositionalSound('radio');
+	const gamepadControls = useGamepadControls();
+	const prevXButtonRef = useRef(false);
 
 	const textureOn = useKTX2('/textures/bedroom/radio_on_etc1s.ktx2');
 	const textureOff = useKTX2('/textures/bedroom/radio_off_etc1s.ktx2');
@@ -39,9 +43,18 @@ const Radio = () => {
 		}
 	}, [radio]);
 
+	useFrame(() => {
+		const xButtonPressed = gamepadControls().action;
+		if (isDetected && xButtonPressed && !prevXButtonRef.current) {
+			setRadio(!radio);
+			setActiveRadio(playerPositionRoom);
+		}
+		prevXButtonRef.current = xButtonPressed;
+	});
+
 	useEffect(() => {
 		if (isDetected && mobileClick) {
-			setRadio(true);
+			setRadio(!radio);
 			setActiveRadio(playerPositionRoom);
 			setMobileClick(false);
 		}
@@ -52,6 +65,7 @@ const Radio = () => {
 		setActiveRadio,
 		setMobileClick,
 		setRadio,
+		radio,
 	]);
 
 	return (

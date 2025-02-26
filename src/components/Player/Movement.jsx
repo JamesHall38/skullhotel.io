@@ -30,7 +30,6 @@ export default function Movement({
 	playerPosition,
 	playerVelocity,
 	isCrouchingRef,
-	isRunning,
 	crouchProgressRef,
 }) {
 	const isMobile = useGame((state) => state.isMobile);
@@ -40,7 +39,7 @@ export default function Movement({
 	const isPlaying = useGame((state) => state.isPlaying);
 	const getCell = useGridStore((state) => state.getCell);
 	const getKeys = useKeyboardControls()[1];
-	const getGamepadControls = useGamepadControls();
+	const gamepadControlsRef = useGamepadControls();
 
 	const leftStickRef = useRef({ x: 0, y: 0 });
 	const rightStickRef = useRef({ x: 0, y: 0 });
@@ -67,6 +66,9 @@ export default function Movement({
 
 	const [gridOffsetX, setGridOffsetX] = useState(0);
 	const roomCount = useGameplaySettings((state) => state.roomCount);
+
+	const [isRunningState, setIsRunningState] = useState(false);
+	const [isGamepadRunning, setIsGamepadRunning] = useState(false);
 
 	useEffect(() => {
 		setGridOffsetX(roomCount * 29.5 + 10);
@@ -121,6 +123,52 @@ export default function Movement({
 		playerPositionRoom,
 		gridOffsetX,
 	]);
+
+	useEffect(() => {
+		if (isMobile) return;
+
+		const handleKeyDown = (event) => {
+			if (event.shiftKey) {
+				setIsRunningState(true);
+			}
+		};
+
+		const handleKeyUp = (event) => {
+			if (event.key === 'Shift') {
+				setIsRunningState(false);
+			}
+		};
+
+		window.addEventListener('keydown', handleKeyDown);
+		window.addEventListener('keyup', handleKeyUp);
+
+		return () => {
+			window.removeEventListener('keydown', handleKeyDown);
+			window.removeEventListener('keyup', handleKeyUp);
+		};
+	}, [isMobile]);
+
+	useFrame(() => {
+		if (isMobile) return;
+
+		const gamepadControls = gamepadControlsRef();
+
+		if (gamepadControls.run) {
+			setIsGamepadRunning(true);
+		}
+
+		if (
+			isGamepadRunning &&
+			Math.abs(leftStickRef.current.x) < 0.1 &&
+			Math.abs(leftStickRef.current.y) < 0.1 &&
+			!gamepadControls.forward &&
+			!gamepadControls.backward &&
+			!gamepadControls.left &&
+			!gamepadControls.right
+		) {
+			setIsGamepadRunning(false);
+		}
+	});
 
 	const checkCollision = (pos) => {
 		const cellX = Math.floor(pos.x * 10 + gridOffsetX);
@@ -188,51 +236,38 @@ export default function Movement({
 	};
 
 	useFrame((state, delta) => {
-		if (!isPlaying) {
+		if (
+			!isPlaying ||
+			isCameraLocked ||
+			jumpScare ||
+			listeningProgress > LISTENING_THRESHOLD
+		) {
 			return;
 		}
 
-		if (isCameraLocked) {
-			playerPosition.current.set(10.77, floor, -3);
+		const { forward, backward, left, right } = getKeys();
+		const gamepadControls = gamepadControlsRef();
 
-			state.camera.position.x = playerPosition.current.x;
-			state.camera.position.z = playerPosition.current.z;
-			state.camera.position.y = playerPosition.current.y + 1.7;
-			return;
+		frontVector.set(0, 0, 0);
+		sideVector.set(0, 0, 0);
+
+		if (isMobile) {
+			frontVector.z = -leftStickRef.current.y;
+			sideVector.x = leftStickRef.current.x;
+		} else {
+			if (forward) frontVector.z += 1;
+			if (backward) frontVector.z -= 1;
+			if (left) sideVector.x -= 1;
+			if (right) sideVector.x += 1;
+
+			if (
+				Math.abs(gamepadControls.leftStickX) > 0.1 ||
+				Math.abs(gamepadControls.leftStickY) > 0.1
+			) {
+				frontVector.set(0, 0, -gamepadControls.leftStickY);
+				sideVector.set(gamepadControls.leftStickX, 0, 0);
+			}
 		}
-
-		if (jumpScare || listeningProgress > LISTENING_THRESHOLD) {
-			return;
-		}
-
-		const {
-			forward: keyForward,
-			backward: keyBackward,
-			left: keyLeft,
-			right: keyRight,
-		} = getKeys();
-		const gamepadControls = getGamepadControls();
-
-		const leftStick = leftStickRef.current;
-		// const rightStick = rightStickRef.current;
-
-		let forward = keyForward || gamepadControls.forward;
-		let backward = keyBackward || gamepadControls.backward;
-		let left = keyLeft || gamepadControls.left;
-		let right = keyRight || gamepadControls.right;
-
-		if (Math.abs(leftStick.y) > 0.1) {
-			forward = leftStick.y < 0;
-			backward = leftStick.y > 0;
-		}
-
-		if (Math.abs(leftStick.x) > 0.1) {
-			left = leftStick.x < 0;
-			right = leftStick.x > 0;
-		}
-
-		frontVector.set(0, 0, Number(forward) - Number(backward));
-		sideVector.set(Number(right) - Number(left), 0, 0);
 
 		const cameraQuaternion = state.camera.quaternion.clone();
 		const movementDirection = new THREE.Vector3(0, 0, -1).applyQuaternion(
@@ -250,18 +285,21 @@ export default function Movement({
 		direction.set(0, 0, 0);
 		direction.addScaledVector(movementDirection, frontVector.z);
 		direction.addScaledVector(cameraRight, sideVector.x);
-		direction
-			.normalize()
-			.multiplyScalar(
-				(isMobile
-					? MOBILE_SPEED
-					: isRunning
-					? RUN_SPEED
-					: isCrouchingRef.current
-					? CROUCH_SPEED
-					: WALK_SPEED) *
-					(1 - listeningProgress * (1 - LISTENING_SPEED_MULTIPLIER))
-			);
+
+		if (direction.length() > 1) {
+			direction.normalize();
+		}
+
+		direction.multiplyScalar(
+			(isMobile
+				? MOBILE_SPEED
+				: isRunningState || isGamepadRunning
+				? RUN_SPEED
+				: isCrouchingRef.current
+				? CROUCH_SPEED
+				: WALK_SPEED) *
+				(1 - listeningProgress * (1 - LISTENING_SPEED_MULTIPLIER))
+		);
 
 		playerVelocity.current.copy(direction);
 

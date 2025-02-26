@@ -39,11 +39,11 @@ export default function TriggersConditions({
 
 	// Doors
 	const roomDoors = useDoor((state) => state.roomDoor);
-	const bathroomDoor = useDoor((state) => state.bathroomDoor);
-	const roomCurtain = useDoor((state) => state.roomCurtain);
-	const bathroomCurtain = useDoor((state) => state.bathroomCurtain);
-	const deskDoor = useDoor((state) => state.desk);
-	const nightstandDoor = useDoor((state) => state.nightStand);
+	const roomCurtains = useDoor((state) => state.roomCurtains);
+	const bathroomCurtains = useDoor((state) => state.bathroomCurtains);
+	const deskDoors = useDoor((state) => state.desks);
+	const nightstandDoors = useDoor((state) => state.nightStands);
+	const bathroomDoors = useDoor((state) => state.bathroomDoors);
 
 	const attackTimeoutRef = useRef(null);
 	const quickTimeoutRef = useRef(null);
@@ -53,6 +53,19 @@ export default function TriggersConditions({
 		setShakeIntensity(10);
 		setMonsterState('run');
 		playAnimation('Run');
+	};
+
+	const checkObjectiveAndAttack = (objectives, objectiveIndex) => {
+		if (objectives[playerPositionRoom]?.[objectiveIndex]) {
+			useGame
+				.getState()
+				.setCustomDeathMessage(
+					'Always check the furniture before cleaning the room'
+				);
+			monsterAttack();
+			return true;
+		}
+		return false;
 	};
 
 	const basicHiding = (clock, camera, raycaster, useInstantBox = false) => {
@@ -243,7 +256,7 @@ export default function TriggersConditions({
 						clock,
 						playerIsInsideZone(cameraShakingBox, raycaster, camera) &&
 							playerIsLookingAtBox(monsterBox, camera) &&
-							bathroomDoor,
+							bathroomDoors[playerPositionRoom],
 						setShakeIntensity,
 						shakeIntensity
 					)
@@ -283,38 +296,41 @@ export default function TriggersConditions({
 			case 'ceilingCenterCrouch':
 				doNotGetAnyCloser('facingCamera', raycaster, camera, clock);
 				break;
-			case 'claymoreFootWindow':
-			case 'sonarWindow':
-				setMonsterState('hidden');
-				if (roomCurtain) {
-					setTimeout(() => {
-						monsterAttack();
-					}, 500);
-				}
-				break;
-			case 'sonarBath':
-				if (bathroomCurtain) {
-					setTimeout(() => {
-						monsterAttack();
-					}, 500);
-				}
-				break;
-			case 'sonarDesk':
-				if (deskDoor) {
-					setTimeout(() => {
-						monsterAttack();
-					}, 500);
-				}
-				break;
-			case 'sonarNightstand':
-				if (nightstandDoor) {
-					setTimeout(() => {
-						monsterAttack();
-					}, 500);
-				}
-				break;
+			// case 'claymoreFootWindow':
+			// case 'sonarWindow':
+			// 	setMonsterState('hidden');
+			// 	if (roomCurtain) {
+			// 		setTimeout(() => {
+			// 			monsterAttack();
+			// 		}, 500);
+			// 	}
+			// 	break;
+			// case 'sonarBath':
+			// 	if (bathroomCurtain) {
+			// 		setTimeout(() => {
+			// 			monsterAttack();
+			// 		}, 500);
+			// 	}
+			// 	break;
+			// case 'sonarDesk':
+			// 	if (deskDoor) {
+			// 		setTimeout(() => {
+			// 			monsterAttack();
+			// 		}, 500);
+			// 	}
+			// 	checkObjectiveAndAttack(interfaceObjectives, 1);
+			// 	break;
+			// case 'sonarNightstand':
+			// 	if (nightstandDoor) {
+			// 		setTimeout(() => {
+			// 			monsterAttack();
+			// 		}, 500);
+			// 	}
+			// 	checkObjectiveAndAttack(interfaceObjectives, 1);
+			// 	break;
 			case 'sonarBathroom':
-				if (bathroomDoor) {
+				setMonsterState('facingCamera');
+				if (bathroomDoors[playerPositionRoom]) {
 					setTimeout(() => {
 						monsterAttack();
 					}, 500);
@@ -324,26 +340,27 @@ export default function TriggersConditions({
 				if (monsterState !== 'facingCamera') {
 					setMonsterState('facingCamera');
 				}
-
-				closeTheDoorQuickly(roomCurtain, clock);
+				closeTheDoorQuickly(roomCurtains[playerPositionRoom], clock);
 				break;
 			case 'claymoreBath':
 				if (monsterState !== 'facingCamera') {
 					setMonsterState('facingCamera');
 				}
-				closeTheDoorQuickly(bathroomCurtain, clock);
+				closeTheDoorQuickly(bathroomCurtains[playerPositionRoom], clock);
 				break;
 			case 'claymoreDesk':
-				closeTheDoorQuickly(deskDoor, clock);
+				closeTheDoorQuickly(deskDoors[playerPositionRoom], clock);
+				checkObjectiveAndAttack(interfaceObjectives, 1);
 				break;
 			case 'claymoreNightstand':
-				closeTheDoorQuickly(nightstandDoor, clock);
+				closeTheDoorQuickly(nightstandDoors[playerPositionRoom], clock);
+				checkObjectiveAndAttack(interfaceObjectives, 1);
 				break;
 			case 'claymoreBathroom':
 				if (monsterState !== 'facingCamera') {
 					setMonsterState('facingCamera');
 				}
-				closeTheDoorQuickly(bathroomDoor, clock);
+				closeTheDoorQuickly(bathroomDoors[playerPositionRoom], clock);
 				break;
 			// case 'bloodOnBath':
 			// 	break;

@@ -7,6 +7,7 @@ import useDoorStore from '../../hooks/useDoor';
 import useMonster from '../../hooks/useMonster';
 import useJoysticks from '../../hooks/useJoysticks';
 import useGameplaySettings from '../../hooks/useGameplaySettings';
+import useGamepadControls from '../../hooks/useGamepadControls';
 
 const GRID_OFFSET_Z = 150;
 const RAISED_AREA_LOW_HEIGHT = 0.5;
@@ -36,6 +37,8 @@ export default function Jump({
 	const isListening = useGame((state) => state.isListening);
 	const controls = useJoysticks((state) => state.controls);
 	const isMobile = useGame((state) => state.isMobile);
+	const deviceMode = useGame((state) => state.deviceMode);
+	const gamepadControlsRef = useGamepadControls();
 
 	const roomDoor = useDoorStore((state) => state.roomDoor);
 	const bathroomDoor = useDoorStore((state) => state.bathroomDoor);
@@ -159,6 +162,7 @@ export default function Jump({
 
 	useEffect(() => {
 		if (isMobile) return;
+		if (deviceMode !== 'keyboard') return;
 
 		const handleKeyDown = (event) => {
 			if (event.code === 'Space' && !spacePressed && !isListening) {
@@ -180,7 +184,26 @@ export default function Jump({
 			window.removeEventListener('keydown', handleKeyDown);
 			window.removeEventListener('keyup', handleKeyUp);
 		};
-	}, [spacePressed, isListening, isMobile]);
+	}, [spacePressed, isListening, deviceMode, isMobile]);
+
+	useEffect(() => {
+		if (isMobile) return;
+		if (deviceMode !== 'gamepad') return;
+
+		const checkGamepad = () => {
+			const gamepadControls = gamepadControlsRef();
+			if (gamepadControls.jump && !spacePressed && !isListening) {
+				setSpacePressed(true);
+				setCanJump(true);
+			} else if (!gamepadControls.jump && spacePressed) {
+				setSpacePressed(false);
+			}
+		};
+
+		const interval = setInterval(checkGamepad, 16); // ~60fps
+
+		return () => clearInterval(interval);
+	}, [spacePressed, isListening, deviceMode, gamepadControlsRef, isMobile]);
 
 	useEffect(() => {
 		if (!isMobile) return;

@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 
 const useGameplaySettings = create((set) => ({
-	roomCount: 20,
+	roomCount: 10,
 
 	hideoutPercentage: 10,
 	landminePercentage: 10,

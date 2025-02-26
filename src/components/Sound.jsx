@@ -3,6 +3,7 @@ import useInterface from '../hooks/useInterface';
 import useGame from '../hooks/useGame';
 import KnockingSound from './KnockingSound';
 import { getAudioInstance, areSoundsLoaded } from '../utils/audio';
+import useGameplaySettings from '../hooks/useGameplaySettings';
 
 const Sound = () => {
 	const objectives = useInterface((state) => state.interfaceObjectives);
@@ -10,7 +11,7 @@ const Sound = () => {
 	const openDeathScreen = useGame((state) => state.openDeathScreen);
 	const isListening = useGame((state) => state.isListening);
 	// const roomNumber = useGame((state) => state.roomNumber);
-	const roomNumber = 20;
+	const roomCount = useGameplaySettings((state) => state.roomCount);
 
 	const [soundsReady, setSoundsReady] = useState(false);
 	const ambiant1Ref = useRef(null);
@@ -86,16 +87,21 @@ const Sound = () => {
 	useEffect(() => {
 		if (!soundsReady) return;
 
-		if (doneObjectives > roomNumber / 2 - 2) {
+		const totalSteps = 4;
+		const currentStep = Math.floor(
+			(doneObjectives / (roomCount / 2)) * totalSteps
+		);
+
+		if (currentStep >= 3) {
 			tenseRef.current?.play().catch(() => {});
-		} else if (doneObjectives > roomNumber / 3 - 1) {
+		} else if (currentStep >= 2) {
 			ambiant2Ref.current?.play().catch(() => {});
-		} else if (doneObjectives > roomNumber / 6 - 1) {
+		} else if (currentStep >= 1) {
 			boomRef.current?.play().catch(() => {});
 		} else if (doneObjectives > 0) {
 			ambiant1Ref.current?.play().catch(() => {});
 		}
-	}, [objectives, doneObjectives, roomNumber, soundsReady]);
+	}, [objectives, doneObjectives, roomCount, soundsReady]);
 
 	useEffect(() => {
 		if (!soundsReady) return;

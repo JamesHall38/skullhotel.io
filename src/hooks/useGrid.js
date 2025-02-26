@@ -44,11 +44,11 @@ const useGridStore = create((set, get) => ({
 			{ start: { x: baseX - 20, z: 183 }, end: { x: baseX + 35, z: 185 } }, // reception wall
 			{ start: { x: baseX - 20, z: 112 }, end: { x: baseX + 1, z: 114 } }, // door right
 			{ start: { x: baseX - 20, z: 112 }, end: { x: baseX - 20, z: 139 } }, // right corner
-			{ start: { x: baseX - 36, z: 160 }, end: { x: baseX - 20, z: 185 } }, // left corner
+			{ start: { x: baseX - 38, z: 160 }, end: { x: baseX - 20, z: 185 } }, // left corner
 
 			{
 				start: { x: baseX - 70, z: 160 },
-				end: { x: baseX - 35, z: 185 },
+				end: { x: baseX - 37, z: 185 },
 				type: CELL_TYPES.CEILING,
 			}, // left corner
 
@@ -92,9 +92,7 @@ const useGridStore = create((set, get) => ({
 			}, // corridor left first wall
 
 			{ start: { x: baseX - 12, z: 161 }, end: { x: baseX + 26, z: 172 } }, // reception desk
-			{ start: { x: baseX + 5, z: 171 }, end: { x: baseX + 10, z: 176 } }, // receptionnist
 
-			// Ces deux derniers restent inchangés car ils sont au début du corridor
 			{ start: { x: 24, z: 135 }, end: { x: 50, z: 136 } }, // corridor end right
 			{ start: { x: 23, z: 135 }, end: { x: 24, z: 162 } }, // corridor end
 		];
@@ -103,7 +101,7 @@ const useGridStore = create((set, get) => ({
 	generateRooms: () => {
 		const seedData = useGame.getState().seedData;
 		const roomCount = useGameplaySettings.getState().roomCount;
-		const baseX = 110 + (roomCount / 2) * 59; // Même calcul que pour initialWalls
+		const baseX = 110 + (roomCount / 2) * 59;
 
 		const closedDoorPositions = [
 			{
@@ -138,7 +136,6 @@ const useGridStore = create((set, get) => ({
 			},
 		];
 
-		// Zones de cachette séparées
 		const hidingSpots = [
 			{
 				start: { x: 21, z: 103 },
@@ -253,7 +250,7 @@ const useGridStore = create((set, get) => ({
 			}, // wardrobe
 
 			...closedDoorPositions,
-			...hidingSpots, // Ajout des zones de cachette
+			...hidingSpots,
 		];
 
 		const roomWidth = 59;
@@ -270,7 +267,6 @@ const useGridStore = create((set, get) => ({
 		const tutorialRoomX = baseX - 85;
 		const tutorialRoomZ = 180;
 
-		// Ajouter les murs de la salle tutorial
 		baseRoom.forEach((wall) => {
 			const newWall = {
 				start: {
@@ -288,7 +284,6 @@ const useGridStore = create((set, get) => ({
 			rooms.push(newWall);
 		});
 
-		// Générer les salles normales
 		for (let row = 0; row < 2; row++) {
 			for (let col = 0; col < roomsPerRow; col++) {
 				const extraOffset = Math.floor(col / 2);
@@ -297,23 +292,18 @@ const useGridStore = create((set, get) => ({
 				const offsetZ = startZ + row * (roomHeight + gap) + (row === 0 ? 1 : 4);
 				const isTopRow = row === 0;
 
-				// Modification du calcul de l'index pour avoir le bon ordre des salles
 				let roomIndex;
 				if (row === 0) {
-					// Première colonne: de bas en haut
 					roomIndex = col;
 				} else {
-					// Deuxième colonne: de bas en haut
 					roomIndex = roomsPerRow + col;
 				}
 
 				const seedDataArray = Object.values(seedData);
 				let monsterRoomIndex;
 				if (isTopRow) {
-					// Pour la rangée du haut, on commence par le bas
 					monsterRoomIndex = roomsPerRow - 1 - col;
 				} else {
-					// Pour la rangée du bas, on commence par le bas aussi
 					monsterRoomIndex = seedDataArray.length - 1 - col;
 				}
 				const roomData = seedDataArray[monsterRoomIndex];
@@ -340,7 +330,6 @@ const useGridStore = create((set, get) => ({
 
 				baseRoom.push(roomDoorOpen);
 
-				// Ajouter le type de salle à tous les murs de la salle
 				baseRoom.forEach((wall) => {
 					let newWall;
 					if (isTopRow) {
@@ -356,6 +345,7 @@ const useGridStore = create((set, get) => ({
 							type: wall.type,
 							hidingSpot: wall.hidingSpot,
 							roomType,
+							isRaid: roomData?.isRaid,
 						};
 					} else {
 						newWall = {
@@ -370,6 +360,7 @@ const useGridStore = create((set, get) => ({
 							type: wall.type,
 							hidingSpot: wall.hidingSpot,
 							roomType,
+							isRaid: roomData?.isRaid,
 						};
 					}
 					rooms.push(newWall);
@@ -400,6 +391,7 @@ const useGridStore = create((set, get) => ({
 							},
 							type: CELL_TYPES.MONSTER_POSITION,
 							roomIndex,
+							isRaid: roomData.isRaid,
 						};
 						rooms.push(newWall);
 					} else {
@@ -419,6 +411,7 @@ const useGridStore = create((set, get) => ({
 							},
 							type: CELL_TYPES.MONSTER_POSITION,
 							roomIndex,
+							isRaid: roomData.isRaid,
 						};
 						rooms.push(newWall);
 					}
@@ -437,7 +430,6 @@ const useGridStore = create((set, get) => ({
 		const walls = [...get().initialWalls(roomCount), ...get().generateRooms()];
 		const newGrid = {};
 
-		// Initialiser la grille de base
 		for (let x = 0; x < width; x++) {
 			for (let z = 0; z < height; z++) {
 				newGrid[`${x},${z}`] = {
@@ -449,14 +441,12 @@ const useGridStore = create((set, get) => ({
 			}
 		}
 
-		// Remplir l'intérieur des salles avec leur type
 		const roomsPerRow = roomCount / 2;
 		const roomWidth = 59;
 		const roomHeight = 100;
 		const startX = 20;
 		const startZ = 162;
 
-		// Remplir la salle tutorial
 		const tutorialX = 110 + (roomCount / 2) * 59 - 85;
 		const tutorialZ = 180;
 		for (let x = tutorialX; x < tutorialX + roomWidth; x++) {
@@ -467,7 +457,6 @@ const useGridStore = create((set, get) => ({
 			}
 		}
 
-		// Remplir les salles normales
 		const seedDataArray = Object.values(useGame.getState().seedData);
 		for (let row = 0; row < 2; row++) {
 			for (let col = 0; col < roomsPerRow; col++) {
@@ -477,20 +466,16 @@ const useGridStore = create((set, get) => ({
 					startX + col * (roomWidth + gap) + extraOffset + (row === 0 ? 0 : 0);
 				const offsetZ = startZ + row * (roomHeight + gap) + (row === 0 ? 1 : 4);
 
-				// Modification du calcul de l'index pour avoir le bon ordre des salles
 				let roomIndex;
 				if (row === 0) {
-					// Première colonne: de bas en haut
 					roomIndex = col;
 				} else {
-					// Deuxième colonne: de bas en haut
 					roomIndex = roomsPerRow + col;
 				}
 
 				const roomData = seedDataArray[roomIndex];
 				const roomType = roomData?.type || 'empty';
 
-				// Remplir l'intérieur de la salle avec le type de salle
 				for (let x = offsetX; x < offsetX + roomWidth; x++) {
 					for (let z = offsetZ; z < offsetZ + roomHeight; z++) {
 						const cell = newGrid[`${x},${z}`];
@@ -502,7 +487,6 @@ const useGridStore = create((set, get) => ({
 			}
 		}
 
-		// Ajouter les murs et autres éléments
 		walls.forEach((wall) => {
 			for (let x = wall.start.x; x <= wall.end.x; x++) {
 				for (let z = wall.start.z; z <= wall.end.z; z++) {
@@ -511,6 +495,7 @@ const useGridStore = create((set, get) => ({
 						type: wall.type || CELL_TYPES.WALL,
 						hidingSpot: wall.hidingSpot || null,
 						roomType: wall.roomType || newGrid[`${x},${z}`].roomType,
+						isRaid: wall.isRaid || false,
 					};
 				}
 			}
@@ -620,7 +605,11 @@ const useGridStore = create((set, get) => ({
 							z * heightScaleFactor + dz
 						);
 						if (!cellRoomType && cell.roomType) {
-							cellRoomType = cell.roomType;
+							if (cell.roomType === 'empty' && cell.isRaid) {
+								cellRoomType = 'raid';
+							} else {
+								cellRoomType = cell.roomType;
+							}
 						}
 						if (cell.hidingSpot) {
 							hasHidingSpot = true;

@@ -1,4 +1,4 @@
-import { useRef, useCallback } from 'react';
+import { useRef, useCallback, useEffect } from 'react';
 import { useFrame } from '@react-three/fiber';
 import useGame from './useGame';
 
@@ -14,7 +14,29 @@ const useGamepadControls = () => {
 		action: false,
 		run: false,
 		crouch: false,
+		rightStickX: 0,
+		rightStickY: 0,
+		leftClick: false,
+		rightClick: false,
+		leftStickX: 0,
+		leftStickY: 0,
 	});
+
+	useEffect(() => {
+		const handleMouseMove = (event) => {
+			if (
+				deviceMode === 'gamepad' &&
+				(event.movementX !== 0 || event.movementY !== 0)
+			) {
+				setDeviceMode('keyboard');
+			}
+		};
+
+		window.addEventListener('mousemove', handleMouseMove);
+		return () => {
+			window.removeEventListener('mousemove', handleMouseMove);
+		};
+	}, [deviceMode, setDeviceMode]);
 
 	const handleGamepadInput = useCallback(() => {
 		const gamepads = navigator.getGamepads();
@@ -37,21 +59,41 @@ const useGamepadControls = () => {
 				const rightStickX = gamepad.axes[2];
 				const rightStickY = gamepad.axes[3];
 
-				// Mouvement
-				controlsRef.current.left = leftStickX < -0.1;
-				controlsRef.current.right = leftStickX > 0.1;
-				controlsRef.current.forward = leftStickY < -0.1;
-				controlsRef.current.backward = leftStickY > 0.1;
+				const DEADZONE = 0.15;
 
-				// Rotation de la caméra
-				controlsRef.current.rightStickX = rightStickX;
-				controlsRef.current.rightStickY = rightStickY;
+				controlsRef.current.leftStickX =
+					Math.abs(leftStickX) > DEADZONE ? leftStickX : 0;
+				controlsRef.current.leftStickY =
+					Math.abs(leftStickY) > DEADZONE ? leftStickY : 0;
 
-				// Actions
-				controlsRef.current.jump = gamepad.buttons[0].pressed;
-				controlsRef.current.action = gamepad.buttons[1].pressed;
-				controlsRef.current.run = gamepad.buttons[10].pressed;
-				controlsRef.current.crouch = gamepad.buttons[11].pressed;
+				controlsRef.current.left = leftStickX < -DEADZONE;
+				controlsRef.current.right = leftStickX > DEADZONE;
+				controlsRef.current.forward = leftStickY < -DEADZONE;
+				controlsRef.current.backward = leftStickY > DEADZONE;
+
+				controlsRef.current.rightStickX =
+					Math.abs(rightStickX) > DEADZONE ? rightStickX : 0;
+				controlsRef.current.rightStickY =
+					Math.abs(rightStickY) > DEADZONE ? rightStickY : 0;
+
+				controlsRef.current.jump = gamepad.buttons[0].pressed; // A
+				controlsRef.current.crouch = gamepad.buttons[1].pressed; // B
+
+				const xButtonPressed = gamepad.buttons[2].pressed;
+				if (xButtonPressed && !controlsRef.current.leftClick) {
+					const clickEvent = new MouseEvent('click', {
+						bubbles: true,
+						cancelable: true,
+						view: window,
+						button: 0,
+					});
+					document.dispatchEvent(clickEvent);
+				}
+				controlsRef.current.leftClick = xButtonPressed;
+
+				controlsRef.current.rightClick = gamepad.buttons[3].pressed; // Y
+				controlsRef.current.action = gamepad.buttons[2].pressed; // X
+				controlsRef.current.run = gamepad.buttons[10].pressed; // L3
 			}
 		}
 	}, [deviceMode, setDeviceMode]);

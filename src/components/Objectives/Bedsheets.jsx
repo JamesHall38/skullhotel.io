@@ -8,6 +8,8 @@ import * as THREE from 'three';
 import DetectionZone from '../DetectionZone';
 import FabricMaterial from '../materials/FabricMaterial';
 import useGameplaySettings from '../../hooks/useGameplaySettings';
+import useDoor from '../../hooks/useDoor';
+import useGamepadControls from '../../hooks/useGamepadControls';
 
 const CORRIDORLENGTH = 5.95;
 const offset = [8.833, 0.014, 6.2];
@@ -17,8 +19,10 @@ export default function Bedsheets() {
 	const roomCount = useGameplaySettings((state) => state.roomCount);
 	const mobileClick = useGame((state) => state.mobileClick);
 	const setMobileClick = useGame((state) => state.setMobileClick);
+	const seedData = useGame((state) => state.seedData);
 	const setCursor = useInterface((state) => state.setCursor);
 	const playerPositionRoom = useGame((state) => state.playerPositionRoom);
+	const isTutorialOpen = useGame((state) => state.isTutorialOpen);
 	const [isDetected, setIsDetected] = useState(false);
 	const group = useRef();
 	const { nodes, animations } = useGLTF('/models/objectives/bedsheets.glb');
@@ -36,6 +40,10 @@ export default function Bedsheets() {
 		(state) => state.setInterfaceObjectives
 	);
 	const { camera } = useThree();
+	const tutorialDoor = useDoor((state) => state.tutorial);
+	const deviceMode = useGame((state) => state.deviceMode);
+	const gamepadControlsRef = useGamepadControls();
+	const wasActionPressedRef = useRef(false);
 
 	const bedsheetsSoundRef = useRef();
 
@@ -62,18 +70,23 @@ export default function Bedsheets() {
 			];
 		}
 
-		if (camera.position.x > 8) {
-			calculatedPosition = [14.5, 0, 14.5];
-		} else if (camera.position.x <= 8 && camera.position.x > 4.4) {
+		if (isTutorialOpen) {
 			calculatedPosition = [3.02, 0.02, 7.9];
+		} else if (camera.position.x > 8) {
+			calculatedPosition = [14.5, 0, 14.5];
 		}
 
 		return calculatedPosition;
-	}, [playerPositionRoom, roomCount, camera]);
+	}, [playerPositionRoom, roomCount, camera, isTutorialOpen]);
 
 	useEffect(() => {
 		const handleProgressComplete = () => {
-			if (isDetected && !objective && visibleMesh === 'Start') {
+			if (
+				isDetected &&
+				!objective &&
+				visibleMesh === 'Start' &&
+				Math.abs(camera.position.z) > 4.2
+			) {
 				const mixer = new THREE.AnimationMixer(animationMeshClone);
 				animations.forEach((clip) => {
 					if (clip.name === 'Bedsheets') {
@@ -121,6 +134,7 @@ export default function Bedsheets() {
 		isDetected,
 		objective,
 		setCursor,
+		camera,
 	]);
 
 	const isInit = useRef(false);
@@ -157,9 +171,7 @@ export default function Bedsheets() {
 					setVisibleMesh('End');
 					if (!tutorialObjectives[1]) return;
 					setInterfaceObjectives(1, roomNumber);
-					const currentRoom = Object.values(useGame.getState().seedData)[
-						roomNumber
-					];
+					const currentRoom = Object.values(seedData)[roomNumber];
 					if (currentRoom?.hideObjective === 'bedsheets') {
 						useGame
 							.getState()
@@ -171,6 +183,10 @@ export default function Bedsheets() {
 	});
 
 	const handleDetection = useCallback(() => {
+		if (Math.abs(camera.position.z) < 4.2) {
+			return;
+		}
+
 		if (tutorialObjectives[1] === false) {
 			setCursor('clean-bedsheets');
 			setIsDetected(true);
@@ -181,12 +197,44 @@ export default function Bedsheets() {
 			setCursor('clean-bedsheets');
 			setIsDetected(true);
 		}
-	}, [setCursor, objective, tutorialObjectives, visibleMesh]);
+	}, [setCursor, objective, tutorialObjectives, visibleMesh, camera]);
 
 	const handleDetectionEnd = useCallback(() => {
 		setCursor(null);
 		setIsDetected(false);
 	}, [setCursor]);
+
+	useEffect(() => {
+		if (deviceMode !== 'gamepad') return;
+
+		const checkGamepad = () => {
+			const gamepadControls = gamepadControlsRef();
+			if (
+				gamepadControls.action &&
+				!wasActionPressedRef.current &&
+				isDetected
+			) {
+				wasActionPressedRef.current = true;
+				const event = new MouseEvent('mousedown', {
+					bubbles: true,
+					cancelable: true,
+					button: 0,
+				});
+				document.dispatchEvent(event);
+			} else if (!gamepadControls.action && wasActionPressedRef.current) {
+				wasActionPressedRef.current = false;
+				const event = new MouseEvent('mouseup', {
+					bubbles: true,
+					cancelable: true,
+					button: 0,
+				});
+				document.dispatchEvent(event);
+			}
+		};
+
+		const interval = setInterval(checkGamepad, 16);
+		return () => clearInterval(interval);
+	}, [deviceMode, gamepadControlsRef, isDetected]);
 
 	return (
 		<group

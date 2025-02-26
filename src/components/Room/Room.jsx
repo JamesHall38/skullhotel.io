@@ -12,6 +12,7 @@ import Tv from './Events/Tv';
 import Lights from './Lights';
 import DetectionZone from '../DetectionZone';
 import useGameplaySettings from '../../hooks/useGameplaySettings';
+import useDoor from '../../hooks/useDoor';
 
 const CORRIDORLENGTH = 5.95;
 const offset = [8.83, 0, 6.2];
@@ -22,6 +23,7 @@ export default function Room() {
 	const playerPositionRoom = useGame((state) => state.playerPositionRoom);
 	const deaths = useGame((state) => state.deaths);
 	const { camera } = useThree();
+	const tutorialDoor = useDoor((state) => state.tutorial);
 	const setIsFlashlightFlickering = useGame((state) => state.setIsFlickering);
 	const [isDetectionActive, setIsDetectionActive] = useState(false);
 	const [randomRoomNumber, setRandomRoomNumber] = useState(
@@ -62,13 +64,15 @@ export default function Room() {
 				offset[2],
 			];
 		}
-		if (camera.position.x > 8) {
+		if (tutorialDoor) {
+			calculatedPosition = [3.02, 0, 7.9];
+		} else if (camera.position.x > 8) {
 			calculatedPosition = [14.5, 0, 14.5];
 		} else if (camera.position.x <= 8 && camera.position.x > 4.4) {
 			calculatedPosition = [3.02, 0, 7.9];
 		}
 		return calculatedPosition;
-	}, [playerPositionRoom, roomCount, camera]);
+	}, [playerPositionRoom, roomCount, camera, tutorialDoor]);
 
 	const handleFlickerDetection = useCallback(() => {
 		setIsFlashlightFlickering(true);
