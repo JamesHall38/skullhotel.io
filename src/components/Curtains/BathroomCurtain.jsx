@@ -15,6 +15,7 @@ export default function BathroomCurtain({ positionOffset, name }) {
 	const setBathroomCurtain = useDoor((state) => state.setBathroomCurtain);
 	const setBathroomCurtains = useDoor((state) => state.setBathroomCurtains);
 	const playerPositionRoom = useGame((state) => state.playerPositionRoom);
+	const isTutorialOpen = useGame((state) => state.isTutorialOpen);
 	const { camera } = useThree();
 
 	const position = useMemo(() => {
@@ -52,7 +53,16 @@ export default function BathroomCurtain({ positionOffset, name }) {
 			calculatedPosition[1],
 			calculatedPosition[2],
 		];
-	}, [playerPositionRoom, roomCount, positionOffset, roomNumber, camera]);
+
+		// eslint-disable-next-line
+	}, [
+		playerPositionRoom,
+		roomCount,
+		positionOffset,
+		roomNumber,
+		camera,
+		isTutorialOpen,
+	]);
 
 	return (
 		<group position={position} scale={[0.75, 1, 1]}>

@@ -1,7 +1,14 @@
-import React, { useRef, useCallback, useEffect, useState } from 'react';
+import React, {
+	useRef,
+	useCallback,
+	useEffect,
+	useState,
+	useMemo,
+} from 'react';
 import { useGLTF } from '@react-three/drei';
 import useGame from '../../hooks/useGame';
 import useInterface from '../../hooks/useInterface';
+import useGameplaySettings from '../../hooks/useGameplaySettings';
 import DetectionZone from '../DetectionZone';
 import { getAudioInstance, areSoundsLoaded } from '../../utils/audio';
 
@@ -12,19 +19,39 @@ export default function Switches(props) {
 	const setBathroomLight = useGame((state) => state.setBathroomLight);
 	const mobileClick = useGame((state) => state.mobileClick);
 	const setCursor = useInterface((state) => state.setCursor);
+	const cursor = useInterface((state) => state.cursor);
+	const roomCount = useGameplaySettings((state) => state.roomCount);
+	const doneObjectives = useInterface((state) => state.interfaceObjectives);
+	const doneObjectivesNumberRef = useRef(doneObjectives);
 	const { nodes, materials } = useGLTF('/models/room/switchs.glb');
 	const [switch1Clickable, setSwitch2Clickable] = useState(false);
 	const [switch2Clickable, setSwitch1Clickable] = useState(false);
 	const [soundsReady, setSoundsReady] = useState(false);
+	const [bulbBurned, setBulbBurned] = useState(false);
 	const switch1Ref = useRef();
 	const switch2Ref = useRef();
 
 	const switchOnSoundRef = useRef(null);
 	const switchOffSoundRef = useRef(null);
 	const neonSoundRef = useRef(null);
+	const bulbSoundRef = useRef(null);
 
 	const bathroomLightRef = useRef(bathroomLight);
 	const roomLightRef = useRef(roomLight);
+
+	const doneObjectivesNumber = useMemo(() => {
+		const count = doneObjectives?.reduce((acc, subArray) => {
+			if (subArray.every(Boolean)) {
+				return acc + 1;
+			}
+			return acc;
+		}, 0);
+		return count;
+	}, [doneObjectives]);
+
+	useEffect(() => {
+		doneObjectivesNumberRef.current = doneObjectivesNumber || 0;
+	}, [doneObjectivesNumber]);
 
 	useEffect(() => {
 		const checkSounds = () => {
@@ -32,10 +59,12 @@ export default function Switches(props) {
 				switchOnSoundRef.current = getAudioInstance('switchOn');
 				switchOffSoundRef.current = getAudioInstance('switchOff');
 				neonSoundRef.current = getAudioInstance('neon');
+				bulbSoundRef.current = getAudioInstance('bulb');
 				if (
 					switchOnSoundRef.current &&
 					switchOffSoundRef.current &&
-					neonSoundRef.current
+					neonSoundRef.current &&
+					bulbSoundRef.current
 				) {
 					setSoundsReady(true);
 				}
@@ -115,7 +144,7 @@ export default function Switches(props) {
 
 		const handleClickSwitch1 = (e) => {
 			if (e.button !== 0) return;
-			if (switch1Clickable) {
+			if (switch1Clickable && cursor.includes('light')) {
 				setBathroomLight(!bathroomLight);
 				if (!bathroomLight) {
 					switchOnSoundRef.current.currentTime = 0;
@@ -134,13 +163,33 @@ export default function Switches(props) {
 		const handleClickSwitch2 = (e) => {
 			if (e.button !== 0) return;
 			if (switch2Clickable) {
-				setRoomLight(!roomLight);
-				if (!roomLight) {
+				const totalSteps = 6;
+				const currentStep = Math.floor(
+					(doneObjectivesNumberRef.current / (roomCount / 2)) * totalSteps
+				);
+
+				if (currentStep > totalSteps / 2 && !roomLight && !bulbBurned) {
+					setRoomLight(true);
 					switchOnSoundRef.current.currentTime = 0;
 					switchOnSoundRef.current.play().catch(() => {});
+					setBulbBurned(true);
+
+					setTimeout(() => {
+						setRoomLight(false);
+						bulbSoundRef.current.currentTime = 0;
+						bulbSoundRef.current.play().catch(() => {});
+					}, 500);
 				} else {
-					switchOffSoundRef.current.currentTime = 0;
-					switchOffSoundRef.current.play().catch(() => {});
+					if (!bulbBurned) {
+						setRoomLight(!roomLight);
+					}
+					if (!roomLight) {
+						switchOnSoundRef.current.currentTime = 0;
+						switchOnSoundRef.current.play().catch(() => {});
+					} else {
+						switchOffSoundRef.current.currentTime = 0;
+						switchOffSoundRef.current.play().catch(() => {});
+					}
 				}
 			}
 		};
@@ -159,6 +208,10 @@ export default function Switches(props) {
 		switch1Clickable,
 		switch2Clickable,
 		soundsReady,
+		cursor,
+		doneObjectivesNumber,
+		roomCount,
+		bulbBurned,
 	]);
 
 	const handleDetectionSwitch1 = useCallback(() => {

@@ -263,7 +263,7 @@ const PostProcessing = () => {
 		const checkSounds = () => {
 			if (areSoundsLoaded()) {
 				jumpScareAmbianceRef.current = getAudioInstance('jumpScareAmbiance');
-				whiteNoiseRef.current = getAudioInstance('boom');
+				whiteNoiseRef.current = getAudioInstance('boomAmbient');
 
 				if (jumpScareAmbianceRef.current && whiteNoiseRef.current) {
 					// Configuration initiale

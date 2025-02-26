@@ -11,6 +11,7 @@ import useHiding from '../../hooks/useHiding';
 import { getAudioInstance, areSoundsLoaded } from '../../utils/audio';
 import { KTX2Loader } from 'three/examples/jsm/loaders/KTX2Loader';
 import useProgressiveLoad from '../../hooks/useProgressiveLoad';
+import useGameplaySettings from '../../hooks/useGameplaySettings';
 
 const BASE_SPEED = 5;
 const CHASE_SPEED = 0.5;
@@ -58,7 +59,7 @@ const Monster = (props) => {
 
 	const seedData = useGame((state) => state.seedData);
 	const playerPositionRoom = useGame((state) => state.playerPositionRoom);
-	const roomNumber = useGame((state) => state.roomNumber);
+	const roomCount = useGameplaySettings((state) => state.roomCount);
 	const setShakeIntensity = useGame((state) => state.setShakeIntensity);
 	const monsterState = useMonster((state) => state.monsterState);
 	const setMonsterState = useMonster((state) => state.setMonsterState);
@@ -85,12 +86,11 @@ const Monster = (props) => {
 	const setBathroomDoors = useDoor((state) => state.setBathroomDoors);
 	const [currentPath, setCurrentPath] = useState(null);
 	const [pathfindingFailures, setPathfindingFailures] = useState(0);
-	const [currentTargetIndex, setCurrentTargetIndex] = useState(0);
-	const [nextTargetIndex, setNextTargetIndex] = useState(0);
 	const MAX_PATHFINDING_FAILURES = 3;
 	const headBoneRef = useRef();
 	const lastTargetRef = useRef({ x: 0, z: 0 });
 	const [isWaiting, setIsWaiting] = useState(false);
+	const timeoutRef = useRef(null);
 
 	const monsterParts = useMemo(
 		() => [
@@ -143,6 +143,18 @@ const Monster = (props) => {
 
 	useEffect(() => {
 		setHasPlayedJumpScare(false);
+	}, [deaths]);
+
+	useEffect(() => {
+		if (group.current && headBoneRef.current) {
+			headBoneRef.current.rotation.set(0, 0, 0);
+			group.current.rotation.set(0, Math.PI, 0);
+			group.current.position.set(0, 10, 0);
+			const monster = useMonster.getState();
+			monster.setMonsterState('idle');
+			monster.setMonsterPosition([0, 10, 0]);
+			monster.setMonsterRotation([0, Math.PI, 0]);
+		}
 	}, [deaths]);
 
 	const lookAtCamera = useCallback((camera) => {
@@ -288,8 +300,8 @@ const Monster = (props) => {
 						).normalize();
 
 						const moveSpeed = speed * delta;
-
-						group.current.position.add(direction.multiplyScalar(moveSpeed));
+						const movement = direction.clone().multiplyScalar(moveSpeed);
+						group.current.position.add(movement);
 
 						lookAtCamera(camera);
 
@@ -315,7 +327,8 @@ const Monster = (props) => {
 						).normalize();
 
 						const moveSpeed = speed * delta;
-						group.current.position.add(direction.multiplyScalar(moveSpeed));
+						const movement = direction.clone().multiplyScalar(moveSpeed);
+						group.current.position.add(movement);
 
 						group.current.lookAt(
 							camera.position.x,
@@ -363,8 +376,8 @@ const Monster = (props) => {
 						).normalize();
 
 						const moveSpeed = speed * delta;
-
-						group.current.position.add(direction.multiplyScalar(moveSpeed));
+						const movement = direction.clone().multiplyScalar(moveSpeed);
+						group.current.position.add(movement);
 
 						lookAtCamera(camera);
 
@@ -390,7 +403,8 @@ const Monster = (props) => {
 						).normalize();
 
 						const moveSpeed = speed * delta;
-						group.current.position.add(direction.multiplyScalar(moveSpeed));
+						const movement = direction.clone().multiplyScalar(moveSpeed);
+						group.current.position.add(movement);
 
 						group.current.lookAt(
 							camera.position.x,
@@ -430,13 +444,6 @@ const Monster = (props) => {
 			}
 		});
 	}, [nodes, isLoading, visibleParts]);
-
-	useEffect(() => {
-		if (monsterState === 'leaving') {
-			setCurrentTargetIndex(0);
-			setNextTargetIndex(1);
-		}
-	}, [monsterState]);
 
 	useFrame(({ camera }) => {
 		if (
@@ -491,142 +498,101 @@ const Monster = (props) => {
 				group.current.rotation.z = 0;
 			}
 		} else if (monsterState === 'run' || monsterState === 'chase') {
-			runAtCamera(camera, clock.getDelta() * 100, monsterState);
+			if (timeoutRef.current) {
+				clearTimeout(timeoutRef.current);
+				timeoutRef.current = null;
+			}
+			const delta = Math.max(clock.getDelta(), 0.016);
+			runAtCamera(camera, delta, monsterState);
 		} else if (monsterState === 'leaving') {
-			let leavingPath;
 			const hideSpot = useHiding.getState().hideSpot;
+			const isRightSide = playerPositionRoom >= roomCount / 2;
+			const rightOffset = 1.76;
+
+			let targetPosition;
+			let targetRotation = 0;
 
 			if (
-				(hideSpot === 'nightstand' && !nightstandDoor) ||
+				(hideSpot === 'roomCurtain' && !roomCurtain) ||
 				(hideSpot === 'desk' && !deskDoor)
 			) {
-				leavingPath = [
-					new THREE.Vector3(-1, 0, 12),
-					new THREE.Vector3(0, 0, 0),
-					new THREE.Vector3(2, 0, 0),
-				];
-			} else if (hideSpot === 'roomCurtain' && !roomCurtain) {
-				leavingPath = [new THREE.Vector3(2, 0, 0)];
+				targetPosition = new THREE.Vector3(
+					-0.91 + (isRightSide ? rightOffset : 0),
+					0,
+					1.19 * (isRightSide ? -1 : 1)
+				);
+				targetRotation = isRightSide ? Math.PI : 0;
+			} else if (hideSpot === 'nightstand' && !nightstandDoor) {
+				targetPosition = new THREE.Vector3(
+					-0.69 + (isRightSide ? rightOffset : -0.42),
+					-0.5,
+					4.21 * (isRightSide ? -1 : 1)
+				);
+				targetRotation = isRightSide ? Math.PI / 2 : -Math.PI / 2;
 			} else if (hideSpot === 'bathroomCurtain' && !bathroomCurtain) {
-				leavingPath = [
-					new THREE.Vector3(-1, 0, 3.9),
-					new THREE.Vector3(-1.01, 0, 0),
-					new THREE.Vector3(-2, 0, 0),
-				];
+				targetPosition = new THREE.Vector3(
+					-0.78 + (isRightSide ? rightOffset : -0.26),
+					0,
+					3.18 * (isRightSide ? -1 : 1)
+				);
+				targetRotation = isRightSide ? 1 : Math.PI + 1;
 			} else {
 				setShakeIntensity(10);
 				setMonsterState('run');
 				playAnimation('Run');
+				setAnimationSpeed(1);
 				return;
 			}
 
 			const CORRIDOR_LENGTH = 5.95;
 			let roomX;
-			if (playerPositionRoom >= roomNumber / 2) {
-				roomX = -(playerPositionRoom - roomNumber / 2) * CORRIDOR_LENGTH;
+			if (playerPositionRoom >= roomCount / 2) {
+				roomX = -(playerPositionRoom - roomCount / 2) * CORRIDOR_LENGTH;
 			} else {
 				roomX = -playerPositionRoom * CORRIDOR_LENGTH;
 			}
 			const roomPosition = new THREE.Vector3(roomX, 0, 0);
+			targetPosition.add(roomPosition);
 
-			const absoluteLeavingPath = leavingPath.map((relativePos) =>
-				relativePos.add(roomPosition)
-			);
+			group.current.position.copy(targetPosition);
+			group.current.rotation.y = targetRotation;
 
-			const targetPos = absoluteLeavingPath[currentTargetIndex];
+			if (!isWaiting) {
+				setAnimationMixSpeed(1);
+				playAnimation('Creeping');
+				setAnimationSpeed(1);
 
-			if (targetPos) {
-				if (group.current.position.distanceTo(targetPos) < 0.1) {
-					if (hideSpot === 'bathroomCurtain' && currentTargetIndex === 0) {
-						setAnimationMixSpeed(1);
-						playAnimation('Idle');
-
-						const targetRotation = Math.atan2(
-							camera.position.x - group.current.position.x,
-							camera.position.z - group.current.position.z
-						);
-						const rotateSpeed = 80; // slower rotation
-						group.current.rotation.y = THREE.MathUtils.lerp(
-							group.current.rotation.y,
-							targetRotation,
-							clock.getDelta() * rotateSpeed
-						);
-
-						const currentRoom = playerPositionRoom;
-						setBathroomDoors(currentRoom, true);
-
-						setIsWaiting(true);
-						setTimeout(() => {
-							setIsWaiting(false);
-							if (nextTargetIndex < leavingPath.length - 1) {
-								setCurrentTargetIndex(nextTargetIndex);
-							}
-						}, 4000);
-					} else {
-						if (nextTargetIndex < leavingPath.length - 1) {
-							setCurrentTargetIndex(nextTargetIndex);
-						}
-						if (
-							currentTargetIndex ===
-							leavingPath.length -
-								1 -
-								(nextTargetIndex < leavingPath.length - 1 ||
-								hideSpot === 'roomCurtain'
-									? 0
-									: 1)
-						) {
-							setRoomDoor(playerPositionRoom, false);
-
-							group.current.position.y = 10;
-							setMonsterPosition([
-								group.current.position.x,
-								10,
-								group.current.position.z,
-							]);
-
-							setCurrentTargetIndex(0);
-							setNextTargetIndex(1);
-
-							setMonsterState('hiding');
-							playAnimation('Idle');
-						}
-					}
-
-					if (nextTargetIndex < leavingPath.length - 1) {
-						setNextTargetIndex(nextTargetIndex + 1);
-					}
+				if (hideSpot === 'bathroomCurtain') {
+					setBathroomDoors(playerPositionRoom, true);
 				}
 
-				if (!isWaiting && targetPos) {
-					const delta = clock.getDelta() * 100;
-					const speed = 0.5;
+				setIsWaiting(true);
+				timeoutRef.current = setTimeout(() => {
+					setRoomDoor(playerPositionRoom, false);
 
-					const direction = new THREE.Vector3(
-						targetPos.x - group.current.position.x,
-						0,
-						targetPos.z - group.current.position.z
-					).normalize();
-
-					const moveAmount = direction.multiplyScalar(speed * delta);
-					group.current.position.add(moveAmount);
-
+					group.current.position.y = 10;
 					setMonsterPosition([
 						group.current.position.x,
-						group.current.position.y,
+						10,
 						group.current.position.z,
 					]);
 
-					const targetRotation = Math.atan2(direction.x, direction.z);
-					const rotationSpeed = (Math.PI * delta * speed) / 2;
-					group.current.rotation.y = THREE.MathUtils.lerp(
-						group.current.rotation.y,
-						targetRotation,
-						rotationSpeed
-					);
-				}
+					setMonsterState('hiding');
+					playAnimation('Idle');
+
+					setIsWaiting(false);
+				}, 5000);
 			}
 		}
 	});
+
+	useEffect(() => {
+		return () => {
+			if (timeoutRef.current) {
+				clearTimeout(timeoutRef.current);
+			}
+		};
+	}, []);
 
 	return (
 		<group>

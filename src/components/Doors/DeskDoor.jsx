@@ -24,7 +24,6 @@ export default function DeskDoor() {
 	const isOpen = useDoor((state) => state.desk);
 	const setOpen = useDoor((state) => state.setDesk);
 	const [instantChange, setInstantChange] = useState(false);
-	const [tutorialRoomOffset, setTutorialRoomOffset] = useState(null);
 	const createWoodMaterial = WoodMaterial();
 	const doorMaterial = useRef(createWoodMaterial());
 	const { camera } = useThree();
@@ -64,14 +63,6 @@ export default function DeskDoor() {
 	}, [deskDoors, playerPositionRoom, setOpen, isOpen]);
 
 	useEffect(() => {
-		setTutorialRoomOffset(
-			camera.position.x <= 8 && camera.position.x > 4.4
-				? tutorialRoomCenter
-				: null
-		);
-	}, [playerPositionRoom, camera]);
-
-	useEffect(() => {
 		const cellX = Math.floor(camera.position.x * 10 + gridOffsetX);
 		const cellZ = Math.floor(camera.position.z * 10 + GRID_OFFSET_Z);
 		const cell = getCell(cellX, cellZ);
@@ -109,7 +100,7 @@ export default function DeskDoor() {
 			instantChange={instantChange}
 			setInstantChange={setInstantChange}
 			closet
-			tutorialRoomOffset={tutorialRoomOffset}
+			tutorialRoomOffset={tutorialRoomCenter}
 		>
 			<group dispose={null}>
 				<a.mesh

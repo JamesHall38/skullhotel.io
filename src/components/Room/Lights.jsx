@@ -1,38 +1,30 @@
 import { useRef, useEffect, useState, useMemo, useCallback } from 'react';
 import * as THREE from 'three';
 import useMonster from '../../hooks/useMonster';
-// import useDoor from '../../hooks/useDoor';
 import useGame from '../../hooks/useGame';
 import useInterface from '../../hooks/useInterface';
-import { PositionalAudio } from '@react-three/drei';
-import DetectionZone from '../DetectionZone';
-import { usePositionalSound } from '../../utils/audio';
-
-const PROBABILITY_OF_RED_LIGHT = 20;
+import useGameplaySettings from '../../hooks/useGameplaySettings';
+import useLight from '../../hooks/useLight';
 
 export default function Lights() {
 	const seedData = useGame((state) => state.seedData);
 	const setRoomLight = useGame((state) => state.setRoomLight);
 	const setBathroomLight = useGame((state) => state.setBathroomLight);
 	const playerPositionRoom = useGame((state) => state.playerPositionRoom);
-	const deaths = useGame((state) => state.deaths);
+	const roomCount = useGameplaySettings((state) => state.roomCount);
 	const monsterState = useMonster((state) => state.monsterState);
 	const doneObjectives = useInterface((state) => state.interfaceObjectives);
 	const isJumpscareActive = useGame((state) => state.jumpScare);
-	// const roomDoor = useDoor((state) => state.roomDoor);
-	// const soundPlayed = useRef(false);
 	const roomLight = useGame((state) => state.roomLight);
 	const bathroomLight = useGame((state) => state.bathroomLight);
-	// const loading = useGame((state) => state.loading);
+	const setRightLight = useLight((state) => state.setRightLight);
+	const setLeftLight = useLight((state) => state.setLeftLight);
+	const setWallLight = useLight((state) => state.setWallLight);
+	const setCouchLight = useLight((state) => state.setCouchLight);
 	const doneObjectivesNumberRef = useRef(doneObjectives);
-	const [isDetectionActive, setIsDetectionActive] = useState(false);
-	const [isRedLight, setIsRedLight] = useState(false);
-	const [activeRedLights, setActiveRedLights] = useState([]);
-	const redLightSoundRef = useRef();
-	const firstRedLightPlayed = useRef(false);
 	const mainLightRef = useRef();
 	const bathroomLightRef = useRef();
-	const bulbSound = usePositionalSound('bulb');
+	const deaths = useGame((state) => state.deaths);
 
 	const doneObjectivesNumber = useMemo(() => {
 		const count = doneObjectives?.reduce((acc, subArray) => {
@@ -49,68 +41,53 @@ export default function Lights() {
 	}, [doneObjectivesNumber]);
 
 	useEffect(() => {
-		const probability = doneObjectivesNumberRef.current / 9;
+		const totalSteps = 6;
+		const currentStep = Math.floor(
+			(doneObjectivesNumberRef.current / (roomCount / 2)) * totalSteps
+		);
 
 		if (
 			!seedData[playerPositionRoom] ||
 			seedData[playerPositionRoom]?.type === 'empty'
 		) {
-			setRoomLight(Math.random() > probability);
-			setBathroomLight(Math.random() > probability);
+			setRoomLight(currentStep < 1);
+			setLeftLight('#fff9eb', currentStep < 2 ? 0.5 : 0);
+			setBathroomLight(currentStep < 3);
+			setRightLight('#fff9eb', currentStep < 4 ? 0.5 : 0);
+			setWallLight('#ffffff', currentStep < 5 ? 0.5 : 0);
+			setCouchLight('#ff0000', currentStep < 6 ? 0.5 : 0);
 		} else {
 			if (seedData[playerPositionRoom].roomLight === 'off') {
 				setRoomLight(false);
 			} else if (seedData[playerPositionRoom].roomLight === 'on') {
 				setRoomLight(true);
 			} else {
-				setRoomLight(Math.random() > probability);
+				setRoomLight(
+					Math.random() > doneObjectivesNumberRef.current / (roomCount / 2)
+				);
 			}
 
-			if (seedData[playerPositionRoom].bathroomLight === 'off') {
-				setBathroomLight(false);
-			} else if (seedData[playerPositionRoom].bathroomLight === 'on') {
-				setBathroomLight(true);
-			} else {
-				setBathroomLight(Math.random() > probability);
-			}
+			// if (seedData[playerPositionRoom].bathroomLight === 'off') {
+			// 	setBathroomLight(false);
+			// } else if (seedData[playerPositionRoom].bathroomLight === 'on') {
+			// 	setBathroomLight(true);
+			// } else {
+			// 	setBathroomLight(
+			// 		Math.random() > doneObjectivesNumberRef.current / (roomCount / 2)
+			// 	);
+			// }
 		}
-		// } else {
-		// 	setRoomLight(false);
-		// 	setBathroomLight(false);
-		// }
-	}, [seedData, playerPositionRoom, setRoomLight, setBathroomLight]);
-
-	useEffect(() => {
-		if (isRedLight && !firstRedLightPlayed.current) {
-			redLightSoundRef.current.play();
-			firstRedLightPlayed.current = true;
-		} else {
-			redLightSoundRef.current.pause();
-		}
-	}, [isRedLight]);
-
-	const [randomRoomNumber, setRandomRoomNumber] = useState(
-		Math.floor(Math.random() * PROBABILITY_OF_RED_LIGHT)
-	);
-
-	const generateRandomRoomNumber = useCallback(
-		() => Math.floor(Math.random() * PROBABILITY_OF_RED_LIGHT),
-		[]
-	);
-
-	useEffect(() => {
-		setRandomRoomNumber(generateRandomRoomNumber());
-		setActiveRedLights([]);
-	}, [deaths, generateRandomRoomNumber]);
-
-	useEffect(() => {
-		if (playerPositionRoom === randomRoomNumber) {
-			setIsDetectionActive(true);
-		} else {
-			setIsDetectionActive(false);
-		}
-		setIsRedLight(activeRedLights.includes(playerPositionRoom));
-	}, [playerPositionRoom, randomRoomNumber, activeRedLights]);
+	}, [
+		seedData,
+		playerPositionRoom,
+		setRoomLight,
+		setBathroomLight,
+		roomCount,
+		setLeftLight,
+		setRightLight,
+		setWallLight,
+		setCouchLight,
+	]);
 
 	const [delayedBathroomLight, setDelayedBathroomLight] = useState(false);
 	const [flickerIntensity, setFlickerIntensity] = useState(0);
@@ -171,20 +148,17 @@ export default function Lights() {
 		}
 	}, [monsterState, jumpScare]);
 
+	useEffect(() => {
+		if (mainLightRef.current && bathroomLightRef.current) {
+			mainLightRef.current.color = new THREE.Color('#fff5e6');
+			mainLightRef.current.intensity = roomLight ? 1.2 : 0;
+			bathroomLightRef.current.color = new THREE.Color('#fff5e6');
+			bathroomLightRef.current.intensity = bathroomLight ? 0.3 : 0;
+		}
+	}, [deaths, roomLight, bathroomLight]);
+
 	return (
 		<group>
-			{isDetectionActive && !activeRedLights.includes(playerPositionRoom) && (
-				<DetectionZone
-					position={[2, 0, 0]}
-					scale={[2, 2, 2]}
-					onDetect={() => {
-						setIsRedLight(true);
-						setActiveRedLights((prev) => [...prev, playerPositionRoom]);
-					}}
-					onDetectEnd={() => {}}
-					downward={true}
-				/>
-			)}
 			<group>
 				<pointLight
 					ref={mainLightRef}
@@ -223,8 +197,6 @@ export default function Lights() {
 					}
 				/>
 			</group>
-			{/* )} */}
-			<PositionalAudio ref={redLightSoundRef} {...bulbSound} loop={false} />
 		</group>
 	);
 }

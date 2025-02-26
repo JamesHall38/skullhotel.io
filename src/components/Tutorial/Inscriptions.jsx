@@ -15,35 +15,68 @@ const inscriptions = [
 		rotation: [0, -Math.PI / 2, 0],
 		scale: 0.2,
 	},
+	// {
+	// 	content: 'Listen to hiding spots',
+	// 	position: [2.75, 1.77, 9.6],
+	// 	rotation: [0, Math.PI, 0],
+	// 	scale: 0.17,
+	// },
+	// {
+	// 	content: 'before opening them',
+	// 	position: [2.75, 1.55, 9.6],
+	// 	rotation: [0, Math.PI, 0],
+	// 	scale: 0.17,
+	// },
+	// {
+	// 	content: 'Always close the door before cleaning',
+	// 	position: [5.95, 2.33, 3.205],
+	// 	rotation: [0, 0, 0],
+	// 	scale: 0.135,
+	// },
+	// {
+	// 	content: 'If you hear knocking',
+	// 	position: [5.75, 2.17, 3.205],
+	// 	rotation: [0, 0, 0],
+	// 	scale: 0.135,
+	// },
+	// {
+	// 	content: 'hide',
+	// 	position: [6.75, 2.16, 3.205],
+	// 	rotation: [0, 0, 0],
+	// 	scale: 0.2,
+	// },
+
 	{
-		content: 'Listen to hiding spots',
+		content: 'Listen at the bathroom door',
+		position: [4.58, 1.9, 4.02],
+		rotation: [0, Math.PI / 2, 0],
+		scale: 0.11,
+	},
+	{
+		content: 'before opening it',
+		position: [4.58, 1.75, 4.02],
+		rotation: [0, Math.PI / 2, 0],
+		scale: 0.11,
+	},
+
+	{
+		content: 'Close the doors behind you',
+		position: [3.25, 1.5, 6.21],
+		rotation: [0, 0, 0],
+		scale: 0.17,
+	},
+
+	{
+		content: 'If you hear knocking',
 		position: [2.75, 1.77, 9.6],
 		rotation: [0, Math.PI, 0],
 		scale: 0.17,
 	},
 	{
-		content: 'before opening them',
-		position: [2.75, 1.55, 9.6],
-		rotation: [0, Math.PI, 0],
-		scale: 0.17,
-	},
-	{
-		content: 'Always close the door before cleaning',
-		position: [5.95, 2.33, 3.205],
-		rotation: [0, 0, 0],
-		scale: 0.135,
-	},
-	{
-		content: 'If you hear knocking',
-		position: [5.75, 2.17, 3.205],
-		rotation: [0, 0, 0],
-		scale: 0.135,
-	},
-	{
 		content: 'hide',
-		position: [6.75, 2.16, 3.205],
-		rotation: [0, 0, 0],
-		scale: 0.2,
+		position: [2.75, 1.5, 9.6],
+		rotation: [0, Math.PI, 0],
+		scale: 0.23,
 	},
 ];
 

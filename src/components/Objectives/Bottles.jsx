@@ -8,6 +8,7 @@ import * as THREE from 'three';
 import DetectionZone from '../DetectionZone';
 import { usePositionalSound } from '../../utils/audio';
 import useGameplaySettings from '../../hooks/useGameplaySettings';
+import useGamepadControls from '../../hooks/useGamepadControls';
 
 const CORRIDORLENGTH = 5.95;
 const offset = [9.53, 0.83, 1.6];
@@ -16,6 +17,10 @@ export default function Bottles() {
 	const roomNumber = useGame((state) => state.playerPositionRoom);
 	const roomCount = useGameplaySettings((state) => state.roomCount);
 	const playerPositionRoom = useGame((state) => state.playerPositionRoom);
+	const deviceMode = useGame((state) => state.deviceMode);
+	const isTutorialOpen = useGame((state) => state.isTutorialOpen);
+	const gamepadControlsRef = useGamepadControls();
+	const wasActionPressedRef = useRef(false);
 	const group = useRef();
 	const { nodes, materials, animations } = useGLTF(
 		'/models/objectives/bottles.glb'
@@ -67,14 +72,14 @@ export default function Bottles() {
 			];
 		}
 
-		if (camera.position.x > 8) {
-			calculatedPosition = [14.5, 0, 14.5];
-		} else if (camera.position.x <= 8 && camera.position.x > 4.4) {
+		if (isTutorialOpen) {
 			calculatedPosition = [2.32, 0 + offset[1], 3.28];
+		} else if (camera.position.x > 8) {
+			calculatedPosition = [14.5, 0, 14.5];
 		}
 
 		return calculatedPosition;
-	}, [playerPositionRoom, roomCount, camera]);
+	}, [playerPositionRoom, roomCount, camera, isTutorialOpen]);
 
 	const handleDetection = useCallback(() => {
 		if (camera.position.x > 1.8 && camera.position.z > 3) {
@@ -203,6 +208,38 @@ export default function Bottles() {
 			isInit.current = true;
 		}
 	}, [tutorialObjectives, actions]);
+
+	useEffect(() => {
+		if (deviceMode !== 'gamepad') return;
+
+		const checkGamepad = () => {
+			const gamepadControls = gamepadControlsRef();
+			if (
+				gamepadControls.action &&
+				!wasActionPressedRef.current &&
+				isDetected
+			) {
+				wasActionPressedRef.current = true;
+				const event = new MouseEvent('mousedown', {
+					bubbles: true,
+					cancelable: true,
+					button: 0,
+				});
+				document.dispatchEvent(event);
+			} else if (!gamepadControls.action && wasActionPressedRef.current) {
+				wasActionPressedRef.current = false;
+				const event = new MouseEvent('mouseup', {
+					bubbles: true,
+					cancelable: true,
+					button: 0,
+				});
+				document.dispatchEvent(event);
+			}
+		};
+
+		const interval = setInterval(checkGamepad, 16);
+		return () => clearInterval(interval);
+	}, [deviceMode, gamepadControlsRef, isDetected]);
 
 	return (
 		<group

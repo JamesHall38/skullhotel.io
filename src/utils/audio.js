@@ -32,6 +32,10 @@ export const SOUNDS = {
 		mp3: '/sounds/boom.mp3',
 		settings: 'ambient',
 	},
+	boomAmbient: {
+		mp3: '/sounds/boom.mp3',
+		settings: 'ambient',
+	},
 	tense: {
 		mp3: '/sounds/tense.mp3',
 		settings: 'ambient',

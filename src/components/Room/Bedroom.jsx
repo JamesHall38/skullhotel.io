@@ -1,11 +1,10 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
-import { useGLTF, useKTX2, PositionalAudio } from '@react-three/drei';
+import { useGLTF, useKTX2 } from '@react-three/drei';
 import * as THREE from 'three';
 import useGame from '../../hooks/useGame';
 import DetectionZone from '../DetectionZone';
 import { useControls } from 'leva';
 import useLight from '../../hooks/useLight';
-import { usePositionalSound } from '../../utils/audio';
 import useProgressiveLoad from '../../hooks/useProgressiveLoad';
 import FloorLightMaterial from '../materials/FloorLightMaterial';
 import WallsLightMaterial from '../materials/WallsLightMaterial';
@@ -47,15 +46,12 @@ export default function Bedroom() {
 	const [isDark, setIsDark] = useState(false);
 	const playerPositionRoom = useGame((state) => state.playerPositionRoom);
 	const deaths = useGame((state) => state.deaths);
-	const lightSoundRef = useRef();
 
 	const leftLight = useLight((state) => state.leftLight);
 	const radioLight = useLight((state) => state.radioLight);
 	const rightLight = useLight((state) => state.rightLight);
 
 	const isRadioOn = useGame((state) => state.radio);
-
-	const bulbSound = usePositionalSound('bulb');
 
 	useControls(
 		'Bedroom Lights',
@@ -269,12 +265,6 @@ export default function Bedroom() {
 	}, [leftLight, radioLight, rightLight]);
 
 	useEffect(() => {
-		if (isDark && lightSoundRef.current) {
-			lightSoundRef.current.play();
-		}
-	}, [isDark]);
-
-	useEffect(() => {
 		if (!isDark) {
 			if (isRadioOn) {
 				useLight.getState().setRadioLight('#fff0be', 0.1);
@@ -338,8 +328,6 @@ export default function Bedroom() {
 				blueLightIntensity={rightLight.intensity}
 				uvScale={10}
 			/>
-
-			<PositionalAudio ref={lightSoundRef} {...bulbSound} loop={false} />
 		</>
 	);
 }

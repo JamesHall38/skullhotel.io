@@ -19,8 +19,27 @@ const VOLUMES = {
 	run: 1,
 };
 
+const PAUSE_DURATION = 1;
+
+const resetAnimations = (actions) => {
+	// Reset toutes les animations comme au montage
+	Object.values(actions).forEach((action) => {
+		action.stop();
+		action.reset();
+		action.play();
+		action.setEffectiveWeight(0);
+		action.timeScale = 1;
+	});
+	// Activer uniquement l'animation Idle
+	if (actions['Idle']) {
+		actions['Idle'].setEffectiveWeight(1);
+	}
+};
+
 function resetGame() {
-	useGame.getState().restart();
+	const game = useGame.getState();
+	game.restart();
+	game.setJumpScare(false);
 	useInterface.getState().restart();
 	useDoor.getState().restart();
 	useMonster.getState().restart();
@@ -31,6 +50,8 @@ export default function Animations({ group, animations }) {
 	const previousAnimationRef = useRef('Idle');
 	const setOpenDeathScreen = useGame((state) => state.setOpenDeathScreen);
 	const footstepIndexRef = useRef(0);
+	const creepingStateRef = useRef('playing'); // 'playing', 'paused', 'reversing', 'done'
+	const creepingPauseTimeRef = useRef(0);
 
 	const monsterState = useMonster((state) => state.monsterState);
 	const animationMixSpeed = useMonster((state) => state.animationMixSpeed);
@@ -38,9 +59,7 @@ export default function Animations({ group, animations }) {
 	const animationSpeed = useMonster((state) => state.animationSpeed);
 
 	useEffect(() => {
-		Object.values(actions).forEach((action) => {
-			action.play();
-		});
+		resetAnimations(actions);
 	}, [actions]);
 
 	useEffect(() => {
@@ -50,7 +69,52 @@ export default function Animations({ group, animations }) {
 	}, [actions, animationSpeed]);
 
 	useEffect(() => {
-		if (animationName === previousAnimationRef.current) {
+		if (animationName === 'Creeping') {
+			// Arrêter toutes les animations
+			Object.values(actions).forEach((action) => {
+				action.stop();
+			});
+			// Démarrer uniquement l'animation Creeping
+			const creepingAction = actions[animationName];
+			creepingAction.play();
+			creepingAction.setEffectiveWeight(1);
+			creepingAction.reset();
+			creepingAction.timeScale = 0.25;
+			creepingStateRef.current = 'playing';
+			previousAnimationRef.current = animationName;
+			return;
+		} else if (
+			previousAnimationRef.current === 'Creeping' &&
+			animationName === 'Run'
+		) {
+			// Cas spécial: transition de Creeping vers Run
+			Object.values(actions).forEach((action) => {
+				action.stop();
+			});
+
+			const runAction = actions['Run'];
+			runAction.play();
+			runAction.setEffectiveWeight(1);
+			runAction.reset();
+			runAction.timeScale = 1;
+
+			previousAnimationRef.current = 'Run';
+			creepingStateRef.current = 'done';
+		} else if (animationName === 'Attack') {
+			// Transition directe vers Attack
+			Object.values(actions).forEach((action) => {
+				action.stop();
+				action.setEffectiveWeight(0);
+			});
+
+			const attackAction = actions['Attack'];
+			attackAction.play();
+			attackAction.setEffectiveWeight(1);
+			attackAction.reset();
+			attackAction.timeScale = 1;
+
+			previousAnimationRef.current = 'Attack';
+		} else if (animationName === previousAnimationRef.current) {
 			Object.values(actions).forEach((action) => {
 				action.setEffectiveWeight(0);
 				if (action._clip.name === animationName) {
@@ -61,21 +125,29 @@ export default function Animations({ group, animations }) {
 		if (animationName === 'Idle') {
 			actions[animationName].reset();
 		}
-		if (animationName === 'Attack') {
-			actions[animationName].reset();
-			actions[animationName].timeScale = 1;
-		}
 	}, [actions, animationName]);
 
 	const animationMixTransition = useCallback(
 		(delta) => {
+			// Skip la transition pour Attack aussi
+			if (
+				((animationName === 'Creeping' ||
+					previousAnimationRef.current === 'Creeping') &&
+					animationName !== 'Run') ||
+				animationName === 'Attack'
+			) {
+				return;
+			}
+
 			const fadeInAction = actions[animationName];
 			const fadeOutAction = actions[previousAnimationRef.current];
 
 			if (
 				previousAnimationRef.current !== animationName &&
 				fadeInAction &&
-				fadeOutAction
+				fadeOutAction &&
+				animationName !== 'Creeping' &&
+				previousAnimationRef.current !== 'Creeping'
 			) {
 				const weightDelta = animationMixSpeed * delta;
 				const fadeInWeight = Math.min(
@@ -132,15 +204,17 @@ export default function Animations({ group, animations }) {
 
 			intervalId = setInterval(() => {
 				const sound = monsterStepSounds[footstepIndexRef.current];
-				sound.volume = animationName === 'Run' ? VOLUMES.run : VOLUMES.walk;
+				if (sound) {
+					sound.volume = animationName === 'Run' ? VOLUMES.run : VOLUMES.walk;
 
-				if (!sound.paused) {
-					sound.currentTime = 0;
+					if (!sound.paused) {
+						sound.currentTime = 0;
+					}
+					sound.play().catch(() => {});
+
+					footstepIndexRef.current =
+						(footstepIndexRef.current + 1) % monsterStepSounds.length;
 				}
-				sound.play().catch(() => {});
-
-				footstepIndexRef.current =
-					(footstepIndexRef.current + 1) % monsterStepSounds.length;
 			}, stepInterval);
 		}
 
@@ -162,7 +236,38 @@ export default function Animations({ group, animations }) {
 				attackAction.time >= attackAction._clip.duration - 0.01
 			) {
 				setOpenDeathScreen(true);
+				resetAnimations(actions);
 				resetGame();
+			}
+		} else if (animationName === 'Creeping') {
+			const creepingAction = actions['Creeping'];
+			if (!creepingAction) return;
+
+			switch (creepingStateRef.current) {
+				case 'playing':
+					if (creepingAction.time >= creepingAction._clip.duration - 0.01) {
+						creepingStateRef.current = 'paused';
+						creepingPauseTimeRef.current = 0;
+						creepingAction.paused = true;
+					}
+					break;
+
+				case 'paused':
+					creepingPauseTimeRef.current += delta;
+					if (creepingPauseTimeRef.current >= PAUSE_DURATION) {
+						creepingStateRef.current = 'reversing';
+						creepingAction.paused = false;
+						creepingAction.timeScale = -1;
+					}
+					break;
+
+				case 'reversing':
+					if (creepingAction.time <= 0.01) {
+						creepingStateRef.current = 'done';
+						creepingAction.paused = true;
+						previousAnimationRef.current = 'Idle';
+					}
+					break;
 			}
 		}
 	});

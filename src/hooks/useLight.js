@@ -9,7 +9,7 @@ export default create(
 		},
 		radioLight: {
 			color: '#fff0be',
-			intensity: 0.1,
+			intensity: 0,
 		},
 		rightLight: {
 			color: '#fff9eb',
@@ -25,7 +25,7 @@ export default create(
 		},
 		tvLight: {
 			color: '#ffffff',
-			intensity: 0.3,
+			intensity: 0,
 		},
 		receptionLight1: {
 			color: '#ff0000',

@@ -1,15 +1,19 @@
 import { useEffect, useRef, useState } from 'react';
-import { useDrag } from '@use-gesture/react';
 import { a, useSpring, config } from '@react-spring/web';
 import { RxHamburgerMenu } from 'react-icons/rx';
 import { RiFullscreenFill } from 'react-icons/ri';
 import { IoClose } from 'react-icons/io5';
+import useSettings from '../../hooks/useSettings';
 import './Settings.css';
 
 export default function Settings() {
 	const popupRef = useRef(null);
 	const [isOpen, setIsOpen] = useState(false);
 	const [currentWidth, setCurrentWidth] = useState(25 * getRemValue());
+	const rotationSensitivity = useSettings((state) => state.rotationSensitivity);
+	const setRotationSensitivity = useSettings(
+		(state) => state.setRotationSensitivity
+	);
 
 	function getRemValue() {
 		const width = window.innerWidth;
@@ -55,23 +59,6 @@ export default function Settings() {
 		});
 	}, [isOpen, currentWidth, api]);
 
-	const bind = useDrag(
-		({ last, velocity: [vx], direction: [dx], offset: [ox] }) => {
-			if (last) {
-				const shouldClose = ox < -currentWidth * 0.5 || (vx < -0.5 && dx < 0);
-				setIsOpen(!shouldClose);
-			} else {
-				api.start({ x: ox, immediate: true });
-			}
-		},
-		{
-			from: () => [x.get(), 0],
-			bounds: { right: 0, left: -currentWidth },
-			rubberband: true,
-			filterTaps: true,
-		}
-	);
-
 	const fullScreenHandler = (e) => {
 		e.stopPropagation();
 		if (!document.fullscreenElement) {
@@ -105,9 +92,26 @@ export default function Settings() {
 
 	return (
 		<div ref={popupRef} onClick={(e) => e.stopPropagation()}>
-			<a.div className="sheet" {...bind()} style={{ x }}>
+			<a.div className="sheet" style={{ x }}>
 				<div className="menu-content">
 					<h1>Settings</h1>
+					<div className="settings-group">
+						<label htmlFor="sensitivity">Rotation Sensitivity</label>
+						<input
+							type="range"
+							id="sensitivity"
+							min="0.001"
+							max="1"
+							step="0.001"
+							value={rotationSensitivity}
+							onChange={(e) =>
+								setRotationSensitivity(parseFloat(e.target.value))
+							}
+						/>
+						<span className="sensitivity-value">
+							{Math.round(((rotationSensitivity - 0.001) / (1 - 0.001)) * 100)}
+						</span>
+					</div>
 					<button className="settings-button" onClick={fullScreenHandler}>
 						full screen
 						<RiFullscreenFill />

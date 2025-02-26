@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { subscribeWithSelector } from 'zustand/middleware';
-import { seed, events } from '../utils/config';
+import { seed } from '../utils/config';
 import useHiding from './useHiding';
 import useMonster from './useMonster';
 import useDoor from './useDoor';
@@ -11,15 +11,20 @@ const CORRIDORLENGTH = 5.95;
 const useGameStore = create(
 	subscribeWithSelector((set, get) => ({
 		seedData: seed,
-		eventData: events,
 		deaths: 0,
 
 		isPlaying: false,
 		setIsPlaying: (state) => set(() => ({ isPlaying: state })),
 
+		customDeathMessage: null,
+		setCustomDeathMessage: (message) => set({ customDeathMessage: message }),
+
 		setSeedData: (newSeedData) => {
 			set({ seedData: newSeedData });
 		},
+
+		isTutorialOpen: false,
+		setIsTutorialOpen: (state) => set(() => ({ isTutorialOpen: state })),
 
 		openDeathScreen: false,
 		setOpenDeathScreen: (state) => set(() => ({ openDeathScreen: state })),
@@ -124,10 +129,10 @@ const useGameStore = create(
 			const state = get();
 			const roomCount = useGameplaySettings.getState().roomCount;
 
-			const roomData =
-				state.seedData[
-					`hiding_${room === 'window' ? 1 : room === 'bedsheets' ? 2 : 3}`
-				];
+			const roomData = Object.values(state.seedData)[state.playerPositionRoom];
+			state.seedData[
+				`hiding_${room === 'window' ? 1 : room === 'bedsheets' ? 2 : 3}`
+			];
 
 			if (roomData?.hideObjective === objective) {
 				const hiding = useHiding.getState();
@@ -191,8 +196,6 @@ const useGameStore = create(
 
 		restart: () => {
 			set((state) => ({
-				// seedData: seed, // commented for easy debug but should be uncommented for production
-				eventData: events,
 				deaths: state.deaths + 1,
 				playerPositionRoom: null,
 				resetFootstepSound: true,
@@ -205,6 +208,8 @@ const useGameStore = create(
 				playIntro: false,
 				knockedRooms: [],
 				jumpScare: false,
+				seedData: seed,
+				customDeathMessage: null,
 			}));
 			useHiding.getState().restart();
 		},

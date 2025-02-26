@@ -1,8 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
-import { useGLTF, useKTX2, PositionalAudio } from '@react-three/drei';
+import { useGLTF, useKTX2 } from '@react-three/drei';
 import * as THREE from 'three';
 import useGame from '../../hooks/useGame';
-import { usePositionalSound } from '../../utils/audio';
 import useProgressiveLoad from '../../hooks/useProgressiveLoad';
 import WallsMaterial from '../../components/materials/WallsMaterial';
 import FloorMaterial from '../../components/materials/FloorMaterial';
@@ -96,8 +95,6 @@ export default function Bathroom() {
 	];
 
 	const { loadedItems } = useProgressiveLoad(textureParts, 'Bathroom');
-
-	const lightSoundRef = useRef();
 
 	useEffect(() => {
 		if (!materialRef.current) return;
@@ -281,11 +278,6 @@ export default function Bathroom() {
 					color="white"
 				/>
 			</mesh>
-			<PositionalAudio
-				ref={lightSoundRef}
-				{...usePositionalSound('bulb')}
-				loop={false}
-			/>
 			<BathroomTextures
 				scene={scene}
 				nodes={nodes}

@@ -4,6 +4,7 @@ import { useProgress } from '@react-three/drei';
 import SkullHotelLogo from './Logo';
 import Settings from './Settings';
 import { FaArrowCircleDown, FaArrowCircleUp } from 'react-icons/fa';
+import useGameplaySettings from '../../hooks/useGameplaySettings';
 import { TbXboxXFilled } from 'react-icons/tb';
 import { TbXboxYFilled } from 'react-icons/tb';
 import useDoor from '../../hooks/useDoor';
@@ -13,6 +14,7 @@ import useInterface from '../../hooks/useInterface';
 import useGame from '../../hooks/useGame';
 import useJoysticks from '../../hooks/useJoysticks';
 import useLight from '../../hooks/useLight';
+import useGridStore from '../../hooks/useGrid';
 import Cursor from './Cursor';
 import { regenerateData } from '../../utils/config';
 import './Interface.css';
@@ -258,6 +260,7 @@ export default function Interface() {
 	const setMobileClick = useGame((state) => state.setMobileClick);
 	const setReleaseMobileClick = useGame((state) => state.setReleaseMobileClick);
 	const end = useGame((state) => state.end);
+	const roomCount = useGameplaySettings((state) => state.roomCount);
 	// const loading = useGame((state) => state.loading);
 	// const setLoading = useGame((state) => state.setLoading);
 	const openDeathScreen = useGame((state) => state.openDeathScreen);
@@ -283,12 +286,27 @@ export default function Interface() {
 	const currentDialogueIndex = useInterface(
 		(state) => state.currentDialogueIndex
 	);
+	const customMessage = useGame((state) => state.customDeathMessage);
 	const objectives = useInterface((state) => state.interfaceObjectives);
 	const interfaceAction = useInterface((state) => state.interfaceAction);
 	const [activeDialogues, setActiveDialogues] = useState([]);
 
 	const queue = useTextureQueue((state) => state.queues);
 	const oldQueue = useRef(queue);
+
+	const [lastDeathMessage, setLastDeathMessage] = useState(null);
+
+	useEffect(() => {
+		if (playerPositionRoom !== null && playerPositionRoom >= 0) {
+			const currentRoom = Object.values(seedData)[playerPositionRoom];
+			const message =
+				customMessage ||
+				(currentRoom?.isRaid
+					? 'If you hear a client knocking at the door, hide until they leave'
+					: currentRoom?.deathReason);
+			setLastDeathMessage(message);
+		}
+	}, [playerPositionRoom, seedData, customMessage]);
 
 	useEffect(() => {
 		const hasQueueChanged = Object.keys(queue).some((key) => {
@@ -457,7 +475,9 @@ export default function Interface() {
 			) : doneObjectives === 10 ? (
 				<div className="objectives">Find the exit</div>
 			) : tutorialObjectives.every((objective) => objective === true) ? (
-				<div className="objectives">{doneObjectives} / 10 </div>
+				<div className="objectives">
+					{doneObjectives} / {roomCount / 2}{' '}
+				</div>
 			) : (
 				<ul className="objectives">
 					<li className={tutorialObjectives[0] ? 'completed' : ''}>
@@ -625,16 +645,17 @@ export default function Interface() {
 				<div
 					className="death-screen"
 					onClick={() => {
-						regenerateData();
 						resetGame();
-						setOpenDeathScreen(false);
+						regenerateData();
+						useGridStore.getState().initializeIfNeeded();
+						setTimeout(() => {
+							setOpenDeathScreen(false);
+						}, 100);
 					}}
 				>
 					<div className="title">You died</div>
-					{seedData[playerPositionRoom]?.deathReason}
-					<div className="restart">
-						<div className="start">click to start</div>
-					</div>
+					<div className="death-message">{lastDeathMessage}</div>
+					<div className="start">click to start</div>
 				</div>
 			)}
 		</div>
