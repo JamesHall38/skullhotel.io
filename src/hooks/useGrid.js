@@ -288,7 +288,7 @@ const useGridStore = create((set, get) => ({
 			for (let col = 0; col < roomsPerRow; col++) {
 				const extraOffset = Math.floor(col / 2);
 				const offsetX =
-					startX + col * (roomWidth + gap) + extraOffset + (row === 0 ? 0 : 0);
+					startX + col * (roomWidth + gap) + extraOffset + (row === 0 ? 2 : 1);
 				const offsetZ = startZ + row * (roomHeight + gap) + (row === 0 ? 1 : 4);
 				const isTopRow = row === 0;
 
@@ -463,7 +463,7 @@ const useGridStore = create((set, get) => ({
 				const gap = 0;
 				const extraOffset = Math.floor(col / 2);
 				const offsetX =
-					startX + col * (roomWidth + gap) + extraOffset + (row === 0 ? 0 : 0);
+					startX + col * (roomWidth + gap) + extraOffset + (row === 0 ? 2 : 1);
 				const offsetZ = startZ + row * (roomHeight + gap) + (row === 0 ? 1 : 4);
 
 				let roomIndex;
