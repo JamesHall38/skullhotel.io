@@ -49,6 +49,8 @@ import ListeningMode from './components/ListeningMode';
 import levelData from './components/Monster/Triggers/levelData';
 import { preloadSounds } from './utils/audio';
 import useGameplaySettings from './hooks/useGameplaySettings';
+import useSettings from './hooks/useSettings';
+import ShadowManager from './components/ShadowManager';
 
 const generateLevelOptions = () => {
 	const options = {
@@ -438,9 +440,7 @@ function App() {
 						position={[-1.19 - (roomCount / 2 - 1) * CORRIDORLENGTH, 0, 0]}
 					/>
 				</group>
-				{/* 
-				<WallsMaterial />
-				<FloorMaterial /> */}
+
 				<Room />
 				<Monster />
 
@@ -465,6 +465,12 @@ export default function AppCanvas() {
 	const performanceMode = useGame((state) => state.performanceMode);
 	const isMobile = useGame((state) => state.isMobile);
 	const setPlayIntro = useGame((state) => state.setPlayIntro);
+	const shadows = useSettings((state) => state.shadows);
+	const setShadows = useSettings((state) => state.setShadows);
+
+	useEffect(() => {
+		setShadows(performanceMode && !isMobile);
+	}, [performanceMode, isMobile, setShadows]);
 
 	const { perfVisible } = useControls(
 		{
@@ -505,9 +511,10 @@ export default function AppCanvas() {
 					}}
 					dpr={[1, 1.5]}
 					performance={{ min: 0.5 }}
-					shadows={performanceMode && !isMobile}
+					shadows={shadows}
 				>
 					{perfVisible ? <Perf position="top-left" /> : null}
+					<ShadowManager />
 					<App />
 					<PostProcessing />
 				</Canvas>

@@ -14,6 +14,8 @@ export default function Settings() {
 	const setRotationSensitivity = useSettings(
 		(state) => state.setRotationSensitivity
 	);
+	const shadows = useSettings((state) => state.shadows);
+	const setShadows = useSettings((state) => state.setShadows);
 
 	function getRemValue() {
 		const width = window.innerWidth;
@@ -111,6 +113,15 @@ export default function Settings() {
 						<span className="sensitivity-value">
 							{Math.round(((rotationSensitivity - 0.001) / (1 - 0.001)) * 100)}
 						</span>
+					</div>
+					<div className="settings-group">
+						<label htmlFor="shadows">Shadows</label>
+						<input
+							type="checkbox"
+							id="shadows"
+							checked={shadows}
+							onChange={(e) => setShadows(e.target.checked)}
+						/>
 					</div>
 					<button className="settings-button" onClick={fullScreenHandler}>
 						full screen

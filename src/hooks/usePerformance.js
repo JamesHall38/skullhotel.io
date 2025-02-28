@@ -1,4 +1,4 @@
-const TARGET_FPS = 50;
+const TARGET_FPS = 60;
 const MEASUREMENT_WINDOW = 500;
 
 export function measurePerformance() {
