@@ -272,7 +272,7 @@ export default function Livingroom() {
 	useEffect(() => {
 		if (!isDark) {
 			if (isTvOn) {
-				useLight.getState().setTvLight('#ffffff', 5);
+				useLight.getState().setTvLight('#ffffff', 0.2);
 			} else {
 				useLight.getState().setTvLight('#000000', 0);
 			}

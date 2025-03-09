@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useRef, useCallback, useEffect } from 'react';
 import { useFrame } from '@react-three/fiber';
 import useGame from '../../../hooks/useGame';
 import useMonster from '../../../hooks/useMonster';
@@ -11,6 +11,10 @@ import {
 	playerIsLookingAtBox,
 } from './triggersUtils';
 import useGameplaySettings from '../../../hooks/useGameplaySettings';
+import useHiding from '../../../hooks/useHiding';
+
+const CORRIDORLENGTH = 5.95;
+
 export default function TriggersConditions({
 	monsterBox,
 	zoneBox,
@@ -24,6 +28,20 @@ export default function TriggersConditions({
 	const setShakeIntensity = useGame((state) => state.setShakeIntensity);
 	const shakeIntensity = useGame((state) => state.shakeIntensity);
 	const roomCount = useGameplaySettings((state) => state.roomCount);
+	const setTv = useGame((state) => state.setTv);
+	const setRadio = useGame((state) => state.setRadio);
+	const tv = useGame((state) => state.tv);
+	const radio = useGame((state) => state.radio);
+	const setActiveTvs = useGame((state) => state.setActiveTvs);
+	const setActiveRadios = useGame((state) => state.setActiveRadios);
+	const completedObjective = useGame((state) => state.completedObjective);
+	const completedRoom = useGame((state) => state.completedRoom);
+	const resetCompletedObjective = useGame(
+		(state) => state.resetCompletedObjective
+	);
+	const setActiveRaid = useGame((state) => state.setActiveRaid);
+	const activeRaids = useGame((state) => state.activeRaids);
+	const setActiveInscriptions = useGame((state) => state.setActiveInscriptions);
 
 	// Interface
 	const interfaceObjectives = useInterface(
@@ -36,6 +54,10 @@ export default function TriggersConditions({
 	const monsterState = useMonster((state) => state.monsterState);
 	const setMonsterState = useMonster((state) => state.setMonsterState);
 	const setMonsterPosition = useMonster((state) => state.setMonsterPosition);
+	const setMonsterRotation = useMonster((state) => state.setMonsterRotation);
+	const setAnimationMixSpeed = useMonster(
+		(state) => state.setAnimationMixSpeed
+	);
 
 	// Doors
 	const roomDoors = useDoor((state) => state.roomDoor);
@@ -44,10 +66,115 @@ export default function TriggersConditions({
 	const deskDoors = useDoor((state) => state.desks);
 	const nightstandDoors = useDoor((state) => state.nightStands);
 	const bathroomDoors = useDoor((state) => state.bathroomDoors);
+	const setDesks = useDoor((state) => state.setDesks);
+	const setNightStands = useDoor((state) => state.setNightStands);
+	const setRoomCurtains = useDoor((state) => state.setRoomCurtains);
+	const setRoomCurtain = useDoor((state) => state.setRoomCurtain);
+	const setRoomDoor = useDoor((state) => state.setRoomDoor);
+
+	const knockedRooms = useGame((state) => state.knockedRooms);
+	const addKnockedRoom = useGame((state) => state.addKnockedRoom);
+	const monsterKnockDuration = useGame((state) => state.monsterKnockDuration);
+
+	// Hiding
+	const setMonsterKnocking = useHiding((state) => state.setMonsterKnocking);
+	const setKnockingRoom = useHiding((state) => state.setKnockingRoom);
+	const setMonsterEntering = useHiding((state) => state.setMonsterEntering);
+	const setSilentKnocking = useHiding((state) => state.setSilentKnocking);
 
 	const attackTimeoutRef = useRef(null);
 	const quickTimeoutRef = useRef(null);
 	// const lookingTimeoutRef = useRef(null);
+	const raidRoomRef = useRef(null);
+	const sonarBathroomRef = useRef({ stateSet: false, attackTriggered: false });
+
+	const triggerRAID = useCallback(
+		(room) => {
+			let monsterX;
+			if (room >= roomCount / 2) {
+				monsterX = -(room - roomCount / 2) * CORRIDORLENGTH;
+			} else {
+				monsterX = -room * CORRIDORLENGTH;
+			}
+
+			setMonsterPosition([monsterX, 10, 0]);
+			setMonsterRotation([0, 0, 0]);
+			raidRoomRef.current = room;
+
+			if (roomDoors[room]) {
+				setShakeIntensity(10);
+				setMonsterState('run');
+				playAnimation('Run');
+				setAnimationSpeed(1);
+			} else if (!knockedRooms.includes(room)) {
+				addKnockedRoom(room);
+				setMonsterKnocking(true);
+				setKnockingRoom(room);
+
+				const roomType = Object.keys(seedData)[playerPositionRoom];
+				if (
+					roomType === 'raidTV' ||
+					roomType === 'raidRadio' ||
+					roomType === 'raidInscriptions'
+				) {
+					setSilentKnocking(true);
+				} else {
+					setSilentKnocking(false);
+				}
+
+				setTimeout(() => {
+					if (useHiding.getState().isMonsterKnocking) {
+						setShakeIntensity(1);
+						setRoomDoor(room, true);
+						playAnimation('Idle');
+
+						const isHidden = useHiding.getState().isPlayerHidden;
+
+						if (!isHidden) {
+							setMonsterKnocking(false);
+							setMonsterEntering(true);
+							setMonsterState('run');
+							playAnimation('Run');
+							setAnimationSpeed(1);
+							setSilentKnocking(false);
+						} else {
+							setMonsterKnocking(false);
+							setAnimationMixSpeed(2);
+							setAnimationSpeed(0.5);
+							setMonsterState('leaving');
+							if (Object.values(seedData)[playerPositionRoom].ceiling) {
+								playAnimation('CeilingCrawl');
+							} else {
+								playAnimation('Walk');
+							}
+							setSilentKnocking(false);
+						}
+					}
+				}, monsterKnockDuration);
+			}
+		},
+		[
+			playerPositionRoom,
+			roomCount,
+			seedData,
+			setMonsterPosition,
+			setMonsterRotation,
+			roomDoors,
+			setShakeIntensity,
+			setMonsterState,
+			playAnimation,
+			setAnimationSpeed,
+			knockedRooms,
+			addKnockedRoom,
+			setMonsterKnocking,
+			setKnockingRoom,
+			monsterKnockDuration,
+			setRoomDoor,
+			setMonsterEntering,
+			setAnimationMixSpeed,
+			setSilentKnocking,
+		]
+	);
 
 	const monsterAttack = () => {
 		setShakeIntensity(10);
@@ -68,10 +195,16 @@ export default function TriggersConditions({
 		return false;
 	};
 
-	const basicHiding = (clock, camera, raycaster, useInstantBox = false) => {
+	const basicHiding = (
+		clock,
+		camera,
+		raycaster,
+		useInstantBox = false,
+		objectiveIndex = 2
+	) => {
 		setMonsterState('hidden');
 		let monsterIsTriggered = false;
-		if (interfaceObjectives[playerPositionRoom]?.[2]) {
+		if (interfaceObjectives[playerPositionRoom]?.[objectiveIndex]) {
 			playAnimation('Idle');
 			placeMonsterAtSecondPosition(
 				seedData,
@@ -103,7 +236,7 @@ export default function TriggersConditions({
 
 		if (
 			(playerIsInsideZone(zoneBox, raycaster, camera) &&
-				interfaceObjectives[playerPositionRoom]?.[2]) ||
+				interfaceObjectives[playerPositionRoom]?.[objectiveIndex]) ||
 			monsterIsTriggered
 		) {
 			monsterAttack();
@@ -129,7 +262,7 @@ export default function TriggersConditions({
 			setMonsterPosition([
 				Object.values(seedData)[playerPositionRoom]?.monsterInitialPosition[0] +
 					position[0],
-				0,
+				10,
 				Object.values(seedData)[playerPositionRoom]?.monsterInitialPosition[2] +
 					position[2],
 			]);
@@ -159,12 +292,90 @@ export default function TriggersConditions({
 	// 	setMonsterPosition([
 	// 		Object.values(seedData)[playerPositionRoom]?.monsterInitialPosition[0] +
 	// 			position[0],
-	// 		0,
+	// 		10,
 	// 		Object.values(seedData)[playerPositionRoom]?.monsterInitialPosition[2] +
 	// 			position[2],
 	// 	]);
 	// 	monsterAttack();
 	// }
+
+	useEffect(() => {
+		if (monsterState === 'leaving' || monsterState === 'hiding') {
+			activeRaids.forEach((room) => {
+				if (!roomDoors[room]) {
+					const roomType = Object.keys(seedData)[room];
+					if (roomType === 'raidTV') {
+						setTv(false);
+						setActiveTvs(room);
+					} else if (roomType === 'raidRadio') {
+						setRadio(false);
+						setActiveRadios(room);
+					} else if (roomType === 'raidInscriptions') {
+						setActiveInscriptions(room, false);
+					}
+					setActiveRaid(room, false);
+				}
+			});
+		}
+	}, [
+		monsterState,
+		roomDoors,
+		activeRaids,
+		setTv,
+		setRadio,
+		setActiveTvs,
+		setActiveRadios,
+		setActiveInscriptions,
+		setActiveRaid,
+		seedData,
+	]);
+
+	useEffect(() => {
+		const unsubscribe = useDoor.subscribe(
+			(state) => state.roomDoor,
+			(roomDoor) => {
+				if (raidRoomRef.current !== null && roomDoor[raidRoomRef.current]) {
+					setMonsterKnocking(false);
+					setKnockingRoom(null);
+
+					setShakeIntensity(10);
+					setMonsterState('run');
+					playAnimation('Run');
+					setAnimationSpeed(1);
+				}
+			}
+		);
+
+		return () => unsubscribe();
+	}, [
+		setShakeIntensity,
+		setMonsterState,
+		playAnimation,
+		setAnimationSpeed,
+		setMonsterKnocking,
+		setKnockingRoom,
+	]);
+
+	useEffect(() => {
+		const unsubscribe = useMonster.subscribe(
+			(state) => state.monsterState,
+			(monsterState) => {
+				if (
+					monsterState !== 'knock' &&
+					monsterState !== 'run' &&
+					raidRoomRef.current !== null
+				) {
+					raidRoomRef.current = null;
+				}
+			}
+		);
+
+		return () => unsubscribe();
+	}, []);
+
+	useEffect(() => {
+		sonarBathroomRef.current = { stateSet: false, attackTriggered: false };
+	}, [playerPositionRoom]);
 
 	useFrame(({ camera, raycaster, clock }) => {
 		if (
@@ -180,8 +391,11 @@ export default function TriggersConditions({
 				basicHiding(clock, camera, raycaster, 'underBed');
 				break;
 			case 'bathroomVent':
+			case 'hideoutMirror':
+				basicHiding(clock, camera, raycaster, false, 0);
+				break;
 			case 'roomVent':
-				basicHiding(clock, camera, raycaster);
+				basicHiding(clock, camera, raycaster, false, 2);
 				break;
 			case 'bedBasket':
 			case 'windowBasket':
@@ -294,6 +508,7 @@ export default function TriggersConditions({
 				break;
 			case 'ceilingCenter':
 			case 'ceilingCenterCrouch':
+			case 'landmineMirror':
 				doNotGetAnyCloser('facingCamera', raycaster, camera, clock);
 				break;
 			// case 'claymoreFootWindow':
@@ -329,8 +544,17 @@ export default function TriggersConditions({
 			// 	checkObjectiveAndAttack(interfaceObjectives, 1);
 			// 	break;
 			case 'sonarBathroom':
-				setMonsterState('facingCamera');
-				if (bathroomDoors[playerPositionRoom]) {
+				if (!sonarBathroomRef.current.stateSet) {
+					setMonsterState('facingCamera');
+					playAnimation('Idle');
+					sonarBathroomRef.current.stateSet = true;
+				}
+
+				if (
+					bathroomDoors[playerPositionRoom] &&
+					!sonarBathroomRef.current.attackTriggered
+				) {
+					sonarBathroomRef.current.attackTriggered = true;
 					setTimeout(() => {
 						monsterAttack();
 					}, 500);
@@ -388,18 +612,26 @@ export default function TriggersConditions({
 			// 		}
 			// 	}
 			// 	break;
-			case 'hunterWindow':
-			case 'hunterCurtain': {
+			case 'hunterLivingRoom':
+			case 'hunterCeilingLivingRoom':
+			case 'hunterCeilingCouch': {
 				const currentRoomDoorState = roomDoors[playerPositionRoom];
 				const isDoorClosed = !currentRoomDoorState;
 				const isInCurrentRoom =
-					Object.keys(seedData)[playerPositionRoom] === 'hunterWindow' ||
-					Object.keys(seedData)[playerPositionRoom] === 'hunterCurtain';
+					Object.keys(seedData)[playerPositionRoom] === 'hunterLivingRoom' ||
+					Object.keys(seedData)[playerPositionRoom] ===
+						'hunterCeilingLivingRoom' ||
+					Object.keys(seedData)[playerPositionRoom] === 'hunterCeilingCouch';
 
 				if (isDoorClosed && isInCurrentRoom) {
 					if (monsterState !== 'facingCamera') {
 						setMonsterState('facingCamera');
-						playAnimation('Idle');
+
+						if (Object.values(seedData)[playerPositionRoom].ceiling) {
+							playAnimation('CeilingCrawlIdle');
+						} else {
+							playAnimation('Idle');
+						}
 					}
 					// } else if (
 					// 	isInHallway &&
@@ -410,12 +642,188 @@ export default function TriggersConditions({
 					// 	// monsterAttack();
 				} else if (playerIsInsideZone(zoneBox, raycaster, camera)) {
 					if (monsterState !== 'chase') {
+						setAnimationMixSpeed(2);
 						setMonsterState('chase');
 						setAnimationSpeed(0.5);
 					}
 				}
 				break;
 			}
+
+			case 'hunterDesk': {
+				const isDoorClosed = !roomDoors[playerPositionRoom];
+				const isInCurrentRoom =
+					Object.keys(seedData)[playerPositionRoom] === 'hunterDesk';
+
+				if (isDoorClosed && isInCurrentRoom) {
+					if (monsterState !== 'facingCamera') {
+						setMonsterState('facingCamera');
+						playAnimation('Crouch');
+					}
+				} else if (deskDoors[playerPositionRoom]) {
+					if (monsterState !== 'chase') {
+						setAnimationMixSpeed(2);
+						setMonsterState('chase');
+						playAnimation('Walk');
+						setAnimationSpeed(0.6);
+					}
+				} else {
+					if (monsterState !== 'facingCamera') {
+						setMonsterState('facingCamera');
+						playAnimation('Crouch');
+					}
+				}
+
+				if (
+					playerIsInsideZone(zoneBox, raycaster, camera) &&
+					!deskDoors[playerPositionRoom]
+				) {
+					setDesks(playerPositionRoom, true);
+				}
+				break;
+			}
+
+			case 'hunterNightstand': {
+				const isDoorClosed = !roomDoors[playerPositionRoom];
+				const isInCurrentRoom =
+					Object.keys(seedData)[playerPositionRoom] === 'hunterNightstand';
+
+				if (isDoorClosed && isInCurrentRoom) {
+					if (monsterState !== 'facingCamera') {
+						setMonsterState('facingCamera');
+						playAnimation('Crouch');
+					}
+				} else if (nightstandDoors[playerPositionRoom]) {
+					if (monsterState !== 'chase') {
+						setAnimationMixSpeed(2);
+						setMonsterState('chase');
+						playAnimation('Walk');
+						setAnimationSpeed(0.6);
+					}
+				} else {
+					if (monsterState !== 'facingCamera') {
+						setMonsterState('facingCamera');
+						playAnimation('Crouch');
+					}
+				}
+
+				if (
+					playerIsInsideZone(zoneBox, raycaster, camera) &&
+					!nightstandDoors[playerPositionRoom]
+				) {
+					setNightStands(playerPositionRoom, true);
+				}
+				break;
+			}
+
+			case 'hunterWindow': {
+				const isDoorClosed = !roomDoors[playerPositionRoom];
+				const isInCurrentRoom =
+					Object.keys(seedData)[playerPositionRoom] === 'hunterWindow';
+
+				if (isDoorClosed && isInCurrentRoom) {
+					if (monsterState !== 'facingCamera') {
+						setMonsterState('facingCamera');
+						playAnimation('Crouch');
+					}
+				} else if (roomCurtains[playerPositionRoom]) {
+					if (monsterState !== 'chase') {
+						setAnimationMixSpeed(2);
+						setMonsterState('chase');
+						playAnimation('Walk');
+						setAnimationSpeed(0.6);
+					}
+				} else {
+					if (monsterState !== 'facingCamera') {
+						setMonsterState('facingCamera');
+						playAnimation('Crouch');
+					}
+
+					if (playerIsInsideZone(zoneBox, raycaster, camera)) {
+						setRoomCurtains(playerPositionRoom, true);
+						setRoomCurtain(true);
+					}
+				}
+				break;
+			}
+
+			case 'raidTV': {
+				if (playerIsInsideZone(zoneBox, raycaster, camera)) {
+					if (!tv && !knockedRooms.includes(playerPositionRoom)) {
+						setTv(true);
+						setActiveTvs(playerPositionRoom);
+
+						setActiveRaid(playerPositionRoom, true);
+
+						setTimeout(() => {
+							triggerRAID(playerPositionRoom);
+						}, 2000);
+					}
+				}
+				break;
+			}
+
+			case 'raidRadio': {
+				if (playerIsInsideZone(zoneBox, raycaster, camera)) {
+					if (!radio && !knockedRooms.includes(playerPositionRoom)) {
+						setRadio(true);
+						setActiveRadios(playerPositionRoom);
+
+						setActiveRaid(playerPositionRoom, true);
+
+						setTimeout(() => {
+							triggerRAID(playerPositionRoom);
+						}, 2000);
+					}
+				}
+				break;
+			}
+
+			case 'raidInscriptions': {
+				if (playerIsInsideZone(zoneBox, raycaster, camera)) {
+					if (
+						!knockedRooms.includes(playerPositionRoom) &&
+						!activeRaids.includes(playerPositionRoom)
+					) {
+						setActiveInscriptions(playerPositionRoom, true);
+						setActiveRaid(playerPositionRoom, true);
+
+						setTimeout(() => {
+							triggerRAID(playerPositionRoom);
+						}, 6000);
+					}
+				}
+				break;
+			}
+
+			case 'raidWindow': {
+				if (completedObjective && completedRoom !== null) {
+					triggerRAID(completedRoom);
+					resetCompletedObjective();
+					return;
+				}
+				break;
+			}
+
+			case 'raidBedsheets': {
+				if (completedObjective && completedRoom !== null) {
+					triggerRAID(completedRoom);
+					resetCompletedObjective();
+					return;
+				}
+				break;
+			}
+
+			case 'raidBottles': {
+				if (completedObjective && completedRoom !== null) {
+					triggerRAID(completedRoom);
+					resetCompletedObjective();
+					return;
+				}
+
+				break;
+			}
+
 			default:
 				break;
 		}

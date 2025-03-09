@@ -18,8 +18,8 @@ const levelData = {
 	bathroomVent: {
 		type: 'hideout',
 		deathReason: 'The client was hiding in the bathroom vent',
-		position: [2.5, 0, -1],
-		scale: [2, 1, 1],
+		position: [2.5, 0, -2.2],
+		scale: [2, 1, 2],
 		monsterPosition: [2.5, 0, -2],
 		monsterInitialPosition: [0.8, 0.6, -4.4],
 		animation: 'Vent',
@@ -67,6 +67,18 @@ const levelData = {
 		headOffset: Math.PI / 2,
 	},
 
+	hideoutMirror: {
+		type: 'hideout',
+		deathReason: 'If you see the client in the mirror, run away',
+		position: [2.5, 0, -2.2],
+		scale: [2, 1, 2],
+		monsterPosition: [2.5, 0, -2],
+		monsterInitialPosition: [-5.2, 0, -2.5],
+		monsterInitialRotation: [0, Math.PI / 2, 0],
+		animation: 'Idle',
+		headOffset: Math.PI / 2,
+	},
+
 	behindDoor: {
 		type: 'hideout',
 		deathReason: 'The client was hiding behind the door',
@@ -94,6 +106,20 @@ const levelData = {
 		cameraShakingScale: [2.4, 1, 1.8],
 	},
 
+	landmineMirror: {
+		type: 'landmine',
+		deathReason: 'If you see the client in the mirror, run away',
+		position: [0.5, 0, -2.8],
+		scale: [2, 1, 1],
+		monsterPosition: [-3, -0.3, -3.3],
+		monsterInitialPosition: [-3, -0.3, -3.3],
+		animation: 'Idle',
+		instantTriggerPosition: [0.5, 0, -2.3],
+		instantTriggerScale: [2, 2, 1],
+		// cameraShakingPosition: [0.5, 0, -1.8],
+		// cameraShakingScale: [2.5, 1, 2],
+	},
+
 	nearBed: {
 		type: 'landmine',
 		deathReason: 'If you see the client, run away',
@@ -102,7 +128,7 @@ const levelData = {
 		animation: 'Idle',
 		instantTriggerPosition: [2.7, 0, -2.6],
 		instantTriggerScale: [2, 2, 1],
-		cameraShakingPosition: [2.8, 0, -3.8],
+		cameraPosition: [2.8, 0, -3.8],
 		cameraShakingScale: [2.4, 1, 1.8],
 	},
 
@@ -223,20 +249,20 @@ const levelData = {
 		headOffset: -Math.PI / 2,
 	},
 
-	ceilingCenter: {
-		type: 'landmine',
-		deathReason: 'If you see the client, run away',
-		position: [1.9, 0, 0],
-		scale: [1, 1, 1],
-		monsterPosition: [0.4, 10, -0.88],
-		monsterInitialPosition: [3.28, 4.47, -1.67],
-		monsterInitialRotation: [-1, 0, 0],
-		instantTriggerPosition: [3, 0, -1.5],
-		instantTriggerScale: [3, 1, 1.5],
-		animation: 'Vent',
-		roomLight: 'off',
-		headOffset: Math.PI,
-	},
+	// ceilingCenter: {
+	// 	type: 'landmine',
+	// 	deathReason: 'If you see the client, run away',
+	// 	position: [1.9, 0, 0],
+	// 	scale: [1, 1, 1],
+	// 	monsterPosition: [0.4, 10, -0.88],
+	// 	monsterInitialPosition: [3.28, 4.47, -1.67],
+	// 	monsterInitialRotation: [-1, 0, 0],
+	// 	instantTriggerPosition: [3, 0, -1.5],
+	// 	instantTriggerScale: [3, 1, 1.5],
+	// 	animation: 'Vent',
+	// 	roomLight: 'off',
+	// 	headOffset: Math.PI,
+	// },
 
 	// ceilingCenterCrouch: {
 	// 	deathReason: 'If you see the client, run away',
@@ -372,26 +398,79 @@ const levelData = {
 	},
 
 	// HUNTER
-	hunterWindow: {
-		type: 'hunter',
-		deathReason: 'If you see the client, run away',
-		position: [2.85, 0, -4.4],
-		scale: [2.5, 0.5, 3],
-		monsterPosition: [2, 0, 4],
-		monsterInitialPosition: [1, 0, 4],
-		animation: 'Idle',
-	},
-
-	hunterCurtain: {
+	hunterLivingRoom: {
 		type: 'hunter',
 		deathReason: 'If you see the client, run away',
 		position: [2, 0, 1.5],
 		scale: [2.5, 0.5, 2],
 		monsterPosition: [1.5, 0, 4],
 		monsterInitialPosition: [-0.5, 0, 2.3],
-		monsterInitialRotation: [0, Math.PI / 2, 0],
+		monsterInitialRotation: [0, Math.PI / 1.75, 0],
 		animation: 'Idle',
 	},
+
+	hunterCeilingLivingRoom: {
+		type: 'hunter',
+		deathReason: 'If you see the client, run away',
+		position: [2, 0, 1.5],
+		scale: [2.5, 0.5, 2],
+		monsterPosition: [1.5, 0, 4],
+		monsterInitialPosition: [-1, 0, 2.3],
+		monsterInitialRotation: [0, Math.PI / 2, 0],
+		animation: 'CeilingCrawlIdle',
+		ceiling: true,
+		headOffset: Math.PI / 1.5,
+	},
+
+	hunterCeilingCouch: {
+		type: 'hunter',
+		deathReason: 'If you see the client, run away and close behind you',
+		position: [2.5, 0, -0.6],
+		scale: [2.5, 0.5, 2],
+		monsterPosition: [1.5, 0, 4],
+		monsterInitialPosition: [3.8, 0, 2.6],
+		monsterInitialRotation: [0, Math.PI, 0],
+		animation: 'CeilingCrawlIdle',
+		ceiling: true,
+		headOffset: Math.PI,
+	},
+
+	// hunterDesk: {
+	// 	type: 'hunter',
+	// 	deathReason: 'If you see the client, run away and close behind you',
+	// 	position: [2.5, 0, -0.6],
+	// 	scale: [2.5, 0.5, 2],
+	// 	monsterPosition: [4, 0, 0.2],
+	// 	monsterInitialPosition: [4.06, 0, 0.368],
+	// 	monsterInitialRotation: [0, -Math.PI / 2, 0],
+	// 	animation: 'Stand',
+	// },
+
+	hunterNightstand: {
+		type: 'hunter',
+		deathReason: 'If you see the client, run away and close behind you',
+		position: [2.5, 0, -0.6],
+		scale: [2.5, 0.5, 2],
+		monsterPosition: [-1.4, 0, -1.2],
+		monsterInitialPosition: [-1.45, 0, -1.28],
+		monsterInitialRotation: [0, Math.PI / 2, 0],
+		animation: 'Stand',
+		headOffset: Math.PI / 2,
+	},
+
+	hunterWindow: {
+		type: 'hunter',
+		deathReason: 'If you see the client, run away and close behind you',
+		position: [2.5, 0, -0.6],
+		scale: [2.5, 0.5, 2],
+		monsterPosition: [1.5, 0, 6],
+		monsterInitialPosition: [1.52, 0, 5.7],
+		monsterInitialRotation: [0, Math.PI, 0],
+		animation: 'BehindWindow',
+	},
+
+	// hunterRoomDoor
+	// hunterBathroomDoor
 
 	// runningBedToBath: {
 	// 	deathReason: 'If you see the client, run away',
@@ -410,6 +489,52 @@ const levelData = {
 	// 	monsterInitialPosition: [2, 0, -4],
 	// 	animation: 'Idle',
 	// },
+
+	// RAID
+	raidWindow: {
+		type: 'raid',
+		deathReason: 'If you hear knocking, hide',
+		hideObjective: 'window',
+		hideSpot: 'window',
+	},
+
+	raidBedsheets: {
+		type: 'raid',
+		deathReason: 'If you hear knocking, hide',
+		hideObjective: 'bedsheets',
+		hideSpot: 'bedsheets',
+	},
+
+	raidBottles: {
+		type: 'raid',
+		deathReason: 'If you hear knocking, hide',
+		hideObjective: 'bottles',
+		hideSpot: 'bottles',
+	},
+
+	raidTV: {
+		type: 'raid',
+		deathReason: 'If you hear the tv playing by itself, hide',
+		signal: 'tv',
+		position: [2, 0, 1.5],
+		scale: [2.5, 0.5, 2],
+	},
+
+	raidRadio: {
+		type: 'raid',
+		deathReason: 'If you hear the radio playing by itself, hide',
+		signal: 'radio',
+		position: [2.5, 0, -0.6],
+		scale: [2.5, 0.5, 2],
+	},
+
+	raidInscriptions: {
+		type: 'raid',
+		deathReason: 'If you see blood inscriptions on the walls, hide',
+		signal: 'inscriptions',
+		position: [2, 0, 1.5],
+		scale: [2.5, 0.5, 2],
+	},
 };
 
 export default levelData;

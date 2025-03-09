@@ -52,6 +52,10 @@ export const SOUNDS = {
 		mp3: '/sounds/radio.mp3',
 		settings: 'ambient',
 	},
+	hide: {
+		mp3: '/sounds/hide.mp3',
+		settings: 'ambient',
+	},
 	// Sons de pas
 	step1: {
 		mp3: '/sounds/step1.mp3',

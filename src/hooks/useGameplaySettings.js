@@ -1,16 +1,18 @@
 import { create } from 'zustand';
 
 const useGameplaySettings = create((set) => ({
-	roomCount: 10,
+	roomCount: 16,
 
 	hideoutPercentage: 10,
-	landminePercentage: 10,
+	landminePercentage: 20,
 	claymorePercentage: 10,
 	hunterPercentage: 10,
 	sonarPercentage: 10,
 
 	emptyRoomPercentage: 40,
 	raidPercentage: 10,
+
+	randomRoomPercentage: 20,
 
 	setRoomCount: (count) => set({ roomCount: count }),
 
@@ -25,6 +27,8 @@ const useGameplaySettings = create((set) => ({
 	setEmptyRoomPercentage: (percentage) =>
 		set({ emptyRoomPercentage: percentage }),
 	setRaidPercentage: (percentage) => set({ raidPercentage: percentage }),
+
+	setRandomRoomPercentage: (value) => set({ randomRoomPercentage: value }),
 }));
 
 export default useGameplaySettings;

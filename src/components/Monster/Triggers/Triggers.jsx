@@ -198,7 +198,8 @@ export default function Triggers() {
 			monsterPosition
 		);
 
-		if (Object.values(seedData)[playerPositionRoom]?.type === 'empty') {
+		const roomType = Object.keys(seedData)[playerPositionRoom];
+		if (roomType && roomType.startsWith('raid')) {
 			newPosition[1] = 10;
 		}
 

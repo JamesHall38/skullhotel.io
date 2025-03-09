@@ -41,6 +41,10 @@ export default create(
 		},
 		flashlightEnabled: false,
 		setFlashlightEnabled: (enabled) => set({ flashlightEnabled: enabled }),
+
+		isRedLight: false,
+		setIsRedLight: (isRed) => set({ isRedLight: isRed }),
+
 		setLeftLight: (color, intensity) =>
 			set((state) => ({
 				leftLight: { ...state.leftLight, color, intensity },

@@ -154,27 +154,30 @@ const useDoorStore = create(
 				bathroomDoorHandle: state,
 			})),
 
-		restart: (roomNumber) => {
+		restart: (roomNum) => {
+			const numRooms = roomNum !== undefined ? roomNum : roomNumber;
+			console.log('restarting', numRooms);
+
 			set(() => ({
-				roomDoor: [...Array(roomNumber)].map(() => false),
+				roomDoor: [...Array(numRooms)].map(() => false),
 				bathroomDoor: false,
-				bathroomDoors: [...Array(roomNumber)].map(() => false),
+				bathroomDoors: [...Array(numRooms)].map(() => false),
 				desk: false,
-				desks: [...Array(roomNumber)].map(() => false),
+				desks: [...Array(numRooms)].map(() => false),
 				nightStand: false,
-				nightStands: [...Array(roomNumber)].map(() => false),
+				nightStands: [...Array(numRooms)].map(() => false),
 				roomCurtain: false,
-				roomCurtains: [...Array(roomNumber)].map(() => false),
+				roomCurtains: [...Array(numRooms)].map(() => false),
 				bathroomCurtain: false,
-				bathroomCurtains: [...Array(roomNumber)].map(() => false),
+				bathroomCurtains: [...Array(numRooms)].map(() => false),
 				exit: false,
 				tutorial: false,
 				corridor: false,
-				handlePressed: [...Array(roomNumber)].map(() => false),
+				handlePressed: [...Array(numRooms)].map(() => false),
 				tutorialHandle: false,
 				corridorHandle: false,
 				exitHandle: false,
-				roomDoorHandle: [...Array(roomNumber)].map(() => false),
+				roomDoorHandle: [...Array(numRooms)].map(() => false),
 				bathroomDoorHandle: false,
 			}));
 		},

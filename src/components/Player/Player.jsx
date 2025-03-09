@@ -13,6 +13,7 @@ import useGameStore from '../../hooks/useGame';
 export default function Player() {
 	const isRunning = useGameStore((state) => state.isRunning);
 	const setIsRunning = useGameStore((state) => state.setIsRunning);
+	const disableControls = useGameStore((state) => state.disableControls);
 
 	const playerPosition = useRef(new THREE.Vector3());
 	const playerVelocity = useRef(new THREE.Vector3());
@@ -65,6 +66,7 @@ export default function Player() {
 				playerPosition={playerPosition}
 				playerVelocity={playerVelocity}
 				setIsRunning={setIsRunning}
+				disableControls={disableControls}
 			/>
 			<FootSteps playerPosition={playerPosition} />
 		</>

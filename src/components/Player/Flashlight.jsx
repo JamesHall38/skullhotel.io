@@ -7,6 +7,7 @@ import { useFrame, useThree } from '@react-three/fiber';
 import { getAudioInstance, areSoundsLoaded } from '../../utils/audio';
 import useInterface from '../../hooks/useInterface';
 import useGameplaySettings from '../../hooks/useGameplaySettings';
+import useGame from '../../hooks/useGame';
 
 const LERP_FACTOR = 0.05;
 const DEFAULT_INTENSITY = 8;
@@ -16,8 +17,10 @@ const LIGHT_TEXTURE_SIZE = 256;
 
 export default function Flashlight({ playerRef, crouchProgressRef }) {
 	const monsterState = useMonster((state) => state.monsterState);
+	const animationName = useMonster((state) => state.animationName);
 	const flashlightEnabled = useLight((state) => state.flashlightEnabled);
 	const isPlayerHidden = useHiding((state) => state.isPlayerHidden);
+	const disableControls = useGame((state) => state.disableControls);
 	const spotLightRef = useRef();
 	const targetRef = useRef(new THREE.Vector3());
 	const currentLightPos = useRef(new THREE.Vector3());
@@ -32,6 +35,8 @@ export default function Flashlight({ playerRef, crouchProgressRef }) {
 	const doneObjectives = useInterface((state) => state.interfaceObjectives);
 	const roomCount = useGameplaySettings((state) => state.roomCount);
 	const doneObjectivesNumberRef = useRef(doneObjectives);
+	const jumpscareLerpTimeRef = useRef(0);
+	const wasDisabledRef = useRef(false);
 
 	const doneObjectivesNumber = useMemo(() => {
 		const count = doneObjectives?.reduce((acc, subArray) => {
@@ -202,19 +207,60 @@ export default function Flashlight({ playerRef, crouchProgressRef }) {
 
 	useEffect(() => {
 		let intervalId;
+
 		if (monsterState === 'run') {
 			intervalId = setInterval(monsterRunFlicker, 50);
+		} else if (animationName === 'Attack') {
+			intervalId = setInterval(monsterRunFlicker, 50);
 		}
+
 		return () => {
 			if (intervalId) clearInterval(intervalId);
 		};
-	}, [monsterState, monsterRunFlicker]);
+	}, [monsterState, animationName, monsterRunFlicker]);
 
 	useFrame((state, delta) => {
 		if (!playerRef.current) return;
 
 		const position = playerRef.current;
-		const currentQuaternion = state.camera.quaternion.clone();
+		const camera = state.camera;
+		const currentQuaternion = camera.quaternion.clone();
+
+		if (disableControls) {
+			if (!wasDisabledRef.current) {
+				jumpscareLerpTimeRef.current = 0;
+				wasDisabledRef.current = true;
+			}
+
+			jumpscareLerpTimeRef.current += delta;
+
+			const cameraDirection = new THREE.Vector3(0, 0, -1).applyQuaternion(
+				camera.quaternion
+			);
+
+			const lightPosition = new THREE.Vector3(
+				camera.position.x - cameraDirection.x * 0.2,
+				1.4,
+				camera.position.z - cameraDirection.z * 0.2
+			);
+
+			const targetPosition = new THREE.Vector3(
+				camera.position.x + cameraDirection.x * 20,
+				1.4,
+				camera.position.z + cameraDirection.z * 20
+			);
+
+			spotLightRef.current.position.copy(lightPosition);
+			spotLightRef.current.target.position.copy(targetPosition);
+			currentLightPos.current.copy(lightPosition);
+			targetRef.current.copy(targetPosition);
+
+			lastCameraQuaternion.current.copy(currentQuaternion);
+			return;
+		} else if (wasDisabledRef.current) {
+			wasDisabledRef.current = false;
+			jumpscareLerpTimeRef.current = 0;
+		}
 
 		const rotationDelta = new THREE.Quaternion();
 		rotationDelta
@@ -353,7 +399,6 @@ export default function Flashlight({ playerRef, crouchProgressRef }) {
 
 	useEffect(() => {
 		if (isPlayerHidden) {
-			// When hiding, we wait 1 second before turning off
 			playFlashlightSound();
 			setIsRecoveringFromHiding(true);
 
@@ -365,26 +410,6 @@ export default function Flashlight({ playerRef, crouchProgressRef }) {
 			return () => clearTimeout(timeout);
 		}
 	}, [isPlayerHidden, playFlashlightSound]);
-
-	// useEffect(() => {
-	// 	if (!flashlightEnabled || isPlayerHidden) return;
-
-	// 	const progressPercentage = doneObjectivesNumberRef.current / roomCount;
-	// 	// const multiplier = 0.15; // 15% max de chance de scintiller
-	// 	const multiplier = 0;
-	// 	const flickerProbability = progressPercentage * multiplier;
-
-	// 	const flickerInterval = setInterval(() => {
-	// 		if (Math.random() < flickerProbability) {
-	// 			setIntensity(DEFAULT_INTENSITY * SIZE * 0.5); // Réduit l'intensité à 50%
-	// 			setTimeout(() => {
-	// 				setIntensity(DEFAULT_INTENSITY * SIZE);
-	// 			}, 50);
-	// 		}
-	// 	}, 1000); // Vérifie toutes les secondes
-
-	// 	return () => clearInterval(flickerInterval);
-	// }, [flashlightEnabled, isPlayerHidden, doneObjectivesNumber, roomCount]);
 
 	return (
 		<spotLight

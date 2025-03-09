@@ -8,6 +8,7 @@ export default function KnockingSound() {
 	const isMonsterKnocking = useHiding((state) => state.isMonsterKnocking);
 	const knockingRoom = useHiding((state) => state.knockingRoom);
 	const playerPositionRoom = useGame((state) => state.playerPositionRoom);
+	const silentKnocking = useHiding((state) => state.silentKnocking);
 
 	useEffect(() => {
 		const checkSounds = () => {
@@ -32,7 +33,11 @@ export default function KnockingSound() {
 	}, []);
 
 	useEffect(() => {
-		if (isMonsterKnocking && knockingRoom === playerPositionRoom) {
+		if (
+			isMonsterKnocking &&
+			knockingRoom === playerPositionRoom &&
+			!silentKnocking
+		) {
 			if (knockingSoundRef.current) {
 				knockingSoundRef.current.currentTime = 0;
 				knockingSoundRef.current.play().catch(() => {});
@@ -43,7 +48,7 @@ export default function KnockingSound() {
 				knockingSoundRef.current.currentTime = 0;
 			}
 		}
-	}, [isMonsterKnocking, knockingRoom, playerPositionRoom]);
+	}, [isMonsterKnocking, knockingRoom, playerPositionRoom, silentKnocking]);
 
 	return null;
 }

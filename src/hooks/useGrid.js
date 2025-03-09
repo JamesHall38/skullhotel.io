@@ -2,6 +2,10 @@ import { create } from 'zustand';
 import useGame from './useGame';
 import useGameplaySettings from './useGameplaySettings';
 
+let ROOM_WIDTH = 59;
+let START_X = 20;
+let START_Z = 162;
+
 export const CELL_TYPES = {
 	EMPTY: 'empty',
 	WALL: 'wall',
@@ -605,7 +609,7 @@ const useGridStore = create((set, get) => ({
 							z * heightScaleFactor + dz
 						);
 						if (!cellRoomType && cell.roomType) {
-							if (cell.roomType === 'empty' && cell.isRaid) {
+							if (cell.roomType === 'raid' && cell.isRaid) {
 								cellRoomType = 'raid';
 							} else {
 								cellRoomType = cell.roomType;
@@ -751,4 +755,5 @@ const useGridStore = create((set, get) => ({
 // 		}, 1);
 // 	};
 
+export { ROOM_WIDTH, START_X, START_Z };
 export default useGridStore;

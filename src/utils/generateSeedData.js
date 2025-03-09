@@ -36,6 +36,8 @@ export default function generateSeedData() {
 	const hunterPercentage = useGameplaySettings.getState().hunterPercentage;
 	const sonarPercentage = useGameplaySettings.getState().sonarPercentage;
 	const raidPercentage = useGameplaySettings.getState().raidPercentage;
+	const randomRoomPercentage =
+		useGameplaySettings.getState().randomRoomPercentage || 0;
 
 	const seed = {};
 	const hidingRooms = {};
@@ -56,6 +58,7 @@ export default function generateSeedData() {
 		hunterPercentage +
 		sonarPercentage +
 		raidPercentage +
+		randomRoomPercentage +
 		emptyRoomPercentage;
 
 	// Calculate exact numbers first
@@ -69,6 +72,8 @@ export default function generateSeedData() {
 		remainingRooms * (hunterPercentage / totalPercentage);
 	const sonarRoomsExact = remainingRooms * (sonarPercentage / totalPercentage);
 	const raidRoomsExact = remainingRooms * (raidPercentage / totalPercentage);
+	const randomRoomsExact =
+		remainingRooms * (randomRoomPercentage / totalPercentage);
 
 	// Round to nearest integer instead of floor
 	const hideoutRooms = Math.round(hideoutRoomsExact);
@@ -77,6 +82,7 @@ export default function generateSeedData() {
 	const hunterRooms = Math.round(hunterRoomsExact);
 	const sonarRooms = Math.round(sonarRoomsExact);
 	const raidRooms = Math.round(raidRoomsExact);
+	const randomRooms = Math.round(randomRoomsExact);
 
 	// Ensure total rooms equals roomCount by adjusting empty rooms if necessary
 	const totalRoomsBeforeEmpty =
@@ -86,6 +92,7 @@ export default function generateSeedData() {
 		hunterRooms +
 		sonarRooms +
 		raidRooms +
+		randomRooms +
 		Object.keys(hidingRooms).length;
 
 	// Adjust empty rooms to make total equal to roomCount
@@ -165,6 +172,35 @@ export default function generateSeedData() {
 	}
 	currentRoom += sonarRooms;
 
+	// Add random rooms - these will select a random type for each room
+	for (let i = 0; i < randomRooms; i++) {
+		// Select a random room type
+		const roomTypes = [
+			'hideout',
+			'landmine',
+			'claymore',
+			'hunter',
+			'sonar',
+			'raid',
+		];
+		const randomTypeIndex = Math.floor(Math.random() * roomTypes.length);
+		const randomType = roomTypes[randomTypeIndex];
+
+		// Get a random room of the selected type
+		const roomData = getRandomRoomDataByType(randomType, usedRoomData);
+
+		if (roomData) {
+			usedRoomData.push(roomData.data);
+			seed[`random_${i + 1}`] = {
+				...roomData.data,
+				type: randomType,
+				isRandom: true,
+				number: currentRoom + i + 1,
+			};
+		}
+	}
+	currentRoom += randomRooms;
+
 	// Add empty rooms
 	for (let i = 0; i < emptyRoomsAdjusted; i++) {
 		seed[`empty_${i + Object.keys(hidingRooms).length + 1}`] = {
@@ -175,18 +211,17 @@ export default function generateSeedData() {
 
 	// Add raid rooms
 	for (let i = 0; i < raidRooms; i++) {
-		const hideObjectives = ['window', 'bedsheets', 'bottles'];
+		const roomData = getRandomRoomDataByType('raid', usedRoomData);
 
-		const hideSpot =
-			hideObjectives[Math.floor(Math.random() * hideObjectives.length)];
-
-		seed[`raid_${i + 1}`] = {
-			type: 'empty',
-			hideSpot,
-			isRaid: true,
-			number: currentRoom + i + 1,
-			hideObjective: hideSpot,
-		};
+		if (roomData) {
+			usedRoomData.push(roomData.data);
+			seed[roomData.key] = {
+				...roomData.data,
+				type: 'raid',
+				isRaid: true,
+				number: currentRoom + i + 1,
+			};
+		}
 	}
 	currentRoom += raidRooms;
 
