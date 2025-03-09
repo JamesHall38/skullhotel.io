@@ -26,6 +26,7 @@ export default function Rotation({
 	playerPosition,
 	playerVelocity,
 	setIsRunning,
+	disableControls,
 }) {
 	const monsterState = useMonster((state) => state.monsterState);
 	const deaths = useGame((state) => state.deaths);
@@ -95,7 +96,8 @@ export default function Rotation({
 			if (
 				deviceMode === 'keyboard' &&
 				monsterState !== 'run' &&
-				document.pointerLockElement
+				document.pointerLockElement &&
+				!disableControls
 			) {
 				const movementX = event.movementX || 0;
 				const movementY = event.movementY || 0;
@@ -117,10 +119,14 @@ export default function Rotation({
 
 		document.addEventListener('mousemove', onMouseMove);
 		return () => document.removeEventListener('mousemove', onMouseMove);
-	}, [camera, deviceMode, monsterState, rotationSensitivity]);
+	}, [camera, deviceMode, monsterState, rotationSensitivity, disableControls]);
 
 	useFrame((state) => {
-		if ((isMobile || deviceMode === 'gamepad') && monsterState !== 'run') {
+		if (
+			(isMobile || deviceMode === 'gamepad') &&
+			monsterState !== 'run' &&
+			!disableControls
+		) {
 			const ROTATION_DEADZONE = 0.15;
 			const gamepadControls = getGamepadControls();
 

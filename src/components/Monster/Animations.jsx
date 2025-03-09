@@ -5,7 +5,9 @@ import useMonster from '../../hooks/useMonster';
 import useGame from '../../hooks/useGame';
 import useInterface from '../../hooks/useInterface';
 import useDoor from '../../hooks/useDoor';
+// import useLight from '../../hooks/useLight';
 import { getAudioInstance } from '../../utils/audio';
+import * as THREE from 'three';
 
 const monsterStepSounds = [
 	getAudioInstance('monsterStep1'),
@@ -21,8 +23,9 @@ const VOLUMES = {
 
 const PAUSE_DURATION = 1;
 
+const WALK_ANIMATION_SPEED_FACTOR = 0.5;
+
 const resetAnimations = (actions) => {
-	// Reset toutes les animations comme au montage
 	Object.values(actions).forEach((action) => {
 		action.stop();
 		action.reset();
@@ -30,7 +33,6 @@ const resetAnimations = (actions) => {
 		action.setEffectiveWeight(0);
 		action.timeScale = 1;
 	});
-	// Activer uniquement l'animation Idle
 	if (actions['Idle']) {
 		actions['Idle'].setEffectiveWeight(1);
 	}
@@ -58,23 +60,31 @@ export default function Animations({ group, animations }) {
 	const animationName = useMonster((state) => state.animationName);
 	const animationSpeed = useMonster((state) => state.animationSpeed);
 
+	// const setIsRedLight = useLight((state) => state.setIsRedLight);
+
 	useEffect(() => {
 		resetAnimations(actions);
 	}, [actions]);
 
 	useEffect(() => {
 		Object.values(actions).forEach((action) => {
-			action.timeScale = animationSpeed;
+			// Apply specific speed factor for Walk animation
+			if (
+				action._clip.name === 'Walk' ||
+				action._clip.name === 'CeilingCrawl'
+			) {
+				action.timeScale = animationSpeed * WALK_ANIMATION_SPEED_FACTOR;
+			} else {
+				action.timeScale = animationSpeed;
+			}
 		});
 	}, [actions, animationSpeed]);
 
 	useEffect(() => {
 		if (animationName === 'Creeping') {
-			// Arrêter toutes les animations
 			Object.values(actions).forEach((action) => {
 				action.stop();
 			});
-			// Démarrer uniquement l'animation Creeping
 			const creepingAction = actions[animationName];
 			creepingAction.play();
 			creepingAction.setEffectiveWeight(1);
@@ -87,7 +97,6 @@ export default function Animations({ group, animations }) {
 			previousAnimationRef.current === 'Creeping' &&
 			animationName === 'Run'
 		) {
-			// Cas spécial: transition de Creeping vers Run
 			Object.values(actions).forEach((action) => {
 				action.stop();
 			});
@@ -101,7 +110,6 @@ export default function Animations({ group, animations }) {
 			previousAnimationRef.current = 'Run';
 			creepingStateRef.current = 'done';
 		} else if (animationName === 'Attack') {
-			// Transition directe vers Attack
 			Object.values(actions).forEach((action) => {
 				action.stop();
 				action.setEffectiveWeight(0);
@@ -129,7 +137,6 @@ export default function Animations({ group, animations }) {
 
 	const animationMixTransition = useCallback(
 		(delta) => {
-			// Skip la transition pour Attack aussi
 			if (
 				((animationName === 'Creeping' ||
 					previousAnimationRef.current === 'Creeping') &&
@@ -193,7 +200,11 @@ export default function Animations({ group, animations }) {
 	useEffect(() => {
 		let intervalId;
 
-		if (animationName === 'Walk' || animationName === 'Run') {
+		if (
+			animationName === 'Walk' ||
+			animationName === 'Run' ||
+			animationName === 'CeilingCrawl'
+		) {
 			const currentAnimation = animations.find(
 				(anim) => anim.name === animationName
 			);
@@ -225,21 +236,42 @@ export default function Animations({ group, animations }) {
 		};
 	}, [animationName, animations]);
 
+	useEffect(() => {
+		if (animationName === 'Attack' && actions['Attack']) {
+			const attackAction = actions['Attack'];
+
+			const onAttackFinished = () => {
+				setOpenDeathScreen(true);
+				resetAnimations(actions);
+				resetGame();
+			};
+
+			attackAction.getMixer().addEventListener('finished', onAttackFinished);
+
+			attackAction.setLoop(THREE.LoopOnce);
+			attackAction.clampWhenFinished = true;
+
+			return () => {
+				attackAction
+					.getMixer()
+					.removeEventListener('finished', onAttackFinished);
+			};
+		}
+	}, [animationName, actions, setOpenDeathScreen]);
+
+	// useEffect(() => {
+	// 	if (animationName === 'Creeping' && monsterState === 'leaving') {
+	// 		setIsRedLight(true);
+	// 	} else {
+	// 		setIsRedLight(false);
+	// 	}
+	// }, [animationName, monsterState, setIsRedLight]);
+
 	useFrame((_, delta) => {
 		if (!group.current) return;
 		animationMixTransition(delta);
 
-		if (animationName === 'Attack') {
-			const attackAction = actions['Attack'];
-			if (
-				attackAction &&
-				attackAction.time >= attackAction._clip.duration - 0.01
-			) {
-				setOpenDeathScreen(true);
-				resetAnimations(actions);
-				resetGame();
-			}
-		} else if (animationName === 'Creeping') {
+		if (animationName !== 'Attack' && animationName === 'Creeping') {
 			const creepingAction = actions['Creeping'];
 			if (!creepingAction) return;
 

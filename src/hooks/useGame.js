@@ -2,16 +2,14 @@ import { create } from 'zustand';
 import { subscribeWithSelector } from 'zustand/middleware';
 import { seed } from '../utils/config';
 import useHiding from './useHiding';
-import useMonster from './useMonster';
-import useDoor from './useDoor';
-import useGameplaySettings from './useGameplaySettings';
-
-const CORRIDORLENGTH = 5.95;
 
 const useGameStore = create(
-	subscribeWithSelector((set, get) => ({
+	subscribeWithSelector((set) => ({
 		seedData: seed,
 		deaths: 0,
+
+		disableControls: false,
+		setDisableControls: (state) => set(() => ({ disableControls: state })),
 
 		isPlaying: false,
 		setIsPlaying: (state) => set(() => ({ isPlaying: state })),
@@ -52,7 +50,6 @@ const useGameStore = create(
 		setResetFootstepSound: (state) =>
 			set(() => ({ resetFootstepSound: state })),
 
-		// Animation d'intro
 		playIntro: false,
 		setPlayIntro: (value) => set({ playIntro: value }),
 
@@ -106,6 +103,38 @@ const useGameStore = create(
 		radio: false,
 		setRadio: (state) => set(() => ({ radio: state })),
 
+		// Raid state tracking
+		activeRaids: [],
+		setActiveRaid: (room, isActive) =>
+			set((state) => {
+				const newActiveRaids = [...state.activeRaids];
+				const index = newActiveRaids.indexOf(room);
+
+				if (isActive && index === -1) {
+					newActiveRaids.push(room);
+				} else if (!isActive && index !== -1) {
+					newActiveRaids.splice(index, 1);
+				}
+
+				return { activeRaids: newActiveRaids };
+			}),
+
+		// Inscriptions state tracking
+		activeInscriptions: [],
+		setActiveInscriptions: (room, isActive) =>
+			set((state) => {
+				const newActiveInscriptions = [...state.activeInscriptions];
+				const index = newActiveInscriptions.indexOf(room);
+
+				if (isActive && index === -1) {
+					newActiveInscriptions.push(room);
+				} else if (!isActive && index !== -1) {
+					newActiveInscriptions.splice(index, 1);
+				}
+
+				return { activeInscriptions: newActiveInscriptions };
+			}),
+
 		// Knocking
 		knockedRooms: [],
 		addKnockedRoom: (room) =>
@@ -125,73 +154,21 @@ const useGameStore = create(
 		performanceMode: false,
 		setPerformanceMode: (mode) => set({ performanceMode: mode }),
 
+		completedObjective: null,
+		completedRoom: null,
+
 		checkObjectiveCompletion: (objective, room) => {
-			const state = get();
-			const roomCount = useGameplaySettings.getState().roomCount;
+			set({
+				completedObjective: objective,
+				completedRoom: room,
+			});
+		},
 
-			const roomData = Object.values(state.seedData)[state.playerPositionRoom];
-			state.seedData[
-				`hiding_${room === 'window' ? 1 : room === 'bedsheets' ? 2 : 3}`
-			];
-
-			if (roomData?.hideObjective === objective) {
-				const hiding = useHiding.getState();
-				const monster = useMonster.getState();
-				const doors = useDoor.getState();
-
-				let monsterX;
-				if (room >= roomCount / 2) {
-					monsterX = -(room - roomCount / 2) * CORRIDORLENGTH;
-				} else {
-					monsterX = -room * CORRIDORLENGTH;
-				}
-
-				monster.setMonsterPosition([monsterX, 0, 0]);
-				monster.setMonsterRotation([0, 0, 0]);
-
-				if (doors.roomDoor[room]) {
-					state.setShakeIntensity(10);
-					monster.setMonsterState('run');
-					monster.playAnimation('Run');
-					monster.setAnimationSpeed(1);
-				} else if (
-					objective === roomData.hideObjective &&
-					!state.knockedRooms.includes(room)
-				) {
-					state.addKnockedRoom(room);
-					hiding.setMonsterKnocking(true);
-					hiding.setKnockingRoom(room);
-					hiding.setHideSpot(roomData.hideSpot);
-
-					setTimeout(() => {
-						const hiding = useHiding.getState();
-						const monster = useMonster.getState();
-						let doors = useDoor.getState();
-
-						if (hiding.isMonsterKnocking) {
-							doors.setRoomDoor(room, true);
-							monster.playAnimation('Idle');
-
-							const isHidden = useHiding.getState().isPlayerHidden;
-
-							if (!isHidden) {
-								hiding.setMonsterKnocking(false);
-								hiding.setMonsterEntering(true);
-								state.setShakeIntensity(10);
-								monster.setMonsterState('run');
-								monster.playAnimation('Run');
-								monster.setAnimationSpeed(1);
-							} else {
-								hiding.setMonsterKnocking(false);
-								monster.setAnimationMixSpeed(2);
-								monster.setAnimationSpeed(0.5);
-								monster.setMonsterState('leaving');
-								monster.playAnimation('Walk');
-							}
-						}
-					}, state.monsterKnockDuration);
-				}
-			}
+		resetCompletedObjective: () => {
+			set({
+				completedObjective: null,
+				completedRoom: null,
+			});
 		},
 
 		restart: () => {
@@ -205,11 +182,16 @@ const useGameStore = create(
 				bathroomLight: false,
 				activeRadios: [],
 				activeTvs: [],
+				activeRaids: [],
+				activeInscriptions: [],
 				playIntro: false,
 				knockedRooms: [],
 				jumpScare: false,
 				seedData: seed,
 				customDeathMessage: null,
+				disableControls: false,
+				completedObjective: null,
+				completedRoom: null,
 			}));
 			useHiding.getState().restart();
 		},
@@ -227,32 +209,5 @@ const useGameStore = create(
 		setCameraLocked: (state) => set(() => ({ isCameraLocked: state })),
 	}))
 );
-
-// Surveiller les changements dans interfaceObjectives
-// useInterface.subscribe(
-// 	(state) => state.interfaceObjectives,
-// 	(interfaceObjectives) => {
-// 		const gameState = useGameStore.getState();
-// 		const roomNumber = gameState.playerPositionRoom;
-// 		if (roomNumber === null) return;
-
-// 		const objectives = interfaceObjectives[roomNumber];
-// 		if (!objectives) return;
-
-// 		// Vérifier chaque objectif
-// 		if (objectives[0]) {
-// 			// bottles
-// 			gameState.checkObjectiveCompletion('bottles', roomNumber);
-// 		}
-// 		if (objectives[1]) {
-// 			// bedsheets
-// 			gameState.checkObjectiveCompletion('bedsheets', roomNumber);
-// 		}
-// 		if (objectives[2]) {
-// 			// window
-// 			gameState.checkObjectiveCompletion('window', roomNumber);
-// 		}
-// 	}
-// );
 
 export default useGameStore;

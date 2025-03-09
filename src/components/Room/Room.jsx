@@ -9,6 +9,7 @@ import Switches from './Switches';
 import Radio from './Events/Radio';
 import Metal from './Metal';
 import Tv from './Events/Tv';
+import Inscriptions from './Events/Inscriptions';
 import Lights from './Lights';
 import DetectionZone from '../DetectionZone';
 import useGameplaySettings from '../../hooks/useGameplaySettings';
@@ -93,6 +94,7 @@ export default function Room() {
 			<Radio />
 			<Metal />
 			<Tv />
+			<Inscriptions />
 
 			{isDetectionActive && (
 				<DetectionZone

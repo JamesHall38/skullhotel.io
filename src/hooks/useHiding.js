@@ -92,6 +92,9 @@ const useHiding = create(
 		knockingRoom: null,
 		setKnockingRoom: (room) => set(() => ({ knockingRoom: room })),
 
+		silentKnocking: false,
+		setSilentKnocking: (state) => set(() => ({ silentKnocking: state })),
+
 		isMonsterEntering: false,
 		setMonsterEntering: (state) => set(() => ({ isMonsterEntering: state })),
 
@@ -124,6 +127,7 @@ const useHiding = create(
 				canExitHiding: false,
 				isHiddenBehindDesk: false,
 				isHiddenBehindNightstand: false,
+				silentKnocking: false,
 			}));
 		},
 	}))

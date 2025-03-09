@@ -4,8 +4,9 @@ import useGame from '../../../hooks/useGame';
 import useInterface from '../../../hooks/useInterface';
 import useGamepadControls from '../../../hooks/useGamepadControls';
 import DetectionZone from '../../DetectionZone';
-import { PositionalAudio } from '@react-three/drei';
+import { PositionalAudio, Text } from '@react-three/drei';
 import { usePositionalSound } from '../../../utils/audio';
+import * as THREE from 'three';
 
 export default function Tv() {
 	const meshRef = useRef();
@@ -22,6 +23,9 @@ export default function Tv() {
 	const setMobileClick = useGame((state) => state.setMobileClick);
 	const gamepadControls = useGamepadControls();
 	const prevXButtonRef = useRef(false);
+	const activeRaids = useGame((state) => state.activeRaids);
+	const [showHide, setShowHide] = useState(false);
+	const knockedRooms = useGame((state) => state.knockedRooms);
 
 	const uniforms = useMemo(
 		() => ({
@@ -29,6 +33,10 @@ export default function Tv() {
 		}),
 		[]
 	);
+
+	const redTextMaterial = useMemo(() => {
+		return new THREE.MeshBasicMaterial({ color: '#000' });
+	}, []);
 
 	useFrame((state) => {
 		const { clock } = state;
@@ -49,9 +57,18 @@ export default function Tv() {
 		setTv(activeTvs.includes(playerPositionRoom));
 	}, [playerPositionRoom, activeTvs, setTv]);
 
+	useEffect(() => {
+		if (tv && activeRaids.includes(playerPositionRoom)) {
+			setShowHide(true);
+		} else {
+			setShowHide(false);
+		}
+	}, [tv, activeRaids, playerPositionRoom]);
+
 	useFrame(() => {
 		const xButtonPressed = gamepadControls().action;
 		if (isDetected && xButtonPressed && !prevXButtonRef.current) {
+			const canTriggerRaid = !knockedRooms.includes(playerPositionRoom);
 			setTv(!tv);
 			setActiveTv(playerPositionRoom);
 		}
@@ -60,6 +77,7 @@ export default function Tv() {
 
 	useEffect(() => {
 		if (isDetected && mobileClick) {
+			const canTriggerRaid = !knockedRooms.includes(playerPositionRoom);
 			setTv(!tv);
 			setActiveTv(playerPositionRoom);
 			setMobileClick(false);
@@ -72,6 +90,7 @@ export default function Tv() {
 		setMobileClick,
 		setTv,
 		tv,
+		knockedRooms,
 	]);
 
 	return (
@@ -94,6 +113,7 @@ export default function Tv() {
 			<mesh
 				onPointerDown={(e) => {
 					if (e.button === 0) {
+						const canTriggerRaid = !knockedRooms.includes(playerPositionRoom);
 						setTv(!tv);
 						setActiveTv(playerPositionRoom);
 					}
@@ -130,6 +150,18 @@ export default function Tv() {
 				`}
 				/>
 			</mesh>
+			{showHide && (
+				<group scale={0.1} position={[0.01, 0, 0]}>
+					<Text
+						font={'/Redrum.otf'}
+						rotation={[0, Math.PI / 2, 0]}
+						material={redTextMaterial}
+						scale={2}
+					>
+						HIDE
+					</Text>
+				</group>
+			)}
 			<PositionalAudio ref={tvSoundRef} {...whiteNoiseSound} loop={true} />
 		</group>
 	);

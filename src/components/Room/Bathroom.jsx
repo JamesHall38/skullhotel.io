@@ -123,7 +123,6 @@ export default function Bathroom() {
 		});
 	}, [loadedItems]);
 
-	// Create material once at component mount
 	useEffect(() => {
 		scene.traverse((child) => {
 			if (child.isMesh && child.name === 'bathroom') {
@@ -138,7 +137,7 @@ export default function Bathroom() {
 					onBeforeCompile: (shader) => {
 						shader.uniforms.uRoughnessIntensity = { value: 0.75 };
 						shader.uniforms.uBathroomLightIntensity = {
-							value: 2,
+							value: 0,
 						};
 
 						material.userData.uniforms = shader.uniforms;

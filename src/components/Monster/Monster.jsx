@@ -17,9 +17,24 @@ const BASE_SPEED = 5;
 const CHASE_SPEED = 0.5;
 const NEXT_POINT_THRESHOLD = 0.5;
 const MIN_DISTANCE_FOR_RECALCULATION = 2;
-const ATTACK_DISTANCE = 0.8;
+const ATTACK_DISTANCE = 1.8;
 const IDEAL_ATTACK_DISTANCE = 0.8;
 const ATTACK_POSITION_LERP_SPEED = 0.15;
+const MIN_SPEED_MULTIPLIER = 1;
+const DISTANCE_REFERENCE = 4;
+const SPEED_GROWTH_FACTOR = 2;
+const MAX_SPEED_MULTIPLIER = 8;
+const MAX_DIRECT_PATH_FAILURES = 5;
+const CHASE_SPEED_INCREMENT = 0.1;
+const MAX_CHASE_SPEED = 2.0;
+
+const MONSTER_HEIGHT = {
+	GROUND: 0,
+	CEILING_LOW: 1.35,
+	CEILING_HIGH: 2,
+	CEILING_MID: 1.2,
+	CEILING_IDLE_LOW: 1.68,
+};
 
 function lerpCameraLookAt(camera, targetPosition, lerpFactor) {
 	const targetQuaternion = new THREE.Quaternion();
@@ -35,6 +50,7 @@ function lerpCameraLookAt(camera, targetPosition, lerpFactor) {
 	);
 
 	camera.quaternion.slerp(targetQuaternion, lerpFactor);
+	camera.position.y = 1.5;
 }
 
 const Monster = (props) => {
@@ -43,6 +59,9 @@ const Monster = (props) => {
 	const [hasPlayedJumpScare, setHasPlayedJumpScare] = useState(false);
 	const [soundsReady, setSoundsReady] = useState(false);
 	const { gl } = useThree();
+	const [directPathFailures, setDirectPathFailures] = useState(0);
+	const [currentChaseSpeed, setCurrentChaseSpeed] = useState(CHASE_SPEED);
+	const lastChaseTimeRef = useRef(0);
 	const { nodes, materials, animations } = useGLTF(
 		'/models/monster-opt.glb',
 		undefined,
@@ -75,6 +94,7 @@ const Monster = (props) => {
 	const setJumpScare = useGame((state) => state.setJumpScare);
 	const jumpScare = useGame((state) => state.jumpScare);
 	const deaths = useGame((state) => state.deaths);
+	const setDisableControls = useGame((state) => state.setDisableControls);
 
 	const roomDoors = useDoor((state) => state.roomDoor);
 	const nightstandDoor = useDoor((state) => state.nightStand);
@@ -85,8 +105,6 @@ const Monster = (props) => {
 	const setRoomDoor = useDoor((state) => state.setRoomDoor);
 	const setBathroomDoors = useDoor((state) => state.setBathroomDoors);
 	const [currentPath, setCurrentPath] = useState(null);
-	const [pathfindingFailures, setPathfindingFailures] = useState(0);
-	const MAX_PATHFINDING_FAILURES = 3;
 	const headBoneRef = useRef();
 	const lastTargetRef = useRef({ x: 0, z: 0 });
 	const [isWaiting, setIsWaiting] = useState(false);
@@ -157,6 +175,22 @@ const Monster = (props) => {
 		}
 	}, [deaths]);
 
+	useEffect(() => {
+		setDirectPathFailures(0);
+	}, [roomDoors]);
+
+	useEffect(() => {
+		if (monsterState !== 'chase') {
+			setCurrentChaseSpeed(CHASE_SPEED);
+			lastChaseTimeRef.current = 0;
+		}
+	}, [monsterState]);
+
+	useEffect(() => {
+		setCurrentChaseSpeed(CHASE_SPEED);
+		lastChaseTimeRef.current = 0;
+	}, [playerPositionRoom]);
+
 	const lookAtCamera = useCallback((camera) => {
 		const targetPosition = new THREE.Vector3(
 			camera.position.x,
@@ -172,12 +206,55 @@ const Monster = (props) => {
 
 	const runAtCamera = useCallback(
 		(camera, delta, mode = 'run') => {
-			const speed = mode === 'chase' ? CHASE_SPEED : BASE_SPEED;
+			let baseSpeed;
+			if (mode === 'chase') {
+				if (lastChaseTimeRef.current === 0) {
+					lastChaseTimeRef.current = Date.now();
+				}
+
+				const currentTime = Date.now();
+				const elapsedTime = (currentTime - lastChaseTimeRef.current) / 1000;
+
+				const newSpeed = Math.min(
+					CHASE_SPEED + elapsedTime * CHASE_SPEED_INCREMENT,
+					MAX_CHASE_SPEED
+				);
+
+				setCurrentChaseSpeed(newSpeed);
+				baseSpeed = newSpeed;
+			} else {
+				baseSpeed = BASE_SPEED;
+			}
+
 			const targetPosition = new THREE.Vector3(
 				camera.position.x,
 				group.current.position.y,
 				camera.position.z
 			);
+
+			const distanceToCamera =
+				group.current.position.distanceTo(targetPosition);
+
+			const normalizedDistance = distanceToCamera / DISTANCE_REFERENCE;
+			const distanceMultiplier = Math.min(
+				Math.max(
+					Math.pow(normalizedDistance, SPEED_GROWTH_FACTOR),
+					MIN_SPEED_MULTIPLIER
+				),
+				MAX_SPEED_MULTIPLIER
+			);
+
+			const speed = baseSpeed * distanceMultiplier;
+
+			if (mode === 'chase') {
+				const animationSpeedMultiplier =
+					(currentChaseSpeed / CHASE_SPEED) * distanceMultiplier;
+				setAnimationSpeed(
+					Math.max(distanceMultiplier, animationSpeedMultiplier)
+				);
+			} else {
+				setAnimationSpeed(distanceMultiplier);
+			}
 
 			const isMonsterNearHallway = Math.abs(group.current.position.z) < 6.5;
 			const isInHallway = camera.position.z < 2;
@@ -187,6 +264,12 @@ const Monster = (props) => {
 				Object.keys(seedData)[playerPositionRoom] === 'runningWindowToDoor' ||
 				Object.keys(seedData)[playerPositionRoom] ===
 					'runningWindowCurtainToBed';
+
+			if (mode === 'chase' && Math.abs(group.current.position.z) < 2.3) {
+				setMonsterState('run');
+				playAnimation('Run');
+				return;
+			}
 
 			if (
 				mode === 'chase' &&
@@ -200,9 +283,6 @@ const Monster = (props) => {
 				playAnimation('Run');
 				return;
 			}
-
-			const distanceToCamera =
-				group.current.position.distanceTo(targetPosition);
 
 			if (distanceToCamera <= ATTACK_DISTANCE) {
 				if (!jumpScare) {
@@ -237,8 +317,9 @@ const Monster = (props) => {
 					group.current.position.z
 				);
 
-				const lerpFactor = 0.1;
+				const lerpFactor = 0.5;
 				lerpCameraLookAt(camera, targetLookAtPosition, lerpFactor);
+				setDisableControls(true);
 
 				group.current.lookAt(
 					targetPosition.x,
@@ -249,43 +330,94 @@ const Monster = (props) => {
 				if (jumpScare) {
 					setJumpScare(false);
 				}
+				if (animationName === 'Idle') {
+					group.current.position.y = MONSTER_HEIGHT.GROUND;
+				} else if (animationName === 'CeilingCrawlIdle') {
+					const zPos = Math.abs(group.current.position.z);
+					if (zPos >= 5 && zPos <= 7.5) {
+						group.current.position.y = MONSTER_HEIGHT.CEILING_HIGH;
+					} else {
+						group.current.position.y = MONSTER_HEIGHT.CEILING_LOW;
+					}
+				}
 
 				if (monsterState !== 'chase') {
 					if (animationName !== 'Run') {
 						playAnimation('Run');
 					}
 				} else {
-					if (animationName !== 'Walk') {
+					if (
+						Object.values(seedData)[playerPositionRoom].ceiling &&
+						animationName !== 'CeilingCrawl' &&
+						animationName !== 'Walk'
+					) {
+						playAnimation('CeilingCrawl');
+					} else if (
+						animationName !== 'Walk' &&
+						animationName !== 'CeilingCrawl'
+					) {
 						playAnimation('Walk');
+					}
+
+					if (monsterState === 'chase' && animationName === 'CeilingCrawl') {
+						const zPos = Math.abs(group.current.position.z);
+						if (zPos >= 5 && zPos <= 7.5) {
+							group.current.position.y = THREE.MathUtils.lerp(
+								group.current.position.y,
+								MONSTER_HEIGHT.CEILING_HIGH,
+								delta * 6
+							);
+						} else {
+							group.current.position.y = THREE.MathUtils.lerp(
+								group.current.position.y,
+								MONSTER_HEIGHT.CEILING_LOW,
+								delta * 6
+							);
+						}
 					}
 				}
 
 				if (mode === 'run') {
-					const offsetX = 600;
-					const offsetZ = 150;
-
-					const monsterX = group.current.position.x * 10 + offsetX;
-					const monsterZ = group.current.position.z * 10 + offsetZ;
-					const targetX = camera.position.x * 10 + offsetX;
-					const targetZ = camera.position.z * 10 + offsetZ;
+					const monsterX = group.current.position.x * 10;
+					const monsterZ = group.current.position.z * 10;
+					const targetX = camera.position.x * 10;
+					const targetZ = camera.position.z * 10;
 
 					const distanceMoved = Math.sqrt(
 						Math.pow(lastTargetRef.current.x - targetX, 2) +
 							Math.pow(lastTargetRef.current.z - targetZ, 2)
 					);
 
+					if (directPathFailures >= MAX_DIRECT_PATH_FAILURES) {
+						const direction = new THREE.Vector3(
+							camera.position.x - group.current.position.x,
+							0,
+							camera.position.z - group.current.position.z
+						).normalize();
+
+						const moveSpeed = speed * delta;
+						const movement = direction.clone().multiplyScalar(moveSpeed);
+						group.current.position.add(movement);
+
+						group.current.lookAt(
+							camera.position.x,
+							group.current.position.y,
+							camera.position.z
+						);
+						return;
+					}
+
 					if (!currentPath || distanceMoved > MIN_DISTANCE_FOR_RECALCULATION) {
 						const newPath = findPath(monsterX, monsterZ, targetX, targetZ);
 						if (newPath) {
 							setCurrentPath(newPath);
 							lastTargetRef.current = { x: targetX, z: targetZ };
-							setPathfindingFailures(0);
 						} else {
-							setPathfindingFailures((prevFailures) => prevFailures + 1);
-							if (pathfindingFailures >= MAX_PATHFINDING_FAILURES) {
-								console.warn('Too many pathfinding failures, aborting');
-								setCurrentPath(null);
-								setPathfindingFailures(0);
+							setDirectPathFailures((prevFailures) => prevFailures + 1);
+							console.warn(`Pathfinding failure ${directPathFailures + 1}`);
+
+							if (directPathFailures + 1 >= MAX_DIRECT_PATH_FAILURES) {
+								console.warn('Switching to direct path mode until room change');
 							}
 						}
 					}
@@ -294,26 +426,24 @@ const Monster = (props) => {
 						const nextPoint = currentPath[1];
 
 						const direction = new THREE.Vector3(
-							(nextPoint.x - offsetX) / 10 - group.current.position.x,
+							nextPoint.x / 10 - group.current.position.x,
 							0,
-							(nextPoint.z - offsetZ) / 10 - group.current.position.z
+							nextPoint.z / 10 - group.current.position.z
 						).normalize();
 
 						const moveSpeed = speed * delta;
 						const movement = direction.clone().multiplyScalar(moveSpeed);
 						group.current.position.add(movement);
 
-						lookAtCamera(camera);
+						group.current.lookAt(
+							group.current.position.x + direction.x,
+							group.current.position.y,
+							group.current.position.z + direction.z
+						);
 
 						const distanceToNextPoint = Math.sqrt(
-							Math.pow(
-								(nextPoint.x - offsetX) / 10 - group.current.position.x,
-								2
-							) +
-								Math.pow(
-									(nextPoint.z - offsetZ) / 10 - group.current.position.z,
-									2
-								)
+							Math.pow(nextPoint.x / 10 - group.current.position.x, 2) +
+								Math.pow(nextPoint.z / 10 - group.current.position.z, 2)
 						);
 
 						if (distanceToNextPoint < NEXT_POINT_THRESHOLD) {
@@ -337,31 +467,42 @@ const Monster = (props) => {
 						);
 					}
 				} else {
-					const offsetX = 600;
-					const offsetZ = 150;
-
-					const monsterX = group.current.position.x * 10 + offsetX;
-					const monsterZ = group.current.position.z * 10 + offsetZ;
-					const targetX = camera.position.x * 10 + offsetX;
-					const targetZ = camera.position.z * 10 + offsetZ;
+					const monsterX = group.current.position.x * 10;
+					const monsterZ = group.current.position.z * 10;
+					const targetX = camera.position.x * 10;
+					const targetZ = camera.position.z * 10;
 
 					const distanceMoved = Math.sqrt(
 						Math.pow(lastTargetRef.current.x - targetX, 2) +
 							Math.pow(lastTargetRef.current.z - targetZ, 2)
 					);
 
+					if (directPathFailures >= MAX_DIRECT_PATH_FAILURES) {
+						const direction = new THREE.Vector3(
+							camera.position.x - group.current.position.x,
+							0,
+							camera.position.z - group.current.position.z
+						).normalize();
+
+						const moveSpeed = speed * delta;
+						const movement = direction.clone().multiplyScalar(moveSpeed);
+						group.current.position.add(movement);
+
+						lookAtCamera(camera);
+						return;
+					}
+
 					if (!currentPath || distanceMoved > MIN_DISTANCE_FOR_RECALCULATION) {
 						const newPath = findPath(monsterX, monsterZ, targetX, targetZ);
 						if (newPath) {
 							setCurrentPath(newPath);
 							lastTargetRef.current = { x: targetX, z: targetZ };
-							setPathfindingFailures(0);
 						} else {
-							setPathfindingFailures((prevFailures) => prevFailures + 1);
-							if (pathfindingFailures >= MAX_PATHFINDING_FAILURES) {
-								console.warn('Too many pathfinding failures, aborting');
-								setCurrentPath(null);
-								setPathfindingFailures(0);
+							setDirectPathFailures((prevFailures) => prevFailures + 1);
+							console.warn(`Pathfinding failure ${directPathFailures + 1}`);
+
+							if (directPathFailures + 1 >= MAX_DIRECT_PATH_FAILURES) {
+								console.warn('Switching to direct path mode until room change');
 							}
 						}
 					}
@@ -370,9 +511,9 @@ const Monster = (props) => {
 						const nextPoint = currentPath[1];
 
 						const direction = new THREE.Vector3(
-							(nextPoint.x - offsetX) / 10 - group.current.position.x,
+							nextPoint.x / 10 - group.current.position.x,
 							0,
-							(nextPoint.z - offsetZ) / 10 - group.current.position.z
+							nextPoint.z / 10 - group.current.position.z
 						).normalize();
 
 						const moveSpeed = speed * delta;
@@ -382,14 +523,8 @@ const Monster = (props) => {
 						lookAtCamera(camera);
 
 						const distanceToNextPoint = Math.sqrt(
-							Math.pow(
-								(nextPoint.x - offsetX) / 10 - group.current.position.x,
-								2
-							) +
-								Math.pow(
-									(nextPoint.z - offsetZ) / 10 - group.current.position.z,
-									2
-								)
+							Math.pow(nextPoint.x / 10 - group.current.position.x, 2) +
+								Math.pow(nextPoint.z / 10 - group.current.position.z, 2)
 						);
 
 						if (distanceToNextPoint < NEXT_POINT_THRESHOLD) {
@@ -406,13 +541,13 @@ const Monster = (props) => {
 						const movement = direction.clone().multiplyScalar(moveSpeed);
 						group.current.position.add(movement);
 
-						group.current.lookAt(
-							camera.position.x,
-							group.current.position.y,
-							camera.position.z
-						);
+						lookAtCamera(camera);
 					}
 				}
+			}
+
+			if (mode === 'run') {
+				group.current.position.y = MONSTER_HEIGHT.GROUND;
 			}
 		},
 		[
@@ -422,7 +557,6 @@ const Monster = (props) => {
 			setAnimationSpeed,
 			monsterState,
 			lookAtCamera,
-			pathfindingFailures,
 			setJumpScare,
 			hasPlayedJumpScare,
 			soundsReady,
@@ -432,6 +566,9 @@ const Monster = (props) => {
 			seedData,
 			setMonsterState,
 			setShakeIntensity,
+			directPathFailures,
+			currentChaseSpeed,
+			setDisableControls,
 		]
 	);
 
@@ -487,6 +624,22 @@ const Monster = (props) => {
 		);
 	});
 
+	useEffect(() => {
+		if (
+			(monsterState === 'hidden' && animationName === 'CeilingCrawlIdle') ||
+			(monsterState === 'idle' &&
+				animationName === 'CeilingCrawlIdle' &&
+				Math.abs(group.current.position.z) > 2)
+		) {
+			const zPos = Math.abs(group.current.position.z);
+			if (zPos >= 5 && zPos <= 7.5) {
+				group.current.position.y = MONSTER_HEIGHT.CEILING_HIGH;
+			} else {
+				group.current.position.y = MONSTER_HEIGHT.CEILING_IDLE_LOW;
+			}
+		}
+	}, [monsterState, animationName, roomDoors]);
+
 	useFrame(({ camera, clock }) => {
 		if (monsterState === 'facingCamera') {
 			lookAtCamera(camera);
@@ -503,7 +656,12 @@ const Monster = (props) => {
 				timeoutRef.current = null;
 			}
 			const delta = Math.max(clock.getDelta(), 0.016);
+
 			runAtCamera(camera, delta, monsterState);
+
+			if (monsterState === 'run') {
+				group.current.position.y = MONSTER_HEIGHT.GROUND;
+			}
 		} else if (monsterState === 'leaving') {
 			const hideSpot = useHiding.getState().hideSpot;
 			const isRightSide = playerPositionRoom >= roomCount / 2;
@@ -581,6 +739,7 @@ const Monster = (props) => {
 					playAnimation('Idle');
 
 					setIsWaiting(false);
+					setShakeIntensity(0);
 				}, 5000);
 			}
 		}

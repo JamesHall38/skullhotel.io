@@ -84,6 +84,7 @@ function App() {
 	const setSeedData = useGame((state) => state.setSeedData);
 	const setIsLocked = useGame((state) => state.setIsLocked);
 	const openDeathScreen = useGame((state) => state.openDeathScreen);
+	const disableControls = useGame((state) => state.disableControls);
 	const setEnd = useGame((state) => state.setEnd);
 	const realPlayerPositionRoom = useGame(
 		(state) => state.realPlayerPositionRoom
@@ -106,6 +107,7 @@ function App() {
 		hunterPercentage,
 		sonarPercentage,
 		raidPercentage,
+		randomRoomPercentage,
 		setRoomCount,
 		setEmptyRoomPercentage,
 		setHideoutPercentage,
@@ -114,9 +116,9 @@ function App() {
 		setHunterPercentage,
 		setSonarPercentage,
 		setRaidPercentage,
+		setRandomRoomPercentage,
 	} = useGameplaySettings();
 
-	// Préchargement des sons au démarrage
 	useEffect(() => {
 		const audioContext = new (window.AudioContext ||
 			window.webkitAudioContext)();
@@ -170,30 +172,11 @@ function App() {
 	});
 
 	useEffect(() => {
-		// Regenerate seed data with new percentages
 		const newSeedData = selectedRoom
 			? {
 					[selectedRoom]: {
 						...levelData[selectedRoom],
 						type: selectedRoom,
-					},
-					empty_1: {
-						type: 'empty',
-						number: 1,
-						hideObjective: 'window',
-						hideSpot: 'roomCurtain',
-					},
-					empty_2: {
-						type: 'empty',
-						number: 2,
-						hideObjective: 'bedsheets',
-						hideSpot: 'desk',
-					},
-					empty_3: {
-						type: 'empty',
-						number: 3,
-						hideObjective: 'bottles',
-						hideSpot: 'bathroomCurtain',
 					},
 			  }
 			: generateSeedData(false, selectedRoom);
@@ -236,10 +219,21 @@ function App() {
 	}, [setIsLocked, deviceMode]);
 
 	useEffect(() => {
-		if (deviceMode === 'keyboard' && controlsRef.current && !openDeathScreen) {
+		if (
+			deviceMode === 'keyboard' &&
+			controlsRef.current &&
+			!openDeathScreen &&
+			!disableControls
+		) {
 			controlsRef.current.lock();
 		}
-	}, [deviceMode, openDeathScreen]);
+	}, [deviceMode, openDeathScreen, disableControls]);
+
+	useEffect(() => {
+		if (disableControls && controlsRef.current) {
+			controlsRef.current.unlock();
+		}
+	}, [disableControls]);
 
 	useEffect(() => {
 		camera.rotation.set(0, Math.PI, 0);
@@ -346,6 +340,13 @@ function App() {
 				step: 5,
 				onChange: (value) => setEmptyRoomPercentage(value),
 			},
+			'Random Room %': {
+				value: randomRoomPercentage,
+				min: 0,
+				max: 100,
+				step: 5,
+				onChange: (value) => setRandomRoomPercentage(value),
+			},
 			'Raid %': {
 				value: raidPercentage,
 				min: 0,
@@ -413,17 +414,20 @@ function App() {
 			<ListeningMode />
 			<KeyboardControls
 				map={[
-					{ name: 'forward', keys: ['ArrowUp', 'KeyW', 'gamepad1'] },
+					{ name: 'forward', keys: ['ArrowUp', 'KeyW', 'KeyZ', 'gamepad1'] },
 					{ name: 'backward', keys: ['ArrowDown', 'KeyS', 'gamepad2'] },
-					{ name: 'left', keys: ['ArrowLeft', 'KeyA', 'gamepad3'] },
+					{ name: 'left', keys: ['ArrowLeft', 'KeyA', 'KeyQ', 'gamepad3'] },
 					{ name: 'right', keys: ['ArrowRight', 'KeyD', 'gamepad4'] },
 					{ name: 'jump', keys: ['Space', 'gamepad0'] },
-					{ name: 'run', keys: ['ShiftLeft', 'gamepad10'] },
-					{ name: 'crouch', keys: ['ControlLeft', 'gamepad11'] },
+					{ name: 'run', keys: ['ShiftLeft', 'ShiftRight', 'gamepad10'] },
+					{
+						name: 'crouch',
+						keys: ['ControlLeft', 'ControlRight', 'MetaLeft', 'gamepad11'],
+					},
 					{ name: 'action', keys: ['KeyE', 'gamepad5'] },
 				]}
 			>
-				{deviceMode !== 'gamepad' && !isMobile && (
+				{deviceMode !== 'gamepad' && !isMobile && !disableControls && (
 					<PointerLockControls ref={controlsRef} />
 				)}
 
