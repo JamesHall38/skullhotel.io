@@ -168,14 +168,14 @@ export default function ReceptionDoors() {
 					isOpen={exitDoor}
 					setHandlePressed={setExitHandle}
 					setOpen={(value) => {
-						if (doneObjectives === 10) {
-							setExitDoor(value);
-						} else {
-							if (currentDialogueIndex !== 0) {
-								setCurrentDialogueIndex(0);
-								setTimeout(() => setCurrentDialogueIndex(null), 3000);
-							}
-						}
+						// if (doneObjectives === 10) {
+						setExitDoor(value);
+						// } else {
+						// 	if (currentDialogueIndex !== 0) {
+						// 		setCurrentDialogueIndex(0);
+						// 		setTimeout(() => setCurrentDialogueIndex(null), 3000);
+						// 	}
+						// }
 					}}
 				>
 					<Door isHandlePressed={exitHandle} />

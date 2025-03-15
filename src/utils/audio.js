@@ -192,6 +192,10 @@ export const SOUNDS = {
 		mp3: '/sounds/impact.mp3',
 		settings: 'damage',
 	},
+	punch: {
+		mp3: '/sounds/punch.mp3',
+		settings: 'damage',
+	},
 	// Sons spéciaux
 	jumpScare: {
 		mp3: '/sounds/jump_scare.mp3',
