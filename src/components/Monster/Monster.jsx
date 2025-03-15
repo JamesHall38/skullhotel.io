@@ -582,47 +582,47 @@ const Monster = (props) => {
 		});
 	}, [nodes, isLoading, visibleParts]);
 
-	useFrame(({ camera }) => {
-		if (
-			!headBoneRef.current ||
-			monsterState === 'run' ||
-			monsterState === 'chase' ||
-			monsterState === 'leaving' ||
-			monsterState === 'facingCamera'
-		)
-			return;
+	// useFrame(({ camera }) => {
+	// 	if (
+	// 		!headBoneRef.current ||
+	// 		monsterState === 'run' ||
+	// 		monsterState === 'chase' ||
+	// 		monsterState === 'leaving' ||
+	// 		monsterState === 'facingCamera'
+	// 	)
+	// 		return;
 
-		const headOffset =
-			Object.values(seedData)[playerPositionRoom]?.headOffset || 0;
-		const headPosition = new THREE.Vector3();
+	// 	const headOffset =
+	// 		Object.values(seedData)[playerPositionRoom]?.headOffset || 0;
+	// 	const headPosition = new THREE.Vector3();
 
-		headBoneRef.current.getWorldPosition(headPosition);
-		const targetPosition = new THREE.Vector3();
-		targetPosition.copy(camera.position);
-		const lookAtVector = new THREE.Vector3();
-		lookAtVector.subVectors(targetPosition, headPosition).normalize();
+	// 	headBoneRef.current.getWorldPosition(headPosition);
+	// 	const targetPosition = new THREE.Vector3();
+	// 	targetPosition.copy(camera.position);
+	// 	const lookAtVector = new THREE.Vector3();
+	// 	lookAtVector.subVectors(targetPosition, headPosition).normalize();
 
-		const isBottomRow =
-			playerPositionRoom >= Math.floor(Object.keys(seedData).length / 2);
+	// 	const isBottomRow =
+	// 		playerPositionRoom >= Math.floor(Object.keys(seedData).length / 2);
 
-		const targetAngle =
-			Math.atan2(lookAtVector.x, lookAtVector.z) -
-			headOffset +
-			(isBottomRow ? Math.PI : 0);
-		const currentAngle = headBoneRef.current.rotation.y;
+	// 	const targetAngle =
+	// 		Math.atan2(lookAtVector.x, lookAtVector.z) -
+	// 		headOffset +
+	// 		(isBottomRow ? Math.PI : 0);
+	// 	const currentAngle = headBoneRef.current.rotation.y;
 
-		const angleDiff = THREE.MathUtils.degToRad(
-			(((THREE.MathUtils.radToDeg(targetAngle - currentAngle) % 360) + 540) %
-				360) -
-				180
-		);
+	// 	const angleDiff = THREE.MathUtils.degToRad(
+	// 		(((THREE.MathUtils.radToDeg(targetAngle - currentAngle) % 360) + 540) %
+	// 			360) -
+	// 			180
+	// 	);
 
-		headBoneRef.current.rotation.y = THREE.MathUtils.lerp(
-			currentAngle,
-			currentAngle + angleDiff,
-			0.1
-		);
-	});
+	// 	headBoneRef.current.rotation.y = THREE.MathUtils.lerp(
+	// 		currentAngle,
+	// 		currentAngle + angleDiff,
+	// 		0.1
+	// 	);
+	// });
 
 	useEffect(() => {
 		if (

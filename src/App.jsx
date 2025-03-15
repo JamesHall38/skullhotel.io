@@ -1,4 +1,11 @@
-import { useEffect, Suspense, useMemo, useRef, useState } from 'react';
+import {
+	useEffect,
+	Suspense,
+	useMemo,
+	useRef,
+	useState,
+	useCallback,
+} from 'react';
 import { KeyboardControls, PointerLockControls } from '@react-three/drei';
 import { Canvas, useThree, useFrame } from '@react-three/fiber';
 import Interface from './components/Interface/Interface';
@@ -51,6 +58,7 @@ import { preloadSounds } from './utils/audio';
 import useGameplaySettings from './hooks/useGameplaySettings';
 import useSettings from './hooks/useSettings';
 import ShadowManager from './components/ShadowManager';
+import EndGameAnimation from './components/EndGameAnimation/EndGameAnimation';
 
 const generateLevelOptions = () => {
 	const options = {
@@ -436,6 +444,7 @@ function App() {
 				<Grid />
 				<Sound />
 				<Tutorial />
+				<EndGameAnimation />
 				{duplicateComponents(RoomDoor)}
 				<group position={position}>
 					<CorridorStart position={[1.07, 0, 0]} />

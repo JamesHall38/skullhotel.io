@@ -68,7 +68,6 @@ export default function Animations({ group, animations }) {
 
 	useEffect(() => {
 		Object.values(actions).forEach((action) => {
-			// Apply specific speed factor for Walk animation
 			if (
 				action._clip.name === 'Walk' ||
 				action._clip.name === 'CeilingCrawl'
@@ -122,6 +121,28 @@ export default function Animations({ group, animations }) {
 			attackAction.timeScale = 1;
 
 			previousAnimationRef.current = 'Attack';
+		} else if (animationName === 'Punch') {
+			Object.values(actions).forEach((action) => {
+				action.stop();
+				action.setEffectiveWeight(0);
+			});
+
+			const punchAction = actions[animationName];
+			if (punchAction) {
+				punchAction.stop();
+				punchAction.reset();
+
+				punchAction.time = 0;
+
+				punchAction.setLoop(THREE.LoopOnce);
+				punchAction.clampWhenFinished = true;
+
+				punchAction.setEffectiveWeight(1);
+				punchAction.timeScale = 1;
+				punchAction.play();
+			}
+
+			previousAnimationRef.current = 'Punch';
 		} else if (animationName === previousAnimationRef.current) {
 			Object.values(actions).forEach((action) => {
 				action.setEffectiveWeight(0);
