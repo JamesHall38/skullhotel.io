@@ -6,9 +6,14 @@ export const defaultCameraPoints = [
 	{
 		position: new THREE.Vector3(10.7, 1.5, -1),
 		rotation: new THREE.Euler(0, Math.PI, 0),
-		// duration: 0.3,
-		duration: 3,
+		duration: 0.3,
+		// duration: 3,
 	}, // start
+	{
+		position: new THREE.Vector3(10.7, 1.5, -1),
+		rotation: new THREE.Euler(0, Math.PI, 0),
+		duration: 3,
+	}, // start 2
 	// {
 	// 	position: new THREE.Vector3(11, 0.25, -1),
 	// 	rotation: new THREE.Euler(-Math.PI / 2, Math.PI, Math.PI / 2),
@@ -34,16 +39,21 @@ export const defaultCameraPoints = [
 	// 	rotation: new THREE.Euler(0, Math.PI, Math.PI / 2),
 	// 	duration: 0,
 	// }, // head pause
-	// {
-	// 	position: new THREE.Vector3(1.7, 2.2, 7.8),
-	// 	rotation: new THREE.Euler(0, Math.PI / 2, 0),
-	// 	duration: 3,
-	// }, // skull
-	// {
-	// 	position: new THREE.Vector3(6, 2.2, 7.8),
-	// 	rotation: new THREE.Euler(0, Math.PI / 2, 0),
-	// 	duration: 0,
-	// }, // end
+	{
+		position: new THREE.Vector3(1.7, 2.2, 7.8),
+		rotation: new THREE.Euler(0, Math.PI / 2, 0),
+		duration: 3,
+	}, // skull
+	{
+		position: new THREE.Vector3(6, 2.2, 7.8),
+		rotation: new THREE.Euler(0, Math.PI / 2, 0),
+		duration: 3,
+	}, // end
+	{
+		position: new THREE.Vector3(6, 2.2, 7.8),
+		rotation: new THREE.Euler(0, Math.PI / 2, 0),
+		duration: 0,
+	}, // end 2
 ];
 
 const useEndGameAnimation = create(
@@ -82,6 +92,17 @@ const useEndGameAnimation = create(
 
 		setCameraPoints: (points) => {
 			set({ cameraPoints: points });
+		},
+
+		getPointPosition: (pointIndex) => {
+			const state = get();
+			const points = state.cameraPoints;
+
+			if (pointIndex >= 0 && pointIndex < points.length) {
+				return points[pointIndex].position.clone();
+			}
+
+			return new THREE.Vector3(0, 0, 0);
 		},
 
 		startAnimation: (initialCameraPosition, initialCameraRotation) => {

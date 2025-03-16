@@ -1,24 +1,42 @@
-import { useEffect, useCallback, useRef } from 'react';
+import { useEffect, useCallback, useRef, useState } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
-import { useControls, button, folder } from 'leva';
 import useGame from '../../hooks/useGame';
 import useEndGameAnimation from '../../hooks/useEndGameAnimation';
 import useLight from '../../hooks/useLight';
 import useMonster from '../../hooks/useMonster';
 import useDoor from '../../hooks/useDoor';
+import useInterface from '../../hooks/useInterface';
 import { getAudioInstance } from '../../utils/audio';
 import * as THREE from 'three';
+
+const DEFAULT_BATHROOM_POSITION = new THREE.Vector3(-1, 2, -3.2);
 
 const EndGameAnimation = () => {
 	const { camera } = useThree();
 
 	const isLerpingToCamera = useRef(false);
 	const hasTriggeredAnimation = useRef(false);
+	const fadeInterval = useRef(null);
+	const endgameLightRef = useRef(null);
+
+	const [lightVisible, setLightVisible] = useState(false);
+	const [lightPosition, setLightPosition] = useState([0, 0, 0]);
 
 	const setIsLocked = useGame((state) => state.setIsLocked);
 	const setDisableControls = useGame((state) => state.setDisableControls);
+	const setShakeIntensity = useGame((state) => state.setShakeIntensity);
+	const setBathroomLight = useGame((state) => state.setBathroomLight);
+	const resetBathroomLightPosition = useGame(
+		(state) => state.resetBathroomLightPosition
+	);
+	const setBathroomLightEndgameMode = useGame(
+		(state) => state.setBathroomLightEndgameMode
+	);
+	const bathroomLightRef = useGame((state) => state.bathroomLightRef);
 
 	const setFlashlightEnabled = useLight((state) => state.setFlashlightEnabled);
+
+	const setFadeToBlack = useInterface((state) => state.setFadeToBlack);
 
 	const setMonsterPosition = useMonster((state) => state.setMonsterPosition);
 	const setMonsterRotation = useMonster((state) => state.setMonsterRotation);
@@ -28,54 +46,129 @@ const EndGameAnimation = () => {
 	const monsterRotation = useMonster((state) => state.monsterRotation);
 
 	const exitDoor = useDoor((state) => state.exit);
+	const openDoor = useDoor((state) => state.open);
+	const setTutorialDoor = useDoor((state) => state.setTutorial);
 
 	const {
 		isPlaying,
 		currentPosition,
 		currentRotation,
 		startAnimation,
-		stopAnimation,
 		updateAnimation,
 		setPointFunction,
+		getPointPosition,
 	} = useEndGameAnimation();
+
+	useEffect(() => {
+		if (isPlaying) {
+			setLightVisible(true);
+
+			if (bathroomLightRef) {
+				bathroomLightRef.visible = false;
+			}
+		} else {
+			setLightVisible(false);
+
+			if (bathroomLightRef) {
+				bathroomLightRef.visible = true;
+				bathroomLightRef.position.copy(DEFAULT_BATHROOM_POSITION);
+				bathroomLightRef.color.set('#fff5e6');
+				bathroomLightRef.intensity = 0.3;
+			}
+		}
+	}, [isPlaying, bathroomLightRef]);
 
 	const enableFlashlight = useCallback(() => {
 		setFlashlightEnabled(true);
 	}, [setFlashlightEnabled]);
 
 	const startLerpingToCamera = useCallback(() => {
-		console.log('Starting to lerp monster rotation toward camera');
 		isLerpingToCamera.current = true;
+		shouldFade.current = false;
 	}, []);
+
+	const startFadeToBlack = useCallback(() => {
+		if (fadeInterval.current) {
+			clearInterval(fadeInterval.current);
+			fadeInterval.current = null;
+		}
+
+		setFadeToBlack(1);
+	}, [setFadeToBlack]);
+
+	const startFadeOut = useCallback(() => {
+		isFadingOut.current = true;
+
+		if (endgameLightRef.current) {
+			const point2Position = getPointPosition(2);
+			setLightPosition([point2Position.x, point2Position.y, point2Position.z]);
+		}
+	}, [getPointPosition]);
+
+	const activateCameraShakeAndTutorial = useCallback(() => {
+		setShakeIntensity(10);
+		setFlashlightEnabled(false);
+		setBathroomLight(true);
+
+		if (endgameLightRef.current) {
+			const point0Position = getPointPosition(0);
+			setLightPosition([point0Position.x, point0Position.y, point0Position.z]);
+		}
+
+		setTutorialDoor(true);
+	}, [
+		setShakeIntensity,
+		setFlashlightEnabled,
+		setBathroomLight,
+		setTutorialDoor,
+		getPointPosition,
+	]);
+
+	const fadeSpeed = useRef(0.5);
+	const shouldFade = useRef(false);
+	const isFadingOut = useRef(false);
+	const punchSoundPlayed = useRef(false);
+	const punchSoundDelay = useRef(1.0);
+	const punchSoundTimer = useRef(0);
 
 	const hideMonster = useCallback(() => {
 		setMonsterPosition([0, 10, 0]);
 		setMonsterState('hidden');
 		playAnimation('Idle');
 		isLerpingToCamera.current = false;
-	}, [setMonsterPosition, setMonsterState, playAnimation]);
+		shouldFade.current = false;
+		isFadingOut.current = false;
+
+		if (fadeInterval.current) {
+			clearInterval(fadeInterval.current);
+			fadeInterval.current = null;
+		}
+		setFadeToBlack(0);
+		setShakeIntensity(0);
+
+		setLightVisible(false);
+	}, [
+		setMonsterPosition,
+		setMonsterState,
+		playAnimation,
+		setFadeToBlack,
+		setShakeIntensity,
+	]);
 
 	const triggerEndGameAnimation = useCallback(() => {
 		if (hasTriggeredAnimation.current) return;
 
 		hasTriggeredAnimation.current = true;
 
-		// setMonsterPosition([10.3, 0.1, 0.05]);
 		setMonsterPosition([10.7, -0.25, -0.4]);
-		// const euler = new THREE.Euler(0, 3, 0);
 		const euler = new THREE.Euler(0, 3.13, 0);
 		setMonsterRotation([euler.x, euler.y, euler.z]);
 		setMonsterState('');
 
 		playAnimation('Punch');
 
-		const punchSound = getAudioInstance('punch');
-		if (punchSound) {
-			punchSound.currentTime = 0;
-			setTimeout(() => {
-				punchSound.play();
-			}, 1000);
-		}
+		punchSoundPlayed.current = false;
+		punchSoundTimer.current = 0;
 
 		startAnimation(
 			camera.position.clone(),
@@ -102,13 +195,31 @@ const EndGameAnimation = () => {
 	}, [exitDoor, isPlaying, triggerEndGameAnimation]);
 
 	useEffect(() => {
-		setPointFunction(4, startLerpingToCamera);
+		setPointFunction(0, activateCameraShakeAndTutorial);
+
+		setPointFunction(1, () => {
+			startLerpingToCamera();
+			startFadeToBlack();
+		});
+
+		setPointFunction(2, startFadeOut);
+
+		setPointFunction(3, null);
+
 		setPointFunction(5, enableFlashlight);
 
 		return () => {
 			hideMonster();
 		};
-	}, [setPointFunction, enableFlashlight, hideMonster, startLerpingToCamera]);
+	}, [
+		setPointFunction,
+		enableFlashlight,
+		hideMonster,
+		startLerpingToCamera,
+		startFadeToBlack,
+		startFadeOut,
+		activateCameraShakeAndTutorial,
+	]);
 
 	useEffect(() => {
 		if (!isPlaying) {
@@ -117,21 +228,24 @@ const EndGameAnimation = () => {
 		}
 	}, [isPlaying, hideMonster]);
 
-	useControls('End Animation', {
-		Controls: folder({
-			startAnimation: button(() => {
-				triggerEndGameAnimation();
-			}),
+	useEffect(() => {
+		return () => {
+			setBathroomLightEndgameMode(false);
+			resetBathroomLightPosition();
 
-			stopAnimation: button(() => {
-				stopAnimation();
-				hideMonster();
-				setIsLocked(false);
-				setDisableControls(false);
-				hasTriggeredAnimation.current = false;
-			}),
-		}),
-	});
+			if (fadeInterval.current) {
+				clearInterval(fadeInterval.current);
+			}
+
+			if (bathroomLightRef) {
+				bathroomLightRef.visible = true;
+			}
+		};
+	}, [
+		resetBathroomLightPosition,
+		setBathroomLightEndgameMode,
+		bathroomLightRef,
+	]);
 
 	useFrame((_, delta) => {
 		if (isPlaying) {
@@ -143,6 +257,28 @@ const EndGameAnimation = () => {
 			camera.setRotationFromQuaternion(quaternion);
 
 			camera.updateMatrixWorld(true);
+
+			if (!punchSoundPlayed.current) {
+				punchSoundTimer.current += delta;
+				if (punchSoundTimer.current >= punchSoundDelay.current) {
+					const punchSound = getAudioInstance('punch');
+					if (punchSound) {
+						punchSound.currentTime = 0;
+						punchSound.play();
+					}
+					punchSoundPlayed.current = true;
+				}
+			}
+
+			if (isFadingOut.current) {
+				const currentOpacity = useInterface.getState().fadeToBlack;
+				let newOpacity = currentOpacity - delta * fadeSpeed.current;
+				if (newOpacity <= 0) {
+					newOpacity = 0;
+					isFadingOut.current = false;
+				}
+				setFadeToBlack(newOpacity);
+			}
 
 			if (isLerpingToCamera.current) {
 				const monsterPos = new THREE.Vector3(
@@ -187,12 +323,31 @@ const EndGameAnimation = () => {
 
 	useEffect(() => {
 		if (!isPlaying) {
+			shouldFade.current = false;
+			isFadingOut.current = false;
+		}
+	}, [isPlaying]);
+
+	useEffect(() => {
+		if (!isPlaying) {
 			setIsLocked(false);
 			setDisableControls(false);
 		}
 	}, [isPlaying, setIsLocked, setDisableControls]);
 
-	return null;
+	return (
+		<>
+			<pointLight
+				ref={endgameLightRef}
+				color="#fff5e6"
+				intensity={1.8}
+				distance={10}
+				position={lightPosition}
+				visible={lightVisible}
+				castShadow={false}
+			/>
+		</>
+	);
 };
 
 export default EndGameAnimation;
