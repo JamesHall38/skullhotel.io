@@ -7,6 +7,10 @@ const useInterfaceStore = create(
 		cursor: null,
 		setCursor: (cursor) => set(() => ({ cursor })),
 
+		// Fade to black effect
+		fadeToBlack: 0, // 0 = no fade, 1 = fully black
+		setFadeToBlack: (value) => set(() => ({ fadeToBlack: value })),
+
 		// Objectives
 		tutorialObjectives:
 			window.location.hash === '#debug'
@@ -48,6 +52,7 @@ const useInterfaceStore = create(
 					false,
 				]),
 				cursor: null,
+				fadeToBlack: 0,
 			}));
 		},
 	}))

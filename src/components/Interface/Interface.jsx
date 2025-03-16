@@ -296,6 +296,8 @@ export default function Interface() {
 
 	const [lastDeathMessage, setLastDeathMessage] = useState(null);
 
+	const fadeToBlack = useInterface((state) => state.fadeToBlack);
+
 	useEffect(() => {
 		if (playerPositionRoom !== null && playerPositionRoom >= 0) {
 			const currentRoom = Object.values(seedData)[playerPositionRoom];
@@ -447,6 +449,24 @@ export default function Interface() {
 
 	return (
 		<div className={`interface ${loading ? 'animated' : ''}`}>
+			{/* Fade to black effect */}
+			{fadeToBlack > 0 && (
+				<div
+					className="fade-to-black"
+					style={{
+						opacity: fadeToBlack,
+						position: 'fixed',
+						top: 0,
+						left: 0,
+						width: '100%',
+						height: '100%',
+						backgroundColor: 'black',
+						zIndex: 1000,
+						pointerEvents: 'none',
+					}}
+				/>
+			)}
+
 			<Settings />
 			{loading ? (
 				<div
