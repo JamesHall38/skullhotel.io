@@ -14,15 +14,15 @@
 		],
 		"headers": [
 			{
-				"source": "**/*.mp3",
+				"source": "/sounds/**/*.mp3",
 				"headers": [
 					{
 						"key": "Accept-Ranges",
 						"value": "bytes"
 					},
 					{
-						"key": "Content-Type",
-						"value": "audio/mpeg"
+						"key": "Access-Control-Allow-Origin",
+						"value": "*"
 					}
 				]
 			}
