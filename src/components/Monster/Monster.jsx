@@ -84,6 +84,7 @@ const Monster = (props) => {
 	const setMonsterState = useMonster((state) => state.setMonsterState);
 	const monsterPosition = useMonster((state) => state.monsterPosition);
 	const setMonsterPosition = useMonster((state) => state.setMonsterPosition);
+	const setMonsterRotation = useMonster((state) => state.setMonsterRotation);
 	const monsterRotation = useMonster((state) => state.monsterRotation);
 	const playAnimation = useMonster((state) => state.playAnimation);
 	const animationName = useMonster((state) => state.animationName);
@@ -91,11 +92,12 @@ const Monster = (props) => {
 	const setAnimationMixSpeed = useMonster(
 		(state) => state.setAnimationMixSpeed
 	);
+
 	const setJumpScare = useGame((state) => state.setJumpScare);
 	const jumpScare = useGame((state) => state.jumpScare);
 	const deaths = useGame((state) => state.deaths);
 	const setDisableControls = useGame((state) => state.setDisableControls);
-
+	const isEndAnimationPlaying = useGame((state) => state.isEndAnimationPlaying);
 	const roomDoors = useDoor((state) => state.roomDoor);
 	const nightstandDoor = useDoor((state) => state.nightStand);
 	const deskDoor = useDoor((state) => state.desk);
@@ -168,12 +170,11 @@ const Monster = (props) => {
 			headBoneRef.current.rotation.set(0, 0, 0);
 			group.current.rotation.set(0, Math.PI, 0);
 			group.current.position.set(0, 10, 0);
-			const monster = useMonster.getState();
-			monster.setMonsterState('idle');
-			monster.setMonsterPosition([0, 10, 0]);
-			monster.setMonsterRotation([0, Math.PI, 0]);
+			setMonsterState('hidden');
+			setMonsterPosition([0, 10, 0]);
+			setMonsterRotation([0, Math.PI, 0]);
 		}
-	}, [deaths]);
+	}, [deaths, setMonsterPosition, setMonsterRotation, setMonsterState]);
 
 	useEffect(() => {
 		setDirectPathFailures(0);
@@ -588,7 +589,9 @@ const Monster = (props) => {
 			monsterState === 'run' ||
 			monsterState === 'chase' ||
 			monsterState === 'leaving' ||
-			monsterState === 'facingCamera'
+			monsterState === 'facingCamera' ||
+			monsterState === 'endAnimation' ||
+			isEndAnimationPlaying
 		)
 			return;
 
@@ -623,6 +626,15 @@ const Monster = (props) => {
 			0.1
 		);
 	});
+
+	useEffect(() => {
+		if (
+			(isEndAnimationPlaying || monsterState === 'endAnimation') &&
+			headBoneRef.current
+		) {
+			headBoneRef.current.rotation.set(0, 0, 0);
+		}
+	}, [isEndAnimationPlaying, monsterState]);
 
 	useEffect(() => {
 		if (
@@ -736,6 +748,8 @@ const Monster = (props) => {
 					]);
 
 					setMonsterState('hiding');
+					setAnimationMixSpeed(5);
+					setAnimationSpeed(1);
 					playAnimation('Idle');
 
 					setIsWaiting(false);
@@ -749,9 +763,24 @@ const Monster = (props) => {
 		return () => {
 			if (timeoutRef.current) {
 				clearTimeout(timeoutRef.current);
+				timeoutRef.current = null;
 			}
 		};
 	}, []);
+
+	useEffect(() => {
+		if (monsterState !== 'leaving' && timeoutRef.current) {
+			clearTimeout(timeoutRef.current);
+			timeoutRef.current = null;
+			setIsWaiting(false);
+		}
+	}, [monsterState]);
+
+	useEffect(() => {
+		if (animationName === 'Punch' && headBoneRef.current) {
+			headBoneRef.current.rotation.set(0, 0, 0);
+		}
+	}, [animationName]);
 
 	return (
 		<group>

@@ -10,6 +10,7 @@ const Sound = () => {
 	const end = useGame((state) => state.end);
 	const openDeathScreen = useGame((state) => state.openDeathScreen);
 	const isListening = useGame((state) => state.isListening);
+	const endAnimationPlaying = useGame((state) => state.endAnimationPlaying);
 	// const roomNumber = useGame((state) => state.roomNumber);
 	const roomCount = useGameplaySettings((state) => state.roomCount);
 
@@ -25,6 +26,19 @@ const Sound = () => {
 		ambiant2: 0.4,
 		tense: 0.4,
 	});
+
+	useEffect(() => {
+		if (!soundsReady) return;
+
+		if (endAnimationPlaying) {
+			[ambiant1Ref, boomRef, ambiant2Ref, tenseRef].forEach((ref) => {
+				if (ref.current) {
+					ref.current.pause();
+					ref.current.currentTime = 0;
+				}
+			});
+		}
+	}, [endAnimationPlaying, soundsReady]);
 
 	const doneObjectives = useMemo(() => {
 		return objectives.filter((subArray) =>

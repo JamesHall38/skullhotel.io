@@ -1,21 +1,33 @@
 import { useEffect, useRef, useState } from 'react';
-import { useGLTF, useKTX2 } from '@react-three/drei';
+import { useGLTF, useKTX2, Html } from '@react-three/drei';
 import * as THREE from 'three';
 import useGame from '../../hooks/useGame';
 import Metal from './Metal';
 import { useControls } from 'leva';
+import { useFrame } from '@react-three/fiber';
 import useLight from '../../hooks/useLight';
 import useProgressiveLoad from '../../hooks/useProgressiveLoad';
-import { useFrame } from '@react-three/fiber';
 import WoodLightMaterial from '../materials/WoodLightMaterial';
 import WallsLightMaterial from '../materials/WallsLightMaterial';
 import CarpetLightMaterial from '../materials/CarpetLightMaterial';
+import useInterface from '../../hooks/useInterface';
+import { FaArrowDown } from 'react-icons/fa';
+import './Reception.css';
 
 export default function Reception(props) {
 	const { scene, nodes } = useGLTF('/models/reception/reception.glb');
 	const performanceMode = useGame((state) => state.performanceMode);
 	const materialRef = useRef();
+	const isAnyPopupOpen = useInterface((state) => state.isAnyPopupOpen);
 	const [isVisible, setIsVisible] = useState(true);
+	const [showGuestBook, setShowGuestBook] = useState(false);
+	const [showHowItsMade, setShowHowItsMade] = useState(false);
+
+	const guestBookBoxRef = useRef();
+	const howItsMadeBoxRef = useRef();
+
+	const cursor = useInterface((state) => state.cursor);
+	const setCursor = useInterface((state) => state.setCursor);
 
 	const receptionLight1 = useLight((state) => state.receptionLight1);
 	const receptionLight2 = useLight((state) => state.receptionLight2);
@@ -53,6 +65,44 @@ export default function Reception(props) {
 			(camera.position.x > 1 && camera.position.z > -1) ||
 			camera.position.x > 7;
 		setIsVisible(isInTutorial ? true : !isInRoom);
+
+		if (camera.position.z > 2.3 && camera.position.x > 8 && !isAnyPopupOpen) {
+			const raycaster = new THREE.Raycaster();
+			const cameraDirection = new THREE.Vector3();
+			camera.getWorldDirection(cameraDirection);
+			raycaster.set(camera.position, cameraDirection);
+
+			const guestBookIntersects = guestBookBoxRef.current
+				? raycaster.intersectObject(guestBookBoxRef.current)
+				: [];
+			const howItsMadeIntersects = howItsMadeBoxRef.current
+				? raycaster.intersectObject(howItsMadeBoxRef.current)
+				: [];
+
+			if (guestBookIntersects.length > 0) {
+				setShowGuestBook(true);
+				if (cursor !== 'help-guestbook') {
+					setCursor('help-guestbook');
+				}
+			} else if (howItsMadeIntersects.length > 0) {
+				setShowHowItsMade(true);
+				if (cursor !== 'help-howItsMade') {
+					setCursor('help-howItsMade');
+				}
+			} else {
+				if (cursor === 'help-guestbook' || cursor === 'help-howItsMade') {
+					setCursor(null);
+				}
+				setShowGuestBook(false);
+				setShowHowItsMade(false);
+			}
+		} else {
+			if (cursor === 'help-guestbook' || cursor === 'help-howItsMade') {
+				setCursor(null);
+			}
+			setShowGuestBook(false);
+			setShowHowItsMade(false);
+		}
 	});
 
 	useEffect(() => {
@@ -85,7 +135,6 @@ export default function Reception(props) {
 	useEffect(() => {
 		scene.traverse((child) => {
 			if (child.isMesh) {
-				// Utiliser les UV1 comme UV principal
 				child.geometry.setAttribute('uv', child.geometry.attributes['uv1']);
 				child.geometry.setAttribute('uv2', child.geometry.attributes['uv2']);
 
@@ -170,7 +219,6 @@ export default function Reception(props) {
 								`
 						);
 
-						// Store shader reference for updates
 						material.castShadow = true;
 						material.receiveShadow = true;
 						material.userData.shader = shader;
@@ -187,7 +235,6 @@ export default function Reception(props) {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [scene]);
 
-	// Add new effect to update uniforms
 	useEffect(() => {
 		if (materialRef.current?.userData.shader) {
 			const shader = materialRef.current.userData.shader;
@@ -314,6 +361,39 @@ export default function Reception(props) {
 				blueLightIntensity={receptionLight3.intensity}
 				uvScale={10}
 			/>
+
+			{/* Detection boxes */}
+			<mesh ref={guestBookBoxRef} position={[-2, 1.25, 0.25]} scale={0.5}>
+				<boxGeometry args={[1, 3, 1]} />
+				<meshBasicMaterial color="red" visible={false} />
+			</mesh>
+
+			<mesh ref={howItsMadeBoxRef} position={[-2, 1.25, 1.95]} scale={0.5}>
+				<boxGeometry args={[1, 3, 1]} />
+				<meshBasicMaterial color="blue" visible={false} />
+			</mesh>
+
+			{showGuestBook && (
+				<Html position={[-1.9, 1.5, 0.15]} center distanceFactor={10} sprite>
+					<div className="info-panel">
+						<div className="panel-title">Guest Book</div>
+						<div className="panel-arrow">
+							<FaArrowDown />
+						</div>
+					</div>
+				</Html>
+			)}
+
+			{showHowItsMade && (
+				<Html position={[-1.9, 1.5, 1.95]} center distanceFactor={10} sprite>
+					<div className="info-panel">
+						<div className="panel-title">Infos</div>
+						<div className="panel-arrow">
+							<FaArrowDown />
+						</div>
+					</div>
+				</Html>
+			)}
 		</group>
 	);
 }

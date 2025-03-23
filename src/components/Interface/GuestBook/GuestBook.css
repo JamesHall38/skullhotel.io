@@ -1,0 +1,209 @@
+.guestbook-content {
+	max-width: 800px;
+	padding: 20px;
+	color: #f8f8f8;
+	font-family: 'Inter', sans-serif;
+	background-color: rgba(20, 20, 25, 0.9);
+	border-radius: 10px;
+	box-shadow: 0 4px 30px rgba(0, 0, 0, 0.4);
+	backdrop-filter: blur(5px);
+}
+
+.guestbook-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 20px;
+	padding-bottom: 15px;
+	border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.guestbook-header h2 {
+	margin: 0;
+	font-size: 1.8rem;
+	font-weight: 700;
+	background: linear-gradient(90deg, #f8f8f8, #a8a8a8);
+	-webkit-background-clip: text;
+	background-clip: text;
+	-webkit-text-fill-color: transparent;
+}
+
+.guestbook-controls {
+	display: flex;
+	gap: 10px;
+}
+
+.close-button,
+.guestbook-refresh,
+.guestbook-retry,
+.pagination-button,
+.go-button {
+	background: rgba(255, 255, 255, 0.1);
+	color: #f8f8f8;
+	border: none;
+	border-radius: 4px;
+	padding: 8px 16px;
+	cursor: pointer;
+	font-size: 0.9rem;
+	transition: all 0.2s ease;
+
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+	svg {
+		font-size: 1.25rem;
+	}
+}
+
+.close-button:hover,
+.guestbook-refresh:hover,
+.guestbook-retry:hover,
+.pagination-button:hover:not(:disabled),
+.go-button:hover:not(:disabled) {
+	background: rgba(255, 255, 255, 0.2);
+}
+
+.pagination-button:disabled,
+.go-button:disabled {
+	opacity: 0.5;
+	cursor: not-allowed;
+}
+
+.guestbook-error {
+	display: flex;
+	align-items: center;
+	padding: 15px;
+	margin-bottom: 20px;
+	background: rgba(255, 70, 70, 0.15);
+	border-radius: 8px;
+	border-left: 3px solid rgba(255, 70, 70, 0.5);
+}
+
+.error-icon {
+	font-size: 1.5rem;
+	margin-right: 15px;
+}
+
+.error-content {
+	flex: 1;
+}
+
+.error-content p {
+	margin: 0 0 10px 0;
+}
+
+.guestbook-loading {
+	display: flex;
+	justify-content: center;
+	padding: 20px;
+	color: rgba(255, 255, 255, 0.7);
+	font-style: italic;
+}
+
+.guestbook-empty {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	padding: 30px;
+	text-align: center;
+	background: rgba(255, 255, 255, 0.05);
+	border-radius: 8px;
+}
+
+.empty-icon {
+	font-size: 3rem;
+	margin-bottom: 15px;
+}
+
+.guestbook-table {
+	width: 100%;
+	border-collapse: collapse;
+	margin-bottom: 20px;
+	background: rgba(255, 255, 255, 0.05);
+	border-radius: 8px;
+	overflow: hidden;
+}
+
+.guestbook-table th {
+	padding: 12px 15px;
+	text-align: left;
+	border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+	font-weight: 600;
+	color: rgba(255, 255, 255, 0.9);
+	background: rgba(255, 255, 255, 0.05);
+}
+
+.guestbook-table td {
+	padding: 10px 15px;
+	border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.guestbook-table tr:hover {
+	background: rgba(255, 255, 255, 0.07);
+}
+
+.guestbook-table tr:last-child td {
+	border-bottom: none;
+}
+
+.guestbook-rank {
+	width: 50px;
+	text-align: center;
+	font-weight: 600;
+}
+
+.guestbook-pagination {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	gap: 10px;
+	margin-top: 20px;
+}
+
+.page-indicator {
+	display: flex;
+	align-items: center;
+}
+
+.page-form {
+	display: flex;
+	gap: 5px;
+}
+
+.page-input {
+	width: 100px;
+	padding: 8px;
+	background: rgba(255, 255, 255, 0.1);
+	border: 1px solid rgba(255, 255, 255, 0.2);
+	border-radius: 4px;
+	color: #f8f8f8;
+	font-size: 0.9rem;
+	text-align: center;
+}
+
+.page-input::placeholder {
+	color: rgba(255, 255, 255, 0.6);
+}
+
+.page-input:focus {
+	outline: none;
+	border-color: rgba(255, 255, 255, 0.4);
+}
+
+@media (max-width: 600px) {
+	.guestbook-header {
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 15px;
+	}
+
+	.guestbook-pagination {
+		flex-wrap: wrap;
+	}
+
+	.pagination-button {
+		padding: 8px 12px;
+		font-size: 0.8rem;
+	}
+}

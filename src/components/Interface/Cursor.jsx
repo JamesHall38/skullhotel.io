@@ -9,8 +9,9 @@ import { FaHandPaper } from 'react-icons/fa';
 import { BiSolidDoorOpen } from 'react-icons/bi';
 import { HiLightBulb } from 'react-icons/hi';
 import { FaPowerOff } from 'react-icons/fa';
-// import { MdHearing } from 'react-icons/md';
+import { FaQuestionCircle } from 'react-icons/fa';
 import useInterface from '../../hooks/useInterface';
+import useGame from '../../hooks/useGame';
 import './Interface.css';
 
 const cursorIcons = {
@@ -49,10 +50,16 @@ const cursorIcons = {
 			</svg>
 		</div>
 	),
+	help: (
+		<div className="cursor-icon cursor-icon-help">
+			<FaQuestionCircle />
+		</div>
+	),
 };
 
 export default function Cursor() {
 	const cursor = useInterface((state) => state.cursor);
+	const isEndAnimationPlaying = useGame((state) => state.isEndAnimationPlaying);
 	const [progress, setProgress] = useState(0);
 	const [isHolding, setIsHolding] = useState(false);
 	const hasEmittedEvent = useRef(false);
@@ -95,7 +102,7 @@ export default function Cursor() {
 		const handleStartProgress = () => {
 			if (cursorFirstPart === 'clean') {
 				startHolding();
-				// Démarrer l'animation qui dure environ 3 secondes
+
 				setTimeout(() => {
 					const event = new CustomEvent('progressComplete');
 					document.dispatchEvent(event);
@@ -147,6 +154,10 @@ export default function Cursor() {
 	const radius = 25;
 	const circumference = 2 * Math.PI * radius;
 	const strokeDashoffset = circumference - (progress / 100) * circumference;
+
+	if (isEndAnimationPlaying) {
+		return null;
+	}
 
 	return (
 		<div className={'cursor-container'}>

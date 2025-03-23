@@ -59,16 +59,45 @@ export default function Animations({ group, animations }) {
 	const animationMixSpeed = useMonster((state) => state.animationMixSpeed);
 	const animationName = useMonster((state) => state.animationName);
 	const animationSpeed = useMonster((state) => state.animationSpeed);
+	const playAnimation = useMonster((state) => state.playAnimation);
 
-	// const setIsRedLight = useLight((state) => state.setIsRedLight);
+	const isTposeRef = useRef(false);
+	const lastAnimationTimeRef = useRef(0);
+
+	//const setIsRedLight = useLight((state) => state.setIsRedLight);
 
 	useEffect(() => {
-		resetAnimations(actions);
+		if (actions) {
+			resetAnimations(actions);
+		}
 	}, [actions]);
 
 	useEffect(() => {
+		if (!actions) return;
+
+		if (monsterState === 'hiding') {
+			resetAnimations(actions);
+			creepingStateRef.current = 'playing';
+
+			if (actions['Idle'] && previousAnimationRef.current !== 'Idle') {
+				Object.values(actions).forEach((action) => {
+					action.stop();
+					action.setEffectiveWeight(0);
+				});
+				actions['Idle'].play();
+				actions['Idle'].reset();
+				actions['Idle'].setEffectiveWeight(1);
+				previousAnimationRef.current = 'Idle';
+
+				playAnimation('Idle');
+			}
+		}
+	}, [actions, monsterState, playAnimation]);
+
+	useEffect(() => {
+		if (!actions) return;
+
 		Object.values(actions).forEach((action) => {
-			// Apply specific speed factor for Walk animation
 			if (
 				action._clip.name === 'Walk' ||
 				action._clip.name === 'CeilingCrawl'
@@ -81,10 +110,14 @@ export default function Animations({ group, animations }) {
 	}, [actions, animationSpeed]);
 
 	useEffect(() => {
+		if (!actions || !actions[animationName]) return;
+
 		if (animationName === 'Creeping') {
 			Object.values(actions).forEach((action) => {
 				action.stop();
+				action.setEffectiveWeight(0);
 			});
+
 			const creepingAction = actions[animationName];
 			creepingAction.play();
 			creepingAction.setEffectiveWeight(1);
@@ -93,23 +126,23 @@ export default function Animations({ group, animations }) {
 			creepingStateRef.current = 'playing';
 			previousAnimationRef.current = animationName;
 			return;
-		} else if (
-			previousAnimationRef.current === 'Creeping' &&
-			animationName === 'Run'
-		) {
-			Object.values(actions).forEach((action) => {
-				action.stop();
-			});
+		}
 
-			const runAction = actions['Run'];
-			runAction.play();
-			runAction.setEffectiveWeight(1);
-			runAction.reset();
-			runAction.timeScale = 1;
-
-			previousAnimationRef.current = 'Run';
+		if (previousAnimationRef.current === 'Creeping') {
+			resetAnimations(actions);
 			creepingStateRef.current = 'done';
-		} else if (animationName === 'Attack') {
+
+			const newAction = actions[animationName];
+			if (newAction) {
+				newAction.play();
+				newAction.setEffectiveWeight(1);
+				newAction.reset();
+				previousAnimationRef.current = animationName;
+			}
+			return;
+		}
+
+		if (animationName === 'Attack') {
 			Object.values(actions).forEach((action) => {
 				action.stop();
 				action.setEffectiveWeight(0);
@@ -122,7 +155,43 @@ export default function Animations({ group, animations }) {
 			attackAction.timeScale = 1;
 
 			previousAnimationRef.current = 'Attack';
-		} else if (animationName === previousAnimationRef.current) {
+			return;
+		}
+
+		if (animationName === 'Punch') {
+			Object.values(actions).forEach((action) => {
+				action.stop();
+				action.setEffectiveWeight(0);
+			});
+
+			const punchAction = actions[animationName];
+			punchAction.play();
+			punchAction.setEffectiveWeight(1);
+			punchAction.reset();
+			punchAction.timeScale = 0.25;
+			creepingStateRef.current = 'playing';
+			previousAnimationRef.current = animationName;
+
+			lastAnimationTimeRef.current = Date.now() / 1000;
+			return;
+		}
+
+		if (previousAnimationRef.current === 'Punch') {
+			resetAnimations(actions);
+			creepingStateRef.current = 'done';
+			isTposeRef.current = false;
+
+			const newAction = actions[animationName];
+			if (newAction) {
+				newAction.play();
+				newAction.setEffectiveWeight(1);
+				newAction.reset();
+			}
+			previousAnimationRef.current = animationName;
+			return;
+		}
+
+		if (animationName === previousAnimationRef.current) {
 			Object.values(actions).forEach((action) => {
 				action.setEffectiveWeight(0);
 				if (action._clip.name === animationName) {
@@ -130,6 +199,7 @@ export default function Animations({ group, animations }) {
 				}
 			});
 		}
+
 		if (animationName === 'Idle') {
 			actions[animationName].reset();
 		}
@@ -137,6 +207,24 @@ export default function Animations({ group, animations }) {
 
 	const animationMixTransition = useCallback(
 		(delta) => {
+			if (!actions) return;
+
+			if (animationName === 'Punch') {
+				const fadeInAction = actions[animationName];
+				Object.values(actions).forEach((action) => {
+					if (action !== fadeInAction) {
+						action.stop();
+						action.setEffectiveWeight(0);
+					}
+				});
+
+				fadeInAction.reset();
+				fadeInAction.setEffectiveWeight(1);
+				fadeInAction.play();
+				previousAnimationRef.current = animationName;
+				return;
+			}
+
 			if (
 				((animationName === 'Creeping' ||
 					previousAnimationRef.current === 'Creeping') &&
@@ -180,7 +268,6 @@ export default function Animations({ group, animations }) {
 						action.getEffectiveWeight() > 0
 					) {
 						action.setEffectiveWeight(0);
-						actions[previousAnimationRef.current].setEffectiveWeight(1);
 					}
 				});
 				if (fadeInWeight === 1 && fadeOutWeight === 0) {
@@ -188,13 +275,7 @@ export default function Animations({ group, animations }) {
 				}
 			}
 		},
-		[
-			actions,
-			animationName,
-			previousAnimationRef,
-			animationMixSpeed,
-			monsterState,
-		]
+		[actions, animationName, animationMixSpeed, monsterState]
 	);
 
 	useEffect(() => {
@@ -237,7 +318,7 @@ export default function Animations({ group, animations }) {
 	}, [animationName, animations]);
 
 	useEffect(() => {
-		if (animationName === 'Attack' && actions['Attack']) {
+		if (animationName === 'Attack' && actions && actions['Attack']) {
 			const attackAction = actions['Attack'];
 
 			const onAttackFinished = () => {
@@ -247,7 +328,6 @@ export default function Animations({ group, animations }) {
 			};
 
 			attackAction.getMixer().addEventListener('finished', onAttackFinished);
-
 			attackAction.setLoop(THREE.LoopOnce);
 			attackAction.clampWhenFinished = true;
 
@@ -259,19 +339,12 @@ export default function Animations({ group, animations }) {
 		}
 	}, [animationName, actions, setOpenDeathScreen]);
 
-	// useEffect(() => {
-	// 	if (animationName === 'Creeping' && monsterState === 'leaving') {
-	// 		setIsRedLight(true);
-	// 	} else {
-	// 		setIsRedLight(false);
-	// 	}
-	// }, [animationName, monsterState, setIsRedLight]);
-
 	useFrame((_, delta) => {
-		if (!group.current) return;
+		if (!group.current || !actions) return;
+
 		animationMixTransition(delta);
 
-		if (animationName !== 'Attack' && animationName === 'Creeping') {
+		if (animationName === 'Creeping' && animationName !== 'Attack') {
 			const creepingAction = actions['Creeping'];
 			if (!creepingAction) return;
 
@@ -303,6 +376,21 @@ export default function Animations({ group, animations }) {
 			}
 		}
 	});
+
+	useEffect(() => {
+		if (monsterState === 'hiding') {
+			resetAnimations(actions);
+
+			creepingStateRef.current = 'playing';
+			previousAnimationRef.current = 'Idle';
+
+			if (actions['Idle']) {
+				actions['Idle'].reset();
+				actions['Idle'].setEffectiveWeight(1);
+				actions['Idle'].play();
+			}
+		}
+	}, [actions, monsterState]);
 
 	return null;
 }
