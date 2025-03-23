@@ -56,7 +56,6 @@ export const SOUNDS = {
 		mp3: '/sounds/hide.mp3',
 		settings: 'ambient',
 	},
-	// Sons de pas
 	step1: {
 		mp3: '/sounds/step1.mp3',
 		settings: 'steps',
@@ -93,7 +92,6 @@ export const SOUNDS = {
 		mp3: '/sounds/step9.mp3',
 		settings: 'steps',
 	},
-	// Sons du monstre
 	monsterStep1: {
 		mp3: '/sounds/monster_step1.mp3',
 		settings: 'monster',
@@ -110,7 +108,6 @@ export const SOUNDS = {
 		mp3: '/sounds/monster_step4.mp3',
 		settings: 'monster',
 	},
-	// Sons d'interaction
 	doorOpen: {
 		mp3: '/sounds/open.mp3',
 		settings: 'interaction',
@@ -171,7 +168,6 @@ export const SOUNDS = {
 		mp3: '/sounds/flashlight.mp3',
 		settings: 'interaction',
 	},
-	// Sons de dégâts
 	hurt1: {
 		mp3: '/sounds/hurt1.mp3',
 		settings: 'damage',
@@ -196,7 +192,6 @@ export const SOUNDS = {
 		mp3: '/sounds/punch.mp3',
 		settings: 'damage',
 	},
-	// Sons spéciaux
 	jumpScare: {
 		mp3: '/sounds/jump_scare.mp3',
 		settings: 'special',
@@ -218,38 +213,63 @@ export const SOUNDS = {
 const audioInstances = {};
 let soundsLoaded = false;
 
-export function preloadSounds() {
+async function loadAudioFile(url) {
+	try {
+		const response = await fetch(url);
+		const blob = await response.blob();
+		return URL.createObjectURL(blob);
+	} catch (error) {
+		console.error(`Error loading audio file ${url}:`, error);
+		return url; // Fallback to direct URL if fetch fails
+	}
+}
+
+export async function preloadSounds() {
 	if (soundsLoaded) return Promise.resolve();
 
-	Object.entries(SOUNDS).forEach(([key, sound]) => {
+	const loadPromises = Object.entries(SOUNDS).map(async ([key, sound]) => {
 		if (sound.mp3) {
-			const audio = new Audio(sound.mp3);
-			audio.preload = 'auto';
-			audioInstances[key] = audio;
+			try {
+				const blobUrl = await loadAudioFile(sound.mp3);
+				const audio = new Audio();
+				audio.src = blobUrl;
+				audio.preload = 'auto';
+
+				// Set volume based on settings
+				const settings =
+					SOUND_SETTINGS[sound.settings] || SOUND_SETTINGS.default;
+				audio.volume = settings.volume || 0.5;
+
+				audioInstances[key] = audio;
+
+				return new Promise((resolve) => {
+					audio.addEventListener('canplaythrough', resolve, { once: true });
+					audio.load();
+				});
+			} catch (error) {
+				console.error(`Failed to load sound ${key}:`, error);
+				return Promise.resolve(); // Continue with other sounds
+			}
 		}
+		return Promise.resolve();
 	});
 
-	audioInstances.keyPool = Array(5)
-		.fill(null)
-		.map(() => {
-			const audio = new Audio('/sounds/key.mp3');
-			audio.volume = 0.25;
-			return audio;
-		});
+	try {
+		const keyBlobUrl = await loadAudioFile('/sounds/key.mp3');
+		audioInstances.keyPool = Array(5)
+			.fill(null)
+			.map(() => {
+				const audio = new Audio(keyBlobUrl);
+				audio.volume = 0.25;
+				audio.preload = 'auto';
+				return audio;
+			});
+	} catch (error) {
+		console.error('Failed to load key sound:', error);
+	}
 
-	return Promise.all(
-		Object.values(audioInstances)
-			.flat()
-			.map(
-				(audio) =>
-					new Promise((resolve) => {
-						audio.addEventListener('loadedmetadata', resolve, { once: true });
-						audio.load();
-					})
-			)
-	).then(() => {
-		soundsLoaded = true;
-	});
+	await Promise.all(loadPromises);
+	soundsLoaded = true;
 }
 
 export function areSoundsLoaded() {
@@ -257,7 +277,20 @@ export function areSoundsLoaded() {
 }
 
 export function getAudioInstance(key) {
-	return audioInstances[key];
+	const instance = audioInstances[key];
+	if (!instance) {
+		console.warn(`No audio instance found for key: ${key}`);
+		return null;
+	}
+
+	if (!instance.paused) {
+		const newInstance = new Audio(instance.src);
+		newInstance.volume = instance.volume;
+		return newInstance;
+	}
+
+	instance.currentTime = 0;
+	return instance;
 }
 
 export function getKeyAudioPool() {
@@ -270,7 +303,6 @@ export const getSoundUrl = (soundName) => {
 		console.warn(`Sound ${soundName} not found`);
 		return null;
 	}
-
 	return sound.mp3 || null;
 };
 
@@ -281,12 +313,14 @@ export const usePositionalSound = (soundName) => {
 		return {};
 	}
 
+	const settings = SOUND_SETTINGS[sound.settings] || SOUND_SETTINGS.default;
+
 	return {
 		url: sound.mp3,
 		loop: false,
-		distance: 1,
-		refDistance: 1,
-		rolloffFactor: 1,
-		volume: 0.5,
+		distance: settings.distance || 1,
+		refDistance: settings.refDistance || 1,
+		rolloffFactor: settings.rolloffFactor || 1,
+		volume: settings.volume || 0.5,
 	};
 };
