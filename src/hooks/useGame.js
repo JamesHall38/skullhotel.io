@@ -8,6 +8,10 @@ const useGameStore = create(
 		seedData: seed,
 		deaths: 0,
 
+		// Timestamp du début du jeu
+		gameStartTime: Date.now(),
+		setGameStartTime: () => set({ gameStartTime: Date.now() }),
+
 		disableControls: false,
 		setDisableControls: (state) => set(() => ({ disableControls: state })),
 
@@ -26,6 +30,21 @@ const useGameStore = create(
 
 		openDeathScreen: false,
 		setOpenDeathScreen: (state) => set(() => ({ openDeathScreen: state })),
+
+		isEndScreen: false,
+		setIsEndScreen: (state) => set(() => ({ isEndScreen: state })),
+
+		isEndAnimationPlaying: false,
+		setIsEndAnimationPlaying: (state) =>
+			set(() => ({ isEndAnimationPlaying: state })),
+
+		alternateTutorialRoom: false,
+		setAlternateTutorialRoom: (state) =>
+			set(() => ({ alternateTutorialRoom: state })),
+
+		endAnimationPlaying: false,
+		setEndAnimationPlaying: (state) =>
+			set(() => ({ endAnimationPlaying: state })),
 
 		// loading: true,
 		loading: false,
@@ -192,6 +211,8 @@ const useGameStore = create(
 				disableControls: false,
 				completedObjective: null,
 				completedRoom: null,
+				gameStartTime: Date.now(),
+				endAnimationPlaying: false,
 			}));
 			useHiding.getState().restart();
 		},

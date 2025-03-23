@@ -41,10 +41,35 @@ export default function generateSeedData() {
 
 	const seed = {};
 	const hidingRooms = {};
+	const usedKeys = new Set(); // Track used keys to avoid duplicates
+
+	// Function to ensure unique keys while preserving the base key identifier
+	const getUniqueKey = (baseKey) => {
+		if (!usedKeys.has(baseKey)) {
+			usedKeys.add(baseKey);
+			return baseKey;
+		}
+
+		// For duplicate keys, we'll use a counter suffix but store the original type
+		let uniqueKey = baseKey;
+		let counter = 1;
+
+		while (usedKeys.has(uniqueKey)) {
+			uniqueKey = `${baseKey}_${counter}`;
+			counter++;
+		}
+
+		usedKeys.add(uniqueKey);
+		return uniqueKey;
+	};
 
 	// Add hiding rooms first (these are the mandatory rooms)
 	Object.entries(hidingRooms).forEach(([key, room]) => {
-		seed[key] = room;
+		const uniqueKey = getUniqueKey(key);
+		seed[uniqueKey] = {
+			...room,
+			baseKey: key, // Store the original identifier
+		};
 	});
 
 	// Calculate remaining rooms (roomCount - 1 car nous avons déjà une pièce empty)
@@ -107,10 +132,12 @@ export default function generateSeedData() {
 		const roomData = getRandomRoomDataByType('hideout', usedRoomData);
 		if (roomData) {
 			usedRoomData.push(roomData.data);
-			seed[roomData.key] = {
+			const uniqueKey = getUniqueKey(roomData.key);
+			seed[uniqueKey] = {
 				...roomData.data,
 				type: 'hideout',
 				number: currentRoom + i + 1,
+				baseKey: roomData.key, // Store the original room identifier
 			};
 		}
 	}
@@ -121,10 +148,12 @@ export default function generateSeedData() {
 		const room = getRandomRoomDataByType('landmine', usedRoomData);
 		if (room) {
 			usedRoomData.push(room.data);
-			seed[room.key] = {
+			const uniqueKey = getUniqueKey(room.key);
+			seed[uniqueKey] = {
 				...room.data,
 				type: 'landmine',
 				number: currentRoom + i + 1,
+				baseKey: room.key,
 			};
 		}
 	}
@@ -135,10 +164,12 @@ export default function generateSeedData() {
 		const roomData = getRandomRoomDataByType('claymore', usedRoomData);
 		if (roomData) {
 			usedRoomData.push(roomData.data);
-			seed[roomData.key] = {
+			const uniqueKey = getUniqueKey(roomData.key);
+			seed[uniqueKey] = {
 				...roomData.data,
 				type: 'claymore',
 				number: currentRoom + i + 1,
+				baseKey: roomData.key,
 			};
 		}
 	}
@@ -149,10 +180,12 @@ export default function generateSeedData() {
 		const roomData = getRandomRoomDataByType('hunter', usedRoomData);
 		if (roomData) {
 			usedRoomData.push(roomData.data);
-			seed[roomData.key] = {
+			const uniqueKey = getUniqueKey(roomData.key);
+			seed[uniqueKey] = {
 				...roomData.data,
 				type: 'hunter',
 				number: currentRoom + i + 1,
+				baseKey: roomData.key,
 			};
 		}
 	}
@@ -163,10 +196,12 @@ export default function generateSeedData() {
 		const roomData = getRandomRoomDataByType('sonar', usedRoomData);
 		if (roomData) {
 			usedRoomData.push(roomData.data);
-			seed[roomData.key] = {
+			const uniqueKey = getUniqueKey(roomData.key);
+			seed[uniqueKey] = {
 				...roomData.data,
 				type: 'sonar',
 				number: currentRoom + i + 1,
+				baseKey: roomData.key,
 			};
 		}
 	}
@@ -191,11 +226,13 @@ export default function generateSeedData() {
 
 		if (roomData) {
 			usedRoomData.push(roomData.data);
-			seed[`random_${i + 1}`] = {
+			const uniqueKey = getUniqueKey(roomData.key);
+			seed[uniqueKey] = {
 				...roomData.data,
 				type: randomType,
-				isRandom: true,
+				...(randomType === 'raid' && { isRaid: true }),
 				number: currentRoom + i + 1,
+				baseKey: roomData.key,
 			};
 		}
 	}
@@ -203,9 +240,12 @@ export default function generateSeedData() {
 
 	// Add empty rooms
 	for (let i = 0; i < emptyRoomsAdjusted; i++) {
-		seed[`empty_${i + Object.keys(hidingRooms).length + 1}`] = {
+		const emptyBaseKey = `empty_${i + Object.keys(hidingRooms).length + 1}`;
+		const emptyKey = getUniqueKey(emptyBaseKey);
+		seed[emptyKey] = {
 			type: 'empty',
 			number: currentRoom + i + 1,
+			baseKey: emptyBaseKey,
 		};
 	}
 
@@ -215,11 +255,13 @@ export default function generateSeedData() {
 
 		if (roomData) {
 			usedRoomData.push(roomData.data);
-			seed[roomData.key] = {
+			const uniqueKey = getUniqueKey(roomData.key);
+			seed[uniqueKey] = {
 				...roomData.data,
 				type: 'raid',
 				isRaid: true,
 				number: currentRoom + i + 1,
+				baseKey: roomData.key,
 			};
 		}
 	}

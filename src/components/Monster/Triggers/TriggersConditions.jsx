@@ -54,7 +54,9 @@ export default function TriggersConditions({
 	const monsterState = useMonster((state) => state.monsterState);
 	const setMonsterState = useMonster((state) => state.setMonsterState);
 	const setMonsterPosition = useMonster((state) => state.setMonsterPosition);
+	const monsterPosition = useMonster((state) => state.monsterPosition);
 	const setMonsterRotation = useMonster((state) => state.setMonsterRotation);
+	const monsterRotation = useMonster((state) => state.monsterRotation);
 	const setAnimationMixSpeed = useMonster(
 		(state) => state.setAnimationMixSpeed
 	);
@@ -111,7 +113,9 @@ export default function TriggersConditions({
 				setMonsterKnocking(true);
 				setKnockingRoom(room);
 
-				const roomType = Object.keys(seedData)[playerPositionRoom];
+				const roomType =
+					Object.values(seedData)[playerPositionRoom]?.baseKey ||
+					Object.keys(seedData)[playerPositionRoom];
 				if (
 					roomType === 'raidTV' ||
 					roomType === 'raidRadio' ||
@@ -303,7 +307,9 @@ export default function TriggersConditions({
 		if (monsterState === 'leaving' || monsterState === 'hiding') {
 			activeRaids.forEach((room) => {
 				if (!roomDoors[room]) {
-					const roomType = Object.keys(seedData)[room];
+					const roomType =
+						Object.values(seedData)[room]?.baseKey ||
+						Object.keys(seedData)[room];
 					if (roomType === 'raidTV') {
 						setTv(false);
 						setActiveTvs(room);
@@ -383,10 +389,22 @@ export default function TriggersConditions({
 			Object.values(seedData)[playerPositionRoom]?.type === 'empty' ||
 			monsterState === 'run' ||
 			camera.position.x > 3
-		)
+		) {
+			if (
+				Object.values(seedData)[playerPositionRoom]?.type === 'empty' &&
+				(monsterState !== 'hidden' || monsterPosition[1] < 10)
+			) {
+				setMonsterState('hidden');
+				setMonsterPosition([monsterPosition[0], 10, monsterPosition[2]]);
+			}
 			return;
+		}
 
-		switch (Object.keys(seedData)[playerPositionRoom]) {
+		const roomKey =
+			Object.values(seedData)[playerPositionRoom]?.baseKey ||
+			Object.keys(seedData)[playerPositionRoom];
+
+		switch (roomKey) {
 			case 'underBed':
 				basicHiding(clock, camera, raycaster, 'underBed');
 				break;
@@ -618,10 +636,12 @@ export default function TriggersConditions({
 				const currentRoomDoorState = roomDoors[playerPositionRoom];
 				const isDoorClosed = !currentRoomDoorState;
 				const isInCurrentRoom =
-					Object.keys(seedData)[playerPositionRoom] === 'hunterLivingRoom' ||
-					Object.keys(seedData)[playerPositionRoom] ===
+					Object.values(seedData)[playerPositionRoom]?.baseKey ===
+						'hunterLivingRoom' ||
+					Object.values(seedData)[playerPositionRoom]?.baseKey ===
 						'hunterCeilingLivingRoom' ||
-					Object.keys(seedData)[playerPositionRoom] === 'hunterCeilingCouch';
+					Object.values(seedData)[playerPositionRoom]?.baseKey ===
+						'hunterCeilingCouch';
 
 				if (isDoorClosed && isInCurrentRoom) {
 					if (monsterState !== 'facingCamera') {
@@ -633,13 +653,6 @@ export default function TriggersConditions({
 							playAnimation('Idle');
 						}
 					}
-					// } else if (
-					// 	isInHallway &&
-					// 	!isDoorClosed &&
-					// 	monsterState === 'facingCamera' &&
-					// 	isInCurrentRoom
-					// ) {
-					// 	// monsterAttack();
 				} else if (playerIsInsideZone(zoneBox, raycaster, camera)) {
 					if (monsterState !== 'chase') {
 						setAnimationMixSpeed(2);
@@ -653,7 +666,7 @@ export default function TriggersConditions({
 			case 'hunterDesk': {
 				const isDoorClosed = !roomDoors[playerPositionRoom];
 				const isInCurrentRoom =
-					Object.keys(seedData)[playerPositionRoom] === 'hunterDesk';
+					Object.values(seedData)[playerPositionRoom]?.baseKey === 'hunterDesk';
 
 				if (isDoorClosed && isInCurrentRoom) {
 					if (monsterState !== 'facingCamera') {
@@ -686,7 +699,8 @@ export default function TriggersConditions({
 			case 'hunterNightstand': {
 				const isDoorClosed = !roomDoors[playerPositionRoom];
 				const isInCurrentRoom =
-					Object.keys(seedData)[playerPositionRoom] === 'hunterNightstand';
+					Object.values(seedData)[playerPositionRoom]?.baseKey ===
+					'hunterNightstand';
 
 				if (isDoorClosed && isInCurrentRoom) {
 					if (monsterState !== 'facingCamera') {
@@ -719,7 +733,8 @@ export default function TriggersConditions({
 			case 'hunterWindow': {
 				const isDoorClosed = !roomDoors[playerPositionRoom];
 				const isInCurrentRoom =
-					Object.keys(seedData)[playerPositionRoom] === 'hunterWindow';
+					Object.values(seedData)[playerPositionRoom]?.baseKey ===
+					'hunterWindow';
 
 				if (isDoorClosed && isInCurrentRoom) {
 					if (monsterState !== 'facingCamera') {

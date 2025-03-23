@@ -1,0 +1,50 @@
+.info-panel {
+	background-color: rgba(20, 20, 25, 0.6);
+	border: 1px solid rgba(255, 255, 255, 0.1);
+	border-radius: 8px;
+	padding: 10px 15px;
+	color: #f8f8f8;
+	font-family: 'Libre Baskerville', serif;
+	text-align: center;
+	box-shadow: 0 4px 30px rgba(0, 0, 0, 0.4);
+	transform: scale(0.8);
+	transition: all 0.3s ease;
+	backdrop-filter: blur(5px);
+	width: 100px;
+}
+
+.info-panel:hover {
+	background-color: rgba(30, 30, 35, 0.65);
+	transform: scale(0.85);
+	border-color: rgba(255, 255, 255, 0.2);
+}
+
+.panel-title {
+	font-size: 16px;
+	font-weight: 700;
+	margin-bottom: 8px;
+	background: linear-gradient(90deg, #f8f8f8, #a8a8a8);
+	-webkit-background-clip: text;
+	background-clip: text;
+	-webkit-text-fill-color: transparent;
+}
+
+.panel-arrow {
+	font-size: 22px;
+	margin-top: 5px;
+	color: rgba(255, 255, 255, 0.7);
+	animation: bounce 1.2s infinite alternate;
+}
+
+.panel-arrow svg {
+	filter: drop-shadow(0 0 3px rgba(0, 0, 0, 0.3));
+}
+
+@keyframes bounce {
+	from {
+		transform: translateY(0px);
+	}
+	to {
+		transform: translateY(5px);
+	}
+}

@@ -6,6 +6,7 @@ import * as THREE from 'three';
 import useDoor from '../../hooks/useDoor';
 import useGame from '../../hooks/useGame';
 import useInterface from '../../hooks/useInterface';
+import useGameplaySettings from '../../hooks/useGameplaySettings';
 import WoodMaterial from '../materials/WoodMaterial';
 
 const Door = ({ isHandlePressed }) => {
@@ -93,7 +94,6 @@ export default function ReceptionDoors() {
 	const setTutorialHandle = useDoor((state) => state.setTutorialHandle);
 
 	const exitDoor = useDoor((state) => state.exit);
-	const setExitDoor = useDoor((state) => state.setExit);
 	const exitHandle = useDoor((state) => state.exitHandle);
 	const setExitHandle = useDoor((state) => state.setExitHandle);
 
@@ -104,6 +104,11 @@ export default function ReceptionDoors() {
 
 	const setPlayerPositionRoom = useGame((state) => state.setPlayerPositionRoom);
 	const setIsTutorialOpen = useGame((state) => state.setIsTutorialOpen);
+	const setEndAnimationPlaying = useGame(
+		(state) => state.setEndAnimationPlaying
+	);
+	const roomCount = useGameplaySettings((state) => state.roomCount);
+
 	const currentDialogueIndex = useInterface(
 		(state) => state.currentDialogueIndex
 	);
@@ -167,15 +172,15 @@ export default function ReceptionDoors() {
 					offset={[10.025, 0.965, -3.85]}
 					isOpen={exitDoor}
 					setHandlePressed={setExitHandle}
-					setOpen={(value) => {
-						// if (doneObjectives === 10) {
-						setExitDoor(value);
-						// } else {
-						// 	if (currentDialogueIndex !== 0) {
-						// 		setCurrentDialogueIndex(0);
-						// 		setTimeout(() => setCurrentDialogueIndex(null), 3000);
-						// 	}
-						// }
+					setOpen={() => {
+						if (doneObjectives >= roomCount / 2) {
+							setEndAnimationPlaying(true);
+						} else {
+							if (currentDialogueIndex !== 0) {
+								setCurrentDialogueIndex(0);
+								setTimeout(() => setCurrentDialogueIndex(null), 3000);
+							}
+						}
 					}}
 				>
 					<Door isHandlePressed={exitHandle} />

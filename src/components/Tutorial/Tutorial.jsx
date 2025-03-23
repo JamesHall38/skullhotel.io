@@ -3,8 +3,8 @@ import { useFrame } from '@react-three/fiber';
 import Inscriptions from './Inscriptions';
 import Instructions from './Instructions';
 import useInterfaceStore from '../../hooks/useInterface';
-import useDoorStore from '../../hooks/useDoor';
-import useGameStore from '../../hooks/useGame';
+import useDoor from '../../hooks/useDoor';
+import useGame from '../../hooks/useGame';
 
 const WELCOME_DIALOGUE = 1;
 const CLEAN_TUTORIAL_DIALOGUE = 2;
@@ -17,6 +17,7 @@ const TRIGGER_X_POSITION = 7.5;
 export default function Tutorial() {
 	const hasTriggered = useRef(false);
 	const timeoutRef = useRef(null);
+	const alternateTutorialRoom = useGame((state) => state.alternateTutorialRoom);
 	const currentDialogueIndex = useInterfaceStore(
 		(state) => state.currentDialogueIndex
 	);
@@ -27,9 +28,9 @@ export default function Tutorial() {
 		(state) => state.tutorialObjectives
 	);
 	const isDead = useInterfaceStore((state) => state.isDead);
-	const corridorDoorOpen = useDoorStore((state) => state.corridor);
-	const playIntro = useGameStore((state) => state.playIntro);
-	const deaths = useGameStore((state) => state.deaths);
+	const corridorDoorOpen = useDoor((state) => state.corridor);
+	const playIntro = useGame((state) => state.playIntro);
+	const deaths = useGame((state) => state.deaths);
 	const hasStarted = useRef(false);
 
 	useEffect(() => {
@@ -79,8 +80,14 @@ export default function Tutorial() {
 
 	return (
 		<group>
-			<Inscriptions />
-			<Instructions />
+			{alternateTutorialRoom ? (
+				<Inscriptions endTitle />
+			) : (
+				<>
+					<Inscriptions />
+					<Instructions />
+				</>
+			)}
 		</group>
 	);
 }
