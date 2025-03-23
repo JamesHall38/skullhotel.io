@@ -16,6 +16,9 @@ import useJoysticks from '../../hooks/useJoysticks';
 import useLight from '../../hooks/useLight';
 import useGridStore from '../../hooks/useGrid';
 import Cursor from './Cursor';
+import EndGameScreen from './EndGameScreen/EndGameScreen';
+import GuestBook from './GuestBook/GuestBook';
+import HowItsMade from './HowItsMade/HowItsMade';
 import { regenerateData } from '../../utils/config';
 import './Interface.css';
 import { measurePerformance } from '../../hooks/usePerformance';
@@ -261,8 +264,6 @@ export default function Interface() {
 	const setReleaseMobileClick = useGame((state) => state.setReleaseMobileClick);
 	const end = useGame((state) => state.end);
 	const roomCount = useGameplaySettings((state) => state.roomCount);
-	// const loading = useGame((state) => state.loading);
-	// const setLoading = useGame((state) => state.setLoading);
 	const openDeathScreen = useGame((state) => state.openDeathScreen);
 	const setOpenDeathScreen = useGame((state) => state.setOpenDeathScreen);
 	const playerPositionRoom = useGame((state) => state.playerPositionRoom);
@@ -447,25 +448,37 @@ export default function Interface() {
 		};
 	}, [activeButtons.leftClick, setMobileClick]);
 
+	useEffect(() => {
+		const fadeElement = document.querySelector('.fade-to-black');
+		if (fadeElement) {
+			if (fadeToBlack === 0) {
+				setTimeout(() => {
+					fadeElement.style.visibility = 'hidden';
+				}, 3000);
+			} else {
+				fadeElement.style.visibility = 'visible';
+			}
+		}
+	}, [fadeToBlack]);
+
 	return (
 		<div className={`interface ${loading ? 'animated' : ''}`}>
 			{/* Fade to black effect */}
-			{fadeToBlack > 0 && (
-				<div
-					className="fade-to-black"
-					style={{
-						opacity: fadeToBlack,
-						position: 'fixed',
-						top: 0,
-						left: 0,
-						width: '100%',
-						height: '100%',
-						backgroundColor: 'black',
-						zIndex: 1000,
-						pointerEvents: 'none',
-					}}
-				/>
-			)}
+			<div
+				className="fade-to-black"
+				style={{
+					opacity: fadeToBlack,
+					position: 'fixed',
+					top: 0,
+					left: 0,
+					width: '100%',
+					height: '100%',
+					backgroundColor: 'black',
+					zIndex: 1000,
+					pointerEvents: 'none',
+					transition: fadeToBlack < 1 ? 'opacity 3s ease-out' : 'none',
+				}}
+			/>
 
 			<Settings />
 			{loading ? (
@@ -678,6 +691,10 @@ export default function Interface() {
 					<div className="start">click to start</div>
 				</div>
 			)}
+
+			<EndGameScreen />
+			<GuestBook />
+			<HowItsMade />
 		</div>
 	);
 }

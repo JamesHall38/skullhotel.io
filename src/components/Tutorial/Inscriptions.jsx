@@ -5,13 +5,13 @@ import * as THREE from 'three';
 const inscriptions = [
 	{
 		content: 'If you see a client inside a room',
-		position: [13.4, 2, -1],
+		position: [13.49, 2, -1],
 		rotation: [0, -Math.PI / 2, 0],
 		scale: 0.2,
 	},
 	{
 		content: ' turn around before he kills you',
-		position: [13.4, 1.75, -1],
+		position: [13.49, 1.75, -1],
 		rotation: [0, -Math.PI / 2, 0],
 		scale: 0.2,
 	},
@@ -80,25 +80,37 @@ const inscriptions = [
 	},
 ];
 
-export default function Inscriptions() {
+export default function Inscriptions({ endTitle }) {
 	const textMaterial = useMemo(() => {
 		return new THREE.MeshStandardMaterial({ color: '#8A0303' });
 	}, []);
 
 	return (
 		<group>
-			{inscriptions.map((inscription, index) => (
+			{endTitle ? (
 				<Text
-					key={index}
 					font={'/Redrum.otf'}
-					position={inscription.position}
-					rotation={inscription.rotation}
+					position={[1.4, 1.9, 7.85]}
+					rotation={[0, Math.PI / 2, 0]}
+					scale={0.3}
 					material={textMaterial}
-					scale={inscription.scale}
 				>
-					{inscription.content}
+					Skull Hotel
 				</Text>
-			))}
+			) : (
+				inscriptions.map((inscription, index) => (
+					<Text
+						key={index}
+						font={'/Redrum.otf'}
+						position={inscription.position}
+						rotation={inscription.rotation}
+						material={textMaterial}
+						scale={inscription.scale}
+					>
+						{inscription.content}
+					</Text>
+				))
+			)}
 		</group>
 	);
 }

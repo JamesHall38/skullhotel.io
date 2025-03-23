@@ -1,0 +1,141 @@
+.end-game-screen {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background: #0b0b0b;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	z-index: 10000;
+	pointer-events: auto;
+	gap: 2rem;
+}
+
+.end-game-screen > svg {
+	width: 40dvw;
+	height: 40dvh;
+}
+
+.end-game-screen > svg > path {
+	fill: #8b0000;
+}
+
+.end-game-message {
+	color: #c1c1c1;
+	font-size: 2.5rem;
+	font-family: 'Redrum', sans-serif;
+	text-align: center;
+}
+
+.completion-time {
+	margin: 20px 0;
+	font-size: 1.5rem;
+	text-align: center;
+	font-weight: bold;
+	color: #fff;
+	font-family: monospace;
+}
+
+.name-input-container {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	margin: 20px 0;
+	width: 100%;
+	max-width: 300px;
+}
+
+.name-input-container label {
+	font-size: 1rem;
+	color: white;
+}
+
+.name-input-container input {
+	padding: 10px;
+	font-size: 1rem;
+	background-color: rgba(0, 0, 0, 0.5);
+	border: 1px solid rgba(255, 255, 255, 0.3);
+	color: white;
+	font-family: monospace;
+}
+
+.name-input-container input:focus {
+	outline: none;
+	border-color: #00ff00;
+}
+
+.submit-button {
+	margin-top: 10px;
+	padding: 10px 15px;
+	background-color: rgba(0, 0, 0, 0.2);
+	border: 1px solid #fff;
+	color: #fff;
+	font-size: 1rem;
+	cursor: pointer;
+	transition: all 0.2s ease;
+}
+
+.submit-button:hover:not(:disabled) {
+	background-color: rgba(0, 0, 0, 0.3);
+}
+
+.submit-button:disabled {
+	opacity: 0.5;
+	cursor: not-allowed;
+}
+
+.submission-success {
+	margin: 20px 0;
+	padding: 15px;
+	background-color: rgba(0, 0, 0, 0.1);
+	border: 1px solid #fff;
+	color: #fff;
+	text-align: center;
+	border-radius: 4px;
+}
+
+.restart-button {
+	background: transparent;
+	border: 1px solid #8b0000;
+	color: #c1c1c1;
+	font-size: 1.2rem;
+	padding: 0.8rem 2rem;
+	border-radius: 0.3rem;
+	cursor: pointer;
+	transition: all 0.3s ease;
+}
+
+.restart-button:hover {
+	background: #8b0000;
+	color: #ffffff;
+}
+
+.input-error {
+	border-color: #ff0000 !important;
+	background-color: rgba(255, 0, 0, 0.1) !important;
+}
+
+.name-error {
+	color: #ff0000;
+	font-size: 0.8rem;
+	margin-top: 5px;
+	text-align: left;
+}
+
+@media (max-height: 600px) {
+	.end-game-screen > svg {
+		width: 20dvw;
+		height: 20dvh;
+	}
+
+	.end-game-message {
+		font-size: 1.8rem;
+	}
+
+	.end-game-screen {
+		gap: 1rem;
+	}
+}

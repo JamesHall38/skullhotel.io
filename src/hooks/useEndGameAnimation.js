@@ -12,45 +12,20 @@ export const defaultCameraPoints = [
 	{
 		position: new THREE.Vector3(10.7, 1.5, -1),
 		rotation: new THREE.Euler(0, Math.PI, 0),
-		duration: 3,
+		duration: 1,
 	}, // start 2
-	// {
-	// 	position: new THREE.Vector3(11, 0.25, -1),
-	// 	rotation: new THREE.Euler(-Math.PI / 2, Math.PI, Math.PI / 2),
-	// 	duration: 0.3,
-	// }, // head 1
-	// {
-	// 	position: new THREE.Vector3(11, 0.25, -1),
-	// 	rotation: new THREE.Euler(0, Math.PI, Math.PI / 2),
-	// 	duration: 0.1,
-	// }, // head 2 first drop
-	// {
-	// 	position: new THREE.Vector3(11, 0.25, -1),
-	// 	rotation: new THREE.Euler(-0.05, Math.PI, Math.PI / 2),
-	// 	duration: 0.1,
-	// }, // head 2 rebounce
-	// {
-	// 	position: new THREE.Vector3(11, 0.25, -1),
-	// 	rotation: new THREE.Euler(0, Math.PI, Math.PI / 2),
-	// 	duration: 2,
-	// }, // head 2
-	// {
-	// 	position: new THREE.Vector3(11, 0.25, -1),
-	// 	rotation: new THREE.Euler(0, Math.PI, Math.PI / 2),
-	// 	duration: 0,
-	// }, // head pause
 	{
-		position: new THREE.Vector3(1.7, 2.2, 7.8),
+		position: new THREE.Vector3(1.8, 1.5, 7.9),
 		rotation: new THREE.Euler(0, Math.PI / 2, 0),
-		duration: 3,
+		duration: 6,
 	}, // skull
 	{
-		position: new THREE.Vector3(6, 2.2, 7.8),
+		position: new THREE.Vector3(3, 1.5, 7.9),
 		rotation: new THREE.Euler(0, Math.PI / 2, 0),
-		duration: 3,
+		duration: 4,
 	}, // end
 	{
-		position: new THREE.Vector3(6, 2.2, 7.8),
+		position: new THREE.Vector3(3, 1.5, 7.9),
 		rotation: new THREE.Euler(0, Math.PI / 2, 0),
 		duration: 0,
 	}, // end 2
@@ -126,13 +101,6 @@ const useEndGameAnimation = create(
 					progress: 0,
 				},
 			});
-
-			console.log(
-				'Animation started with transition from:',
-				startPosition,
-				'to:',
-				points[0].position
-			);
 		},
 
 		stopAnimation: () => {
@@ -243,8 +211,6 @@ const useEndGameAnimation = create(
 					currentPointIndex: nextPointIndex,
 					progress: 0,
 				});
-
-				console.log('New point:', nextPointIndex, points[nextPointIndex]);
 
 				const nextPointCallback = points[nextPointIndex].onReach;
 				if (nextPointCallback && typeof nextPointCallback === 'function') {

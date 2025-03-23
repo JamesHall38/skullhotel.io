@@ -498,7 +498,7 @@ const useGridStore = create((set, get) => ({
 						...newGrid[`${x},${z}`],
 						type: wall.type || CELL_TYPES.WALL,
 						hidingSpot: wall.hidingSpot || null,
-						roomType: wall.roomType || newGrid[`${x},${z}`].roomType,
+						roomType: wall.roomType || newGrid[`${x},${z}`]?.roomType,
 						isRaid: wall.isRaid || false,
 					};
 				}

@@ -1,11 +1,4 @@
-import {
-	useEffect,
-	Suspense,
-	useMemo,
-	useRef,
-	useState,
-	useCallback,
-} from 'react';
+import { useEffect, Suspense, useMemo, useRef, useState } from 'react';
 import { KeyboardControls, PointerLockControls } from '@react-three/drei';
 import { Canvas, useThree, useFrame } from '@react-three/fiber';
 import Interface from './components/Interface/Interface';
@@ -17,7 +10,6 @@ import useDoor from './hooks/useDoor';
 import useMonster from './hooks/useMonster';
 import useGridStore from './hooks/useGrid';
 import useLight from './hooks/useLight';
-// import useProgressiveLoad from './hooks/useProgressiveLoad';
 import PostProcessing from './components/PostProcessing/PostProcessing';
 
 import { Perf } from 'r3f-perf';
@@ -58,7 +50,7 @@ import { preloadSounds } from './utils/audio';
 import useGameplaySettings from './hooks/useGameplaySettings';
 import useSettings from './hooks/useSettings';
 import ShadowManager from './components/ShadowManager';
-import EndGameAnimation from './components/EndGameAnimation/EndGameAnimation';
+import EndGameAnimation from './components/EndGameAnimation';
 
 const generateLevelOptions = () => {
 	const options = {
@@ -231,11 +223,34 @@ function App() {
 			deviceMode === 'keyboard' &&
 			controlsRef.current &&
 			!openDeathScreen &&
-			!disableControls
+			!disableControls &&
+			!useGame.getState().isEndScreen
 		) {
 			controlsRef.current.lock();
 		}
 	}, [deviceMode, openDeathScreen, disableControls]);
+
+	useEffect(() => {
+		const handleCanvasClick = (e) => {
+			if (useGame.getState().isEndScreen) {
+				e.stopPropagation();
+				if (controlsRef.current) {
+					controlsRef.current.unlock();
+				}
+			}
+		};
+
+		const canvas = document.querySelector('canvas');
+		if (canvas) {
+			canvas.addEventListener('click', handleCanvasClick);
+		}
+
+		return () => {
+			if (canvas) {
+				canvas.removeEventListener('click', handleCanvasClick);
+			}
+		};
+	}, []);
 
 	useEffect(() => {
 		if (disableControls && controlsRef.current) {
@@ -494,6 +509,9 @@ export default function AppCanvas() {
 			}),
 			'Play Intro Animation': button(() => {
 				setPlayIntro(true);
+			}),
+			'Complete All Objectives': button(() => {
+				useInterface.getState().setAllObjectivesCompleted();
 			}),
 		},
 

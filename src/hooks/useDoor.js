@@ -156,7 +156,6 @@ const useDoorStore = create(
 
 		restart: (roomNum) => {
 			const numRooms = roomNum !== undefined ? roomNum : roomNumber;
-			console.log('restarting', numRooms);
 
 			set(() => ({
 				roomDoor: [...Array(numRooms)].map(() => false),

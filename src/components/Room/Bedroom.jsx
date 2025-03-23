@@ -14,7 +14,11 @@ const PROBABILITY_OF_DARKNESS = 20;
 
 export default function Bedroom() {
 	const { scene, nodes } = useGLTF('/models/room/bedroom.glb');
+	const { nodes: skullNodes, materials: skullMaterials } = useGLTF(
+		'/models/room/skull.glb'
+	);
 	const materialRef = useRef();
+	const alternateTutorialRoom = useGame((state) => state.alternateTutorialRoom);
 
 	const textureParts = [
 		{
@@ -122,9 +126,16 @@ export default function Bedroom() {
 
 	useEffect(() => {
 		scene.traverse((child) => {
-			if (child.isMesh && child.name === 'bedroom') {
-				child.geometry.setAttribute('uv', child.geometry.attributes['uv1']);
-				child.geometry.setAttribute('uv2', child.geometry.attributes['uv2']);
+			if (
+				child.isMesh &&
+				(child.name === 'bedroom' || child.name === 'skull')
+			) {
+				if (child.geometry.attributes['uv1']) {
+					child.geometry.setAttribute('uv', child.geometry.attributes['uv1']);
+				}
+				if (child.geometry.attributes['uv2']) {
+					child.geometry.setAttribute('uv2', child.geometry.attributes['uv2']);
+				}
 
 				const material = new THREE.MeshStandardMaterial({
 					bumpScale: 4,
@@ -294,6 +305,24 @@ export default function Bedroom() {
 				material={materialRef.current}
 			/>
 
+			{!alternateTutorialRoom ? (
+				<mesh
+					castShadow
+					receiveShadow
+					geometry={nodes.skull.geometry}
+					material={materialRef.current}
+				/>
+			) : (
+				<mesh
+					castShadow
+					receiveShadow
+					geometry={skullNodes.skull.geometry}
+					material={skullMaterials.bones}
+					scale={0.01}
+					position={[-1.5, 1.5, 0]}
+				/>
+			)}
+
 			<WoodLightMaterial
 				lightMapPath="/textures/bedroom_light_uastc.ktx2"
 				geometry={nodes.BedroomWood.geometry}
@@ -331,3 +360,5 @@ export default function Bedroom() {
 		</>
 	);
 }
+
+useGLTF.preload('/models/room/skull.glb');
