@@ -56,7 +56,6 @@ export default function TriggersConditions({
 	const setMonsterPosition = useMonster((state) => state.setMonsterPosition);
 	const monsterPosition = useMonster((state) => state.monsterPosition);
 	const setMonsterRotation = useMonster((state) => state.setMonsterRotation);
-	const monsterRotation = useMonster((state) => state.monsterRotation);
 	const setAnimationMixSpeed = useMonster(
 		(state) => state.setAnimationMixSpeed
 	);
