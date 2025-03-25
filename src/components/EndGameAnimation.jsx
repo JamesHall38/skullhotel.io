@@ -19,7 +19,6 @@ const EndGameAnimation = () => {
 	const hasTriggeredAnimation = useRef(false);
 	const fadeInterval = useRef(null);
 	const endgameLightRef = useRef(null);
-	const [soundsReady, setSoundsReady] = useState(false);
 	const punchSoundRef = useRef(null);
 
 	const [lightVisible, setLightVisible] = useState(false);
@@ -171,13 +170,10 @@ const EndGameAnimation = () => {
 				punchSoundRef.current = getAudioInstance('punch');
 				if (punchSoundRef.current) {
 					punchSoundRef.current.load();
-					setSoundsReady(true);
 				} else {
-					// If sound isn't available yet, try again in 100ms
 					setTimeout(checkSounds, 100);
 				}
 			} else {
-				// If sounds aren't loaded yet, try again in 100ms
 				setTimeout(checkSounds, 100);
 			}
 		};
@@ -207,7 +203,6 @@ const EndGameAnimation = () => {
 
 			playAnimation('Punch');
 
-			// Use the cached punch sound from ref instead of getting it again
 			if (punchSoundRef.current) {
 				try {
 					punchSoundRef.current.currentTime = 0;
