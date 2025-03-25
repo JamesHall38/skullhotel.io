@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useAnimations } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
 import useMonster from '../../hooks/useMonster';
@@ -6,15 +6,8 @@ import useGame from '../../hooks/useGame';
 import useInterface from '../../hooks/useInterface';
 import useDoor from '../../hooks/useDoor';
 // import useLight from '../../hooks/useLight';
-import { getAudioInstance } from '../../utils/audio';
+import { getAudioInstance, areSoundsLoaded } from '../../utils/audio';
 import * as THREE from 'three';
-
-const monsterStepSounds = [
-	getAudioInstance('monsterStep1'),
-	getAudioInstance('monsterStep2'),
-	getAudioInstance('monsterStep3'),
-	getAudioInstance('monsterStep4'),
-];
 
 const VOLUMES = {
 	walk: 0.5,
@@ -55,6 +48,10 @@ export default function Animations({ group, animations }) {
 	const creepingStateRef = useRef('playing'); // 'playing', 'paused', 'reversing', 'done'
 	const creepingPauseTimeRef = useRef(0);
 
+	// Add state for monster step sounds
+	const [monsterStepSounds, setMonsterStepSounds] = useState([]);
+	const [soundsReady, setSoundsReady] = useState(false);
+
 	const monsterState = useMonster((state) => state.monsterState);
 	const animationMixSpeed = useMonster((state) => state.animationMixSpeed);
 	const animationName = useMonster((state) => state.animationName);
@@ -65,6 +62,34 @@ export default function Animations({ group, animations }) {
 	const lastAnimationTimeRef = useRef(0);
 
 	//const setIsRedLight = useLight((state) => state.setIsRedLight);
+
+	// Initialize monster step sounds properly
+	useEffect(() => {
+		const checkSounds = () => {
+			if (areSoundsLoaded()) {
+				const stepSounds = [
+					getAudioInstance('monsterStep1'),
+					getAudioInstance('monsterStep2'),
+					getAudioInstance('monsterStep3'),
+					getAudioInstance('monsterStep4'),
+				];
+
+				// Only set sounds if all were loaded successfully
+				if (stepSounds.every((sound) => sound !== null)) {
+					setMonsterStepSounds(stepSounds);
+					setSoundsReady(true);
+				} else {
+					// If any sound failed to load, retry after a delay
+					setTimeout(checkSounds, 100);
+				}
+			} else {
+				// If sounds aren't loaded yet, try again after a delay
+				setTimeout(checkSounds, 100);
+			}
+		};
+
+		checkSounds();
+	}, []);
 
 	useEffect(() => {
 		if (actions) {
@@ -282,9 +307,11 @@ export default function Animations({ group, animations }) {
 		let intervalId;
 
 		if (
-			animationName === 'Walk' ||
-			animationName === 'Run' ||
-			animationName === 'CeilingCrawl'
+			soundsReady &&
+			monsterStepSounds.length > 0 &&
+			(animationName === 'Walk' ||
+				animationName === 'Run' ||
+				animationName === 'CeilingCrawl')
 		) {
 			const currentAnimation = animations.find(
 				(anim) => anim.name === animationName
@@ -315,7 +342,7 @@ export default function Animations({ group, animations }) {
 				clearInterval(intervalId);
 			}
 		};
-	}, [animationName, animations]);
+	}, [animationName, animations, monsterStepSounds, soundsReady]);
 
 	useEffect(() => {
 		if (animationName === 'Attack' && actions && actions['Attack']) {

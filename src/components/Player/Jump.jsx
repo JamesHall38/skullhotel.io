@@ -3,6 +3,7 @@ import useGridStore, { CELL_TYPES } from '../../hooks/useGrid';
 import * as THREE from 'three';
 import { useFrame } from '@react-three/fiber';
 import useGame from '../../hooks/useGame';
+import useInterface from '../../hooks/useInterface';
 import useDoorStore from '../../hooks/useDoor';
 import useMonster from '../../hooks/useMonster';
 import useJoysticks from '../../hooks/useJoysticks';
@@ -38,7 +39,9 @@ export default function Jump({
 	const controls = useJoysticks((state) => state.controls);
 	const isMobile = useGame((state) => state.isMobile);
 	const deviceMode = useGame((state) => state.deviceMode);
+	const introIsPlaying = useGame((state) => state.introIsPlaying);
 	const gamepadControlsRef = useGamepadControls();
+	const isAnyPopupOpen = useInterface((state) => state.isAnyPopupOpen);
 
 	const roomDoor = useDoorStore((state) => state.roomDoor);
 	const bathroomDoor = useDoorStore((state) => state.bathroomDoor);
@@ -165,7 +168,13 @@ export default function Jump({
 		if (deviceMode !== 'keyboard') return;
 
 		const handleKeyDown = (event) => {
-			if (event.code === 'Space' && !spacePressed && !isListening) {
+			if (
+				event.code === 'Space' &&
+				!spacePressed &&
+				!isListening &&
+				!isAnyPopupOpen &&
+				!introIsPlaying
+			) {
 				setSpacePressed(true);
 				setCanJump(true);
 			}
@@ -184,7 +193,14 @@ export default function Jump({
 			window.removeEventListener('keydown', handleKeyDown);
 			window.removeEventListener('keyup', handleKeyUp);
 		};
-	}, [spacePressed, isListening, deviceMode, isMobile]);
+	}, [
+		spacePressed,
+		isListening,
+		deviceMode,
+		isMobile,
+		isAnyPopupOpen,
+		introIsPlaying,
+	]);
 
 	useEffect(() => {
 		if (isMobile) return;
@@ -192,7 +208,13 @@ export default function Jump({
 
 		const checkGamepad = () => {
 			const gamepadControls = gamepadControlsRef();
-			if (gamepadControls.jump && !spacePressed && !isListening) {
+			if (
+				gamepadControls.jump &&
+				!spacePressed &&
+				!isListening &&
+				!isAnyPopupOpen &&
+				!introIsPlaying
+			) {
 				setSpacePressed(true);
 				setCanJump(true);
 			} else if (!gamepadControls.jump && spacePressed) {
@@ -203,18 +225,26 @@ export default function Jump({
 		const interval = setInterval(checkGamepad, 16); // ~60fps
 
 		return () => clearInterval(interval);
-	}, [spacePressed, isListening, deviceMode, gamepadControlsRef, isMobile]);
+	}, [
+		spacePressed,
+		isListening,
+		deviceMode,
+		gamepadControlsRef,
+		isMobile,
+		isAnyPopupOpen,
+		introIsPlaying,
+	]);
 
 	useEffect(() => {
 		if (!isMobile) return;
 
-		if (controls.jump && !spacePressed && !isListening) {
+		if (controls.jump && !spacePressed && !isListening && !isAnyPopupOpen) {
 			setSpacePressed(true);
 			setCanJump(true);
 		} else if (!controls.jump && spacePressed) {
 			setSpacePressed(false);
 		}
-	}, [controls.jump, spacePressed, isListening, isMobile]);
+	}, [controls.jump, spacePressed, isListening, isMobile, isAnyPopupOpen]);
 
 	useEffect(() => {
 		const cellX = Math.floor(playerPosition.current.x * 10 + gridOffsetX);
@@ -253,7 +283,7 @@ export default function Jump({
 	]);
 
 	useFrame((state, delta) => {
-		if (!isPlaying) {
+		if (!isPlaying || isAnyPopupOpen) {
 			return;
 		}
 

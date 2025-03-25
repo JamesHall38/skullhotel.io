@@ -12,7 +12,6 @@ const levelData = {
 		cameraShakingScale: [4, 1, 2.5],
 		cameraShakingPosition: [0.5, 0, 0.25],
 		headOffset: 1.5,
-		// hurt: true,
 	},
 
 	bathroomVent: {
@@ -94,17 +93,6 @@ const levelData = {
 	},
 
 	// LANDMINE
-	bathroomCorner: {
-		type: 'landmine',
-		deathReason: 'If you see the client, run away',
-		monsterPosition: [-1, 0, -3],
-		monsterInitialPosition: [-1, 0, -3],
-		animation: 'Idle',
-		instantTriggerPosition: [0.2, 0, -2.6],
-		instantTriggerScale: [2, 2, 1],
-		cameraShakingPosition: [2.8, 0, -2.5],
-		cameraShakingScale: [2.4, 1, 1.8],
-	},
 
 	landmineMirror: {
 		type: 'landmine',
@@ -116,20 +104,6 @@ const levelData = {
 		animation: 'Idle',
 		instantTriggerPosition: [0.5, 0, -2.3],
 		instantTriggerScale: [2, 2, 1],
-		// cameraShakingPosition: [0.5, 0, -1.8],
-		// cameraShakingScale: [2.5, 1, 2],
-	},
-
-	nearBed: {
-		type: 'landmine',
-		deathReason: 'If you see the client, run away',
-		monsterPosition: [1.5, 0, 1],
-		monsterInitialPosition: [1.5, 0, 1],
-		animation: 'Idle',
-		instantTriggerPosition: [2.7, 0, -2.6],
-		instantTriggerScale: [2, 2, 1],
-		cameraPosition: [2.8, 0, -3.8],
-		cameraShakingScale: [2.4, 1, 1.8],
 	},
 
 	nearWindow: {
@@ -142,49 +116,6 @@ const levelData = {
 		instantTriggerScale: [2, 2, 1],
 		cameraShakingPosition: [2.8, 0, -2.7],
 		cameraShakingScale: [2.4, 1, 2.5],
-	},
-
-	bedCorner: {
-		type: 'landmine',
-		deathReason: 'If you see the client, run away',
-		position: [1, 0, -1],
-		scale: [1, 1, 1.2],
-		monsterPosition: [0.8, 0, -0.3],
-		monsterInitialPosition: [-0.8, 0, -1.2],
-		animation: 'Idle',
-		instantTriggerPosition: [1.5, 0, 0],
-		instantTriggerScale: [5, 2, 1],
-		cameraShakingPosition: [2.6, 0, -1.15],
-		cameraShakingScale: [2.8, 1, 2],
-	},
-
-	windowCorner: {
-		type: 'landmine',
-		deathReason: 'If you see the client, run away',
-		position: [0.2, 0, 2.5],
-		scale: [1, 1, 1.2],
-		monsterPosition: [0, 0, 3],
-		monsterInitialPosition: [-0.8, 0, 2.25],
-		animation: 'Idle',
-		instantTriggerPosition: [1.5, 0, 3.4],
-		instantTriggerScale: [5, 2, 1],
-		cameraShakingPosition: [2.1, 0, 2.6],
-		cameraShakingScale: [2.8, 1, 2],
-	},
-
-	ceilingCornerBeforeBed: {
-		type: 'landmine',
-		deathReason: 'If you see the client, run away',
-		position: [1, 0, -1],
-		monsterPosition: [0.8, 0, -0.3],
-		monsterInitialPosition: [-1.18, 0, -1.41],
-		monsterInitialRotation: [0.33, 1.34, -0.45],
-		animation: 'CeilingCorner',
-		instantTriggerPosition: [1.5, 0, -0.4],
-		instantTriggerScale: [5, 2, 1],
-		cameraShakingPosition: [2.6, 0, -1.15],
-		cameraShakingScale: [2.8, 1, 2],
-		headOffset: 0.45,
 	},
 
 	ceilingCornerCouch: {
@@ -249,34 +180,30 @@ const levelData = {
 		headOffset: -Math.PI / 2,
 	},
 
-	// ceilingCenter: {
-	// 	type: 'landmine',
-	// 	deathReason: 'If you see the client, run away',
-	// 	position: [1.9, 0, 0],
-	// 	scale: [1, 1, 1],
-	// 	monsterPosition: [0.4, 10, -0.88],
-	// 	monsterInitialPosition: [3.28, 4.47, -1.67],
-	// 	monsterInitialRotation: [-1, 0, 0],
-	// 	instantTriggerPosition: [3, 0, -1.5],
-	// 	instantTriggerScale: [3, 1, 1.5],
-	// 	animation: 'Vent',
-	// 	roomLight: 'off',
-	// 	headOffset: Math.PI,
-	// },
+	ceilingCenter: {
+		type: 'landmine',
+		deathReason: 'If you see the client, run away',
+		instantTriggerPosition: [2.9, 0, -1.5],
+		instantTriggerScale: [3.3, 1, 1],
+		monsterInitialPosition: [3.01, 2.02, -1.21],
+		monsterInitialRotation: [0, 1.61, 0],
+		animation: 'Ceiling',
+	},
 
-	// ceilingCenterCrouch: {
-	// 	deathReason: 'If you see the client, run away',
-	// 	position: [1.9, 0, 0],
-	// 	scale: [1, 1, 1],
-	// 	monsterPosition: [0.4, 0.87, -0.88],
-	// 	monsterInitialPosition: [1.8, 4, -2.05],
-	// 	monsterInitialRotation: [2.6, 0.4, 0.05],
-	// 	instantTriggerPosition: [3, 0, -2.3],
-	// 	instantTriggerScale: [2.5, 1, 0.8],
-	// 	animation: 'Crouch',
-	// 	roomLight: 'on',
-	// 	headOffset: -Math.PI / 2,
-	// },
+	bedCorner: {
+		type: 'landmine',
+		deathReason: 'If you see the client, run away',
+		position: [1, 0, -1],
+		scale: [1, 1, 1.2],
+		monsterPosition: [0.25, 0, -0.66],
+		monsterInitialPosition: [-0.07, 1.17, -1.5],
+		monsterInitialRotation: [0, -1.64, Math.PI],
+		animation: 'Ceiling',
+		instantTriggerPosition: [1.5, 0, -0.53],
+		instantTriggerScale: [5, 2, 1],
+		cameraShakingPosition: [2.61, 0, -1],
+		cameraShakingScale: [4, 1, 2],
+	},
 
 	// SONAR
 
@@ -289,14 +216,6 @@ const levelData = {
 		animation: 'Crouch',
 		sound: true,
 	},
-
-	// bathNoSound: {
-	// 	deathReason: 'The client was visible behind the curtain',
-	// 	monsterPosition: [1.35, 0, 8],
-	// 	monsterInitialPosition: [-0.2, 0, -4.46],
-	// 	monsterInitialRotation: [0, Math.PI / 4, 0],
-	// 	animation: 'Crouch',
-	// },
 
 	// sonarWindow: {
 	// 	type: 'sonar',
@@ -435,17 +354,6 @@ const levelData = {
 		headOffset: Math.PI,
 	},
 
-	// hunterDesk: {
-	// 	type: 'hunter',
-	// 	deathReason: 'If you see the client, run away and close behind you',
-	// 	position: [2.5, 0, -0.6],
-	// 	scale: [2.5, 0.5, 2],
-	// 	monsterPosition: [4, 0, 0.2],
-	// 	monsterInitialPosition: [4.06, 0, 0.368],
-	// 	monsterInitialRotation: [0, -Math.PI / 2, 0],
-	// 	animation: 'Stand',
-	// },
-
 	hunterNightstand: {
 		type: 'hunter',
 		deathReason: 'If you see the client, run away and close behind you',
@@ -468,27 +376,6 @@ const levelData = {
 		monsterInitialRotation: [0, Math.PI, 0],
 		animation: 'BehindWindow',
 	},
-
-	// hunterRoomDoor
-	// hunterBathroomDoor
-
-	// runningBedToBath: {
-	// 	deathReason: 'If you see the client, run away',
-	// 	position: [1.5, 0, -1.5],
-	// 	scale: [2, 0.5, 2],
-	// 	monsterPosition: [1.5, 0, -4],
-	// 	monsterInitialPosition: [1.5, 0, -4],
-	// 	animation: 'Idle',
-	// },
-
-	// runningBathToDoor: {
-	// 	deathReason: 'If you see the client, run away',
-	// 	position: [2.75, 0, -2],
-	// 	scale: [2, 0.5, 3],
-	// 	monsterPosition: [2, 0, -4],
-	// 	monsterInitialPosition: [2, 0, -4],
-	// 	animation: 'Idle',
-	// },
 
 	// RAID
 	raidWindow: {

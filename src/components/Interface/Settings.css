@@ -103,3 +103,11 @@
 	font-size: 0.9rem;
 	color: var(--text-color);
 }
+
+.gamepad-button.start {
+	background: #5b5b5b;
+	width: 30px;
+	height: 20px;
+	border-radius: 5px;
+	font-size: 13px;
+}

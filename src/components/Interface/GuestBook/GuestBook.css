@@ -1,12 +1,59 @@
 .guestbook-content {
+	width: 90vw;
 	max-width: 800px;
-	padding: 20px;
-	color: #f8f8f8;
-	font-family: 'Inter', sans-serif;
 	background-color: rgba(20, 20, 25, 0.9);
+	backdrop-filter: blur(10px);
 	border-radius: 10px;
+	padding: 25px;
+	color: #f8f8f8;
 	box-shadow: 0 4px 30px rgba(0, 0, 0, 0.4);
-	backdrop-filter: blur(5px);
+	max-height: 80vh;
+	overflow-y: auto;
+	font-family: 'Inter', sans-serif;
+}
+
+.gamepad-controls-hint {
+	margin-top: 20px;
+	background: rgba(0, 0, 0, 0.3);
+	padding: 10px;
+	border-radius: 8px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	gap: 15px;
+}
+
+.gamepad-control {
+	display: flex;
+	align-items: center;
+	gap: 5px;
+	font-size: 0.9rem;
+}
+
+.gamepad-button {
+	background: #333;
+	color: white;
+	width: 25px;
+	height: 25px;
+	border-radius: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-weight: bold;
+	font-size: 0.8rem;
+}
+
+.gamepad-button.a {
+	background: #107c10;
+}
+
+.gamepad-button.b {
+	background: #d90429;
+}
+
+.gamepad-button.dpad {
+	border-radius: 3px;
+	font-size: 12px;
 }
 
 .guestbook-header {
@@ -14,18 +61,13 @@
 	justify-content: space-between;
 	align-items: center;
 	margin-bottom: 20px;
-	padding-bottom: 15px;
-	border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+	padding-bottom: 10px;
+	border-bottom: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .guestbook-header h2 {
 	margin: 0;
 	font-size: 1.8rem;
-	font-weight: 700;
-	background: linear-gradient(90deg, #f8f8f8, #a8a8a8);
-	-webkit-background-clip: text;
-	background-clip: text;
-	-webkit-text-fill-color: transparent;
 }
 
 .guestbook-controls {
@@ -33,11 +75,8 @@
 	gap: 10px;
 }
 
-.close-button,
 .guestbook-refresh,
-.guestbook-retry,
-.pagination-button,
-.go-button {
+.close-button {
 	background: rgba(255, 255, 255, 0.1);
 	color: #f8f8f8;
 	border: none;
@@ -46,43 +85,32 @@
 	cursor: pointer;
 	font-size: 0.9rem;
 	transition: all 0.2s ease;
-
-	display: flex;
-	align-items: center;
-	justify-content: center;
-
-	svg {
-		font-size: 1.25rem;
-	}
 }
 
-.close-button:hover,
 .guestbook-refresh:hover,
-.guestbook-retry:hover,
-.pagination-button:hover:not(:disabled),
-.go-button:hover:not(:disabled) {
+.close-button:hover {
 	background: rgba(255, 255, 255, 0.2);
 }
 
-.pagination-button:disabled,
-.go-button:disabled {
-	opacity: 0.5;
-	cursor: not-allowed;
+.close-button {
+	display: flex;
+	align-items: center;
+	justify-content: center;
 }
 
 .guestbook-error {
-	display: flex;
-	align-items: center;
+	background-color: rgba(200, 30, 30, 0.2);
+	border: 1px solid rgba(255, 70, 70, 0.4);
 	padding: 15px;
+	border-radius: 6px;
 	margin-bottom: 20px;
-	background: rgba(255, 70, 70, 0.15);
-	border-radius: 8px;
-	border-left: 3px solid rgba(255, 70, 70, 0.5);
+	display: flex;
+	align-items: flex-start;
+	gap: 15px;
 }
 
 .error-icon {
 	font-size: 1.5rem;
-	margin-right: 15px;
 }
 
 .error-content {
@@ -93,22 +121,31 @@
 	margin: 0 0 10px 0;
 }
 
+.guestbook-retry {
+	background: rgba(255, 255, 255, 0.1);
+	color: #f8f8f8;
+	border: none;
+	border-radius: 4px;
+	padding: 6px 12px;
+	cursor: pointer;
+	font-size: 0.9rem;
+}
+
+.guestbook-retry:hover {
+	background: rgba(255, 255, 255, 0.2);
+}
+
 .guestbook-loading {
-	display: flex;
-	justify-content: center;
+	text-align: center;
 	padding: 20px;
 	color: rgba(255, 255, 255, 0.7);
 	font-style: italic;
 }
 
 .guestbook-empty {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	padding: 30px;
 	text-align: center;
-	background: rgba(255, 255, 255, 0.05);
-	border-radius: 8px;
+	padding: 40px 0;
+	color: rgba(255, 255, 255, 0.7);
 }
 
 .empty-icon {
@@ -116,79 +153,122 @@
 	margin-bottom: 15px;
 }
 
+.guestbook-entries {
+	margin-bottom: 20px;
+	max-height: 50vh;
+	overflow-y: auto;
+}
+
 .guestbook-table {
 	width: 100%;
 	border-collapse: collapse;
-	margin-bottom: 20px;
-	background: rgba(255, 255, 255, 0.05);
-	border-radius: 8px;
-	overflow: hidden;
 }
 
 .guestbook-table th {
-	padding: 12px 15px;
 	text-align: left;
-	border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-	font-weight: 600;
-	color: rgba(255, 255, 255, 0.9);
-	background: rgba(255, 255, 255, 0.05);
+	padding: 10px;
+	background-color: rgba(0, 0, 0, 0.3);
+	position: sticky;
+	top: 0;
+	z-index: 1;
 }
 
-.guestbook-table td {
-	padding: 10px 15px;
-	border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+.guestbook-table tr:nth-child(odd) {
+	background-color: rgba(255, 255, 255, 0.05);
 }
 
-.guestbook-table tr:hover {
-	background: rgba(255, 255, 255, 0.07);
+.guestbook-entry {
+	cursor: pointer;
+	transition: background-color 0.2s ease;
 }
 
-.guestbook-table tr:last-child td {
-	border-bottom: none;
+.guestbook-entry:hover {
+	background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.guestbook-entry td {
+	padding: 10px;
 }
 
 .guestbook-rank {
-	width: 50px;
 	text-align: center;
-	font-weight: 600;
+	width: 50px;
+}
+
+.guestbook-name {
+	width: 60%;
+}
+
+.guestbook-time {
+	text-align: right;
 }
 
 .guestbook-pagination {
 	display: flex;
-	justify-content: center;
 	align-items: center;
+	justify-content: center;
 	gap: 10px;
 	margin-top: 20px;
+	flex-wrap: wrap;
+}
+
+.pagination-button {
+	background: rgba(255, 255, 255, 0.1);
+	color: #f8f8f8;
+	border: none;
+	border-radius: 4px;
+	padding: 8px 12px;
+	cursor: pointer;
+	transition: all 0.2s ease;
+}
+
+.pagination-button:hover:not(:disabled) {
+	background: rgba(255, 255, 255, 0.2);
+}
+
+.pagination-button:disabled {
+	opacity: 0.3;
+	cursor: default;
 }
 
 .page-indicator {
 	display: flex;
 	align-items: center;
+	gap: 5px;
 }
 
 .page-form {
 	display: flex;
+	align-items: center;
 	gap: 5px;
 }
 
 .page-input {
-	width: 100px;
-	padding: 8px;
 	background: rgba(255, 255, 255, 0.1);
 	border: 1px solid rgba(255, 255, 255, 0.2);
+	color: white;
+	padding: 8px;
 	border-radius: 4px;
-	color: #f8f8f8;
-	font-size: 0.9rem;
+	width: 100px;
 	text-align: center;
-}
-
-.page-input::placeholder {
-	color: rgba(255, 255, 255, 0.6);
 }
 
 .page-input:focus {
 	outline: none;
 	border-color: rgba(255, 255, 255, 0.4);
+}
+
+.go-button {
+	background: rgba(255, 255, 255, 0.1);
+	color: #f8f8f8;
+	border: none;
+	border-radius: 4px;
+	padding: 8px 12px;
+	cursor: pointer;
+}
+
+.go-button:hover:not(:disabled) {
+	background: rgba(255, 255, 255, 0.2);
 }
 
 @media (max-width: 600px) {

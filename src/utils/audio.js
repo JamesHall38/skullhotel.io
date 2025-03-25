@@ -277,6 +277,13 @@ export function areSoundsLoaded() {
 }
 
 export function getAudioInstance(key) {
+	if (!soundsLoaded) {
+		console.warn(
+			'Attempted to get audio instance before sounds were loaded: ' + key
+		);
+		return null;
+	}
+
 	const instance = audioInstances[key];
 	if (!instance) {
 		console.warn(`No audio instance found for key: ${key}`);
@@ -284,9 +291,14 @@ export function getAudioInstance(key) {
 	}
 
 	if (!instance.paused) {
-		const newInstance = new Audio(instance.src);
-		newInstance.volume = instance.volume;
-		return newInstance;
+		try {
+			const newInstance = new Audio(instance.src);
+			newInstance.volume = instance.volume;
+			return newInstance;
+		} catch (error) {
+			console.error(`Error creating new audio instance for ${key}:`, error);
+			return null;
+		}
 	}
 
 	instance.currentTime = 0;

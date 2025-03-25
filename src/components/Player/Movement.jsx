@@ -3,6 +3,7 @@ import * as THREE from 'three';
 import { useFrame } from '@react-three/fiber';
 import { useKeyboardControls } from '@react-three/drei';
 import useGame from '../../hooks/useGame';
+import useInterface from '../../hooks/useInterface';
 import useGamepadControls from '../../hooks/useGamepadControls';
 import useJoysticksStore from '../../hooks/useJoysticks';
 import useGridStore, { CELL_TYPES } from '../../hooks/useGrid';
@@ -40,6 +41,7 @@ export default function Movement({
 	const getCell = useGridStore((state) => state.getCell);
 	const getKeys = useKeyboardControls()[1];
 	const gamepadControlsRef = useGamepadControls();
+	const isAnyPopupOpen = useInterface((state) => state.isAnyPopupOpen);
 
 	const leftStickRef = useRef({ x: 0, y: 0 });
 	const rightStickRef = useRef({ x: 0, y: 0 });
@@ -240,7 +242,8 @@ export default function Movement({
 			!isPlaying ||
 			isCameraLocked ||
 			jumpScare ||
-			listeningProgress > LISTENING_THRESHOLD
+			listeningProgress > LISTENING_THRESHOLD ||
+			isAnyPopupOpen
 		) {
 			return;
 		}

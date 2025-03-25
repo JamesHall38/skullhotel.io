@@ -6,7 +6,7 @@ import useLight from '../hooks/useLight';
 import useMonster from '../hooks/useMonster';
 import useDoor from '../hooks/useDoor';
 import useInterface from '../hooks/useInterface';
-import { getAudioInstance } from '../utils/audio';
+import { getAudioInstance, areSoundsLoaded } from '../utils/audio';
 import * as THREE from 'three';
 
 const DEFAULT_BATHROOM_POSITION = new THREE.Vector3(-1, 2, -3.2);
@@ -19,6 +19,8 @@ const EndGameAnimation = () => {
 	const hasTriggeredAnimation = useRef(false);
 	const fadeInterval = useRef(null);
 	const endgameLightRef = useRef(null);
+	const [soundsReady, setSoundsReady] = useState(false);
+	const punchSoundRef = useRef(null);
 
 	const [lightVisible, setLightVisible] = useState(false);
 	const [lightPosition, setLightPosition] = useState([0, 0, 0]);
@@ -164,10 +166,23 @@ const EndGameAnimation = () => {
 		setMonsterPosition([0, 10, 0]);
 		setMonsterState('hidden');
 
-		const punchSound = getAudioInstance('punch');
-		if (punchSound) {
-			punchSound.load();
-		}
+		const checkSounds = () => {
+			if (areSoundsLoaded()) {
+				punchSoundRef.current = getAudioInstance('punch');
+				if (punchSoundRef.current) {
+					punchSoundRef.current.load();
+					setSoundsReady(true);
+				} else {
+					// If sound isn't available yet, try again in 100ms
+					setTimeout(checkSounds, 100);
+				}
+			} else {
+				// If sounds aren't loaded yet, try again in 100ms
+				setTimeout(checkSounds, 100);
+			}
+		};
+
+		checkSounds();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
@@ -192,10 +207,16 @@ const EndGameAnimation = () => {
 
 			playAnimation('Punch');
 
-			const punchSound = getAudioInstance('punch');
-			if (punchSound) {
-				punchSound.currentTime = 0;
-				punchSound.play();
+			// Use the cached punch sound from ref instead of getting it again
+			if (punchSoundRef.current) {
+				try {
+					punchSoundRef.current.currentTime = 0;
+					punchSoundRef.current.play().catch((err) => {
+						console.warn('Could not play punch sound:', err);
+					});
+				} catch (error) {
+					console.warn('Error playing punch sound:', error);
+				}
 			}
 
 			startAnimation(

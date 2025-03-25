@@ -14,6 +14,8 @@ export default function PopupWrapper({ children, cursorType }) {
 	const [isVisible, setIsVisible] = useState(false);
 	const [isGamepad, setIsGamepad] = useState(false);
 	const contentRef = useRef(null);
+	const [focusableElements, setFocusableElements] = useState([]);
+	const [currentFocus, setCurrentFocus] = useState(-1);
 	const cursor = useInterface((state) => state.cursor);
 	const setIsAnyPopupOpen = useInterface((state) => state.setIsAnyPopupOpen);
 	const gamepadControls = useGame((state) => state.gamepadControls);
@@ -25,6 +27,8 @@ export default function PopupWrapper({ children, cursorType }) {
 	const disableControls = useGame((state) => state.disableControls);
 	const isEndScreen = useGame((state) => state.isEndScreen);
 	const prevBButtonRef = useState(false);
+	const prevStickInputRef = useRef({ vertical: 0, horizontal: 0 });
+	const lastNavigationTime = useRef(0);
 
 	const handleOpen = useCallback(() => {
 		setIsVisible(true);
@@ -36,19 +40,23 @@ export default function PopupWrapper({ children, cursorType }) {
 
 	const handleClose = useCallback(() => {
 		setIsVisible(false);
-		setIsAnyPopupOpen(false);
-		if (
-			!openDeathScreen &&
-			!disableControls &&
-			!isEndScreen &&
-			deviceMode === 'keyboard'
-		) {
-			setIsLocked(true);
-			const canvas = document.querySelector('canvas');
-			if (canvas && !document.pointerLockElement) {
-				canvas.requestPointerLock();
+
+		setTimeout(() => {
+			setIsAnyPopupOpen(false);
+
+			if (
+				!openDeathScreen &&
+				!disableControls &&
+				!isEndScreen &&
+				deviceMode === 'keyboard'
+			) {
+				setIsLocked(true);
+				const canvas = document.querySelector('canvas');
+				if (canvas && !document.pointerLockElement) {
+					canvas.requestPointerLock();
+				}
 			}
-		}
+		}, 150);
 	}, [
 		openDeathScreen,
 		disableControls,
@@ -73,6 +81,31 @@ export default function PopupWrapper({ children, cursorType }) {
 	}, [deviceMode]);
 
 	useEffect(() => {
+		if (isVisible && contentRef.current && deviceMode === 'gamepad') {
+			const elements = contentRef.current.querySelectorAll(
+				'button, a, input, [role="button"], .pagination-button, .restart-button, .submit-button, .guestbook-entry'
+			);
+
+			setFocusableElements(Array.from(elements));
+			if (elements.length > 0) {
+				setCurrentFocus(0);
+			}
+		}
+	}, [isVisible, deviceMode]);
+
+	useEffect(() => {
+		if (currentFocus >= 0 && currentFocus < focusableElements.length) {
+			focusableElements[currentFocus].classList.add('gamepad-focus');
+		}
+
+		return () => {
+			focusableElements.forEach((element) => {
+				element.classList.remove('gamepad-focus');
+			});
+		};
+	}, [currentFocus, focusableElements]);
+
+	useEffect(() => {
 		const handleKeyDown = (e) => {
 			if (e.key === 'Escape' && isVisible) {
 				handleClose();
@@ -83,6 +116,97 @@ export default function PopupWrapper({ children, cursorType }) {
 		window.addEventListener('keydown', handleKeyDown);
 		return () => window.removeEventListener('keydown', handleKeyDown);
 	}, [isVisible, handleClose, setIsAnyPopupOpen]);
+
+	useEffect(() => {
+		if (!isVisible || deviceMode !== 'gamepad') return;
+
+		const handleGamepadNavigation = () => {
+			const gamepads = navigator.getGamepads ? navigator.getGamepads() : [];
+			let gamepad = null;
+
+			for (const gp of gamepads) {
+				if (gp && gp.connected) {
+					gamepad = gp;
+					break;
+				}
+			}
+
+			if (!gamepad) return;
+
+			const bButtonPressed = gamepad.buttons[1]?.pressed;
+			if (bButtonPressed && !prevBButtonRef[0]) {
+				handleClose();
+				setIsAnyPopupOpen(false);
+				prevBButtonRef[0] = true;
+				return;
+			} else if (!bButtonPressed) {
+				prevBButtonRef[0] = false;
+			}
+
+			const now = Date.now();
+			if (now - lastNavigationTime.current < 200) {
+				return;
+			}
+
+			const dpadUp = gamepad.buttons[12]?.pressed;
+			const dpadDown = gamepad.buttons[13]?.pressed;
+			const dpadLeft = gamepad.buttons[14]?.pressed;
+			const dpadRight = gamepad.buttons[15]?.pressed;
+
+			const leftStickY = gamepad.axes[1];
+			const leftStickX = gamepad.axes[0];
+
+			const DEADZONE = 0.5;
+			const stickUp = leftStickY < -DEADZONE;
+			const stickDown = leftStickY > DEADZONE;
+			const stickLeft = leftStickX < -DEADZONE;
+			const stickRight = leftStickX > DEADZONE;
+
+			const up = dpadUp || stickUp;
+			const down = dpadDown || stickDown;
+			const left = dpadLeft || stickLeft;
+			const right = dpadRight || stickRight;
+
+			let shouldUpdateNavigationTime = false;
+
+			if (up && !prevStickInputRef.current.up) {
+				setCurrentFocus((prev) => Math.max(0, prev - 1));
+				shouldUpdateNavigationTime = true;
+			} else if (down && !prevStickInputRef.current.down) {
+				setCurrentFocus((prev) =>
+					Math.min(focusableElements.length - 1, prev + 1)
+				);
+				shouldUpdateNavigationTime = true;
+			}
+
+			const aButtonPressed = gamepad.buttons[0]?.pressed;
+			if (
+				aButtonPressed &&
+				currentFocus >= 0 &&
+				currentFocus < focusableElements.length
+			) {
+				focusableElements[currentFocus].click();
+				shouldUpdateNavigationTime = true;
+			}
+
+			prevStickInputRef.current = { up, down, left, right };
+
+			if (shouldUpdateNavigationTime) {
+				lastNavigationTime.current = now;
+			}
+		};
+
+		const interval = setInterval(handleGamepadNavigation, 16); // ~60fps
+		return () => clearInterval(interval);
+	}, [
+		isVisible,
+		deviceMode,
+		currentFocus,
+		focusableElements,
+		handleClose,
+		setIsAnyPopupOpen,
+		prevBButtonRef,
+	]);
 
 	useEffect(() => {
 		const handleGamepadInteraction = () => {

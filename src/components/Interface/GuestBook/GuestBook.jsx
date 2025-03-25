@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { IoCloseOutline } from 'react-icons/io5';
-
+import useGame from '../../../hooks/useGame';
 import PopupWrapper from '../PopupWrapper/PopupWrapper';
 import {
 	getFirstGuestBookPage,
@@ -18,6 +18,7 @@ function GuestBookContent({ onClose }) {
 	const [currentPage, setCurrentPage] = useState(1);
 	const [totalPages, setTotalPages] = useState(1);
 	const [pageInput, setPageInput] = useState('');
+	const deviceMode = useGame((state) => state.deviceMode);
 
 	const loadInitialData = async () => {
 		try {
@@ -281,6 +282,23 @@ function GuestBookContent({ onClose }) {
 							Last &raquo;
 						</button>
 					</div>
+
+					{deviceMode === 'gamepad' && (
+						<div className="gamepad-controls-hint">
+							<div className="gamepad-control">
+								<div className="gamepad-button dpad">↑↓</div>
+								<span>Navigate</span>
+							</div>
+							<div className="gamepad-control">
+								<div className="gamepad-button a">A</div>
+								<span>Select</span>
+							</div>
+							<div className="gamepad-control">
+								<div className="gamepad-button b">B</div>
+								<span>Close</span>
+							</div>
+						</div>
+					)}
 				</>
 			)}
 		</div>

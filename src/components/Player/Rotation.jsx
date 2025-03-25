@@ -6,6 +6,7 @@ import useGame from '../../hooks/useGame';
 import useGamepadControls from '../../hooks/useGamepadControls';
 import useJoysticksStore from '../../hooks/useJoysticks';
 import useSettings from '../../hooks/useSettings';
+import useInterface from '../../hooks/useInterface';
 
 const floor = -0.2;
 
@@ -41,6 +42,8 @@ export default function Rotation({
 
 	const yaw = useRef(-Math.PI);
 	const pitch = useRef(0);
+
+	const isAnyPopupOpen = useInterface((state) => state.isAnyPopupOpen);
 
 	const reset = useCallback(() => {
 		playerPosition.current.set(10.77, floor, -3);
@@ -90,7 +93,6 @@ export default function Rotation({
 		};
 	}, [setIsRunning]);
 
-	// Ajouter un gestionnaire pour le mouvement de la souris
 	useEffect(() => {
 		const onMouseMove = (event) => {
 			if (
@@ -102,7 +104,6 @@ export default function Rotation({
 				const movementX = event.movementX || 0;
 				const movementY = event.movementY || 0;
 
-				// Application linéaire de la sensibilité
 				yaw.current -= movementX * rotationSensitivity * 0.008;
 				pitch.current -= movementY * rotationSensitivity * 0.008;
 
@@ -125,7 +126,8 @@ export default function Rotation({
 		if (
 			(isMobile || deviceMode === 'gamepad') &&
 			monsterState !== 'run' &&
-			!disableControls
+			!disableControls &&
+			!isAnyPopupOpen
 		) {
 			const ROTATION_DEADZONE = 0.15;
 			const gamepadControls = getGamepadControls();

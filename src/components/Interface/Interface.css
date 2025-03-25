@@ -365,6 +365,10 @@
 	bottom: 4rem;
 	animation: blink 2s ease-in-out infinite;
 	white-space: nowrap;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.15rem;
 }
 
 @media (max-height: 500px) {

@@ -10,7 +10,7 @@ import useDoor from './hooks/useDoor';
 import useMonster from './hooks/useMonster';
 import useGridStore from './hooks/useGrid';
 import useLight from './hooks/useLight';
-import PostProcessing from './components/PostProcessing/PostProcessing';
+import PostProcessing from './components/PostProcessing';
 
 import { Perf } from 'r3f-perf';
 import { Leva, useControls, button } from 'leva';
@@ -44,7 +44,7 @@ import ReceptionDoors from './components/Reception/ReceptionDoors';
 import Sound from './components/Sound';
 import { regenerateData } from './utils/config';
 import generateSeedData from './utils/generateSeedData';
-import ListeningMode from './components/ListeningMode';
+import ListeningMode from './components/Player/ListeningMode';
 import levelData from './components/Monster/Triggers/levelData';
 import { preloadSounds } from './utils/audio';
 import useGameplaySettings from './hooks/useGameplaySettings';

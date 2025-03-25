@@ -7,9 +7,10 @@ import { FaArrowCircleDown, FaArrowCircleUp } from 'react-icons/fa';
 import useGameplaySettings from '../../hooks/useGameplaySettings';
 import { TbXboxXFilled } from 'react-icons/tb';
 import { TbXboxYFilled } from 'react-icons/tb';
+import { TbXboxAFilled } from 'react-icons/tb';
 import useDoor from '../../hooks/useDoor';
 import useMonster from '../../hooks/useMonster';
-import dialogues from '../../data/dialogues';
+import dialogues from './dialogues';
 import useInterface from '../../hooks/useInterface';
 import useGame from '../../hooks/useGame';
 import useJoysticks from '../../hooks/useJoysticks';
@@ -291,6 +292,7 @@ export default function Interface() {
 	const objectives = useInterface((state) => state.interfaceObjectives);
 	const interfaceAction = useInterface((state) => state.interfaceAction);
 	const [activeDialogues, setActiveDialogues] = useState([]);
+	const deviceMode = useGame((state) => state.deviceMode);
 
 	const queue = useTextureQueue((state) => state.queues);
 	const oldQueue = useRef(queue);
@@ -460,6 +462,73 @@ export default function Interface() {
 			}
 		}
 	}, [fadeToBlack]);
+
+	useEffect(() => {
+		if (!openDeathScreen || deviceMode !== 'gamepad') return;
+
+		const checkGamepadXButton = () => {
+			const gamepads = navigator.getGamepads ? navigator.getGamepads() : [];
+			for (const gamepad of gamepads) {
+				if (gamepad && gamepad.connected) {
+					const xButtonPressed = gamepad.buttons[2]?.pressed;
+					if (xButtonPressed) {
+						resetGame();
+						regenerateData();
+						useGridStore.getState().initializeIfNeeded();
+						setTimeout(() => {
+							setOpenDeathScreen(false);
+						}, 100);
+					}
+				}
+			}
+		};
+
+		const interval = setInterval(checkGamepadXButton, 100);
+		return () => clearInterval(interval);
+	}, [openDeathScreen, deviceMode, setOpenDeathScreen]);
+
+	useEffect(() => {
+		if (deviceMode !== 'gamepad') return;
+
+		if (!openDeathScreen && !end && !loading) return;
+
+		const handleGamepadNavigation = () => {
+			const gamepads = navigator.getGamepads ? navigator.getGamepads() : [];
+			for (const gamepad of gamepads) {
+				if (gamepad && gamepad.connected) {
+					const aButtonPressed = gamepad.buttons[0]?.pressed;
+
+					if (openDeathScreen && aButtonPressed) {
+						resetGame();
+						regenerateData();
+						useGridStore.getState().initializeIfNeeded();
+						setTimeout(() => {
+							setOpenDeathScreen(false);
+						}, 10);
+						return;
+					}
+
+					if (loading && displayProgress === 100 && aButtonPressed) {
+						setLoading(false);
+						setPlayIntro(true);
+						return;
+					}
+				}
+			}
+		};
+
+		const interval = setInterval(handleGamepadNavigation, 10);
+		return () => clearInterval(interval);
+	}, [
+		openDeathScreen,
+		end,
+		loading,
+		deviceMode,
+		displayProgress,
+		setPlayIntro,
+		setOpenDeathScreen,
+		setEnd,
+	]);
 
 	return (
 		<div className={`interface ${loading ? 'animated' : ''}`}>
@@ -688,11 +757,31 @@ export default function Interface() {
 				>
 					<div className="title">You died</div>
 					<div className="death-message">{lastDeathMessage}</div>
-					<div className="start">click to start</div>
+					<div className="start">
+						{deviceMode === 'gamepad' ? (
+							<>
+								<TbXboxAFilled
+									style={{ verticalAlign: 'middle', marginRight: '5px' }}
+								/>{' '}
+								or{' '}
+								<TbXboxXFilled
+									style={{
+										verticalAlign: 'middle',
+										marginLeft: '5px',
+										marginRight: '5px',
+									}}
+								/>{' '}
+								to start
+							</>
+						) : (
+							<>click to start</>
+						)}
+					</div>
 				</div>
 			)}
 
 			<EndGameScreen />
+
 			<GuestBook />
 			<HowItsMade />
 		</div>

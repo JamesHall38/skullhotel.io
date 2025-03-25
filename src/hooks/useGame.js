@@ -72,6 +72,9 @@ const useGameStore = create(
 		playIntro: false,
 		setPlayIntro: (value) => set({ playIntro: value }),
 
+		introIsPlaying: false,
+		setIntroIsPlaying: (value) => set({ introIsPlaying: value }),
+
 		realPlayerPositionRoom: null,
 		setRealPlayerPositionRoom: (position) =>
 			set(() => ({ realPlayerPositionRoom: position })),

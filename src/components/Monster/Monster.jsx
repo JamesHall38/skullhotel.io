@@ -591,6 +591,7 @@ const Monster = (props) => {
 			monsterState === 'leaving' ||
 			monsterState === 'facingCamera' ||
 			monsterState === 'endAnimation' ||
+			animationName === 'Ceiling' ||
 			isEndAnimationPlaying
 		)
 			return;

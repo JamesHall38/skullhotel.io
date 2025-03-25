@@ -4,6 +4,7 @@ import useGridStore, { CELL_TYPES } from '../../hooks/useGrid';
 import useMonster from '../../hooks/useMonster';
 import useJoysticks from '../../hooks/useJoysticks';
 import useGame from '../../hooks/useGame';
+import useInterface from '../../hooks/useInterface';
 import useGameplaySettings from '../../hooks/useGameplaySettings';
 import useGamepadControls from '../../hooks/useGamepadControls';
 
@@ -26,6 +27,8 @@ export default function Crouch({
 	const wantsToStandUpRef = useRef(false);
 	const [gridOffsetX, setGridOffsetX] = useState(0);
 	const roomCount = useGameplaySettings((state) => state.roomCount);
+	const isAnyPopupOpen = useInterface((state) => state.isAnyPopupOpen);
+	const introIsPlaying = useGame((state) => state.introIsPlaying);
 
 	const resetCrouchState = useCallback(() => {
 		isCrouchingRef.current = false;
@@ -59,7 +62,7 @@ export default function Crouch({
 
 	const handleCrouchChange = useCallback(
 		(shouldCrouch) => {
-			if (monsterState === 'run') return;
+			if (monsterState === 'run' || isAnyPopupOpen || introIsPlaying) return;
 
 			if (shouldCrouch) {
 				isCrouchingRef.current = true;
@@ -69,7 +72,14 @@ export default function Crouch({
 				wantsToStandUpRef.current = true;
 			}
 		},
-		[checkCrouchArea, playerPosition, isCrouchingRef, monsterState]
+		[
+			checkCrouchArea,
+			playerPosition,
+			isCrouchingRef,
+			monsterState,
+			isAnyPopupOpen,
+			introIsPlaying,
+		]
 	);
 
 	useEffect(() => {
@@ -128,7 +138,7 @@ export default function Crouch({
 	}, [controls.crouch, handleCrouchChange, isMobile]);
 
 	useFrame(() => {
-		if (!isPlaying) {
+		if (!isPlaying || isAnyPopupOpen || introIsPlaying) {
 			return;
 		}
 
@@ -137,14 +147,12 @@ export default function Crouch({
 			wantsToStandUpRef.current = false;
 		}
 
-		// Lerp the crouch progress
 		const targetProgress =
 			monsterState === 'run' || !isCrouchingRef.current ? 0 : 1;
 		const newProgress =
 			crouchProgressRef.current +
 			(targetProgress - crouchProgressRef.current) * LERP_FACTOR;
 
-		// Only update if the change is significant
 		if (
 			Math.abs(newProgress - crouchProgressRef.current) > PROGRESS_THRESHOLD
 		) {

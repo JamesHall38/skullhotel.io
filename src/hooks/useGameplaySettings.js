@@ -4,7 +4,7 @@ const useGameplaySettings = create((set) => ({
 	roomCount: 16,
 
 	hideoutPercentage: 10,
-	landminePercentage: 20,
+	landminePercentage: 10,
 	claymorePercentage: 10,
 	hunterPercentage: 10,
 	sonarPercentage: 10,
@@ -12,7 +12,7 @@ const useGameplaySettings = create((set) => ({
 	emptyRoomPercentage: 40,
 	raidPercentage: 10,
 
-	randomRoomPercentage: 20,
+	randomRoomPercentage: 30,
 
 	setRoomCount: (count) => set({ roomCount: count }),
 

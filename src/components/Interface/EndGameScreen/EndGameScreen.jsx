@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import useGame from '../../../hooks/useGame';
 import useInterface from '../../../hooks/useInterface';
 import useDoor from '../../../hooks/useDoor';
@@ -31,6 +31,8 @@ const EndGameScreen = () => {
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [submitted, setSubmitted] = useState(false);
 	const [nameError, setNameError] = useState('');
+	const [focusedElement, setFocusedElement] = useState(0);
+	const interactiveElements = useRef([]);
 
 	const isEndScreen = useGame((state) => state.isEndScreen);
 	const setIsEndScreen = useGame((state) => state.setIsEndScreen);
@@ -39,20 +41,26 @@ const EndGameScreen = () => {
 	);
 	const deviceMode = useGame((state) => state.deviceMode);
 	const gameStartTime = useGame((state) => state.gameStartTime);
+	const setIsAnyPopupOpen = useInterface((state) => state.setIsAnyPopupOpen);
 
 	const [completionTime, setCompletionTime] = useState(0);
+	const lastNavigationTime = useRef(0);
 
 	useEffect(() => {
 		if (isEndScreen) {
 			setSubmitted(false);
 			setPlayerName('');
 			setNameError('');
+			setFocusedElement(0);
+			setIsAnyPopupOpen(true);
 
 			const endTime = Date.now();
 			const timeTaken = Math.floor((endTime - gameStartTime) / 1000);
 			setCompletionTime(timeTaken);
+		} else {
+			setIsAnyPopupOpen(false);
 		}
-	}, [isEndScreen, gameStartTime]);
+	}, [isEndScreen, gameStartTime, setIsAnyPopupOpen]);
 
 	useEffect(() => {
 		if (isEndScreen && deviceMode === 'keyboard') {
@@ -60,19 +68,121 @@ const EndGameScreen = () => {
 		}
 	}, [isEndScreen, deviceMode]);
 
+	useEffect(() => {
+		if (!isEndScreen || deviceMode !== 'gamepad') return;
+
+		interactiveElements.current = [];
+
+		setTimeout(() => {
+			const elements = document.querySelectorAll(
+				'.end-game-screen input, .end-game-screen button'
+			);
+			interactiveElements.current = Array.from(elements);
+
+			if (interactiveElements.current.length > 0) {
+				setFocusedElement(0);
+			}
+		}, 100);
+
+		const handleGamepadInput = () => {
+			const gamepads = navigator.getGamepads ? navigator.getGamepads() : [];
+			let gamepad = null;
+
+			for (const gp of gamepads) {
+				if (gp && gp.connected) {
+					gamepad = gp;
+					break;
+				}
+			}
+
+			if (!gamepad) return;
+
+			const now = Date.now();
+			if (now - lastNavigationTime.current < 250) {
+				return;
+			}
+
+			const dpadUp = gamepad.buttons[12]?.pressed;
+			const dpadDown = gamepad.buttons[13]?.pressed;
+
+			const leftStickY = gamepad.axes[1];
+
+			const DEADZONE = 0.5;
+			const stickUp = leftStickY < -DEADZONE;
+			const stickDown = leftStickY > DEADZONE;
+
+			const up = dpadUp || stickUp;
+			const down = dpadDown || stickDown;
+
+			const activeElement = document.activeElement;
+			const isInputActive = activeElement && activeElement.tagName === 'INPUT';
+
+			if (up && !isInputActive) {
+				setFocusedElement((prev) => Math.max(0, prev - 1));
+				lastNavigationTime.current = now;
+			} else if (down && !isInputActive) {
+				setFocusedElement((prev) =>
+					Math.min(interactiveElements.current.length - 1, prev + 1)
+				);
+				lastNavigationTime.current = now;
+			}
+
+			const aButtonPressed = gamepad.buttons[0]?.pressed;
+			if (aButtonPressed && interactiveElements.current[focusedElement]) {
+				if (
+					!isInputActive ||
+					document.activeElement !== interactiveElements.current[focusedElement]
+				) {
+					interactiveElements.current[focusedElement].click();
+
+					if (interactiveElements.current[focusedElement].tagName === 'INPUT') {
+						interactiveElements.current[focusedElement].focus();
+					}
+
+					lastNavigationTime.current = now;
+				}
+			}
+
+			const bButtonPressed = gamepad.buttons[1]?.pressed;
+			if (bButtonPressed && isInputActive) {
+				document.activeElement.blur();
+				lastNavigationTime.current = now;
+			}
+		};
+
+		const interval = setInterval(handleGamepadInput, 16);
+		return () => clearInterval(interval);
+	}, [isEndScreen, deviceMode, focusedElement]);
+
+	useEffect(() => {
+		interactiveElements.current.forEach((el) => {
+			el.classList.remove('gamepad-focus');
+		});
+
+		if (interactiveElements.current[focusedElement]) {
+			interactiveElements.current[focusedElement].classList.add(
+				'gamepad-focus'
+			);
+		}
+	}, [focusedElement]);
+
 	const resetGame = () => {
 		reset();
 		setIsEndScreen(false);
 		setIsEndAnimationPlaying(false);
 
 		setTimeout(() => {
-			if (deviceMode === 'keyboard') {
-				const canvas = document.querySelector('canvas');
-				if (canvas) {
-					canvas.requestPointerLock();
+			setIsAnyPopupOpen(false);
+
+			setTimeout(() => {
+				if (deviceMode === 'keyboard') {
+					const canvas = document.querySelector('canvas');
+					if (canvas) {
+						canvas.requestPointerLock();
+					}
 				}
-			}
-		}, 100);
+			}, 100);
+		}, 150);
 	};
 
 	const validatePlayerName = (name) => {
@@ -163,7 +273,10 @@ const EndGameScreen = () => {
 						type="submit"
 						className="submit-button"
 						disabled={!playerName.trim() || isSubmitting || nameError}
-						onClick={(e) => e.stopPropagation()}
+						onClick={(e) => {
+							e.stopPropagation();
+							handleSubmit(e);
+						}}
 					>
 						{isSubmitting ? 'Saving...' : 'Sign Guest Book'}
 					</button>
@@ -183,6 +296,25 @@ const EndGameScreen = () => {
 			>
 				Play again
 			</button>
+
+			{deviceMode === 'gamepad' && (
+				<div className="gamepad-controls-hint">
+					<div className="gamepad-control">
+						<div className="gamepad-button dpad">↑↓</div>
+						<span>Navigate</span>
+					</div>
+					<div className="gamepad-control">
+						<div className="gamepad-button a">A</div>
+						<span>Select</span>
+					</div>
+					{!submitted && (
+						<div className="gamepad-control">
+							<div className="gamepad-button b">B</div>
+							<span>Exit input</span>
+						</div>
+					)}
+				</div>
+			)}
 		</div>
 	);
 };

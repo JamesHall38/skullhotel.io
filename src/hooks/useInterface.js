@@ -3,7 +3,7 @@ import { subscribeWithSelector } from 'zustand/middleware';
 import { roomNumber } from '../utils/config';
 
 const useInterfaceStore = create(
-	subscribeWithSelector((set) => ({
+	subscribeWithSelector((set, get) => ({
 		cursor: null,
 		setCursor: (cursor) => set(() => ({ cursor })),
 
@@ -12,7 +12,15 @@ const useInterfaceStore = create(
 		setFadeToBlack: (value) => set(() => ({ fadeToBlack: value })),
 
 		isAnyPopupOpen: false,
-		setIsAnyPopupOpen: (value) => set(() => ({ isAnyPopupOpen: value })),
+		setIsAnyPopupOpen: (state) => {
+			if (get().isAnyPopupOpen === true && state === false) {
+				setTimeout(() => {
+					set({ isAnyPopupOpen: false });
+				}, 300);
+			} else {
+				set({ isAnyPopupOpen: state });
+			}
+		},
 
 		// Objectives
 		tutorialObjectives:
