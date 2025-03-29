@@ -68,7 +68,10 @@ export default function Player() {
 				setIsRunning={setIsRunning}
 				disableControls={disableControls}
 			/>
-			<FootSteps playerPosition={playerPosition} />
+			<FootSteps
+				playerPosition={playerPosition}
+				playerVelocity={playerVelocity}
+			/>
 		</>
 	);
 }

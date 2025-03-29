@@ -4,7 +4,11 @@ const lookingDown = new THREE.Vector3(0, -1, 0);
 const cameraDirection = new THREE.Vector3();
 const angleThreshold = Math.PI / 3;
 
-let accumulatedDelta = 0;
+const SHAKE_INCREASE_RATE = 0.8;
+const SHAKE_DECREASE_RATE = 1.0;
+const SHAKE_THRESHOLD = 0.015;
+
+let shakeDelayTimer = 0;
 
 export const getMonsterInitialPosition = (
 	playerPositionRoom,
@@ -27,12 +31,7 @@ export const getMonsterInitialPosition = (
 	);
 };
 
-export const getAdjustedPosition = (
-	initialPosition,
-	isFacingRoom
-	// playerPositionRoom,
-	// roomCount
-) => {
+export const getAdjustedPosition = (initialPosition, isFacingRoom) => {
 	if (!isFacingRoom) return initialPosition;
 	return [-initialPosition[0], initialPosition[1], -initialPosition[2]];
 };
@@ -62,35 +61,49 @@ export const playerIsInsideZone = (box, raycaster, camera) => {
 	return raycaster.ray.intersectsBox(box.current);
 };
 
-const SHAKE_SPEED = 1;
-
 export const shakeCamera = (
 	clock,
 	condition,
 	setShakeIntensity,
-	shakeIntensity
+	shakeIntensity,
+	delay = false
 ) => {
-	if (condition) {
-		if (shakeIntensity < 10) {
-			accumulatedDelta += clock.getDelta() * 200;
+	const deltaTime = clock.getDelta();
 
-			if (accumulatedDelta > SHAKE_SPEED) {
-				setShakeIntensity(Math.min(10, shakeIntensity + accumulatedDelta));
-				accumulatedDelta = 0;
+	if (condition) {
+		if (delay && shakeIntensity === 0) {
+			shakeDelayTimer += deltaTime;
+
+			if (shakeDelayTimer < 0.01) {
+				return false;
+			}
+		}
+
+		if (shakeIntensity < SHAKE_THRESHOLD) {
+			const newIntensity = Math.min(
+				10,
+				shakeIntensity + SHAKE_INCREASE_RATE * deltaTime
+			);
+			setShakeIntensity(newIntensity);
+
+			if (newIntensity >= SHAKE_THRESHOLD) {
+				shakeDelayTimer = 0;
+				return true;
 			}
 		} else {
-			accumulatedDelta = 0;
+			shakeDelayTimer = 0;
 			return true;
 		}
 	} else {
+		shakeDelayTimer = 0;
 		if (shakeIntensity > 0) {
-			accumulatedDelta += clock.getDelta() * 200;
-			if (accumulatedDelta > SHAKE_SPEED) {
-				setShakeIntensity(Math.max(0, shakeIntensity - accumulatedDelta));
-				accumulatedDelta = 0;
-			}
+			setShakeIntensity(
+				Math.max(0, shakeIntensity - SHAKE_DECREASE_RATE * deltaTime)
+			);
 		}
 	}
+
+	return false;
 };
 
 export const placeMonsterAtSecondPosition = (

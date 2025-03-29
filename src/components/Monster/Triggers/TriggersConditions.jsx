@@ -85,6 +85,8 @@ export default function TriggersConditions({
 	const quickTimeoutRef = useRef(null);
 	const raidRoomRef = useRef(null);
 	const sonarBathroomRef = useRef({ stateSet: false, attackTriggered: false });
+	const hunterTriggeredRoomsRef = useRef({});
+	const hunterDoorClosedFromOutsideRef = useRef({});
 
 	const triggerRAID = useCallback(
 		(room) => {
@@ -200,7 +202,8 @@ export default function TriggersConditions({
 		camera,
 		raycaster,
 		useInstantBox = false,
-		objectiveIndex = 2
+		objectiveIndex = 2,
+		delayed
 	) => {
 		setMonsterState('hidden');
 		let monsterIsTriggered = false;
@@ -214,12 +217,22 @@ export default function TriggersConditions({
 				position,
 				roomCount
 			);
+			bathroomDoors[playerPositionRoom] = true;
 			monsterIsTriggered = shakeCamera(
 				clock,
 				playerIsLookingAtBox(monsterBox, camera),
 				setShakeIntensity,
 				shakeIntensity
 			);
+
+			if (!attackTimeoutRef.current && monsterState !== 'run') {
+				attackTimeoutRef.current = setTimeout(() => {
+					if (monsterState !== 'run') {
+						monsterAttack();
+					}
+					attackTimeoutRef.current = null;
+				}, 4000);
+			}
 		} else if (useInstantBox) {
 			monsterIsTriggered = shakeCamera(
 				clock,
@@ -230,7 +243,8 @@ export default function TriggersConditions({
 						useInstantBox === 'underBed'
 					),
 				setShakeIntensity,
-				shakeIntensity
+				shakeIntensity,
+				delayed
 			);
 		}
 
@@ -239,11 +253,22 @@ export default function TriggersConditions({
 				interfaceObjectives[playerPositionRoom]?.[objectiveIndex]) ||
 			monsterIsTriggered
 		) {
+			if (attackTimeoutRef.current) {
+				clearTimeout(attackTimeoutRef.current);
+				attackTimeoutRef.current = null;
+			}
 			monsterAttack();
+			bathroomDoors[playerPositionRoom] = true;
 		}
 	};
 
-	const doNotGetAnyCloser = (monsterStateValue, raycaster, camera, clock) => {
+	const doNotGetAnyCloser = (
+		monsterStateValue,
+		raycaster,
+		camera,
+		clock,
+		delayed
+	) => {
 		if (monsterState !== monsterStateValue) {
 			setMonsterState(monsterStateValue);
 		}
@@ -256,7 +281,8 @@ export default function TriggersConditions({
 				playerIsInsideZone(cameraShakingBox, raycaster, camera) &&
 					playerIsLookingAtBox(monsterBox, camera),
 				setShakeIntensity,
-				shakeIntensity
+				shakeIntensity,
+				delayed
 			)
 		) {
 			setMonsterPosition([
@@ -368,6 +394,11 @@ export default function TriggersConditions({
 		sonarBathroomRef.current = { stateSet: false, attackTriggered: false };
 	}, [playerPositionRoom]);
 
+	useEffect(() => {
+		hunterTriggeredRoomsRef.current = {};
+		hunterDoorClosedFromOutsideRef.current = {};
+	}, [seedData]);
+
 	useFrame(({ camera, raycaster, clock }) => {
 		if (
 			!Object.values(seedData)[playerPositionRoom] ||
@@ -402,7 +433,12 @@ export default function TriggersConditions({
 				break;
 			case 'bedBasket':
 			case 'windowBasket':
-				basicHiding(clock, camera, raycaster, true);
+				basicHiding(clock, camera, raycaster, true, 2, true);
+				break;
+			case 'footWindow':
+				if (roomCurtains[playerPositionRoom]) {
+					monsterAttack();
+				}
 				break;
 			case 'behindDoor': {
 				let monsterIsTriggered = false;
@@ -464,7 +500,6 @@ export default function TriggersConditions({
 				break;
 			}
 			case 'nearWindow':
-			case 'windowCorner':
 				if (monsterState !== 'facingCamera') {
 					setMonsterState('facingCamera');
 				}
@@ -482,13 +517,13 @@ export default function TriggersConditions({
 					monsterAttack();
 				}
 				break;
-			case 'bedCorner':
+			// case 'bedCorner':
 			case 'ceilingCenter':
 			case 'ceilingCornerCouch':
 			case 'behindCouch':
 			case 'behindDesk':
 			case 'insideDesk':
-				doNotGetAnyCloser('hidden', raycaster, camera, clock);
+				doNotGetAnyCloser('hidden', raycaster, camera, clock, true);
 				break;
 			case 'landmineMirror':
 				doNotGetAnyCloser('facingCamera', raycaster, camera, clock);
@@ -544,12 +579,17 @@ export default function TriggersConditions({
 				const currentRoomDoorState = roomDoors[playerPositionRoom];
 				const isDoorClosed = !currentRoomDoorState;
 				const isInCurrentRoom =
-					Object.values(seedData)[playerPositionRoom]?.baseKey ===
-						'hunterLivingRoom' ||
-					Object.values(seedData)[playerPositionRoom]?.baseKey ===
+					Object.keys(seedData)[playerPositionRoom] === 'hunterLivingRoom' ||
+					Object.keys(seedData)[playerPositionRoom] ===
 						'hunterCeilingLivingRoom' ||
-					Object.values(seedData)[playerPositionRoom]?.baseKey ===
-						'hunterCeilingCouch';
+					Object.keys(seedData)[playerPositionRoom] === 'hunterCeilingCouch';
+
+				if (
+					isDoorClosed &&
+					hunterTriggeredRoomsRef.current[playerPositionRoom]
+				) {
+					hunterDoorClosedFromOutsideRef.current[playerPositionRoom] = true;
+				}
 
 				if (isDoorClosed && isInCurrentRoom) {
 					if (monsterState !== 'facingCamera') {
@@ -562,11 +602,19 @@ export default function TriggersConditions({
 						}
 					}
 				} else if (playerIsInsideZone(zoneBox, raycaster, camera)) {
+					hunterTriggeredRoomsRef.current[playerPositionRoom] = true;
+
 					if (monsterState !== 'chase') {
 						setAnimationMixSpeed(2);
 						setMonsterState('chase');
 						setAnimationSpeed(0.5);
 					}
+				} else if (
+					currentRoomDoorState &&
+					hunterTriggeredRoomsRef.current[playerPositionRoom] &&
+					hunterDoorClosedFromOutsideRef.current[playerPositionRoom] === true
+				) {
+					monsterAttack();
 				}
 				break;
 			}

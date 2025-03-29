@@ -92,6 +92,16 @@ const levelData = {
 		animation: 'BehindDoor',
 	},
 
+	footWindow: {
+		type: 'hideout',
+		deathReason: "The client's feet were visible under the curtain",
+		monsterPosition: [1.35, 0, 4.85],
+		monsterInitialPosition: [1.45, 0, 5.5],
+		monsterInitialRotation: [0, Math.PI, 0],
+		animation: 'BehindWindow',
+		headOffset: Math.PI,
+	},
+
 	// LANDMINE
 
 	landmineMirror: {
@@ -190,20 +200,20 @@ const levelData = {
 		animation: 'Ceiling',
 	},
 
-	bedCorner: {
-		type: 'landmine',
-		deathReason: 'If you see the client, run away',
-		position: [1, 0, -1],
-		scale: [1, 1, 1.2],
-		monsterPosition: [0.25, 0, -0.66],
-		monsterInitialPosition: [-0.07, 1.17, -1.5],
-		monsterInitialRotation: [0, -1.64, Math.PI],
-		animation: 'Ceiling',
-		instantTriggerPosition: [1.5, 0, -0.53],
-		instantTriggerScale: [5, 2, 1],
-		cameraShakingPosition: [2.61, 0, -1],
-		cameraShakingScale: [4, 1, 2],
-	},
+	// bedCorner: {
+	// 	type: 'landmine',
+	// 	deathReason: 'If you see the client, run away',
+	// 	position: [1, 0, -1],
+	// 	scale: [1, 1, 1.2],
+	// 	monsterPosition: [0.25, 0, -0.66],
+	// 	monsterInitialPosition: [-0.07, 1.17, -1.5],
+	// 	monsterInitialRotation: [0, -1.64, Math.PI],
+	// 	animation: 'Ceiling',
+	// 	instantTriggerPosition: [1.5, 0, -0.53],
+	// 	instantTriggerScale: [5, 2, 1],
+	// 	cameraShakingPosition: [2.61, 0, -1],
+	// 	cameraShakingScale: [4, 1, 2],
+	// },
 
 	// SONAR
 
@@ -304,16 +314,6 @@ const levelData = {
 		monsterPosition: [0, 0, 10],
 		monsterInitialPosition: [0.3, 0, -2.6],
 		animation: 'Crouch',
-	},
-
-	claymoreFootWindow: {
-		type: 'claymore',
-		deathReason: "The client's feet were visible under the curtain",
-		monsterPosition: [1.35, 0, 4.85],
-		monsterInitialPosition: [1.45, 0, 5.5],
-		monsterInitialRotation: [0, Math.PI, 0],
-		animation: 'BehindWindow',
-		headOffset: Math.PI,
 	},
 
 	// HUNTER

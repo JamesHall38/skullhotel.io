@@ -19,10 +19,13 @@ const VOLUMES = {
 	landing: 0.5,
 };
 
+const WALK_SPEED = 0.5;
+const RUN_SPEED = 1;
+
 const JUMP_SOUND_DELAY = 400;
 const MOVEMENT_THRESHOLD = 0.00001;
 
-export default function FootSteps({ playerPosition }) {
+export default function FootSteps({ playerPosition, playerVelocity }) {
 	const [soundsReady, setSoundsReady] = useState(false);
 	const footstepRefs = useRef(null);
 
@@ -145,13 +148,6 @@ export default function FootSteps({ playerPosition }) {
 				let left = keyLeft || gamepadControls.left;
 				let right = keyRight || gamepadControls.right;
 
-				const isGamepadRunning =
-					gamepadControls.run &&
-					(gamepadControls.forward ||
-						gamepadControls.backward ||
-						gamepadControls.left ||
-						gamepadControls.right);
-
 				// Mobile joystick's controls
 				if (isMobile && leftStickRef.current) {
 					if (Math.abs(leftStickRef.current.y) > 0.1) {
@@ -177,7 +173,8 @@ export default function FootSteps({ playerPosition }) {
 
 				const isMoving = keysPressed && actuallyMoving;
 
-				const isPlayerRunning = isRunning || isGamepadRunning;
+				const speed = playerVelocity ? playerVelocity.current.length() : 0;
+				const isPlayerRunning = speed > (WALK_SPEED + RUN_SPEED) / 2;
 
 				if (isMoving && !wasMovingRef.current) {
 					const sound = footstepRefs.current[footstepIndexRef.current];
