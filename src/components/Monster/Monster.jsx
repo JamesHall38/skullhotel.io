@@ -14,7 +14,8 @@ import useProgressiveLoad from '../../hooks/useProgressiveLoad';
 import useGameplaySettings from '../../hooks/useGameplaySettings';
 
 const BASE_SPEED = 5;
-const CHASE_SPEED = 0.5;
+const CHASE_SPEED = 0.7;
+const CLAYMORE_CHASE_SPEED = 1.5;
 const NEXT_POINT_THRESHOLD = 0.5;
 const MIN_DISTANCE_FOR_RECALCULATION = 2;
 const ATTACK_DISTANCE = 1.8;
@@ -207,6 +208,15 @@ const Monster = (props) => {
 
 	const runAtCamera = useCallback(
 		(camera, delta, mode = 'run') => {
+			// Check if we are in a forced look-at state in the game
+			// const disableControls = useGame.getState().disableControls;
+			// const lookAtInProgress = disableControls && monsterState !== 'run';
+
+			// if (lookAtInProgress) {
+			// 	// If we're in look-at mode, prevent the monster from attacking
+			// 	return;
+			// }
+
 			let baseSpeed;
 			if (mode === 'chase') {
 				if (lastChaseTimeRef.current === 0) {
@@ -216,8 +226,17 @@ const Monster = (props) => {
 				const currentTime = Date.now();
 				const elapsedTime = (currentTime - lastChaseTimeRef.current) / 1000;
 
+				const roomKey =
+					Object.values(seedData)[playerPositionRoom]?.baseKey ||
+					Object.keys(seedData)[playerPositionRoom];
+				const isClaymoreDeskOrNightstand =
+					roomKey === 'claymoreDesk' || roomKey === 'claymoreNightstand';
+				const baseChaseSpeed = isClaymoreDeskOrNightstand
+					? CLAYMORE_CHASE_SPEED
+					: CHASE_SPEED;
+
 				const newSpeed = Math.min(
-					CHASE_SPEED + elapsedTime * CHASE_SPEED_INCREMENT,
+					baseChaseSpeed + elapsedTime * CHASE_SPEED_INCREMENT,
 					MAX_CHASE_SPEED
 				);
 
@@ -636,6 +655,19 @@ const Monster = (props) => {
 			headBoneRef.current.rotation.set(0, 0, 0);
 		}
 	}, [isEndAnimationPlaying, monsterState]);
+
+	useFrame(({ camera }) => {
+		if (monsterState === 'endAnimation' || isEndAnimationPlaying) {
+			if (group.current) {
+				const targetPosition = new THREE.Vector3(
+					camera.position.x,
+					group.current.position.y,
+					camera.position.z
+				);
+				group.current.lookAt(targetPosition);
+			}
+		}
+	});
 
 	useEffect(() => {
 		if (

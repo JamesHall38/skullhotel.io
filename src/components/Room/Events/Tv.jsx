@@ -68,7 +68,6 @@ export default function Tv() {
 	useFrame(() => {
 		const xButtonPressed = gamepadControls().action;
 		if (isDetected && xButtonPressed && !prevXButtonRef.current) {
-			const canTriggerRaid = !knockedRooms.includes(playerPositionRoom);
 			setTv(!tv);
 			setActiveTv(playerPositionRoom);
 		}
@@ -77,7 +76,6 @@ export default function Tv() {
 
 	useEffect(() => {
 		if (isDetected && mobileClick) {
-			const canTriggerRaid = !knockedRooms.includes(playerPositionRoom);
 			setTv(!tv);
 			setActiveTv(playerPositionRoom);
 			setMobileClick(false);
@@ -113,7 +111,6 @@ export default function Tv() {
 			<mesh
 				onPointerDown={(e) => {
 					if (e.button === 0) {
-						const canTriggerRaid = !knockedRooms.includes(playerPositionRoom);
 						setTv(!tv);
 						setActiveTv(playerPositionRoom);
 					}

@@ -88,6 +88,11 @@ const useEndGameAnimation = create(
 			const startPosition = initialCameraPosition || new THREE.Vector3(0, 0, 0);
 			const startRotation = initialCameraRotation || new THREE.Euler(0, 0, 0);
 
+			console.log(
+				'[DEBUG] Starting end game animation with points:',
+				points.length
+			);
+
 			set({
 				isPlaying: true,
 				currentPointIndex: 0,
@@ -104,6 +109,8 @@ const useEndGameAnimation = create(
 		},
 
 		stopAnimation: () => {
+			console.log('[DEBUG] Stopping end game animation');
+
 			set({
 				isPlaying: false,
 				currentPointIndex: 0,

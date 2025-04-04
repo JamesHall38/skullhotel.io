@@ -19,6 +19,7 @@ export default function Bedroom() {
 	);
 	const materialRef = useRef();
 	const alternateTutorialRoom = useGame((state) => state.alternateTutorialRoom);
+	const isTutorialOpen = useGame((state) => state.isTutorialOpen);
 
 	const textureParts = [
 		{
@@ -305,14 +306,7 @@ export default function Bedroom() {
 				material={materialRef.current}
 			/>
 
-			{!alternateTutorialRoom ? (
-				<mesh
-					castShadow
-					receiveShadow
-					geometry={nodes.skull.geometry}
-					material={materialRef.current}
-				/>
-			) : (
+			{alternateTutorialRoom && isTutorialOpen ? (
 				<mesh
 					castShadow
 					receiveShadow
@@ -320,6 +314,13 @@ export default function Bedroom() {
 					material={skullMaterials.bones}
 					scale={0.01}
 					position={[-1.5, 1.5, 0]}
+				/>
+			) : (
+				<mesh
+					castShadow
+					receiveShadow
+					geometry={nodes.skull.geometry}
+					material={materialRef.current}
 				/>
 			)}
 

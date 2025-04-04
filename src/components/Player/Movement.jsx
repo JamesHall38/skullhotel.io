@@ -10,8 +10,8 @@ import useGridStore, { CELL_TYPES } from '../../hooks/useGrid';
 import useDoorStore from '../../hooks/useDoor';
 import useGameplaySettings from '../../hooks/useGameplaySettings';
 
-const WALK_SPEED = 0.5;
-const RUN_SPEED = 1;
+const WALK_SPEED = 0.75;
+const RUN_SPEED = 1.25;
 const MOBILE_SPEED = (WALK_SPEED + RUN_SPEED) / 2;
 const CROUCH_SPEED = 1;
 const CROUCH_CAMERA_OFFSET = 0.8;

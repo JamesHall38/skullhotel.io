@@ -67,7 +67,6 @@ export default function FootSteps({ playerPosition, playerVelocity }) {
 
 	const resetFootstepSound = useGame((state) => state.resetFootstepSound);
 	const setResetFootstepSound = useGame((state) => state.setResetFootstepSound);
-	const isRunning = useGame((state) => state.isRunning);
 	const isMobile = useGame((state) => state.isMobile);
 	const getKeys = useKeyboardControls()[1];
 	const getGamepadControls = useGamepadControls();

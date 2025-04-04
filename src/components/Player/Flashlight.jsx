@@ -21,6 +21,9 @@ export default function Flashlight({ playerRef, crouchProgressRef }) {
 	const flashlightEnabled = useLight((state) => state.flashlightEnabled);
 	const isPlayerHidden = useHiding((state) => state.isPlayerHidden);
 	const disableControls = useGame((state) => state.disableControls);
+	const monsterAttackDisableControls = useGame(
+		(state) => state.monsterAttackDisableControls
+	);
 	const spotLightRef = useRef();
 	const targetRef = useRef(new THREE.Vector3());
 	const currentLightPos = useRef(new THREE.Vector3());
@@ -226,7 +229,7 @@ export default function Flashlight({ playerRef, crouchProgressRef }) {
 		const camera = state.camera;
 		const currentQuaternion = camera.quaternion.clone();
 
-		if (disableControls) {
+		if (disableControls && !monsterAttackDisableControls) {
 			if (!wasDisabledRef.current) {
 				jumpscareLerpTimeRef.current = 0;
 				wasDisabledRef.current = true;

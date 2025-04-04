@@ -14,18 +14,6 @@ import {
 	isValidPlayerName,
 } from '../../../firebase/guestBookService';
 
-function reset() {
-	regenerateData();
-	useGame.getState().restart();
-	useInterface.getState().restart();
-	useDoor.getState().restart();
-	useMonster.getState().restart();
-	useLight.getState().restart();
-	useGridStore.getState().isInitialized = false;
-	useGridStore.getState().initializeIfNeeded();
-	useGame.getState().setPlayIntro(true);
-}
-
 const EndGameScreen = () => {
 	const [playerName, setPlayerName] = useState('');
 	const [isSubmitting, setIsSubmitting] = useState(false);
@@ -34,13 +22,29 @@ const EndGameScreen = () => {
 	const [focusedElement, setFocusedElement] = useState(0);
 	const interactiveElements = useRef([]);
 
+	const restart = useGame((state) => state.restart);
+	const incrementRealDeaths = useGame((state) => state.incrementRealDeaths);
+	const realDeaths = useGame((state) => state.realDeaths);
+	const restartInterface = useInterface((state) => state.restart);
+	const restartDoor = useDoor((state) => state.restart);
+	const restartMonster = useMonster((state) => state.restart);
+	const restartLight = useLight((state) => state.restart);
+	const initializeIfNeeded = useGridStore((state) => state.initializeIfNeeded);
+
+	const setPlayIntro = useGame((state) => state.setPlayIntro);
 	const isEndScreen = useGame((state) => state.isEndScreen);
 	const setIsEndScreen = useGame((state) => state.setIsEndScreen);
 	const setIsEndAnimationPlaying = useGame(
 		(state) => state.setIsEndAnimationPlaying
 	);
+	const setEndAnimationPlaying = useGame(
+		(state) => state.setEndAnimationPlaying
+	);
 	const deviceMode = useGame((state) => state.deviceMode);
 	const gameStartTime = useGame((state) => state.gameStartTime);
+	const gameEndTime = useGame((state) => state.gameEndTime);
+	const setGameStartTime = useGame((state) => state.setGameStartTime);
+	const deaths = useGame((state) => state.deaths);
 	const setIsAnyPopupOpen = useInterface((state) => state.setIsAnyPopupOpen);
 
 	const [completionTime, setCompletionTime] = useState(0);
@@ -54,13 +58,27 @@ const EndGameScreen = () => {
 			setFocusedElement(0);
 			setIsAnyPopupOpen(true);
 
-			const endTime = Date.now();
-			const timeTaken = Math.floor((endTime - gameStartTime) / 1000);
+			const timeTaken = gameEndTime
+				? Math.floor((gameEndTime - gameStartTime) / 1000)
+				: 0;
 			setCompletionTime(timeTaken);
+
+			setTimeout(() => {
+				const canvas = document.querySelector('canvas');
+				if (canvas && canvas._reactInternals) {
+					const camera =
+						canvas._reactInternals.fiber.reconciler.config.roots[0]
+							.containerInfo._internalRoot.current.child.child.memoizedState
+							.instance.state.gl.camera;
+					camera.position.set(10.77, 1.5, -3);
+					camera.rotation.set(0, Math.PI, 0);
+					camera.updateMatrixWorld(true);
+				}
+			}, 200);
 		} else {
 			setIsAnyPopupOpen(false);
 		}
-	}, [isEndScreen, gameStartTime, setIsAnyPopupOpen]);
+	}, [isEndScreen, gameStartTime, gameEndTime, setIsAnyPopupOpen]);
 
 	useEffect(() => {
 		if (isEndScreen && deviceMode === 'keyboard') {
@@ -167,22 +185,30 @@ const EndGameScreen = () => {
 	}, [focusedElement]);
 
 	const resetGame = () => {
-		reset();
 		setIsEndScreen(false);
 		setIsEndAnimationPlaying(false);
+		setEndAnimationPlaying(false);
+		setIsAnyPopupOpen(false);
 
-		setTimeout(() => {
-			setIsAnyPopupOpen(false);
+		incrementRealDeaths();
+		restart();
+		restartDoor();
+		restartMonster();
+		restartLight();
+		regenerateData();
+		initializeIfNeeded();
+		restartInterface();
+		setPlayIntro(true);
 
-			setTimeout(() => {
-				if (deviceMode === 'keyboard') {
-					const canvas = document.querySelector('canvas');
-					if (canvas) {
-						canvas.requestPointerLock();
-					}
-				}
-			}, 100);
-		}, 150);
+		// Reset game state
+		setGameStartTime();
+
+		if (deviceMode === 'keyboard') {
+			const canvas = document.querySelector('canvas');
+			if (canvas) {
+				canvas.requestPointerLock();
+			}
+		}
 	};
 
 	const validatePlayerName = (name) => {
@@ -219,7 +245,12 @@ const EndGameScreen = () => {
 		if (playerName.trim() && !isSubmitting && !nameError) {
 			setIsSubmitting(true);
 			try {
-				await addGuestBookEntry(playerName.trim(), gameStartTime, Date.now());
+				await addGuestBookEntry(
+					playerName.trim(),
+					gameStartTime,
+					gameEndTime,
+					realDeaths
+				);
 				setSubmitted(true);
 			} catch (error) {
 				console.error('Failed to submit score:', error);

@@ -7,13 +7,24 @@ const useGameStore = create(
 	subscribeWithSelector((set) => ({
 		seedData: seed,
 		deaths: 0,
+		setDeaths: (state) => set(() => ({ deaths: state })),
 
-		// Timestamp du début du jeu
+		realDeaths: 0,
+		incrementRealDeaths: () =>
+			set((state) => ({ realDeaths: state.realDeaths + 1 })),
+
 		gameStartTime: Date.now(),
 		setGameStartTime: () => set({ gameStartTime: Date.now() }),
 
+		gameEndTime: null,
+		setGameEndTime: () => set({ gameEndTime: Date.now() }),
+
 		disableControls: false,
 		setDisableControls: (state) => set(() => ({ disableControls: state })),
+
+		monsterAttackDisableControls: false,
+		setMonsterAttackDisableControls: (state) =>
+			set(() => ({ monsterAttackDisableControls: state })),
 
 		isPlaying: false,
 		setIsPlaying: (state) => set(() => ({ isPlaying: state })),
@@ -165,11 +176,6 @@ const useGameStore = create(
 		isListening: false,
 		setIsListening: (value) => set({ isListening: value }),
 
-		// Objectives
-		monsterKnockDuration: 5000,
-		setMonsterKnockDuration: (duration) =>
-			set({ monsterKnockDuration: duration }),
-
 		jumpScare: false,
 		setJumpScare: (state) => set({ jumpScare: state }),
 
@@ -212,10 +218,11 @@ const useGameStore = create(
 				seedData: seed,
 				customDeathMessage: null,
 				disableControls: false,
+				monsterAttackDisableControls: false,
 				completedObjective: null,
 				completedRoom: null,
-				gameStartTime: Date.now(),
 				endAnimationPlaying: false,
+				gameEndTime: null,
 			}));
 			useHiding.getState().restart();
 		},

@@ -8,7 +8,6 @@ import * as THREE from 'three';
 import DetectionZone from '../DetectionZone';
 import FabricMaterial from '../materials/FabricMaterial';
 import useGameplaySettings from '../../hooks/useGameplaySettings';
-import useDoor from '../../hooks/useDoor';
 import useGamepadControls from '../../hooks/useGamepadControls';
 
 const CORRIDORLENGTH = 5.95;
@@ -40,7 +39,6 @@ export default function Bedsheets() {
 		(state) => state.setInterfaceObjectives
 	);
 	const { camera } = useThree();
-	const tutorialDoor = useDoor((state) => state.tutorial);
 	const deviceMode = useGame((state) => state.deviceMode);
 	const gamepadControlsRef = useGamepadControls();
 	const wasActionPressedRef = useRef(false);

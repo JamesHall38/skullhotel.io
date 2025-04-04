@@ -20,17 +20,14 @@ const EndGameAnimation = () => {
 	const fadeInterval = useRef(null);
 	const endgameLightRef = useRef(null);
 	const punchSoundRef = useRef(null);
+	const [hasCompletedAnimation, setHasCompletedAnimation] = useState(false);
 
-	const [lightVisible, setLightVisible] = useState(false);
 	const [lightPosition, setLightPosition] = useState([0, 0, 0]);
 
 	const setIsLocked = useGame((state) => state.setIsLocked);
 	const setDisableControls = useGame((state) => state.setDisableControls);
 	const setShakeIntensity = useGame((state) => state.setShakeIntensity);
 	const setBathroomLight = useGame((state) => state.setBathroomLight);
-	const resetBathroomLightPosition = useGame(
-		(state) => state.resetBathroomLightPosition
-	);
 	const bathroomLightRef = useGame((state) => state.bathroomLightRef);
 	const setAlternateTutorialRoom = useGame(
 		(state) => state.setAlternateTutorialRoom
@@ -40,6 +37,11 @@ const EndGameAnimation = () => {
 	);
 	const setIsEndScreen = useGame((state) => state.setIsEndScreen);
 	const endAnimationPlaying = useGame((state) => state.endAnimationPlaying);
+	const setEndAnimationPlaying = useGame(
+		(state) => state.setEndAnimationPlaying
+	);
+	const deaths = useGame((state) => state.deaths);
+	const isEndScreen = useGame((state) => state.isEndScreen);
 
 	const setFlashlightEnabled = useLight((state) => state.setFlashlightEnabled);
 
@@ -62,7 +64,15 @@ const EndGameAnimation = () => {
 		updateAnimation,
 		setPointFunction,
 		getPointPosition,
+		stopAnimation,
 	} = useEndGameAnimation();
+
+	useEffect(() => {
+		if (!isEndScreen) {
+			setHasCompletedAnimation(false);
+			hasTriggeredAnimation.current = false;
+		}
+	}, [deaths, isEndScreen]);
 
 	const _tempQuaternion1 = new THREE.Quaternion();
 	const _tempQuaternion2 = new THREE.Quaternion();
@@ -70,14 +80,10 @@ const EndGameAnimation = () => {
 
 	useEffect(() => {
 		if (isPlaying) {
-			setLightVisible(true);
-
 			if (bathroomLightRef) {
 				bathroomLightRef.visible = false;
 			}
 		} else {
-			setLightVisible(false);
-
 			if (bathroomLightRef) {
 				bathroomLightRef.visible = true;
 				bathroomLightRef.position.copy(DEFAULT_BATHROOM_POSITION);
@@ -151,8 +157,6 @@ const EndGameAnimation = () => {
 		}
 		setFadeToBlack(0);
 		setShakeIntensity(0);
-
-		setLightVisible(false);
 	}, [
 		setMonsterPosition,
 		setMonsterState,
@@ -183,7 +187,7 @@ const EndGameAnimation = () => {
 	}, []);
 
 	const triggerEndGameAnimation = useCallback(() => {
-		if (hasTriggeredAnimation.current) return;
+		if (hasTriggeredAnimation.current || hasCompletedAnimation) return;
 
 		hasTriggeredAnimation.current = true;
 
@@ -194,6 +198,9 @@ const EndGameAnimation = () => {
 
 		setIsLocked(true);
 		setDisableControls(true);
+
+		// Save the game end time
+		useGame.getState().setGameEndTime();
 
 		setTimeout(() => {
 			setMonsterPosition([10.7, -0, -0.43]);
@@ -229,13 +236,45 @@ const EndGameAnimation = () => {
 		setMonsterState,
 		startAnimation,
 		setFadeToBlack,
+		hasCompletedAnimation,
 	]);
 
 	useEffect(() => {
-		if (endAnimationPlaying && !isPlaying) {
+		if (!hasCompletedAnimation && endAnimationPlaying && !isPlaying) {
 			triggerEndGameAnimation();
 		}
-	}, [endAnimationPlaying, isPlaying, triggerEndGameAnimation]);
+	}, [
+		endAnimationPlaying,
+		isPlaying,
+		triggerEndGameAnimation,
+		hasCompletedAnimation,
+	]);
+
+	const resetEndAnimation = useCallback(() => {
+		hideMonster();
+		hasTriggeredAnimation.current = false;
+		setFadeToBlack(0);
+		isFadingOut.current = false;
+		shouldFade.current = false;
+		isLerpingToCamera.current = false;
+		stopAnimation();
+		setIsEndAnimationPlaying(false);
+		setEndAnimationPlaying(false);
+		setHasCompletedAnimation(true);
+
+		setTimeout(() => {
+			camera.position.set(10.77, 1.5, -3);
+			camera.rotation.set(0, Math.PI, 0);
+			camera.updateMatrixWorld(true);
+		}, 100);
+	}, [
+		hideMonster,
+		setFadeToBlack,
+		stopAnimation,
+		setIsEndAnimationPlaying,
+		setEndAnimationPlaying,
+		camera,
+	]);
 
 	useEffect(() => {
 		setPointFunction(0, () => {
@@ -254,6 +293,7 @@ const EndGameAnimation = () => {
 		setPointFunction(4, () => {
 			setIsEndScreen(true);
 			setFlashlightEnabled(true);
+			resetEndAnimation();
 		});
 
 		return () => {
@@ -271,6 +311,7 @@ const EndGameAnimation = () => {
 		setIsEndAnimationPlaying,
 		setIsEndScreen,
 		setFlashlightEnabled,
+		resetEndAnimation,
 	]);
 
 	useEffect(() => {
@@ -290,22 +331,8 @@ const EndGameAnimation = () => {
 		}
 	}, [isPlaying, hideMonster, setFadeToBlack]);
 
-	useEffect(() => {
-		return () => {
-			resetBathroomLightPosition();
-
-			if (fadeInterval.current) {
-				clearInterval(fadeInterval.current);
-			}
-
-			if (bathroomLightRef) {
-				bathroomLightRef.visible = true;
-			}
-		};
-	}, [resetBathroomLightPosition, bathroomLightRef]);
-
 	useFrame((_, delta) => {
-		if (isPlaying) {
+		if (isPlaying && !hasCompletedAnimation) {
 			const cappedDelta = Math.min(delta, 0.1);
 
 			updateAnimation(cappedDelta);
@@ -383,10 +410,9 @@ const EndGameAnimation = () => {
 			<pointLight
 				ref={endgameLightRef}
 				color="#fff5e6"
-				intensity={BATHROOM_LIGHT_INTENSITY}
+				intensity={isPlaying ? BATHROOM_LIGHT_INTENSITY : 0}
 				distance={10}
 				position={lightPosition}
-				visible={lightVisible}
 				castShadow={false}
 			/>
 		</>

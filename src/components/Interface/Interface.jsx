@@ -255,6 +255,7 @@ export default function Interface() {
 		(state) => state.setTutorialObjectives
 	);
 	const setPlayIntro = useGame((state) => state.setPlayIntro);
+	const setGameStartTime = useGame((state) => state.setGameStartTime);
 	const { progress } = useProgress();
 	const [displayProgress, setDisplayProgress] = useState(0);
 	const [loading, setLoading] = useState(true);
@@ -267,6 +268,7 @@ export default function Interface() {
 	const roomCount = useGameplaySettings((state) => state.roomCount);
 	const openDeathScreen = useGame((state) => state.openDeathScreen);
 	const setOpenDeathScreen = useGame((state) => state.setOpenDeathScreen);
+	const incrementRealDeaths = useGame((state) => state.incrementRealDeaths);
 	const playerPositionRoom = useGame((state) => state.playerPositionRoom);
 	const seedData = useGame((state) => state.seedData);
 	const setIsPlaying = useGame((state) => state.setIsPlaying);
@@ -293,6 +295,7 @@ export default function Interface() {
 	const interfaceAction = useInterface((state) => state.interfaceAction);
 	const [activeDialogues, setActiveDialogues] = useState([]);
 	const deviceMode = useGame((state) => state.deviceMode);
+	const [isRestarting, setIsRestarting] = useState(false);
 
 	const queue = useTextureQueue((state) => state.queues);
 	const oldQueue = useRef(queue);
@@ -471,13 +474,17 @@ export default function Interface() {
 			for (const gamepad of gamepads) {
 				if (gamepad && gamepad.connected) {
 					const xButtonPressed = gamepad.buttons[2]?.pressed;
-					if (xButtonPressed) {
-						resetGame();
-						regenerateData();
-						useGridStore.getState().initializeIfNeeded();
+					if (xButtonPressed && !isRestarting) {
+						setIsRestarting(true);
 						setTimeout(() => {
-							setOpenDeathScreen(false);
-						}, 100);
+							resetGame();
+							regenerateData();
+							useGridStore.getState().initializeIfNeeded();
+							setTimeout(() => {
+								setOpenDeathScreen(false);
+								setIsRestarting(false);
+							}, 100);
+						}, 500);
 					}
 				}
 			}
@@ -485,7 +492,7 @@ export default function Interface() {
 
 		const interval = setInterval(checkGamepadXButton, 100);
 		return () => clearInterval(interval);
-	}, [openDeathScreen, deviceMode, setOpenDeathScreen]);
+	}, [openDeathScreen, deviceMode, setOpenDeathScreen, isRestarting]);
 
 	useEffect(() => {
 		if (deviceMode !== 'gamepad') return;
@@ -498,19 +505,25 @@ export default function Interface() {
 				if (gamepad && gamepad.connected) {
 					const aButtonPressed = gamepad.buttons[0]?.pressed;
 
-					if (openDeathScreen && aButtonPressed) {
-						resetGame();
-						regenerateData();
-						useGridStore.getState().initializeIfNeeded();
+					if (openDeathScreen && aButtonPressed && !isRestarting) {
+						incrementRealDeaths();
+						setIsRestarting(true);
 						setTimeout(() => {
-							setOpenDeathScreen(false);
-						}, 10);
+							resetGame();
+							regenerateData();
+							useGridStore.getState().initializeIfNeeded();
+							setTimeout(() => {
+								setOpenDeathScreen(false);
+								setIsRestarting(false);
+							}, 100);
+						}, 500);
 						return;
 					}
 
 					if (loading && displayProgress === 100 && aButtonPressed) {
 						setLoading(false);
 						setPlayIntro(true);
+						setGameStartTime();
 						return;
 					}
 				}
@@ -528,6 +541,8 @@ export default function Interface() {
 		setPlayIntro,
 		setOpenDeathScreen,
 		setEnd,
+		setGameStartTime,
+		isRestarting,
 	]);
 
 	return (
@@ -559,6 +574,7 @@ export default function Interface() {
 						} else {
 							setLoading(false);
 							setPlayIntro(true);
+							setGameStartTime();
 							// setIsPlaying(true);
 						}
 					}}
@@ -747,12 +763,20 @@ export default function Interface() {
 				<div
 					className="death-screen"
 					onClick={() => {
-						resetGame();
-						regenerateData();
-						useGridStore.getState().initializeIfNeeded();
+						if (isRestarting) return;
+
+						setIsRestarting(true);
+						incrementRealDeaths();
+
 						setTimeout(() => {
-							setOpenDeathScreen(false);
-						}, 100);
+							resetGame();
+							regenerateData();
+							useGridStore.getState().initializeIfNeeded();
+							setTimeout(() => {
+								setOpenDeathScreen(false);
+								setIsRestarting(false);
+							}, 100);
+						}, 500);
 					}}
 				>
 					<div className="title">You died</div>
@@ -774,7 +798,7 @@ export default function Interface() {
 								to start
 							</>
 						) : (
-							<>click to start</>
+							<>{isRestarting ? 'Restarting...' : 'click to start'}</>
 						)}
 					</div>
 				</div>

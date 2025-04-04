@@ -36,6 +36,27 @@ export const getAdjustedPosition = (initialPosition, isFacingRoom) => {
 	return [-initialPosition[0], initialPosition[1], -initialPosition[2]];
 };
 
+export const getLookAtPointPosition = (
+	lookAtPoint,
+	playerPositionRoom,
+	roomCount,
+	position
+) => {
+	if (!lookAtPoint) return null;
+
+	const isFacingRoom = playerPositionRoom >= roomCount / 2;
+
+	const x = lookAtPoint[0] + position[0];
+	const y = lookAtPoint[1];
+	const z = lookAtPoint[2] + position[2];
+
+	if (isFacingRoom) {
+		return new THREE.Vector3(-x, y, -z);
+	}
+
+	return new THREE.Vector3(x, y, z);
+};
+
 export const playerIsLookingAtBox = (box, camera, crouch) => {
 	if (!box?.current) return false;
 
@@ -61,51 +82,6 @@ export const playerIsInsideZone = (box, raycaster, camera) => {
 	return raycaster.ray.intersectsBox(box.current);
 };
 
-export const shakeCamera = (
-	clock,
-	condition,
-	setShakeIntensity,
-	shakeIntensity,
-	delay = false
-) => {
-	const deltaTime = clock.getDelta();
-
-	if (condition) {
-		if (delay && shakeIntensity === 0) {
-			shakeDelayTimer += deltaTime;
-
-			if (shakeDelayTimer < 0.01) {
-				return false;
-			}
-		}
-
-		if (shakeIntensity < SHAKE_THRESHOLD) {
-			const newIntensity = Math.min(
-				10,
-				shakeIntensity + SHAKE_INCREASE_RATE * deltaTime
-			);
-			setShakeIntensity(newIntensity);
-
-			if (newIntensity >= SHAKE_THRESHOLD) {
-				shakeDelayTimer = 0;
-				return true;
-			}
-		} else {
-			shakeDelayTimer = 0;
-			return true;
-		}
-	} else {
-		shakeDelayTimer = 0;
-		if (shakeIntensity > 0) {
-			setShakeIntensity(
-				Math.max(0, shakeIntensity - SHAKE_DECREASE_RATE * deltaTime)
-			);
-		}
-	}
-
-	return false;
-};
-
 export const placeMonsterAtSecondPosition = (
 	seedData,
 	playerPositionRoom,
@@ -115,22 +91,60 @@ export const placeMonsterAtSecondPosition = (
 	roomCount
 ) => {
 	setMonsterState('facingCamera');
-	setMonsterPosition(
-		getAdjustedPosition(
-			[
-				position[0] +
-					(Object.values(seedData)[playerPositionRoom].monsterPosition?.[0] ||
-						0),
-				position[1] +
-					(Object.values(seedData)[playerPositionRoom].monsterPosition?.[1] ||
-						0),
-				position[2] +
-					(Object.values(seedData)[playerPositionRoom].monsterPosition?.[2] ||
-						0),
-			],
-			playerPositionRoom >= roomCount / 2,
-			playerPositionRoom,
-			roomCount
-		)
-	);
+
+	const monsterInitialPosition =
+		Object.values(seedData)[playerPositionRoom]?.monsterInitialPosition;
+	const monsterInitialRotation =
+		Object.values(seedData)[playerPositionRoom]?.monsterInitialRotation;
+
+	if (monsterInitialPosition && monsterInitialRotation) {
+		let roomX;
+		if (playerPositionRoom >= roomCount / 2) {
+			roomX = -(playerPositionRoom - roomCount / 2) * 5.95;
+		} else {
+			roomX = -playerPositionRoom * 5.95;
+		}
+		setMonsterPosition([
+			monsterInitialPosition[0] + roomX + position[0],
+			monsterInitialPosition[1] || 0,
+			monsterInitialPosition[2] + position[2],
+		]);
+	}
+};
+
+export const shakeCamera = (
+	clock,
+	shouldShake,
+	setShakeIntensity,
+	shakeIntensity,
+	delayed
+) => {
+	const deltaTime = clock.getDelta();
+
+	if (shouldShake) {
+		if (delayed) {
+			shakeDelayTimer += deltaTime;
+			if (shakeDelayTimer > 1) {
+				shakeDelayTimer = 0;
+				setShakeIntensity(
+					Math.min(10, shakeIntensity + SHAKE_INCREASE_RATE * deltaTime * 60)
+				);
+				return shakeIntensity > SHAKE_THRESHOLD;
+			}
+		} else {
+			setShakeIntensity(
+				Math.min(10, shakeIntensity + SHAKE_INCREASE_RATE * deltaTime * 60)
+			);
+			return shakeIntensity > SHAKE_THRESHOLD;
+		}
+	} else {
+		if (shakeIntensity > 0) {
+			setShakeIntensity(
+				Math.max(0, shakeIntensity - SHAKE_DECREASE_RATE * deltaTime * 60)
+			);
+		}
+		shakeDelayTimer = 0;
+	}
+
+	return false;
 };
