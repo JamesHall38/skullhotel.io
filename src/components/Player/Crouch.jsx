@@ -29,11 +29,14 @@ export default function Crouch({
 	const roomCount = useGameplaySettings((state) => state.roomCount);
 	const isAnyPopupOpen = useInterface((state) => state.isAnyPopupOpen);
 	const introIsPlaying = useGame((state) => state.introIsPlaying);
+	const [isCrouchLocked, setIsCrouchLocked] = useState(false);
+	const lastCrouchStateRef = useRef(false);
 
 	const resetCrouchState = useCallback(() => {
 		isCrouchingRef.current = false;
 		crouchProgressRef.current = 0;
 		wantsToStandUpRef.current = false;
+		setIsCrouchLocked(false);
 	}, [isCrouchingRef, crouchProgressRef]);
 
 	useEffect(() => {
@@ -60,26 +63,43 @@ export default function Crouch({
 		[getCell, gridOffsetX]
 	);
 
+	const toggleCrouchLock = useCallback(() => {
+		if (monsterState === 'run' || isAnyPopupOpen || introIsPlaying) return;
+
+		if (isCrouchLocked && checkCrouchArea(playerPosition.current)) return;
+
+		setIsCrouchLocked((prev) => !prev);
+
+		if (!isCrouchLocked) {
+			isCrouchingRef.current = true;
+			wantsToStandUpRef.current = false;
+		} else {
+			if (!checkCrouchArea(playerPosition.current)) {
+				isCrouchingRef.current = false;
+			}
+		}
+	}, [
+		isCrouchLocked,
+		checkCrouchArea,
+		playerPosition,
+		isCrouchingRef,
+		monsterState,
+		isAnyPopupOpen,
+		introIsPlaying,
+	]);
+
 	const handleCrouchChange = useCallback(
 		(shouldCrouch) => {
 			if (monsterState === 'run' || isAnyPopupOpen || introIsPlaying) return;
 
-			if (shouldCrouch) {
-				isCrouchingRef.current = true;
-			} else if (!checkCrouchArea(playerPosition.current)) {
-				isCrouchingRef.current = false;
-			} else {
-				wantsToStandUpRef.current = true;
+			if (shouldCrouch !== lastCrouchStateRef.current) {
+				if (shouldCrouch) {
+					toggleCrouchLock();
+				}
+				lastCrouchStateRef.current = shouldCrouch;
 			}
 		},
-		[
-			checkCrouchArea,
-			playerPosition,
-			isCrouchingRef,
-			monsterState,
-			isAnyPopupOpen,
-			introIsPlaying,
-		]
+		[toggleCrouchLock, monsterState, isAnyPopupOpen, introIsPlaying]
 	);
 
 	useEffect(() => {
@@ -88,10 +108,12 @@ export default function Crouch({
 
 		const handleKeyDown = (event) => {
 			if (event.code === 'ControlLeft' || event.code === 'ControlRight') {
-				handleCrouchChange(true);
-			}
-			if (event.ctrlKey) {
-				event.preventDefault();
+				if (!event.repeat) {
+					handleCrouchChange(true);
+				}
+				if (event.ctrlKey) {
+					event.preventDefault();
+				}
 			}
 		};
 
@@ -113,12 +135,17 @@ export default function Crouch({
 		if (isMobile) return;
 		if (deviceMode !== 'gamepad') return;
 
+		let lastGamepadCrouchState = false;
+
 		const checkGamepad = () => {
 			const gamepadControls = gamepadControlsRef();
-			if (gamepadControls.crouch) {
-				handleCrouchChange(true);
-			} else {
-				handleCrouchChange(false);
+			if (gamepadControls.crouch !== lastGamepadCrouchState) {
+				if (gamepadControls.crouch) {
+					handleCrouchChange(true);
+				} else {
+					handleCrouchChange(false);
+				}
+				lastGamepadCrouchState = gamepadControls.crouch;
 			}
 		};
 
@@ -130,11 +157,7 @@ export default function Crouch({
 	useEffect(() => {
 		if (!isMobile) return;
 
-		if (controls.crouch) {
-			handleCrouchChange(true);
-		} else {
-			handleCrouchChange(false);
-		}
+		handleCrouchChange(controls.crouch);
 	}, [controls.crouch, handleCrouchChange, isMobile]);
 
 	useFrame(() => {
@@ -142,7 +165,12 @@ export default function Crouch({
 			return;
 		}
 
-		if (wantsToStandUpRef.current && !checkCrouchArea(playerPosition.current)) {
+		if (isCrouchLocked) {
+			isCrouchingRef.current = true;
+		} else if (
+			wantsToStandUpRef.current &&
+			!checkCrouchArea(playerPosition.current)
+		) {
 			isCrouchingRef.current = false;
 			wantsToStandUpRef.current = false;
 		}

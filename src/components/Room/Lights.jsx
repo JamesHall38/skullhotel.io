@@ -1,7 +1,9 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { Color } from 'three';
 import useGame from '../../hooks/useGame';
+import useGameplaySettings from '../../hooks/useGameplaySettings';
+import useDoor from '../../hooks/useDoor';
 
 const MAX_INTENSITY = 1.5;
 const BATHROOM_MAX_INTENSITY = MAX_INTENSITY / 2;
@@ -11,9 +13,14 @@ const DEFAULT_COLOR = new Color('#fff5e6');
 
 export default function Lights() {
 	const roomLight = useGame((state) => state.roomLight);
+	const setRoomLight = useGame((state) => state.setRoomLight);
 	const bathroomLight = useGame((state) => state.bathroomLight);
+	const setBathroomLight = useGame((state) => state.setBathroomLight);
 	const shakeIntensity = useGame((state) => state.shakeIntensity);
 	const deaths = useGame((state) => state.deaths);
+	const playerPositionRoom = useGame((state) => state.playerPositionRoom);
+	const roomCount = useGameplaySettings((state) => state.roomCount);
+	const tutorialDoor = useDoor((state) => state.tutorial);
 	const [animatedMode, setAnimatedMode] = useState(false);
 	const [isIntensityIncreasing, setIsIntensityIncreasing] = useState(false);
 	const roomLightRef = useRef();
@@ -22,6 +29,13 @@ export default function Lights() {
 	const savedBathroomIntensity = useRef(0);
 	const savedRoomColor = useRef(new Color());
 	const savedBathroomColor = useRef(new Color());
+	const roomLightsStateRef = useRef(Array(roomCount).fill(false));
+	const bathroomLightsStateRef = useRef(Array(roomCount).fill(false));
+	const playerPositionRoomRef = useRef(playerPositionRoom);
+
+	useEffect(() => {
+		playerPositionRoomRef.current = playerPositionRoom;
+	}, [playerPositionRoom]);
 
 	const updateLightColor = (
 		intensity,
@@ -38,20 +52,59 @@ export default function Lights() {
 			.lerp(TARGET_COLOR, Math.max(0, Math.min(1, t)));
 	};
 
-	const resetLights = () => {
+	const resetLights = useCallback(() => {
 		setAnimatedMode(false);
 		setIsIntensityIncreasing(false);
 		roomLightRef.current.intensity = 0;
 		roomLightRef.current.color.copy(DEFAULT_COLOR);
 		bathroomLightRef.current.intensity = 0;
 		bathroomLightRef.current.color.copy(DEFAULT_COLOR);
-	};
+		roomLightsStateRef.current = Array(roomCount).fill(false);
+		bathroomLightsStateRef.current = Array(roomCount).fill(false);
+	}, [roomCount]);
 
 	useEffect(() => {
 		if (deaths > 0) {
 			resetLights();
 		}
-	}, [deaths]);
+	}, [deaths, resetLights]);
+
+	useEffect(() => {
+		if (!animatedMode && playerPositionRoomRef.current !== null) {
+			roomLightsStateRef.current[playerPositionRoomRef.current] = roomLight;
+		}
+	}, [roomLight, animatedMode]);
+
+	useEffect(() => {
+		if (!animatedMode && playerPositionRoomRef.current !== null) {
+			bathroomLightsStateRef.current[playerPositionRoomRef.current] =
+				bathroomLight;
+		}
+	}, [bathroomLight, animatedMode]);
+
+	useEffect(() => {
+		if (playerPositionRoom !== null && !animatedMode) {
+			const savedRoomLightState =
+				roomLightsStateRef.current[playerPositionRoom];
+			const savedBathroomLightState =
+				bathroomLightsStateRef.current[playerPositionRoom];
+
+			if (roomLight !== savedRoomLightState) {
+				setRoomLight(savedRoomLightState);
+			}
+
+			if (bathroomLight !== savedBathroomLightState) {
+				setBathroomLight(savedBathroomLightState);
+			}
+		}
+	}, [
+		playerPositionRoom,
+		animatedMode,
+		roomLight,
+		bathroomLight,
+		setRoomLight,
+		setBathroomLight,
+	]);
 
 	useEffect(() => {
 		if (!animatedMode) {
@@ -66,6 +119,15 @@ export default function Lights() {
 			bathroomLightRef.current.color.copy(DEFAULT_COLOR);
 		}
 	}, [bathroomLight, animatedMode]);
+
+	useEffect(() => {
+		if (tutorialDoor) {
+			setRoomLight(true);
+		}
+		if (tutorialDoor) {
+			setBathroomLight(true);
+		}
+	}, [tutorialDoor, setRoomLight, setBathroomLight]);
 
 	useEffect(() => {
 		if (shakeIntensity > 0 && !animatedMode && !isIntensityIncreasing) {

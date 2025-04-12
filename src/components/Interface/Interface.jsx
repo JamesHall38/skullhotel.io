@@ -474,7 +474,12 @@ export default function Interface() {
 			for (const gamepad of gamepads) {
 				if (gamepad && gamepad.connected) {
 					const xButtonPressed = gamepad.buttons[2]?.pressed;
-					if (xButtonPressed && !isRestarting) {
+					const leftTriggerPressed = gamepad.buttons[6]?.pressed; // L2/LT
+					const rightTriggerPressed = gamepad.buttons[7]?.pressed; // R2/RT
+					const actionPressed =
+						xButtonPressed || leftTriggerPressed || rightTriggerPressed;
+
+					if (actionPressed && !isRestarting) {
 						setIsRestarting(true);
 						setTimeout(() => {
 							resetGame();

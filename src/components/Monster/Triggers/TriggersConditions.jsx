@@ -407,6 +407,27 @@ export default function TriggersConditions({
 		camera.quaternion.slerp(targetQuaternion, adaptiveIntensity);
 	}
 
+	function playHunterIdleAnimation(
+		isCeilingType,
+		isNightstandType,
+		isLivingRoomType
+	) {
+		setMonsterState('hidden');
+
+		if (isLivingRoomType) {
+			playAnimation('Wall');
+		} else if (isCeilingType) {
+			playAnimation('CeilingCrawlIdle');
+		} else if (
+			isNightstandType &&
+			!hunterTriggeredRoomsRef.current[playerPositionRoom]
+		) {
+			playAnimation('Stand');
+		} else {
+			playAnimation('Idle');
+		}
+	}
+
 	useEffect(() => {
 		if (monsterState === 'leaving' || monsterState === 'hiding') {
 			activeRaids.forEach((room) => {
@@ -641,7 +662,7 @@ export default function TriggersConditions({
 						shakeIntensity
 					)
 				) {
-					monsterLandmineAttack();
+					monsterAttack();
 				}
 				break;
 			// case 'bedCorner':
@@ -715,29 +736,49 @@ export default function TriggersConditions({
 				break;
 			case 'hunterLivingRoom':
 			case 'hunterCeilingLivingRoom':
-			case 'hunterCeilingCouch':
 			case 'hunterNightstand':
 			case 'hunterWindow': {
 				const currentRoomDoorState = roomDoors[playerPositionRoom];
 				const isDoorClosed = !currentRoomDoorState;
 				const isInCurrentRoom = Math.abs(camera.position.z) > 1.8;
 
-				const isNightstandType = roomKey === 'hunterNightstand';
-				const isWindowType = roomKey === 'hunterWindow';
+				const isNightstandType = roomKey.includes('hunterNightstand');
+				const isWindowType = roomKey.includes('hunterWindow');
+				const isLivingRoomType = roomKey.includes('hunterLivingRoom');
 				const isCeilingType =
 					Object.values(seedData)[playerPositionRoom]?.ceiling;
 
-				if (isDoorClosed && !isInCurrentRoom) {
-					if (monsterState !== 'facingCamera') {
-						setMonsterState('facingCamera');
+				if (
+					!isDoorClosed &&
+					!isInCurrentRoom &&
+					!hunterTriggeredRoomsRef.current[playerPositionRoom]
+				) {
+					playHunterIdleAnimation(
+						isCeilingType,
+						isNightstandType,
+						isLivingRoomType
+					);
 
-						if (isCeilingType) {
-							playAnimation('CeilingCrawlIdle');
-						} else if (isNightstandType || isWindowType) {
-							playAnimation('Crouch');
-						} else {
-							playAnimation('Idle');
-						}
+					setMonsterRotation([
+						Object.values(seedData)[playerPositionRoom]
+							?.monsterInitialRotation[0],
+						Object.values(seedData)[playerPositionRoom]
+							?.monsterInitialRotation[1] +
+							(playerPositionRoom >= roomCount / 2 ? Math.PI : 0),
+						Object.values(seedData)[playerPositionRoom]
+							?.monsterInitialRotation[2],
+					]);
+				}
+
+				if (
+					!isDoorClosed &&
+					hunterTriggeredRoomsRef.current[playerPositionRoom] &&
+					hunterDoorClosedFromOutsideRef.current[playerPositionRoom] === true
+				) {
+					monsterAttack();
+				} else if (isDoorClosed && !isInCurrentRoom) {
+					if (monsterState !== 'hidden') {
+						playHunterIdleAnimation(isCeilingType, isNightstandType);
 					}
 
 					if (hunterTriggeredRoomsRef.current[playerPositionRoom]) {
@@ -750,9 +791,7 @@ export default function TriggersConditions({
 						!isWindowType &&
 						playerIsInsideZone(zoneBox, raycaster, camera))
 				) {
-					if (!isNightstandType && !isWindowType) {
-						hunterTriggeredRoomsRef.current[playerPositionRoom] = true;
-					}
+					hunterTriggeredRoomsRef.current[playerPositionRoom] = true;
 
 					if (monsterState !== 'chase') {
 						setAnimationMixSpeed(2);
@@ -763,21 +802,12 @@ export default function TriggersConditions({
 						);
 					}
 				} else {
-					if (
-						monsterState !== 'facingCamera' &&
-						(isNightstandType || isWindowType)
-					) {
-						setMonsterState('facingCamera');
+					if (monsterState !== 'hidden' && (isNightstandType || isWindowType)) {
+						setMonsterState('hidden');
 						playAnimation('Crouch');
 					}
 				}
-				if (
-					currentRoomDoorState &&
-					hunterTriggeredRoomsRef.current[playerPositionRoom] &&
-					hunterDoorClosedFromOutsideRef.current[playerPositionRoom] === true
-				) {
-					monsterAttack();
-				}
+
 				if (
 					isNightstandType &&
 					playerIsInsideZone(zoneBox, raycaster, camera) &&

@@ -1,8 +1,8 @@
-import { useEffect, useState, useCallback, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { useGLTF, useKTX2 } from '@react-three/drei';
 import * as THREE from 'three';
 import useGame from '../../hooks/useGame';
-import DetectionZone from '../DetectionZone';
+// import DetectionZone from '../DetectionZone';
 import { useControls } from 'leva';
 import useLight from '../../hooks/useLight';
 import useProgressiveLoad from '../../hooks/useProgressiveLoad';
@@ -10,7 +10,7 @@ import FloorLightMaterial from '../materials/FloorLightMaterial';
 import WallsLightMaterial from '../materials/WallsLightMaterial';
 import WoodLightMaterial from '../materials/WoodLightMaterial';
 
-const PROBABILITY_OF_DARKNESS = 20;
+// const PROBABILITY_OF_DARKNESS = 20;
 
 export default function Bedroom() {
 	const { scene, nodes } = useGLTF('/models/room/bedroom.glb');
@@ -47,83 +47,9 @@ export default function Bedroom() {
 
 	const { loadedItems } = useProgressiveLoad(textureParts, 'Bedroom');
 
-	const [isDetectionActive, setIsDetectionActive] = useState(false);
-	const [isDark, setIsDark] = useState(false);
-	const playerPositionRoom = useGame((state) => state.playerPositionRoom);
-	const deaths = useGame((state) => state.deaths);
-
 	const leftLight = useLight((state) => state.leftLight);
 	const radioLight = useLight((state) => state.radioLight);
 	const rightLight = useLight((state) => state.rightLight);
-
-	const isRadioOn = useGame((state) => state.radio);
-
-	useControls(
-		'Bedroom Lights',
-		{
-			leftLightColor: {
-				value: leftLight.color,
-				onChange: (v) =>
-					useLight.getState().setLeftLight(v, leftLight.intensity),
-			},
-			leftLightIntensity: {
-				value: leftLight.intensity,
-				min: 0,
-				max: 10,
-				step: 0.1,
-				onChange: (v) => useLight.getState().setLeftLight(leftLight.color, v),
-			},
-			radioLightColor: {
-				value: radioLight.color,
-				onChange: (v) =>
-					useLight.getState().setRadioLight(v, radioLight.intensity),
-			},
-			radioLightIntensity: {
-				value: radioLight.intensity,
-				min: 0,
-				max: 10,
-				step: 0.1,
-				onChange: (v) => useLight.getState().setRadioLight(radioLight.color, v),
-			},
-			rightLightColor: {
-				value: rightLight.color,
-				onChange: (v) =>
-					useLight.getState().setRightLight(v, rightLight.intensity),
-			},
-			rightLightIntensity: {
-				value: rightLight.intensity,
-				min: 0,
-				max: 300,
-				step: 0.1,
-				onChange: (v) => useLight.getState().setRightLight(rightLight.color, v),
-			},
-		},
-		{
-			collapsed: true,
-		}
-	);
-
-	const [randomRoomNumber, setRandomRoomNumber] = useState(
-		Math.floor(Math.random() * PROBABILITY_OF_DARKNESS)
-	);
-
-	const generateRandomRoomNumber = useCallback(
-		() => Math.floor(Math.random() * PROBABILITY_OF_DARKNESS),
-		[]
-	);
-
-	useEffect(() => {
-		setRandomRoomNumber(generateRandomRoomNumber());
-		setIsDark(false);
-	}, [deaths, generateRandomRoomNumber]);
-
-	useEffect(() => {
-		if (playerPositionRoom === randomRoomNumber) {
-			setIsDetectionActive(true);
-		} else {
-			setIsDetectionActive(false);
-		}
-	}, [playerPositionRoom, randomRoomNumber]);
 
 	useEffect(() => {
 		scene.traverse((child) => {
@@ -229,7 +155,6 @@ export default function Bedroom() {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [scene]);
 
-	// Apply textures when they are loaded
 	useEffect(() => {
 		if (!materialRef.current) return;
 
@@ -256,7 +181,6 @@ export default function Bedroom() {
 		});
 	}, [loadedItems]);
 
-	// Add separate effect for updating uniforms
 	useEffect(() => {
 		if (materialRef.current?.userData.uniforms) {
 			const uniforms = materialRef.current.userData.uniforms;
@@ -276,19 +200,93 @@ export default function Bedroom() {
 		}
 	}, [leftLight, radioLight, rightLight]);
 
-	useEffect(() => {
-		if (!isDark) {
-			if (isRadioOn) {
-				useLight.getState().setRadioLight('#fff0be', 0.1);
-			} else {
-				useLight.getState().setRadioLight('#000000', 0);
-			}
+	useControls(
+		'Bedroom Lights',
+		{
+			leftLightColor: {
+				value: leftLight.color,
+				onChange: (v) =>
+					useLight.getState().setLeftLight(v, leftLight.intensity),
+			},
+			leftLightIntensity: {
+				value: leftLight.intensity,
+				min: 0,
+				max: 10,
+				step: 0.1,
+				onChange: (v) => useLight.getState().setLeftLight(leftLight.color, v),
+			},
+			radioLightColor: {
+				value: radioLight.color,
+				onChange: (v) =>
+					useLight.getState().setRadioLight(v, radioLight.intensity),
+			},
+			radioLightIntensity: {
+				value: radioLight.intensity,
+				min: 0,
+				max: 10,
+				step: 0.1,
+				onChange: (v) => useLight.getState().setRadioLight(radioLight.color, v),
+			},
+			rightLightColor: {
+				value: rightLight.color,
+				onChange: (v) =>
+					useLight.getState().setRightLight(v, rightLight.intensity),
+			},
+			rightLightIntensity: {
+				value: rightLight.intensity,
+				min: 0,
+				max: 300,
+				step: 0.1,
+				onChange: (v) => useLight.getState().setRightLight(rightLight.color, v),
+			},
+		},
+		{
+			collapsed: true,
 		}
-	}, [isRadioOn, isDark]);
+	);
+
+	// const [isDetectionActive, setIsDetectionActive] = useState(false);
+	// const [isDark, setIsDark] = useState(false);
+	// const playerPositionRoom = useGame((state) => state.playerPositionRoom);
+	// const deaths = useGame((state) => state.deaths);
+
+	// const isRadioOn = useGame((state) => state.radio);
+
+	// const [randomRoomNumber, setRandomRoomNumber] = useState(
+	// 	Math.floor(Math.random() * PROBABILITY_OF_DARKNESS)
+	// );
+
+	// const generateRandomRoomNumber = useCallback(
+	// 	() => Math.floor(Math.random() * PROBABILITY_OF_DARKNESS),
+	// 	[]
+	// );
+
+	// useEffect(() => {
+	// 	setRandomRoomNumber(generateRandomRoomNumber());
+	// 	setIsDark(false);
+	// }, [deaths, generateRandomRoomNumber]);
+
+	// useEffect(() => {
+	// 	if (playerPositionRoom === randomRoomNumber) {
+	// 		setIsDetectionActive(true);
+	// 	} else {
+	// 		setIsDetectionActive(false);
+	// 	}
+	// }, [playerPositionRoom, randomRoomNumber]);
+
+	// useEffect(() => {
+	// 	if (!isDark) {
+	// 		if (isRadioOn) {
+	// 			useLight.getState().setRadioLight('#fff0be', 0.1);
+	// 		} else {
+	// 			useLight.getState().setRadioLight('#000000', 0);
+	// 		}
+	// 	}
+	// }, [isRadioOn, isDark]);
 
 	return (
 		<>
-			{isDetectionActive && (
+			{/* {isDetectionActive && (
 				<DetectionZone
 					position={[2, 0, 0]}
 					scale={[2, 2, 2]}
@@ -298,7 +296,7 @@ export default function Bedroom() {
 					onDetectEnd={() => {}}
 					downward={true}
 				/>
-			)}
+			)} */}
 			<mesh
 				castShadow
 				receiveShadow

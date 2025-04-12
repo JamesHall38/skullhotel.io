@@ -88,7 +88,8 @@ export const placeMonsterAtSecondPosition = (
 	setMonsterState,
 	setMonsterPosition,
 	position,
-	roomCount
+	roomCount,
+	setMonsterRotation
 ) => {
 	setMonsterState('facingCamera');
 
@@ -97,18 +98,28 @@ export const placeMonsterAtSecondPosition = (
 	const monsterInitialRotation =
 		Object.values(seedData)[playerPositionRoom]?.monsterInitialRotation;
 
-	if (monsterInitialPosition && monsterInitialRotation) {
+	if (monsterInitialPosition) {
 		let roomX;
 		if (playerPositionRoom >= roomCount / 2) {
 			roomX = -(playerPositionRoom - roomCount / 2) * 5.95;
 		} else {
 			roomX = -playerPositionRoom * 5.95;
 		}
+
 		setMonsterPosition([
 			monsterInitialPosition[0] + roomX + position[0],
 			monsterInitialPosition[1] || 0,
 			monsterInitialPosition[2] + position[2],
 		]);
+
+		if (monsterInitialRotation && setMonsterRotation) {
+			const isFacingRoom = playerPositionRoom >= roomCount / 2;
+			setMonsterRotation([
+				monsterInitialRotation[0] * (isFacingRoom ? -1 : 1),
+				monsterInitialRotation[1] + (isFacingRoom ? Math.PI : 0),
+				monsterInitialRotation[2],
+			]);
+		}
 	}
 };
 

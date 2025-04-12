@@ -1,8 +1,8 @@
-import { useEffect, useState, useCallback, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { useGLTF, useKTX2 } from '@react-three/drei';
 import * as THREE from 'three';
 import useGame from '../../hooks/useGame';
-import DetectionZone from '../DetectionZone';
+// import DetectionZone from '../DetectionZone';
 import useLight from '../../hooks/useLight';
 import { useControls } from 'leva';
 import useProgressiveLoad from '../../hooks/useProgressiveLoad';
@@ -10,7 +10,7 @@ import FloorLightMaterial from '../materials/FloorLightMaterial';
 import WallsLightMaterial from '../materials/WallsLightMaterial';
 import WoodLightMaterial from '../materials/WoodLightMaterial';
 
-const PROBABILITY_OF_DARKNESS = 20;
+// const PROBABILITY_OF_DARKNESS = 20;
 
 export default function Livingroom() {
 	const { scene, nodes } = useGLTF('/models/room/livingroom.glb');
@@ -47,7 +47,6 @@ export default function Livingroom() {
 	const wallLight = useLight((state) => state.wallLight);
 	const tvLight = useLight((state) => state.tvLight);
 
-	// Create material once at component mount
 	useEffect(() => {
 		scene.traverse((child) => {
 			if (child.isMesh && child.name === 'livingroom') {
@@ -141,7 +140,6 @@ export default function Livingroom() {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [scene]);
 
-	// Apply textures when they are loaded
 	useEffect(() => {
 		if (!materialRef.current) return;
 
@@ -169,7 +167,6 @@ export default function Livingroom() {
 		});
 	}, [loadedItems, performanceMode]);
 
-	// Add separate effect for updating uniforms
 	useEffect(() => {
 		if (materialRef.current?.userData.shader) {
 			const shader = materialRef.current.userData.shader;
@@ -187,35 +184,6 @@ export default function Livingroom() {
 			shader.uniforms.uTvLightIntensity.value = tvLight.intensity;
 		}
 	}, [couchLight, wallLight, tvLight]);
-
-	const [isDetectionActive, setIsDetectionActive] = useState(false);
-	const [isDark, setIsDark] = useState(false);
-	const playerPositionRoom = useGame((state) => state.playerPositionRoom);
-	const deaths = useGame((state) => state.deaths);
-
-	const [randomRoomNumber, setRandomRoomNumber] = useState(
-		Math.floor(Math.random() * PROBABILITY_OF_DARKNESS)
-	);
-
-	const generateRandomRoomNumber = useCallback(
-		() => Math.floor(Math.random() * PROBABILITY_OF_DARKNESS),
-		[]
-	);
-
-	useEffect(() => {
-		setRandomRoomNumber(generateRandomRoomNumber());
-		setIsDark(false);
-	}, [deaths, generateRandomRoomNumber]);
-
-	useEffect(() => {
-		if (playerPositionRoom === randomRoomNumber) {
-			setIsDetectionActive(true);
-		} else {
-			setIsDetectionActive(false);
-		}
-	}, [playerPositionRoom, randomRoomNumber]);
-
-	const isTvOn = useGame((state) => state.tv);
 
 	useControls(
 		'Livingroom Lights',
@@ -261,27 +229,55 @@ export default function Livingroom() {
 		}
 	);
 
-	useEffect(() => {
-		if (isDark) {
-			useLight.getState().setCouchLight('#000000', 0);
-			useLight.getState().setWallLight('#000000', 0);
-			useLight.getState().setTvLight('#000000', 0);
-		}
-	}, [isDark]);
+	// const [isDetectionActive, setIsDetectionActive] = useState(false);
+	// const [isDark, setIsDark] = useState(false);
+	// const playerPositionRoom = useGame((state) => state.playerPositionRoom);
+	// const deaths = useGame((state) => state.deaths);
 
-	useEffect(() => {
-		if (!isDark) {
-			if (isTvOn) {
-				useLight.getState().setTvLight('#ffffff', 0.2);
-			} else {
-				useLight.getState().setTvLight('#000000', 0);
-			}
-		}
-	}, [isTvOn, isDark]);
+	// const [randomRoomNumber, setRandomRoomNumber] = useState(
+	// 	Math.floor(Math.random() * PROBABILITY_OF_DARKNESS)
+	// );
+
+	// const generateRandomRoomNumber = useCallback(
+	// 	() => Math.floor(Math.random() * PROBABILITY_OF_DARKNESS),
+	// 	[]
+	// );
+
+	// useEffect(() => {
+	// 	setRandomRoomNumber(generateRandomRoomNumber());
+	// 	setIsDark(false);
+	// }, [deaths, generateRandomRoomNumber]);
+
+	// useEffect(() => {
+	// 	if (playerPositionRoom === randomRoomNumber) {
+	// 		setIsDetectionActive(true);
+	// 	} else {
+	// 		setIsDetectionActive(false);
+	// 	}
+	// }, [playerPositionRoom, randomRoomNumber]);
+
+	// const isTvOn = useGame((state) => state.tv);
+	// useEffect(() => {
+	// 	if (isDark) {
+	// 		useLight.getState().setCouchLight('#000000', 0);
+	// 		useLight.getState().setWallLight('#000000', 0);
+	// 		useLight.getState().setTvLight('#000000', 0);
+	// 	}
+	// }, [isDark]);
+
+	// useEffect(() => {
+	// 	if (!isDark) {
+	// 		if (isTvOn) {
+	// 			useLight.getState().setTvLight('#ffffff', 0.2);
+	// 		} else {
+	// 			useLight.getState().setTvLight('#000000', 0);
+	// 		}
+	// 	}
+	// }, [isTvOn, isDark]);
 
 	return (
 		<>
-			{isDetectionActive && (
+			{/* {isDetectionActive && (
 				<DetectionZone
 					position={[2, 0, 2]}
 					scale={[2, 2, 2]}
@@ -291,7 +287,7 @@ export default function Livingroom() {
 					onDetectEnd={() => {}}
 					downward={true}
 				/>
-			)}
+			)} */}
 			<mesh
 				castShadow
 				receiveShadow

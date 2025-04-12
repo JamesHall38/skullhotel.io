@@ -9,8 +9,8 @@ import useGamepadControls from '../../hooks/useGamepadControls';
 
 const floor = -0.2;
 const STEP_INTERVAL = {
-	walk: 600,
-	run: 350,
+	walk: 800,
+	run: 400,
 };
 
 const VOLUMES = {
@@ -19,7 +19,6 @@ const VOLUMES = {
 	landing: 0.5,
 };
 
-const WALK_SPEED = 0.5;
 const RUN_SPEED = 1;
 
 const JUMP_SOUND_DELAY = 400;
@@ -173,7 +172,7 @@ export default function FootSteps({ playerPosition, playerVelocity }) {
 				const isMoving = keysPressed && actuallyMoving;
 
 				const speed = playerVelocity ? playerVelocity.current.length() : 0;
-				const isPlayerRunning = speed > (WALK_SPEED + RUN_SPEED) / 2;
+				const isPlayerRunning = speed > RUN_SPEED * 0.9;
 
 				if (isMoving && !wasMovingRef.current) {
 					const sound = footstepRefs.current[footstepIndexRef.current];

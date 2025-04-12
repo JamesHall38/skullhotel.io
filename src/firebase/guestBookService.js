@@ -13,6 +13,7 @@ import {
 } from 'firebase/firestore';
 
 const COLLECTION_NAME = 'guestbook';
+const DEBUG_COLLECTION_NAME = 'guestbook_debug';
 export const PAGE_SIZE = 10;
 const MIN_VALID_GAME_DURATION = 0;
 const MAX_VALID_GAME_DURATION = 604800;
@@ -67,7 +68,12 @@ export const addGuestBookEntry = async (
 	}
 
 	try {
-		const docRef = await addDoc(collection(db, COLLECTION_NAME), {
+		const isDebugMode = window.location.hash === '#debug';
+		const collectionToUse = isDebugMode
+			? DEBUG_COLLECTION_NAME
+			: COLLECTION_NAME;
+
+		const docRef = await addDoc(collection(db, collectionToUse), {
 			playerName: playerName.trim(),
 			startTime: startTime,
 			endTime: endTime,
@@ -84,7 +90,12 @@ export const addGuestBookEntry = async (
 
 export const getTotalEntries = async () => {
 	try {
-		const coll = collection(db, COLLECTION_NAME);
+		const isDebugMode = window.location.hash === '#debug';
+		const collectionToUse = isDebugMode
+			? DEBUG_COLLECTION_NAME
+			: COLLECTION_NAME;
+
+		const coll = collection(db, collectionToUse);
 		const snapshot = await getCountFromServer(coll);
 		return snapshot.data().count;
 	} catch (error) {
@@ -100,8 +111,13 @@ export const getTotalPages = async () => {
 
 export const getFirstGuestBookPage = async () => {
 	try {
+		const isDebugMode = window.location.hash === '#debug';
+		const collectionToUse = isDebugMode
+			? DEBUG_COLLECTION_NAME
+			: COLLECTION_NAME;
+
 		const q = query(
-			collection(db, COLLECTION_NAME),
+			collection(db, collectionToUse),
 			orderBy('createdAt', 'asc'),
 			limit(PAGE_SIZE)
 		);
@@ -139,8 +155,13 @@ export const getNextGuestBookPage = async (lastVisible, currentPage) => {
 	}
 
 	try {
+		const isDebugMode = window.location.hash === '#debug';
+		const collectionToUse = isDebugMode
+			? DEBUG_COLLECTION_NAME
+			: COLLECTION_NAME;
+
 		const q = query(
-			collection(db, COLLECTION_NAME),
+			collection(db, collectionToUse),
 			orderBy('createdAt', 'asc'),
 			startAfter(lastVisible),
 			limit(PAGE_SIZE)
@@ -178,11 +199,18 @@ export const getSpecificPage = async (pageNumber) => {
 			return await getFirstGuestBookPage();
 		}
 
-		if (paginationCache[pageNumber]) {
+		const isDebugMode = window.location.hash === '#debug';
+		const cacheKey = isDebugMode ? `debug_${pageNumber}` : pageNumber;
+
+		if (paginationCache[cacheKey]) {
+			const collectionToUse = isDebugMode
+				? DEBUG_COLLECTION_NAME
+				: COLLECTION_NAME;
+
 			const q = query(
-				collection(db, COLLECTION_NAME),
+				collection(db, collectionToUse),
 				orderBy('createdAt', 'asc'),
-				startAt(paginationCache[pageNumber]),
+				startAt(paginationCache[cacheKey]),
 				limit(PAGE_SIZE)
 			);
 
@@ -201,7 +229,8 @@ export const getSpecificPage = async (pageNumber) => {
 		let currentPage = 1;
 
 		if (result.lastVisible) {
-			paginationCache[currentPage] = result.lastVisible;
+			const cacheKey = isDebugMode ? `debug_${currentPage}` : currentPage;
+			paginationCache[cacheKey] = result.lastVisible;
 		}
 
 		while (currentPage < pageNumber && result.lastVisible) {
@@ -209,7 +238,8 @@ export const getSpecificPage = async (pageNumber) => {
 			currentPage++;
 
 			if (result.lastVisible) {
-				paginationCache[currentPage] = result.lastVisible;
+				const cacheKey = isDebugMode ? `debug_${currentPage}` : currentPage;
+				paginationCache[cacheKey] = result.lastVisible;
 			}
 		}
 

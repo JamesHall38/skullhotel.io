@@ -337,12 +337,12 @@ const levelData = {
 	hunterLivingRoom: {
 		type: 'hunter',
 		deathReason: 'If you see it, run away and close the door behind you',
-		position: [2.2, 0, 2.7],
+		position: [2.2, 0, 2.8],
 		scale: [2.5, 0.5, 2],
 		monsterPosition: [1.5, 0, 4],
-		monsterInitialPosition: [-0.5, 0, 2.3],
-		monsterInitialRotation: [0, Math.PI / 1.75, 0],
-		animation: 'Idle',
+		monsterInitialPosition: [-0.5, 0, 1.91],
+		monsterInitialRotation: [0, 0, 0],
+		animation: 'Wall',
 		lookAtPoint: [-0.5, 0, 2.3],
 	},
 
@@ -352,27 +352,30 @@ const levelData = {
 		position: [2.2, 0, 2.7],
 		scale: [2.5, 0.5, 2],
 		monsterPosition: [1.5, 0, 4],
-		monsterInitialPosition: [-1, 0, 2.6],
+		monsterInitialPosition: [-1.4, 1.68, 2.08],
+		// monsterInitialPosition: [-1.4, 0, 2.08],
 		monsterInitialRotation: [0, Math.PI / 2, 0],
 		animation: 'CeilingCrawlIdle',
 		ceiling: true,
 		headOffset: Math.PI / 1.5,
 		lookAtPoint: [-1, 0, 2.6],
+		forcedGridX: 265,
+		forcedGridZ: 233,
 	},
 
-	hunterCeilingCouch: {
-		type: 'hunter',
-		deathReason: 'If you see it, run away and close the door behind you',
-		position: [2.5, 0, -0.6],
-		scale: [2.5, 0.5, 2],
-		monsterPosition: [1.5, 0, 4],
-		monsterInitialPosition: [3.8, 0, 2.6],
-		monsterInitialRotation: [0, Math.PI, 0],
-		animation: 'CeilingCrawlIdle',
-		ceiling: true,
-		headOffset: Math.PI,
-		lookAtPoint: [3.8, 0, 2.6],
-	},
+	// hunterCeilingCouch: {
+	// 	type: 'hunter',
+	// 	deathReason: 'If you see it, run away and close the door behind you',
+	// 	position: [2.5, 0, -0.6],
+	// 	scale: [2.5, 0.5, 2],
+	// 	monsterPosition: [1.5, 0, 4],
+	// 	monsterInitialPosition: [3.8, 0, 2.6],
+	// 	monsterInitialRotation: [0, Math.PI, 0],
+	// 	animation: 'CeilingCrawlIdle',
+	// 	ceiling: true,
+	// 	headOffset: Math.PI,
+	// 	lookAtPoint: [3.8, 0, 2.6],
+	// },
 
 	hunterNightstand: {
 		type: 'hunter',
@@ -400,21 +403,21 @@ const levelData = {
 	},
 
 	// RAID
-	raidWindow: {
-		type: 'raid',
-		deathReason: 'If you hear knocking, hide',
-		hideObjective: 'window',
-		hideSpot: 'window',
-		lookAtPoint: [0, 0, 0],
-	},
+	// raidWindow: {
+	// 	type: 'raid',
+	// 	deathReason: 'If you hear knocking, hide',
+	// 	hideObjective: 'window',
+	// 	hideSpot: 'window',
+	// 	lookAtPoint: [0, 0, 0],
+	// },
 
-	raidBedsheets: {
-		type: 'raid',
-		deathReason: 'If you hear knocking, hide',
-		hideObjective: 'bedsheets',
-		hideSpot: 'bedsheets',
-		lookAtPoint: [0, 0, 0],
-	},
+	// raidBedsheets: {
+	// 	type: 'raid',
+	// 	deathReason: 'If you hear knocking, hide',
+	// 	hideObjective: 'bedsheets',
+	// 	hideSpot: 'bedsheets',
+	// 	lookAtPoint: [0, 0, 0],
+	// },
 
 	raidBottles: {
 		type: 'raid',
@@ -428,8 +431,8 @@ const levelData = {
 		type: 'raid',
 		deathReason: 'If the TV turns on by itself, hide immediately',
 		signal: 'tv',
-		position: [2, 0, 1.5],
-		scale: [2.5, 0.5, 2],
+		position: [2, 0, 4],
+		scale: [7, 0.5, 2.4],
 		lookAtPoint: [2, 0, 1.5],
 	},
 

@@ -14,7 +14,7 @@ import useProgressiveLoad from '../../hooks/useProgressiveLoad';
 import useGameplaySettings from '../../hooks/useGameplaySettings';
 
 const BASE_SPEED = 5;
-const CHASE_SPEED = 0.7;
+const CHASE_SPEED = 0.5;
 const CLAYMORE_CHASE_SPEED = 1.5;
 const NEXT_POINT_THRESHOLD = 0.5;
 const MIN_DISTANCE_FOR_RECALCULATION = 2;
@@ -28,6 +28,11 @@ const MAX_SPEED_MULTIPLIER = 8;
 const MAX_DIRECT_PATH_FAILURES = 5;
 const CHASE_SPEED_INCREMENT = 0.1;
 const MAX_CHASE_SPEED = 2.0;
+const OFFSET_X = 304;
+const OFFSET_Z = 150;
+
+const BOTTOM_ROW_OFFSET_X = 77;
+const BOTTOM_ROW_OFFSET_Z = 0;
 
 const MONSTER_HEIGHT = {
 	GROUND: 0,
@@ -112,6 +117,7 @@ const Monster = (props) => {
 	const lastTargetRef = useRef({ x: 0, z: 0 });
 	const [isWaiting, setIsWaiting] = useState(false);
 	const timeoutRef = useRef(null);
+	const [usedForcedPathfinding, setUsedForcedPathfinding] = useState({});
 
 	const monsterParts = useMemo(
 		() => [
@@ -182,6 +188,10 @@ const Monster = (props) => {
 	}, [roomDoors]);
 
 	useEffect(() => {
+		setUsedForcedPathfinding({});
+	}, [playerPositionRoom]);
+
+	useEffect(() => {
 		if (monsterState !== 'chase') {
 			setCurrentChaseSpeed(CHASE_SPEED);
 			lastChaseTimeRef.current = 0;
@@ -208,15 +218,6 @@ const Monster = (props) => {
 
 	const runAtCamera = useCallback(
 		(camera, delta, mode = 'run') => {
-			// Check if we are in a forced look-at state in the game
-			// const disableControls = useGame.getState().disableControls;
-			// const lookAtInProgress = disableControls && monsterState !== 'run';
-
-			// if (lookAtInProgress) {
-			// 	// If we're in look-at mode, prevent the monster from attacking
-			// 	return;
-			// }
-
 			let baseSpeed;
 			if (mode === 'chase') {
 				if (lastChaseTimeRef.current === 0) {
@@ -487,6 +488,8 @@ const Monster = (props) => {
 						);
 					}
 				} else {
+					const isBottomRow = playerPositionRoom >= roomCount / 2;
+
 					const monsterX = group.current.position.x * 10;
 					const monsterZ = group.current.position.z * 10;
 					const targetX = camera.position.x * 10;
@@ -513,7 +516,62 @@ const Monster = (props) => {
 					}
 
 					if (!currentPath || distanceMoved > MIN_DISTANCE_FOR_RECALCULATION) {
-						const newPath = findPath(monsterX, monsterZ, targetX, targetZ);
+						let newPath = null;
+
+						const roomKey = Object.keys(seedData)[playerPositionRoom];
+						const roomData = Object.values(seedData)[playerPositionRoom];
+						const isFirstPathfinding = !usedForcedPathfinding[roomKey];
+
+						if (
+							roomData &&
+							roomData.forcedGridX !== undefined &&
+							roomData.forcedGridZ !== undefined &&
+							isFirstPathfinding
+						) {
+							const CORRIDOR_LENGTH = 5.95;
+							let roomIndex = 0;
+
+							if (isBottomRow) {
+								roomIndex = playerPositionRoom - Math.floor(roomCount / 2);
+							} else {
+								roomIndex = playerPositionRoom;
+							}
+
+							const roomOffsetX = -roomIndex * CORRIDOR_LENGTH * 10;
+
+							let gridX = roomData.forcedGridX;
+							let gridZ = roomData.forcedGridZ;
+
+							gridX += roomOffsetX;
+
+							if (isBottomRow) {
+								const zDistanceFromCenter = gridZ - OFFSET_Z;
+								gridZ = OFFSET_Z - zDistanceFromCenter;
+
+								gridX += BOTTOM_ROW_OFFSET_X;
+								gridZ += BOTTOM_ROW_OFFSET_Z;
+							}
+
+							const worldX = (gridX - OFFSET_X) / 10;
+							const worldZ = (gridZ - OFFSET_Z) / 10;
+
+							group.current.position.x = worldX;
+							group.current.position.z = worldZ;
+
+							setUsedForcedPathfinding((prev) => ({
+								...prev,
+								[roomKey]: true,
+							}));
+						}
+
+						const monsterZOffset = isBottomRow ? 2 : 0;
+						newPath = findPath(
+							monsterX,
+							monsterZ - monsterZOffset,
+							targetX,
+							targetZ
+						);
+
 						if (newPath) {
 							setCurrentPath(newPath);
 							lastTargetRef.current = { x: targetX, z: targetZ };
@@ -589,6 +647,8 @@ const Monster = (props) => {
 			directPathFailures,
 			currentChaseSpeed,
 			setDisableControls,
+			usedForcedPathfinding,
+			roomCount,
 		]
 	);
 
@@ -626,6 +686,7 @@ const Monster = (props) => {
 		lookAtVector.subVectors(targetPosition, headPosition).normalize();
 
 		const isBottomRow =
+			Object.keys(seedData).length !== 1 &&
 			playerPositionRoom >= Math.floor(Object.keys(seedData).length / 2);
 
 		const targetAngle =
@@ -646,6 +707,14 @@ const Monster = (props) => {
 			0.1
 		);
 	});
+
+	useEffect(() => {
+		group.current.rotation.set(
+			monsterRotation[0],
+			monsterRotation[1],
+			monsterRotation[2]
+		);
+	}, [monsterRotation]);
 
 	useEffect(() => {
 		if (

@@ -193,7 +193,6 @@ export default function Bathroom() {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [scene]);
 
-	// Add separate effect for updating uniforms
 	useEffect(() => {
 		if (materialRef.current?.userData.uniforms) {
 			materialRef.current.userData.uniforms.uBathroomLightIntensity.value =
@@ -202,7 +201,6 @@ export default function Bathroom() {
 		}
 	}, [lightIntensity]);
 
-	// Effet pour mettre à jour l'intensité des matériaux
 	useEffect(() => {
 		materialsRef.current.forEach((material) => {
 			material.lightMapIntensity = lightIntensity;
@@ -210,7 +208,6 @@ export default function Bathroom() {
 		});
 	}, [lightIntensity]);
 
-	// Effet de clignotement
 	useEffect(() => {
 		let intervalId;
 
