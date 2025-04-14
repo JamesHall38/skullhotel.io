@@ -28,6 +28,7 @@ import {
 	getKeyAudioPool,
 	areSoundsLoaded,
 	preloadSounds,
+	forceAudioPreload,
 } from '../../utils/audio';
 
 function resetGame() {
@@ -63,7 +64,12 @@ const Dialogue = memo(({ id, text, index, onRemove }) => {
 
 		checkSounds();
 
+		const timeoutId = setTimeout(() => {
+			setSoundsReady(true);
+		}, 3000);
+
 		return () => {
+			clearTimeout(timeoutId);
 			if (keySoundsRef.current) {
 				keySoundsRef.current.forEach((audio) => {
 					audio.pause();
@@ -100,8 +106,12 @@ const Dialogue = memo(({ id, text, index, onRemove }) => {
 					if (currentChar !== ' ' && keySoundsRef.current) {
 						try {
 							const audio = keySoundsRef.current[currentAudioIndex.current];
-							audio.currentTime = 0;
-							audio.play().catch(console.warn);
+							if (audio) {
+								audio.currentTime = 0;
+								audio.play().catch((error) => {
+									console.warn('Audio playback failed:', error);
+								});
+							}
 							currentAudioIndex.current =
 								(currentAudioIndex.current + 1) % keySoundsRef.current.length;
 						} catch (error) {
@@ -140,8 +150,12 @@ const Dialogue = memo(({ id, text, index, onRemove }) => {
 			}
 			if (keySoundsRef.current) {
 				keySoundsRef.current.forEach((audio) => {
-					audio.pause();
-					audio.currentTime = 0;
+					try {
+						audio.pause();
+						audio.currentTime = 0;
+					} catch (error) {
+						console.warn('Error stopping audio:', error);
+					}
 				});
 			}
 		};
@@ -293,6 +307,9 @@ export default function Interface() {
 	const customMessage = useGame((state) => state.customDeathMessage);
 	const objectives = useInterface((state) => state.interfaceObjectives);
 	const interfaceAction = useInterface((state) => state.interfaceAction);
+	const customTutorialObjectives = useInterface(
+		(state) => state.customTutorialObjectives
+	);
 	const [activeDialogues, setActiveDialogues] = useState([]);
 	const deviceMode = useGame((state) => state.deviceMode);
 	const [isRestarting, setIsRestarting] = useState(false);
@@ -328,7 +345,7 @@ export default function Interface() {
 	}, [queue]);
 
 	useEffect(() => {
-		const texturesDrawCalls = (loadedTextureNumber / 29) * 85;
+		const texturesDrawCalls = (loadedTextureNumber / 38) * 85;
 		const modelsLoading =
 			(Math.min(progress, 80) / 2 + (Math.max(progress - 80, 0) * 5) / 2) / 10;
 
@@ -340,7 +357,15 @@ export default function Interface() {
 		if (calculatedProgress >= 95) {
 			const initAudio = async () => {
 				try {
-					await preloadSounds();
+					const audioLoadingPromise = preloadSounds();
+					const timeout = new Promise((resolve) => {
+						setTimeout(() => {
+							console.warn('Audio preloading timed out');
+							resolve();
+						}, 5000);
+					});
+
+					await Promise.race([audioLoadingPromise, timeout]);
 					setDisplayProgress(100);
 				} catch (error) {
 					console.error('Error loading sounds:', error);
@@ -526,6 +551,8 @@ export default function Interface() {
 					}
 
 					if (loading && displayProgress === 100 && aButtonPressed) {
+						forceAudioPreload();
+
 						setLoading(false);
 						setPlayIntro(true);
 						setGameStartTime();
@@ -548,7 +575,14 @@ export default function Interface() {
 		setEnd,
 		setGameStartTime,
 		isRestarting,
+		incrementRealDeaths,
 	]);
+
+	useEffect(() => {
+		if (loading && displayProgress === 100) {
+			forceAudioPreload();
+		}
+	}, [loading, displayProgress]);
 
 	return (
 		<div className={`interface ${loading ? 'animated' : ''}`}>
@@ -577,10 +611,11 @@ export default function Interface() {
 						if (displayProgress !== 100) {
 							e.stopPropagation();
 						} else {
+							forceAudioPreload();
+
 							setLoading(false);
 							setPlayIntro(true);
 							setGameStartTime();
-							// setIsPlaying(true);
 						}
 					}}
 				>
@@ -603,15 +638,11 @@ export default function Interface() {
 				</div>
 			) : (
 				<ul className="objectives">
-					<li className={tutorialObjectives[0] ? 'completed' : ''}>
-						Refill soap bottles
-					</li>
-					<li className={tutorialObjectives[1] ? 'completed' : ''}>
-						Make the bed
-					</li>
-					<li className={tutorialObjectives[2] ? 'completed' : ''}>
-						Open the window
-					</li>
+					{customTutorialObjectives?.map((objective, index) => (
+						<li key={index} className={objective.completed ? 'completed' : ''}>
+							{objective.text}
+						</li>
+					))}
 				</ul>
 			)}
 			{!loading && isMobile && (

@@ -14,7 +14,7 @@ import Lights from './Lights';
 import DetectionZone from '../DetectionZone';
 import useGameplaySettings from '../../hooks/useGameplaySettings';
 import useDoor from '../../hooks/useDoor';
-
+import Mannequin from '../Mannequin/Mannequin';
 const CORRIDORLENGTH = 5.95;
 const offset = [8.83, 0, 6.2];
 const PROBABILITY_OF_FLICKER = 20;
@@ -87,6 +87,8 @@ export default function Room() {
 			<Bathroom />
 			<Bedroom />
 			<Livingroom />
+
+			<Mannequin />
 
 			<CeilingFan />
 			<Lights />

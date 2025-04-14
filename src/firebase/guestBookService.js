@@ -56,7 +56,6 @@ export const addGuestBookEntry = async (
 	endTime,
 	deaths = 0
 ) => {
-	console.log('deaths', deaths);
 	if (!isValidPlayerName(playerName)) {
 		throw new Error(
 			`Invalid player name. ${NAME_VALIDATION_RULES.patternMessage} (${NAME_VALIDATION_RULES.minLength}-${NAME_VALIDATION_RULES.maxLength} characters)`

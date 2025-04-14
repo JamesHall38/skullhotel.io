@@ -111,25 +111,40 @@ export default function Crouch({
 				if (!event.repeat) {
 					handleCrouchChange(true);
 				}
-				if (event.ctrlKey) {
-					event.preventDefault();
-				}
 			}
 		};
 
 		const handleKeyUp = (event) => {
 			if (event.code === 'ControlLeft' || event.code === 'ControlRight') {
 				handleCrouchChange(false);
+				if (!checkCrouchArea(playerPosition.current)) {
+					wantsToStandUpRef.current = true;
+				}
+			}
+		};
+
+		const preventCtrlCombinations = (event) => {
+			if (event.ctrlKey) {
+				event.preventDefault();
 			}
 		};
 
 		window.addEventListener('keydown', handleKeyDown);
 		window.addEventListener('keyup', handleKeyUp);
+		window.addEventListener('keydown', preventCtrlCombinations);
+
 		return () => {
 			window.removeEventListener('keydown', handleKeyDown);
 			window.removeEventListener('keyup', handleKeyUp);
+			window.removeEventListener('keydown', preventCtrlCombinations);
 		};
-	}, [handleCrouchChange, isMobile, deviceMode]);
+	}, [
+		handleCrouchChange,
+		isMobile,
+		deviceMode,
+		checkCrouchArea,
+		playerPosition,
+	]);
 
 	useEffect(() => {
 		if (isMobile) return;

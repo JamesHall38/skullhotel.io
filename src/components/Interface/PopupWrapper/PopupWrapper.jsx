@@ -8,6 +8,11 @@ import {
 } from 'react';
 import useGame from '../../../hooks/useGame';
 import useInterface from '../../../hooks/useInterface';
+import {
+	isPointerLocked,
+	exitPointerLock,
+	requestPointerLock,
+} from '../../../utils/pointerLock';
 import './PopupWrapper.css';
 
 export default function PopupWrapper({ children, cursorType }) {
@@ -33,8 +38,8 @@ export default function PopupWrapper({ children, cursorType }) {
 	const handleOpen = useCallback(() => {
 		setIsVisible(true);
 		setIsLocked(false);
-		if (document.pointerLockElement) {
-			document.exitPointerLock();
+		if (isPointerLocked()) {
+			exitPointerLock();
 		}
 	}, [setIsLocked]);
 
@@ -52,8 +57,8 @@ export default function PopupWrapper({ children, cursorType }) {
 			) {
 				setIsLocked(true);
 				const canvas = document.querySelector('canvas');
-				if (canvas && !document.pointerLockElement) {
-					canvas.requestPointerLock();
+				if (canvas && !isPointerLocked()) {
+					requestPointerLock(canvas);
 				}
 			}
 		}, 150);

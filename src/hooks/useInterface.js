@@ -45,6 +45,10 @@ const useInterfaceStore = create(
 			});
 		},
 
+		customTutorialObjectives: null,
+		setCustomTutorialObjectives: (objectives) =>
+			set(() => ({ customTutorialObjectives: objectives })),
+
 		setAllObjectivesCompleted: () => {
 			set(() => ({
 				tutorialObjectives: [true, true, true],
@@ -75,6 +79,7 @@ const useInterfaceStore = create(
 				]),
 				cursor: null,
 				fadeToBlack: 0,
+				customTutorialObjectives: null,
 			}));
 		},
 	}))

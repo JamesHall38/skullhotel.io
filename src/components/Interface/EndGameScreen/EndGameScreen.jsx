@@ -9,6 +9,11 @@ import SkullHotelLogo from '../Logo';
 import './EndGameScreen.css';
 import { regenerateData } from '../../../utils/config';
 import {
+	exitPointerLock,
+	requestPointerLock,
+	isPointerLocked,
+} from '../../../utils/pointerLock';
+import {
 	addGuestBookEntry,
 	NAME_VALIDATION_RULES,
 	isValidPlayerName,
@@ -82,7 +87,9 @@ const EndGameScreen = () => {
 
 	useEffect(() => {
 		if (isEndScreen && deviceMode === 'keyboard') {
-			document.exitPointerLock?.();
+			if (isPointerLocked()) {
+				exitPointerLock();
+			}
 		}
 	}, [isEndScreen, deviceMode]);
 
@@ -206,7 +213,7 @@ const EndGameScreen = () => {
 		if (deviceMode === 'keyboard') {
 			const canvas = document.querySelector('canvas');
 			if (canvas) {
-				canvas.requestPointerLock();
+				requestPointerLock(canvas);
 			}
 		}
 	};

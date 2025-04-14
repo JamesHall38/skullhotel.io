@@ -11,6 +11,7 @@ import useMonster from './hooks/useMonster';
 import useGridStore from './hooks/useGrid';
 import useLight from './hooks/useLight';
 import PostProcessing from './components/PostProcessing';
+import { isPointerLockSupported } from './utils/pointerLock';
 
 import { Perf } from 'r3f-perf';
 import { Leva, useControls, button } from 'leva';
@@ -46,7 +47,7 @@ import { regenerateData } from './utils/config';
 import generateSeedData from './utils/generateSeedData';
 import ListeningMode from './components/Player/ListeningMode';
 import levelData from './components/Monster/Triggers/levelData';
-import { preloadSounds } from './utils/audio';
+import { preloadSounds, unlockAudio } from './utils/audio';
 import useGameplaySettings from './hooks/useGameplaySettings';
 import useSettings from './hooks/useSettings';
 import ShadowManager from './components/ShadowManager';
@@ -98,6 +99,7 @@ function App() {
 	const [isStable, setIsStable] = useState(false);
 	const frameCount = useRef(0);
 	const lastTime = useRef(performance.now());
+	const [pointerLockAvailable] = useState(isPointerLockSupported());
 	const {
 		roomCount,
 		emptyRoomPercentage,
@@ -120,29 +122,63 @@ function App() {
 	} = useGameplaySettings();
 
 	useEffect(() => {
-		const audioContext = new (window.AudioContext ||
-			window.webkitAudioContext)();
+		let audioContext;
+		try {
+			audioContext = new (window.AudioContext || window.webkitAudioContext)();
+		} catch (error) {
+			console.error('Could not create AudioContext:', error);
+			return;
+		}
 
 		const initAudio = async () => {
 			try {
-				if (audioContext.state === 'suspended') {
-					await audioContext.resume();
+				if (audioContext && audioContext.state === 'suspended') {
+					try {
+						await audioContext.resume();
+					} catch (error) {
+						console.warn('Could not resume AudioContext:', error);
+					}
 				}
-				await preloadSounds();
+
+				await unlockAudio();
+
+				try {
+					await preloadSounds();
+				} catch (error) {
+					console.error('Error loading sounds:', error);
+				}
 			} catch (error) {
-				console.error('Error loading sounds:', error);
+				console.error('Error initializing audio:', error);
 			}
 		};
 
 		const handleFirstInteraction = () => {
-			initAudio();
+			initAudio().catch((error) => {
+				console.error('Failed to initialize audio:', error);
+			});
 			document.removeEventListener('click', handleFirstInteraction);
 		};
 
 		document.addEventListener('click', handleFirstInteraction);
+
+		const timeoutId = setTimeout(() => {
+			initAudio().catch((error) => {
+				console.error('Timed init audio failed:', error);
+			});
+		}, 5000);
+
 		return () => {
 			document.removeEventListener('click', handleFirstInteraction);
-			audioContext.close();
+			clearTimeout(timeoutId);
+			if (audioContext) {
+				try {
+					audioContext.close().catch((error) => {
+						console.warn('Error closing AudioContext:', error);
+					});
+				} catch (error) {
+					console.warn('Error closing AudioContext:', error);
+				}
+			}
 		};
 	}, []);
 
@@ -224,7 +260,8 @@ function App() {
 			controlsRef.current &&
 			!openDeathScreen &&
 			!disableControls &&
-			!useGame.getState().isEndScreen
+			!useGame.getState().isEndScreen &&
+			controlsRef.current.lock
 		) {
 			controlsRef.current.lock();
 		}
@@ -234,7 +271,7 @@ function App() {
 		const handleCanvasClick = (e) => {
 			if (useGame.getState().isEndScreen) {
 				e.stopPropagation();
-				if (controlsRef.current) {
+				if (controlsRef.current && controlsRef.current.unlock) {
 					controlsRef.current.unlock();
 				}
 			}
@@ -253,7 +290,7 @@ function App() {
 	}, []);
 
 	useEffect(() => {
-		if (disableControls && controlsRef.current) {
+		if (disableControls && controlsRef.current && controlsRef.current.unlock) {
 			controlsRef.current.unlock();
 		}
 	}, [disableControls]);
@@ -263,7 +300,7 @@ function App() {
 	}, [camera]);
 
 	useEffect(() => {
-		if (openDeathScreen && controlsRef.current) {
+		if (openDeathScreen && controlsRef.current && controlsRef.current.unlock) {
 			controlsRef.current.unlock();
 		}
 	}, [openDeathScreen]);
@@ -450,9 +487,10 @@ function App() {
 					{ name: 'action', keys: ['KeyE', 'gamepad5'] },
 				]}
 			>
-				{deviceMode !== 'gamepad' && !isMobile && !disableControls && (
-					<PointerLockControls ref={controlsRef} />
-				)}
+				{deviceMode !== 'gamepad' &&
+					!isMobile &&
+					!disableControls &&
+					pointerLockAvailable && <PointerLockControls ref={controlsRef} />}
 
 				<Player />
 				<Triggers />

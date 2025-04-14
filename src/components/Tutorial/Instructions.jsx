@@ -46,6 +46,7 @@ const instructions = [
 		rotation: [0, Math.PI, 0],
 		scale: 0.1,
 		isTutorial: true,
+		category: 'movement',
 	},
 	{
 		type: 'svg',
@@ -55,6 +56,7 @@ const instructions = [
 		rotation: [0, Math.PI, 0],
 		scale: 0.006,
 		isTutorial: true,
+		category: 'movement',
 	},
 	{
 		type: 'text',
@@ -63,6 +65,7 @@ const instructions = [
 		rotation: [0, Math.PI, 0],
 		scale: 0.1,
 		isTutorial: true,
+		category: 'movement',
 	},
 
 	// Interact
@@ -74,6 +77,7 @@ const instructions = [
 		rotation: [0, 0, 0],
 		scale: 0.0003,
 		isTutorial: true,
+		category: 'interaction',
 	}, // mouse left click
 	{
 		type: 'text',
@@ -82,6 +86,7 @@ const instructions = [
 		rotation: [0, Math.PI, 0],
 		scale: 0.05,
 		isTutorial: true,
+		category: 'interaction',
 	},
 	{
 		type: 'svg',
@@ -91,6 +96,7 @@ const instructions = [
 		rotation: [0, 0, 0],
 		scale: 0.003,
 		isTutorial: true,
+		category: 'interaction',
 	}, // xbox x
 	{
 		type: 'text',
@@ -99,25 +105,28 @@ const instructions = [
 		rotation: [0, Math.PI, 0],
 		scale: 0.05,
 		isTutorial: true,
+		category: 'interaction',
 	},
 
 	// bathroom hiding
-	{
-		type: 'text',
-		content: 'hiding',
-		position: [22, 17.5, 42.15],
-		rotation: [0, 0, 0],
-		scale: 0.1,
-		isBathroom: true,
-	},
-	{
-		type: 'text',
-		content: 'spot',
-		position: [22, 16.25, 42.15],
-		rotation: [0, 0, 0],
-		scale: 0.1,
-		isBathroom: true,
-	},
+	// {
+	// 	type: 'text',
+	// 	content: 'hiding',
+	// 	position: [22, 17.5, 42.15],
+	// 	rotation: [0, 0, 0],
+	// 	scale: 0.1,
+	// 	isBathroom: true,
+	// 	category: 'bathroomHiding',
+	// },
+	// {
+	// 	type: 'text',
+	// 	content: 'spot',
+	// 	position: [22, 16.25, 42.15],
+	// 	rotation: [0, 0, 0],
+	// 	scale: 0.1,
+	// 	isBathroom: true,
+	// 	category: 'bathroomHiding',
+	// },
 	{
 		type: 'svg',
 		content:
@@ -126,25 +135,28 @@ const instructions = [
 		rotation: [0, 0, 0],
 		scale: 0.01,
 		isBathroom: true,
+		category: 'bathroomHiding',
 	}, // arrow turn
 
 	// room curtain hiding
-	{
-		type: 'text',
-		content: 'hiding',
-		position: [50, 15.5, 130],
-		rotation: [0, Math.PI, 0],
-		scale: 0.1,
-		isRoom: true,
-	},
-	{
-		type: 'text',
-		content: 'spot',
-		position: [50, 14.25, 130],
-		rotation: [0, Math.PI, 0],
-		scale: 0.1,
-		isRoom: true,
-	},
+	// {
+	// 	type: 'text',
+	// 	content: 'hiding',
+	// 	position: [50, 15.5, 130],
+	// 	rotation: [0, Math.PI, 0],
+	// 	scale: 0.1,
+	// 	isRoom: true,
+	// 	category: 'roomHiding',
+	// },
+	// {
+	// 	type: 'text',
+	// 	content: 'spot',
+	// 	position: [50, 14.25, 130],
+	// 	rotation: [0, Math.PI, 0],
+	// 	scale: 0.1,
+	// 	isRoom: true,
+	// 	category: 'roomHiding',
+	// },
 	{
 		type: 'svg',
 		content:
@@ -153,23 +165,26 @@ const instructions = [
 		rotation: [0, Math.PI, 0],
 		scale: 0.01,
 		isRoom: true,
+		category: 'roomHiding',
 	}, // arrow turn
 
 	// desk hiding
-	{
-		type: 'text',
-		content: 'hiding',
-		position: [68, 15.5, 82.5],
-		rotation: [0, -Math.PI / 2, 0],
-		scale: 0.1,
-	},
-	{
-		type: 'text',
-		content: 'spot',
-		position: [68, 14.25, 82.5],
-		rotation: [0, -Math.PI / 2, 0],
-		scale: 0.1,
-	},
+	// {
+	// 	type: 'text',
+	// 	content: 'hiding',
+	// 	position: [68, 15.5, 82.5],
+	// 	rotation: [0, -Math.PI / 2, 0],
+	// 	scale: 0.1,
+	// 	category: 'deskHiding',
+	// },
+	// {
+	// 	type: 'text',
+	// 	content: 'spot',
+	// 	position: [68, 14.25, 82.5],
+	// 	rotation: [0, -Math.PI / 2, 0],
+	// 	scale: 0.1,
+	// 	category: 'deskHiding',
+	// },
 	{
 		type: 'svg',
 		content:
@@ -177,23 +192,26 @@ const instructions = [
 		position: [6.8, 1.25, 8.19],
 		rotation: [0, -Math.PI / 2, 0],
 		scale: 0.0003,
+		category: 'deskHiding',
 	}, // down arrow
 
 	// nightstand hiding
-	{
-		type: 'text',
-		content: 'hiding ',
-		position: [20, 15.5, 66.25],
-		rotation: [0, Math.PI / 2, 0],
-		scale: 0.1,
-	},
-	{
-		type: 'text',
-		content: 'spot',
-		position: [20, 14.25, 66.25],
-		rotation: [0, Math.PI / 2, 0],
-		scale: 0.1,
-	},
+	// {
+	// 	type: 'text',
+	// 	content: 'hiding ',
+	// 	position: [20, 15.5, 66.25],
+	// 	rotation: [0, Math.PI / 2, 0],
+	// 	scale: 0.1,
+	// 	category: 'nightstandHiding',
+	// },
+	// {
+	// 	type: 'text',
+	// 	content: 'spot',
+	// 	position: [20, 14.25, 66.25],
+	// 	rotation: [0, Math.PI / 2, 0],
+	// 	scale: 0.1,
+	// 	category: 'nightstandHiding',
+	// },
 	{
 		type: 'svg',
 		content:
@@ -201,6 +219,7 @@ const instructions = [
 		position: [2, 1.25, 6.7],
 		rotation: [0, Math.PI / 2, 0],
 		scale: 0.0003,
+		category: 'nightstandHiding',
 	}, // down arrow
 
 	// Jump
@@ -210,6 +229,7 @@ const instructions = [
 		position: [1.98, 0.3, 4.05],
 		rotation: [0, Math.PI, 0],
 		scale: 0.006,
+		category: 'jump',
 	}, // space bar
 	{
 		type: 'text',
@@ -217,6 +237,7 @@ const instructions = [
 		position: [21, 2.3, 40.5],
 		rotation: [0, 0, 0],
 		scale: 0.1,
+		category: 'jump',
 	},
 	{
 		type: 'svg',
@@ -225,6 +246,7 @@ const instructions = [
 		position: [2.35, 0.3, 4.05],
 		rotation: [0, Math.PI, 0],
 		scale: 0.006,
+		category: 'jump',
 	}, // xbox A
 	{
 		type: 'text',
@@ -232,6 +254,7 @@ const instructions = [
 		position: [26.3, 2.3, 40.5],
 		rotation: [0, 0, 0],
 		scale: 0.1,
+		category: 'jump',
 	},
 
 	// Crouch (desk)
@@ -241,6 +264,7 @@ const instructions = [
 		position: [65, 0.1, 81.9],
 		rotation: [-Math.PI / 2, 0, -Math.PI / 2],
 		scale: 0.1,
+		category: 'crouch',
 	},
 	{
 		type: 'svg',
@@ -249,6 +273,7 @@ const instructions = [
 		position: [6.44, 0.01, 8.38],
 		rotation: [Math.PI / 2, 0, Math.PI / 2],
 		scale: 0.006,
+		category: 'crouch',
 	}, // xbox B
 	{
 		type: 'text',
@@ -256,6 +281,7 @@ const instructions = [
 		position: [63.5, 0.1, 82.75],
 		rotation: [-Math.PI / 2, 0, -Math.PI / 2],
 		scale: 0.1,
+		category: 'crouch',
 	},
 
 	// Crouch (nightstand)
@@ -265,6 +291,7 @@ const instructions = [
 		position: [23, 0.1, 67],
 		rotation: [-Math.PI / 2, 0, Math.PI / 2],
 		scale: 0.1,
+		category: 'crouch2',
 	},
 	{
 		type: 'svg',
@@ -273,6 +300,7 @@ const instructions = [
 		position: [2.37, 0.01, 6.5],
 		rotation: [Math.PI / 2, 0, -Math.PI / 2],
 		scale: 0.006,
+		category: 'crouch2',
 	}, // xbox B
 	{
 		type: 'text',
@@ -280,41 +308,8 @@ const instructions = [
 		position: [24.55, 0.1, 66],
 		rotation: [-Math.PI / 2, 0, Math.PI / 2],
 		scale: 0.1,
+		category: 'crouch2',
 	},
-
-	// // Listen
-	// {
-	// 	type: 'svg',
-
-	// 	content:
-	// 		'M144,16H112A64.07,64.07,0,0,0,48,80v96a64.07,64.07,0,0,0,64,64h32a64.07,64.07,0,0,0,64-64V80A64.07,64.07,0,0,0,144,16Zm48,64v24H128V32h16A48.05,48.05,0,0,1,192,80ZM144,224H112a48.05,48.05,0,0,1-48-48V120H192v56A48.05,48.05,0,0,1,144,224Z',
-
-	// 	position: [3.4, 1.37, 9.6],
-	// 	rotation: [0, 0, 0],
-	// 	scale: 0.00055,
-	// }, // mouse right click
-	// {
-	// 	type: 'text',
-	// 	content: ' / ',
-	// 	position: [33.1, 13, 96],
-	// 	rotation: [0, Math.PI, 0],
-	// 	scale: 0.1,
-	// },
-	// {
-	// 	type: 'svg',
-	// 	content:
-	// 		'M12 2c5.523 0 10 4.477 10 10s-4.477 10 -10 10s-10 -4.477 -10 -10s4.477 -10 10 -10m3.6 5.2a1 1 0 0 0 -1.4 .2l-2.2 2.933l-2.2 -2.933a1 1 0 1 0 -1.6 1.2l2.81 3.748l-.01 3.649a1 1 0 0 0 .997 1.003l.117 -.006a1 1 0 0 0 .886 -.991l.01 -3.683l2.79 -3.72a1 1 0 0 0 -.2 -1.4',
-	// 	position: [3.05, 1.37, 9.6],
-	// 	rotation: [0, 0, 0],
-	// 	scale: 0.006,
-	// }, // xbox Y
-	// {
-	// 	type: 'text',
-	// 	content: 'to listen carefully',
-	// 	position: [24.75, 13, 96],
-	// 	rotation: [0, Math.PI, 0],
-	// 	scale: 0.1,
-	// },
 
 	// Listen
 	{
@@ -324,6 +319,7 @@ const instructions = [
 		position: [4.58, 1.3, 4.13],
 		rotation: [0, -Math.PI / 2, 0],
 		scale: 0.00055,
+		category: 'listening',
 	}, // mouse right click
 	{
 		type: 'text',
@@ -331,6 +327,7 @@ const instructions = [
 		position: [46, 12.25, 40.3],
 		rotation: [0, Math.PI / 2, 0],
 		scale: 0.1,
+		category: 'listening',
 	},
 	{
 		type: 'svg',
@@ -339,6 +336,7 @@ const instructions = [
 		position: [4.58, 1.3, 3.9],
 		rotation: [0, Math.PI / 2, 0],
 		scale: 0.006,
+		category: 'listening',
 	}, // xbox Y
 	{
 		type: 'text',
@@ -346,6 +344,7 @@ const instructions = [
 		position: [46, 10, 40],
 		rotation: [0, Math.PI / 2, 0],
 		scale: 0.1,
+		category: 'listening',
 	},
 
 	// bed arrow
@@ -358,6 +357,7 @@ const instructions = [
 		scale: 0.0005,
 		isArrow: true,
 		objectiveIndex: 1,
+		category: 'arrows',
 	},
 	// window arrow
 	{
@@ -369,6 +369,7 @@ const instructions = [
 		scale: 0.0005,
 		isArrow: true,
 		objectiveIndex: 2,
+		category: 'arrows',
 	},
 	// bathroom arrow
 	{
@@ -380,10 +381,11 @@ const instructions = [
 		scale: 0.0005,
 		isArrow: true,
 		objectiveIndex: 0,
+		category: 'arrows',
 	},
 ];
 
-export default function Instructions() {
+export default function Instructions({ tutorialStage, stageInfo = {} }) {
 	const tutorialObjectives = useInterfaceStore(
 		(state) => state.tutorialObjectives
 	);
@@ -408,6 +410,20 @@ export default function Instructions() {
 
 	const renderInstructions = useMemo(
 		() => (instruction, index) => {
+			// Check if the instruction should be shown based on the tutorial stage
+			const shouldShowCategory =
+				stageInfo &&
+				stageInfo[
+					`show${instruction.category
+						?.charAt(0)
+						.toUpperCase()}${instruction.category?.slice(1)}`
+				];
+
+			// Skip rendering if this instruction category shouldn't be shown at current stage
+			if (instruction.category && !shouldShowCategory) {
+				return null;
+			}
+
 			if (
 				instruction.isTutorial &&
 				(tutorial || shownInstructions.current.has(index))
@@ -483,6 +499,7 @@ export default function Instructions() {
 			roomCurtain,
 			arrowRefs,
 			textMaterial,
+			stageInfo,
 		]
 	);
 
