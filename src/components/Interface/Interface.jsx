@@ -28,8 +28,8 @@ import {
 	getKeyAudioPool,
 	areSoundsLoaded,
 	preloadSounds,
-	forceAudioPreload,
 } from '../../utils/audio';
+import useInterfaceStore from '../../hooks/useInterface';
 
 function resetGame() {
 	useGame.getState().restart();
@@ -64,12 +64,7 @@ const Dialogue = memo(({ id, text, index, onRemove }) => {
 
 		checkSounds();
 
-		const timeoutId = setTimeout(() => {
-			setSoundsReady(true);
-		}, 3000);
-
 		return () => {
-			clearTimeout(timeoutId);
 			if (keySoundsRef.current) {
 				keySoundsRef.current.forEach((audio) => {
 					audio.pause();
@@ -106,12 +101,8 @@ const Dialogue = memo(({ id, text, index, onRemove }) => {
 					if (currentChar !== ' ' && keySoundsRef.current) {
 						try {
 							const audio = keySoundsRef.current[currentAudioIndex.current];
-							if (audio) {
-								audio.currentTime = 0;
-								audio.play().catch((error) => {
-									console.warn('Audio playback failed:', error);
-								});
-							}
+							audio.currentTime = 0;
+							audio.play().catch(console.warn);
 							currentAudioIndex.current =
 								(currentAudioIndex.current + 1) % keySoundsRef.current.length;
 						} catch (error) {
@@ -150,12 +141,8 @@ const Dialogue = memo(({ id, text, index, onRemove }) => {
 			}
 			if (keySoundsRef.current) {
 				keySoundsRef.current.forEach((audio) => {
-					try {
-						audio.pause();
-						audio.currentTime = 0;
-					} catch (error) {
-						console.warn('Error stopping audio:', error);
-					}
+					audio.pause();
+					audio.currentTime = 0;
 				});
 			}
 		};
@@ -357,19 +344,11 @@ export default function Interface() {
 		if (calculatedProgress >= 95) {
 			const initAudio = async () => {
 				try {
-					const audioLoadingPromise = preloadSounds();
-					const timeout = new Promise((resolve) => {
-						setTimeout(() => {
-							console.warn('Audio preloading timed out');
-							resolve();
-						}, 5000);
-					});
-
-					await Promise.race([audioLoadingPromise, timeout]);
 					setDisplayProgress(100);
+					await preloadSounds();
 				} catch (error) {
-					console.error('Error loading sounds:', error);
 					setDisplayProgress(100);
+					console.error('Error loading sounds:', error);
 				}
 			};
 
@@ -551,8 +530,6 @@ export default function Interface() {
 					}
 
 					if (loading && displayProgress === 100 && aButtonPressed) {
-						forceAudioPreload();
-
 						setLoading(false);
 						setPlayIntro(true);
 						setGameStartTime();
@@ -577,12 +554,6 @@ export default function Interface() {
 		isRestarting,
 		incrementRealDeaths,
 	]);
-
-	useEffect(() => {
-		if (loading && displayProgress === 100) {
-			forceAudioPreload();
-		}
-	}, [loading, displayProgress]);
 
 	return (
 		<div className={`interface ${loading ? 'animated' : ''}`}>
@@ -611,11 +582,10 @@ export default function Interface() {
 						if (displayProgress !== 100) {
 							e.stopPropagation();
 						} else {
-							forceAudioPreload();
-
 							setLoading(false);
 							setPlayIntro(true);
 							setGameStartTime();
+							// setIsPlaying(true);
 						}
 					}}
 				>

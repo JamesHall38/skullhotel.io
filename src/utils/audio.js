@@ -212,88 +212,20 @@ export const SOUNDS = {
 
 const audioInstances = {};
 let soundsLoaded = false;
-let loadingAttempts = 0;
-const MAX_LOADING_ATTEMPTS = 3;
-let autoLoadTimeoutActive = false;
-
-// Détection pour iOS
-const isIOS = () => {
-	return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-};
 
 async function loadAudioFile(url) {
 	try {
-		if (isIOS()) {
-			return url;
-		}
-
 		const response = await fetch(url);
 		const blob = await response.blob();
 		return URL.createObjectURL(blob);
 	} catch (error) {
 		console.error(`Error loading audio file ${url}:`, error);
-		return url;
+		return url; // Fallback to direct URL if fetch fails
 	}
 }
 
 export async function preloadSounds() {
 	if (soundsLoaded) return Promise.resolve();
-
-	if (loadingAttempts >= MAX_LOADING_ATTEMPTS) {
-		console.warn(
-			'Maximum loading attempts reached. Setting sounds as loaded anyway.'
-		);
-		soundsLoaded = true;
-		return Promise.resolve();
-	}
-
-	loadingAttempts++;
-
-	if (isIOS()) {
-		try {
-			Object.entries(SOUNDS).forEach(([key, sound]) => {
-				if (sound.mp3) {
-					const audio = new Audio();
-					audio.src = sound.mp3;
-					audio.preload = 'auto';
-
-					const settings =
-						SOUND_SETTINGS[sound.settings] || SOUND_SETTINGS.default;
-					audio.volume = Math.min(settings.volume || 0.5, 0.8);
-
-					audioInstances[key] = audio;
-				}
-			});
-
-			const keySound = new Audio('/sounds/key.mp3');
-			keySound.volume = 0.25;
-			keySound.preload = 'auto';
-			audioInstances.keyPool = Array(5)
-				.fill(null)
-				.map(() => {
-					const audio = new Audio('/sounds/key.mp3');
-					audio.volume = 0.25;
-					audio.preload = 'auto';
-					return audio;
-				});
-
-			const unlockAudio = async () => {
-				const tempAudio = new Audio();
-				tempAudio
-					.play()
-					.then(() => tempAudio.pause())
-					.catch((e) => console.warn('Audio unlock failed:', e));
-			};
-
-			await unlockAudio();
-			soundsLoaded = true;
-			return Promise.resolve();
-		} catch (error) {
-			console.error('iOS audio preloading error:', error);
-			soundsLoaded = true;
-			return Promise.resolve();
-		}
-	}
 
 	const loadPromises = Object.entries(SOUNDS).map(async ([key, sound]) => {
 		if (sound.mp3) {
@@ -312,31 +244,11 @@ export async function preloadSounds() {
 
 				return new Promise((resolve) => {
 					audio.addEventListener('canplaythrough', resolve, { once: true });
-					const timeout = setTimeout(resolve, 3000);
-					audio.addEventListener(
-						'canplaythrough',
-						() => {
-							clearTimeout(timeout);
-							resolve();
-						},
-						{ once: true }
-					);
-
-					audio.addEventListener(
-						'error',
-						(e) => {
-							console.warn(`Audio loading error for ${key}:`, e);
-							clearTimeout(timeout);
-							resolve();
-						},
-						{ once: true }
-					);
-
 					audio.load();
 				});
 			} catch (error) {
 				console.error(`Failed to load sound ${key}:`, error);
-				return Promise.resolve();
+				return Promise.resolve(); // Continue with other sounds
 			}
 		}
 		return Promise.resolve();
@@ -356,27 +268,11 @@ export async function preloadSounds() {
 		console.error('Failed to load key sound:', error);
 	}
 
-	try {
-		await Promise.all(loadPromises);
-		soundsLoaded = true;
-	} catch (error) {
-		console.error('Error loading sounds:', error);
-		soundsLoaded = true;
-	}
+	await Promise.all(loadPromises);
+	soundsLoaded = true;
 }
 
 export function areSoundsLoaded() {
-	if (!soundsLoaded && !autoLoadTimeoutActive) {
-		autoLoadTimeoutActive = true;
-
-		setTimeout(() => {
-			if (!soundsLoaded) {
-				console.warn('Forcing sounds to be considered as loaded after timeout');
-				soundsLoaded = true;
-			}
-		}, 5000);
-	}
-
 	return soundsLoaded;
 }
 
@@ -385,13 +281,13 @@ export function getAudioInstance(key) {
 		console.warn(
 			'Attempted to get audio instance before sounds were loaded: ' + key
 		);
-		return createDummyAudio();
+		return null;
 	}
 
 	const instance = audioInstances[key];
 	if (!instance) {
 		console.warn(`No audio instance found for key: ${key}`);
-		return createDummyAudio();
+		return null;
 	}
 
 	if (!instance.paused) {
@@ -401,36 +297,15 @@ export function getAudioInstance(key) {
 			return newInstance;
 		} catch (error) {
 			console.error(`Error creating new audio instance for ${key}:`, error);
-			return createDummyAudio();
+			return null;
 		}
 	}
 
-	try {
-		instance.currentTime = 0;
-		return instance;
-	} catch (error) {
-		console.warn(`Error resetting audio time for ${key}:`, error);
-		return createDummyAudio();
-	}
-}
-
-function createDummyAudio() {
-	return {
-		play: () => Promise.resolve(),
-		pause: () => {},
-		currentTime: 0,
-		volume: 0,
-		paused: true,
-	};
+	instance.currentTime = 0;
+	return instance;
 }
 
 export function getKeyAudioPool() {
-	if (!audioInstances.keyPool) {
-		console.warn('Key audio pool not loaded, returning dummy audio objects');
-		return Array(5)
-			.fill()
-			.map(() => createDummyAudio());
-	}
 	return audioInstances.keyPool;
 }
 
@@ -461,73 +336,3 @@ export const usePositionalSound = (soundName) => {
 		volume: settings.volume || 0.5,
 	};
 };
-
-export const unlockAudio = async () => {
-	try {
-		const audioContext = new (window.AudioContext ||
-			window.webkitAudioContext)();
-		if (audioContext.state === 'suspended') {
-			await audioContext.resume();
-		}
-
-		const silentBuffer = audioContext.createBuffer(1, 1, 22050);
-		const source = audioContext.createBufferSource();
-		source.buffer = silentBuffer;
-		source.connect(audioContext.destination);
-		source.start(0);
-
-		const audio = new Audio();
-		audio.volume = 0;
-
-		try {
-			await audio.play();
-			setTimeout(() => audio.pause(), 1);
-		} catch (e) {
-			console.warn('Silent audio play failed:', e);
-		}
-
-		if (isIOS()) {
-			Object.entries(audioInstances).forEach(([_, audio]) => {
-				if (audio && typeof audio.play === 'function') {
-					try {
-						const originalVolume = audio.volume;
-						audio.volume = 0.01;
-						audio
-							.play()
-							.then(() => {
-								audio.pause();
-								audio.currentTime = 0;
-								audio.volume = originalVolume;
-							})
-							.catch(() => {
-								audio.volume = originalVolume;
-							});
-					} catch (e) {
-						console.warn('Audio unlock failed:', e);
-					}
-				}
-			});
-		}
-
-		return true;
-	} catch (e) {
-		console.warn('Audio unlock failed:', e);
-		return false;
-	}
-};
-
-export function forceAudioPreload() {
-	if (soundsLoaded) return;
-
-	soundsLoaded = true;
-
-	setTimeout(() => {
-		preloadSounds().catch((error) => {
-			console.warn('Background audio preload failed:', error);
-		});
-	}, 0);
-
-	unlockAudio().catch((error) => {
-		console.warn('Audio unlock failed:', error);
-	});
-}
