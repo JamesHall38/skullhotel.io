@@ -49,7 +49,6 @@ const EndGameScreen = () => {
 	const gameStartTime = useGame((state) => state.gameStartTime);
 	const gameEndTime = useGame((state) => state.gameEndTime);
 	const setGameStartTime = useGame((state) => state.setGameStartTime);
-	const deaths = useGame((state) => state.deaths);
 	const setIsAnyPopupOpen = useInterface((state) => state.setIsAnyPopupOpen);
 
 	const [completionTime, setCompletionTime] = useState(0);

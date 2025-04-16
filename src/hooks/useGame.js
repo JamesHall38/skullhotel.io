@@ -32,6 +32,9 @@ const useGameStore = create(
 		customDeathMessage: null,
 		setCustomDeathMessage: (message) => set({ customDeathMessage: message }),
 
+		shouldRenderThreeJs: false,
+		setShouldRenderThreeJs: (value) => set({ shouldRenderThreeJs: value }),
+
 		setSeedData: (newSeedData) => {
 			set({ seedData: newSeedData });
 		},

@@ -257,6 +257,18 @@ export default function Bathroom() {
 					material={materialRef.current}
 				/>
 			</group>
+
+			{/* wall inside the mirror */}
+			<mesh
+				position={[-8, 1, -2.65]}
+				rotation={[0, Math.PI / 2, 0]}
+				receiveShadow
+			>
+				<planeGeometry args={[2, 4]} />
+				<meshStandardMaterial color="lightgray" />
+			</mesh>
+
+			{/* mirror */}
 			<mesh
 				position={[-1.65, 1.3, -3.25]}
 				rotation={[0, Math.PI / 2, 0]}
@@ -274,6 +286,7 @@ export default function Bathroom() {
 					color="white"
 				/>
 			</mesh>
+
 			<BathroomTextures
 				scene={scene}
 				nodes={nodes}

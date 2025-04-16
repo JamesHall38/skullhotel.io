@@ -6,6 +6,7 @@ import useGamepadControls from '../../../hooks/useGamepadControls';
 import DetectionZone from '../../DetectionZone';
 import { PositionalAudio, useKTX2 } from '@react-three/drei';
 import { usePositionalSound } from '../../../utils/audio';
+import useLight from '../../../hooks/useLight';
 
 const Radio = () => {
 	const meshRef = useRef();
@@ -15,12 +16,14 @@ const Radio = () => {
 	const setMobileClick = useGame((state) => state.setMobileClick);
 	const mobileClick = useGame((state) => state.mobileClick);
 	const setCursor = useInterface((state) => state.setCursor);
+	const cursor = useInterface((state) => state.cursor);
 	const radioSoundRef = useRef();
 	const hideSoundRef = useRef();
 	const radioSound = usePositionalSound('radio');
 	const hideSound = usePositionalSound('hide');
 	const gamepadControls = useGamepadControls();
 	const prevXButtonRef = useRef(false);
+	const setRadioLight = useLight((state) => state.setRadioLight);
 
 	const textureOn = useKTX2('/textures/bedroom/radio_on_etc1s.ktx2');
 	const textureOff = useKTX2('/textures/bedroom/radio_off_etc1s.ktx2');
@@ -53,6 +56,7 @@ const Radio = () => {
 		if (radio) {
 			radioSoundRef.current.play();
 			radioSoundRef.current.volume = 1;
+			setRadioLight('#fff0be', 0.1);
 
 			if (playHideSound) {
 				hideSoundRef.current.play();
@@ -62,13 +66,18 @@ const Radio = () => {
 		} else {
 			radioSoundRef.current.pause();
 			hideSoundRef.current.pause();
+			setRadioLight('#fff0be', 0);
 		}
-	}, [radio, playHideSound]);
+	}, [radio, playHideSound, setRadioLight]);
 
 	useFrame(() => {
 		const xButtonPressed = gamepadControls().action;
-		if (isDetected && xButtonPressed && !prevXButtonRef.current) {
-			const canTriggerRaid = !knockedRooms.includes(playerPositionRoom);
+		if (
+			isDetected &&
+			xButtonPressed &&
+			!prevXButtonRef.current &&
+			cursor === 'power-radio'
+		) {
 			setRadio(!radio);
 			setActiveRadio(playerPositionRoom);
 		}
@@ -76,8 +85,7 @@ const Radio = () => {
 	});
 
 	useEffect(() => {
-		if (isDetected && mobileClick) {
-			const canTriggerRaid = !knockedRooms.includes(playerPositionRoom);
+		if (isDetected && mobileClick && cursor === 'power-radio') {
 			setRadio(!radio);
 			setActiveRadio(playerPositionRoom);
 			setMobileClick(false);
@@ -91,6 +99,7 @@ const Radio = () => {
 		setRadio,
 		radio,
 		knockedRooms,
+		cursor,
 	]);
 
 	return (
@@ -112,8 +121,7 @@ const Radio = () => {
 			/>
 			<mesh
 				onPointerDown={(e) => {
-					if (e.button === 0) {
-						const canTriggerRaid = !knockedRooms.includes(playerPositionRoom);
+					if (e.button === 0 && cursor === 'power-radio') {
 						setRadio(!radio);
 						setActiveRadio(playerPositionRoom);
 					}

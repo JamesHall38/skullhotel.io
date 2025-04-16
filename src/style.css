@@ -93,3 +93,29 @@ html {
 		height: 100%;
 	}
 }
+
+@media (max-height: 800px) {
+	html {
+		font-size: 15px;
+	}
+}
+@media (max-height: 700px) {
+	html {
+		font-size: 14px;
+	}
+}
+@media (max-height: 600px) {
+	html {
+		font-size: 13px;
+	}
+}
+@media (max-height: 500px) {
+	html {
+		font-size: 12px;
+	}
+}
+@media (max-height: 400px) {
+	html {
+		font-size: 10px;
+	}
+}

@@ -385,7 +385,7 @@ const instructions = [
 	},
 ];
 
-export default function Instructions({ tutorialStage, stageInfo = {} }) {
+export default function Instructions({ stageInfo = {} }) {
 	const tutorialObjectives = useInterfaceStore(
 		(state) => state.tutorialObjectives
 	);
@@ -410,7 +410,6 @@ export default function Instructions({ tutorialStage, stageInfo = {} }) {
 
 	const renderInstructions = useMemo(
 		() => (instruction, index) => {
-			// Check if the instruction should be shown based on the tutorial stage
 			const shouldShowCategory =
 				stageInfo &&
 				stageInfo[
@@ -419,7 +418,6 @@ export default function Instructions({ tutorialStage, stageInfo = {} }) {
 						.toUpperCase()}${instruction.category?.slice(1)}`
 				];
 
-			// Skip rendering if this instruction category shouldn't be shown at current stage
 			if (instruction.category && !shouldShowCategory) {
 				return null;
 			}

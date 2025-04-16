@@ -6,6 +6,7 @@ import useGamepadControls from '../../../hooks/useGamepadControls';
 import DetectionZone from '../../DetectionZone';
 import { PositionalAudio, Text } from '@react-three/drei';
 import { usePositionalSound } from '../../../utils/audio';
+import useLight from '../../../hooks/useLight';
 import * as THREE from 'three';
 
 export default function Tv() {
@@ -14,6 +15,7 @@ export default function Tv() {
 	const tv = useGame((state) => state.tv);
 	const setTv = useGame((state) => state.setTv);
 	const setCursor = useInterface((state) => state.setCursor);
+	const cursor = useInterface((state) => state.cursor);
 	const tvSoundRef = useRef();
 	const playerPositionRoom = useGame((state) => state.playerPositionRoom);
 	const activeTvs = useGame((state) => state.activeTvs);
@@ -26,6 +28,7 @@ export default function Tv() {
 	const activeRaids = useGame((state) => state.activeRaids);
 	const [showHide, setShowHide] = useState(false);
 	const knockedRooms = useGame((state) => state.knockedRooms);
+	const setTvLight = useLight((state) => state.setTvLight);
 
 	const uniforms = useMemo(
 		() => ({
@@ -48,10 +51,12 @@ export default function Tv() {
 	useEffect(() => {
 		if (tv) {
 			tvSoundRef.current.play();
+			setTvLight('#ffffff', 0.2);
 		} else {
 			tvSoundRef.current.pause();
+			setTvLight('#ffffff', 0);
 		}
-	}, [tv]);
+	}, [tv, setTvLight]);
 
 	useEffect(() => {
 		setTv(activeTvs.includes(playerPositionRoom));
@@ -67,7 +72,12 @@ export default function Tv() {
 
 	useFrame(() => {
 		const xButtonPressed = gamepadControls().action;
-		if (isDetected && xButtonPressed && !prevXButtonRef.current) {
+		if (
+			isDetected &&
+			xButtonPressed &&
+			!prevXButtonRef.current &&
+			cursor === 'power-tv'
+		) {
 			setTv(!tv);
 			setActiveTv(playerPositionRoom);
 		}
@@ -75,7 +85,7 @@ export default function Tv() {
 	});
 
 	useEffect(() => {
-		if (isDetected && mobileClick) {
+		if (isDetected && mobileClick && cursor === 'power-tv') {
 			setTv(!tv);
 			setActiveTv(playerPositionRoom);
 			setMobileClick(false);
@@ -89,6 +99,7 @@ export default function Tv() {
 		setTv,
 		tv,
 		knockedRooms,
+		cursor,
 	]);
 
 	return (
@@ -110,7 +121,7 @@ export default function Tv() {
 			/>
 			<mesh
 				onPointerDown={(e) => {
-					if (e.button === 0) {
+					if (e.button === 0 && cursor === 'power-tv') {
 						setTv(!tv);
 						setActiveTv(playerPositionRoom);
 					}

@@ -495,6 +495,7 @@ export default function AppCanvas() {
 	const setPlayIntro = useGame((state) => state.setPlayIntro);
 	const shadows = useSettings((state) => state.shadows);
 	const setShadows = useSettings((state) => state.setShadows);
+	const shouldRenderThreeJs = useGame((state) => state.shouldRenderThreeJs);
 
 	useEffect(() => {
 		setShadows(performanceMode && !isMobile);
@@ -527,29 +528,31 @@ export default function AppCanvas() {
 			<div onClick={(e) => e.stopPropagation()}>
 				<Leva collapsed hidden={!isDebugMode} />
 			</div>
-			<Suspense fallback={null}>
-				<Canvas
-					camera={{
-						fov: 75,
-						near: 0.1,
-						far: 30,
-					}}
-					gl={{
-						powerPreference: 'default',
-						antialias: false,
-						depth: false,
-						stencil: false,
-					}}
-					dpr={[1, 1.5]}
-					performance={{ min: 0.5 }}
-					shadows={shadows}
-				>
-					{perfVisible ? <Perf position="top-left" /> : null}
-					<ShadowManager />
-					<App />
-					<PostProcessing />
-				</Canvas>
-			</Suspense>
+			{shouldRenderThreeJs && (
+				<Suspense fallback={null}>
+					<Canvas
+						camera={{
+							fov: 75,
+							near: 0.1,
+							far: 30,
+						}}
+						gl={{
+							powerPreference: 'default',
+							antialias: false,
+							depth: false,
+							stencil: false,
+						}}
+						dpr={[1, 1.5]}
+						performance={{ min: 0.5 }}
+						shadows={shadows}
+					>
+						{perfVisible ? <Perf position="top-left" /> : null}
+						<ShadowManager />
+						<App />
+						<PostProcessing />
+					</Canvas>
+				</Suspense>
+			)}
 			<Interface />
 		</>
 	);

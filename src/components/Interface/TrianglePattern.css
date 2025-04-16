@@ -1,0 +1,23 @@
+.triangle-pattern {
+	pointer-events: none;
+	z-index: 1;
+	width: 11.5rem;
+	height: 28.75rem;
+}
+
+.triangle-pattern.left {
+	left: 0;
+	top: 0;
+}
+
+.triangle-pattern.right {
+	right: 0;
+	top: 0;
+}
+
+@media (max-width: 515px) {
+	.triangle-pattern {
+		width: 5.75rem;
+		height: 14.375rem;
+	}
+}

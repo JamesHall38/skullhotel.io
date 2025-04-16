@@ -1,0 +1,11 @@
+.animated-title {
+	pointer-events: none;
+	z-index: 1;
+	max-width: 100%;
+	height: auto;
+}
+
+.animated-title path {
+	stroke: #efd89b;
+	fill: none;
+}

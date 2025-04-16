@@ -354,11 +354,11 @@ const useGridStore = create((set, get) => ({
 					} else {
 						newWall = {
 							start: {
-								x: Math.round(roomWidth - wall.end.x + offsetX + 30),
+								x: Math.round(roomWidth - wall.end.x + offsetX + 29),
 								z: Math.round(roomHeight - wall.end.z + offsetZ - 230),
 							},
 							end: {
-								x: Math.round(roomWidth - wall.start.x + offsetX + 30),
+								x: Math.round(roomWidth - wall.start.x + offsetX + 29),
 								z: Math.round(roomHeight - wall.start.z + offsetZ - 230),
 							},
 							type: wall.type,

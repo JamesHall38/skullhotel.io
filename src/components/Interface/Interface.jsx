@@ -24,12 +24,12 @@ import { regenerateData } from '../../utils/config';
 import './Interface.css';
 import { measurePerformance } from '../../hooks/usePerformance';
 import useTextureQueue from '../../hooks/useTextureQueue';
+import LoadingScreen from './LoadingScreen';
 import {
 	getKeyAudioPool,
 	areSoundsLoaded,
 	preloadSounds,
 } from '../../utils/audio';
-import useInterfaceStore from '../../hooks/useInterface';
 
 function resetGame() {
 	useGame.getState().restart();
@@ -576,30 +576,7 @@ export default function Interface() {
 
 			<Settings />
 			{loading ? (
-				<div
-					className={`loading-page ${displayProgress === 100 ? 'ready' : ''}`}
-					onClick={(e) => {
-						if (displayProgress !== 100) {
-							e.stopPropagation();
-						} else {
-							setLoading(false);
-							setPlayIntro(true);
-							setGameStartTime();
-							// setIsPlaying(true);
-						}
-					}}
-				>
-					<SkullHotelLogo />
-					<div className="flex">
-						<div className="title">SKULL HOTEL</div>
-						{/* <div className="io">.io</div> */}
-					</div>
-					<div className={displayProgress !== 100 ? 'loading' : 'start'}>
-						{displayProgress !== 100
-							? `loading: ${displayProgress.toFixed(0)}%`
-							: `click to start`}
-					</div>
-				</div>
+				<LoadingScreen onStart={() => setLoading(false)} />
 			) : doneObjectives === 10 ? (
 				<div className="objectives">Find the exit</div>
 			) : tutorialObjectives.every((objective) => objective === true) ? (
