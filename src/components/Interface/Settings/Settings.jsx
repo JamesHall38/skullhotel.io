@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 
 import closeIcon from './close.svg';
-import fullScreenIcon from './fullScreen.svg';
+import fullScreenIcon from './fullscreen.svg';
 import gamepadA from './gamepad_a.svg';
 import gamepadB from './gamepad_b.svg';
 import gamepadX from './gamepad_x.svg';
