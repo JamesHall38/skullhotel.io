@@ -56,6 +56,11 @@ export const SOUNDS = {
 		mp3: '/sounds/hide.mp3',
 		settings: 'ambient',
 	},
+	menu: {
+		mp3: '/sounds/menu.mp3',
+		settings: 'effect',
+		volume: 0.3,
+	},
 	step1: {
 		mp3: '/sounds/step1.mp3',
 		settings: 'steps',
@@ -192,7 +197,7 @@ async function loadAudioFile(url) {
 		return URL.createObjectURL(blob);
 	} catch (error) {
 		console.error(`Error loading audio file ${url}:`, error);
-		return url; // Fallback to direct URL if fetch fails
+		return url;
 	}
 }
 
@@ -207,10 +212,10 @@ export async function preloadSounds(onSoundLoaded) {
 				audio.src = blobUrl;
 				audio.preload = 'auto';
 
-				// Set volume based on settings
 				const settings =
 					SOUND_SETTINGS[sound.settings] || SOUND_SETTINGS.default;
-				audio.volume = settings.volume || 0.5;
+				audio.volume =
+					sound.volume !== undefined ? sound.volume : settings.volume || 0.5;
 
 				audioInstances[key] = audio;
 
@@ -229,7 +234,7 @@ export async function preloadSounds(onSoundLoaded) {
 				});
 			} catch (error) {
 				console.error(`Failed to load sound ${key}:`, error);
-				return Promise.resolve(); // Continue with other sounds
+				return Promise.resolve();
 			}
 		}
 		return Promise.resolve();

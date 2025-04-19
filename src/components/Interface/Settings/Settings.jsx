@@ -27,6 +27,7 @@ import {
 	exitPointerLock,
 	requestPointerLock,
 } from '../../../utils/pointerLock';
+import { getAudioInstance } from '../../../utils/audio';
 import './Settings.css';
 
 export default function Settings({ loading }) {
@@ -62,6 +63,8 @@ export default function Settings({ loading }) {
 	const verticalSensitivitySliderRef = useRef(null);
 	const sensitivityStep = 0.05;
 	const lastStartButtonState = useRef(false);
+	const lastFocusedElement = useRef(0);
+	const lastMenuSoundTime = useRef(0);
 
 	useEffect(() => {
 		const handleKeyDown = (e) => {
@@ -168,6 +171,11 @@ export default function Settings({ loading }) {
 	useEffect(() => {
 		if (!isSettingsOpen) return;
 
+		if (lastFocusedElement.current !== focusedElement) {
+			playMenuSound();
+			lastFocusedElement.current = focusedElement;
+		}
+
 		interactiveElements.current.forEach((el) => {
 			el.classList.remove('gamepad-focus');
 		});
@@ -221,11 +229,13 @@ export default function Settings({ loading }) {
 
 			if (up) {
 				setFocusedElement((prev) => Math.max(0, prev - 1));
+				playMenuSound();
 				lastInputTime.current = now;
 			} else if (down) {
 				setFocusedElement((prev) =>
 					Math.min(interactiveElements.current.length - 1, prev + 1)
 				);
+				playMenuSound();
 				lastInputTime.current = now;
 			}
 
@@ -237,10 +247,12 @@ export default function Settings({ loading }) {
 						horizontalSensitivity - sensitivityStep
 					);
 					setHorizontalSensitivity(newValue);
+					playMenuSound();
 					lastInputTime.current = now;
 				} else if (right) {
 					const newValue = Math.min(1, horizontalSensitivity + sensitivityStep);
 					setHorizontalSensitivity(newValue);
+					playMenuSound();
 					lastInputTime.current = now;
 				}
 			} else if (focusedEl && focusedEl.id === 'verticalSensitivity') {
@@ -250,10 +262,12 @@ export default function Settings({ loading }) {
 						verticalSensitivity - sensitivityStep
 					);
 					setVerticalSensitivity(newValue);
+					playMenuSound();
 					lastInputTime.current = now;
 				} else if (right) {
 					const newValue = Math.min(1, verticalSensitivity + sensitivityStep);
 					setVerticalSensitivity(newValue);
+					playMenuSound();
 					lastInputTime.current = now;
 				}
 			}
@@ -263,8 +277,10 @@ export default function Settings({ loading }) {
 				if (focusedEl.type === 'checkbox') {
 					focusedEl.checked = !focusedEl.checked;
 					setShadows(focusedEl.checked);
+					playMenuSound();
 				} else if (focusedEl.tagName === 'BUTTON') {
 					focusedEl.click();
+					playMenuSound();
 				}
 				lastInputTime.current = now;
 			}
@@ -273,6 +289,7 @@ export default function Settings({ loading }) {
 			if (bButtonPressed) {
 				setIsSettingsOpen(false);
 				setIsAnyPopupOpen(false);
+				playMenuSound();
 				lastInputTime.current = now;
 			}
 		};
@@ -333,6 +350,31 @@ export default function Settings({ loading }) {
 		}
 	};
 
+	const playMenuSound = () => {
+		const now = Date.now();
+		if (now - lastMenuSoundTime.current < 150) {
+			return;
+		}
+
+		const menuSound = getAudioInstance('menu');
+		if (menuSound) {
+			menuSound.play().catch(() => {});
+			lastMenuSoundTime.current = now;
+		}
+	};
+
+	const handleMouseEnter = (e) => {
+		const isInteractive =
+			e.target.tagName === 'BUTTON' ||
+			e.target.tagName === 'INPUT' ||
+			e.target.closest('button') ||
+			e.target.closest('input');
+
+		if (deviceMode === 'keyboard' && isInteractive) {
+			playMenuSound();
+		}
+	};
+
 	if (!isSettingsOpen) {
 		if (loading || openDeathScreen || isEndScreen || end) {
 			return null;
@@ -343,6 +385,7 @@ export default function Settings({ loading }) {
 				onClick={(e) => {
 					e.stopPropagation();
 					setIsSettingsOpen(true);
+					playMenuSound();
 				}}
 			>
 				Settings
@@ -364,7 +407,11 @@ export default function Settings({ loading }) {
 			<div className="settings-layout">
 				<button
 					className="settings-close"
-					onClick={() => setIsSettingsOpen(false)}
+					onClick={() => {
+						setIsSettingsOpen(false);
+						playMenuSound();
+					}}
+					onMouseEnter={handleMouseEnter}
 				>
 					SETTINGS
 					<img src={closeIcon} alt="Close" />
@@ -374,7 +421,11 @@ export default function Settings({ loading }) {
 					<h2 className="settings-title">VISUALS</h2>
 					<button
 						className="settings-item settings-hover-effect"
-						onClick={fullScreenHandler}
+						onClick={(e) => {
+							fullScreenHandler(e);
+							playMenuSound();
+						}}
+						onMouseEnter={handleMouseEnter}
 					>
 						<div className="setting-label">
 							<img src={fullScreenIcon} alt="Fullscreen" />
@@ -394,7 +445,11 @@ export default function Settings({ loading }) {
 
 					<button
 						className="settings-item settings-hover-effect"
-						onClick={() => setShadows(!shadows)}
+						onClick={() => {
+							setShadows(!shadows);
+							playMenuSound();
+						}}
+						onMouseEnter={handleMouseEnter}
 					>
 						<div className="setting-label">Shadows</div>
 						<div className="toggle-switch-container">
@@ -417,9 +472,11 @@ export default function Settings({ loading }) {
 								step="0.001"
 								value={verticalSensitivity}
 								ref={verticalSensitivitySliderRef}
-								onChange={(e) =>
-									setVerticalSensitivity(parseFloat(e.target.value))
-								}
+								onChange={(e) => {
+									setVerticalSensitivity(parseFloat(e.target.value));
+									playMenuSound();
+								}}
+								onMouseEnter={handleMouseEnter}
 							/>
 							<span className="sensitivity-value">
 								{Math.round(
@@ -440,9 +497,11 @@ export default function Settings({ loading }) {
 								step="0.001"
 								value={horizontalSensitivity}
 								ref={horizontalSensitivitySliderRef}
-								onChange={(e) =>
-									setHorizontalSensitivity(parseFloat(e.target.value))
-								}
+								onChange={(e) => {
+									setHorizontalSensitivity(parseFloat(e.target.value));
+									playMenuSound();
+								}}
+								onMouseEnter={handleMouseEnter}
 							/>
 							<span className="sensitivity-value">
 								{Math.round(
