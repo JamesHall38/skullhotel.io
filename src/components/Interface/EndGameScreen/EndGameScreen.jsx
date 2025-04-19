@@ -206,14 +206,15 @@ const EndGameScreen = () => {
 		restartInterface();
 		setPlayIntro(true);
 
-		// Reset game state
 		setGameStartTime();
 
 		if (deviceMode === 'keyboard') {
-			const canvas = document.querySelector('canvas');
-			if (canvas) {
-				requestPointerLock(canvas);
-			}
+			setTimeout(() => {
+				const canvas = document.querySelector('canvas');
+				if (canvas && !isPointerLocked()) {
+					requestPointerLock(canvas);
+				}
+			}, 100);
 		}
 	};
 

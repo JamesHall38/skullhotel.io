@@ -3,7 +3,7 @@ import { gsap } from 'gsap';
 import { useGSAP } from '@gsap/react';
 import './TrianglePattern.css';
 
-const TrianglePattern = ({ position = 'left' }) => {
+const TrianglePattern = ({ position = 'left', onComplete }) => {
 	const patternRef = useRef(null);
 
 	// // SIMPLE ANIMATION
@@ -52,7 +52,14 @@ const TrianglePattern = ({ position = 'left' }) => {
 				opacity: 1,
 			});
 
-			const tl = gsap.timeline({ delay: -0.2 });
+			const tl = gsap.timeline({
+				delay: -0.2,
+				onComplete: () => {
+					if (onComplete && typeof onComplete === 'function') {
+						onComplete();
+					}
+				},
+			});
 
 			const shuffledPaths = [...paths].sort(() => Math.random() - 0.5);
 
@@ -79,7 +86,7 @@ const TrianglePattern = ({ position = 'left' }) => {
 					group,
 					{
 						strokeDashoffset: 0,
-						duration: 2.5 + Math.random() * 0.5,
+						duration: 2.5,
 						stagger: {
 							amount: 0.8,
 							from: 'random',

@@ -51,6 +51,7 @@ import useGameplaySettings from './hooks/useGameplaySettings';
 import useSettings from './hooks/useSettings';
 import ShadowManager from './components/ShadowManager';
 import EndGameAnimation from './components/EndGameAnimation';
+import { isPointerLocked, exitPointerLock } from './utils/pointerLock';
 
 const generateLevelOptions = () => {
 	const options = {
@@ -316,6 +317,10 @@ function App() {
 				controlsRef.current.unlock();
 			}
 
+			if (deviceMode === 'keyboard' && isPointerLocked()) {
+				exitPointerLock();
+			}
+
 			setTimeout(() => {
 				regenerateData();
 				resetGame();
@@ -432,6 +437,8 @@ function App() {
 		raidPercentage,
 	]);
 
+	const shouldRenderThreeJs = useGame((state) => state.shouldRenderThreeJs);
+
 	return (
 		<>
 			<ListeningMode />
@@ -460,30 +467,39 @@ function App() {
 				<Sound />
 				<Tutorial />
 				<EndGameAnimation />
-				{duplicateComponents(RoomDoor)}
-				<group position={position}>
-					<CorridorStart position={[1.07, 0, 0]} />
-					<CorridorMiddles />
-					<CorridorEnd
-						position={[-1.19 - (roomCount / 2 - 1) * CORRIDORLENGTH, 0, 0]}
-					/>
-				</group>
 
-				<Room />
-				<Monster />
+				{shouldRenderThreeJs && (
+					<>
+						{duplicateComponents(RoomDoor)}
+						<group position={position}>
+							<CorridorStart position={[1.07, 0, 0]} />
+							<CorridorMiddles />
+							<CorridorEnd
+								position={[-1.19 - (roomCount / 2 - 1) * CORRIDORLENGTH, 0, 0]}
+							/>
+						</group>
 
-				<ReceptionDoors />
-				<Reception />
+						<Room />
+						<Monster />
 
-				<BathroomDoor />
-				<NightstandDoor />
-				<DeskDoor />
-				<RoomCurtain />
-				<BathroomCurtain key="bathroom1" name="bathroom1" />
-				<BathroomCurtain key="bathroom2" name="bathroom2" positionOffset={2} />
-				<Bedsheets />
-				<Window />
-				<Bottles />
+						<ReceptionDoors />
+						<Reception />
+
+						<BathroomDoor />
+						<NightstandDoor />
+						<DeskDoor />
+						<RoomCurtain />
+						<BathroomCurtain key="bathroom1" name="bathroom1" />
+						<BathroomCurtain
+							key="bathroom2"
+							name="bathroom2"
+							positionOffset={2}
+						/>
+						<Bedsheets />
+						<Window />
+						<Bottles />
+					</>
+				)}
 			</KeyboardControls>
 		</>
 	);
@@ -495,7 +511,6 @@ export default function AppCanvas() {
 	const setPlayIntro = useGame((state) => state.setPlayIntro);
 	const shadows = useSettings((state) => state.shadows);
 	const setShadows = useSettings((state) => state.setShadows);
-	const shouldRenderThreeJs = useGame((state) => state.shouldRenderThreeJs);
 
 	useEffect(() => {
 		setShadows(performanceMode && !isMobile);
@@ -528,31 +543,29 @@ export default function AppCanvas() {
 			<div onClick={(e) => e.stopPropagation()}>
 				<Leva collapsed hidden={!isDebugMode} />
 			</div>
-			{shouldRenderThreeJs && (
-				<Suspense fallback={null}>
-					<Canvas
-						camera={{
-							fov: 75,
-							near: 0.1,
-							far: 30,
-						}}
-						gl={{
-							powerPreference: 'default',
-							antialias: false,
-							depth: false,
-							stencil: false,
-						}}
-						dpr={[1, 1.5]}
-						performance={{ min: 0.5 }}
-						shadows={shadows}
-					>
-						{perfVisible ? <Perf position="top-left" /> : null}
-						<ShadowManager />
-						<App />
-						<PostProcessing />
-					</Canvas>
-				</Suspense>
-			)}
+			<Suspense fallback={null}>
+				<Canvas
+					camera={{
+						fov: 75,
+						near: 0.1,
+						far: 30,
+					}}
+					gl={{
+						powerPreference: 'default',
+						antialias: false,
+						depth: false,
+						stencil: false,
+					}}
+					dpr={[1, 1.5]}
+					performance={{ min: 0.5 }}
+					shadows={shadows}
+				>
+					{perfVisible ? <Perf position="top-left" /> : null}
+					<ShadowManager />
+					<App />
+					<PostProcessing />
+				</Canvas>
+			</Suspense>
 			<Interface />
 		</>
 	);

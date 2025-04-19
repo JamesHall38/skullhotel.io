@@ -3,7 +3,7 @@ import { gsap } from 'gsap';
 import { useGSAP } from '@gsap/react';
 import './AnimatedTitle.css';
 
-const AnimatedTitle = () => {
+const AnimatedTitle = ({ onComplete }) => {
 	const titleRef = useRef(null);
 
 	useGSAP(
@@ -20,7 +20,14 @@ const AnimatedTitle = () => {
 				opacity: 1,
 			});
 
-			const tl = gsap.timeline({ delay: -0.2 });
+			const tl = gsap.timeline({
+				delay: -0.2,
+				onComplete: () => {
+					if (onComplete && typeof onComplete === 'function') {
+						onComplete();
+					}
+				},
+			});
 
 			const shuffledPaths = [...paths].sort(() => Math.random() - 0.5);
 
@@ -47,7 +54,7 @@ const AnimatedTitle = () => {
 					group,
 					{
 						strokeDashoffset: 0,
-						duration: 2.5 + Math.random() * 0.5,
+						duration: 2,
 						stagger: {
 							amount: 1.2,
 							from: 'random',

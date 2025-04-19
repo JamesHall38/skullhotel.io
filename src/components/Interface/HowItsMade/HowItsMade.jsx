@@ -36,7 +36,7 @@ function HowItsMadeContent({ onClose }) {
 								target="_blank"
 								rel="noopener noreferrer"
 							>
-								Ricardo Cabello (mrdoob)
+								mrdoob
 							</a>
 						</p>
 					</div>

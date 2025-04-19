@@ -1,9 +1,23 @@
+@font-face {
+	font-family: 'Lincoln Road Deco';
+	src: url('/Lincoln-Road-Deco.ttf') format('truetype');
+	font-weight: normal;
+	font-style: normal;
+}
+
+@font-face {
+	font-family: 'Lincoln Road';
+	src: url('/Lincoln-Road-Regular.ttf') format('truetype');
+	font-weight: normal;
+	font-style: normal;
+}
+
 .how-its-made-content {
 	padding: 20px;
 	color: #f8f8f8;
-	font-family: 'Inter', sans-serif;
-	background-color: rgba(20, 20, 25, 0.9);
-	border-radius: 10px;
+	font-family: 'Lincoln Road', serif;
+	background-color: rgba(8, 8, 7, 0.98);
+	border-radius: 0.5rem;
 	box-shadow: 0 4px 30px rgba(0, 0, 0, 0.4);
 	backdrop-filter: blur(5px);
 }
@@ -20,22 +34,21 @@
 .how-its-made-header h2 {
 	margin: 0;
 	font-size: 1.8rem;
-	font-weight: 700;
-	background: linear-gradient(90deg, #f8f8f8, #a8a8a8);
-	-webkit-background-clip: text;
-	background-clip: text;
-
-	-webkit-text-fill-color: transparent;
+	font-weight: 400;
+	font-family: 'Lincoln Road Deco', serif;
+	color: #efd89b;
+	letter-spacing: 1px;
 }
 
 .close-button {
-	background: rgba(255, 255, 255, 0.1);
-	color: #f8f8f8;
-	border: none;
-	border-radius: 4px;
+	background: transparent;
+	color: #777d90;
+	border: 1px solid #777d90;
+	border-radius: 0.5rem;
 	padding: 8px 16px;
 	cursor: pointer;
 	font-size: 0.9rem;
+	font-family: 'Lincoln Road', serif;
 	transition: all 0.2s ease;
 }
 
@@ -56,7 +69,7 @@
 	gap: 6px;
 	padding: 15px;
 	background: rgba(255, 255, 255, 0.05);
-	border-radius: 8px;
+	border-radius: 0.5rem;
 	transition: transform 0.2s ease, background 0.2s ease;
 }
 
@@ -72,14 +85,14 @@
 	justify-content: center;
 	width: 40px;
 	height: 40px;
-	color: white;
+	color: #efd89b;
 }
 
 .tech-icon svg {
 	width: 100%;
 	height: 100%;
-	color: white;
-	fill: white;
+	color: #efd89b;
+	fill: #efd89b;
 }
 
 .tech-description {
@@ -89,7 +102,9 @@
 .tech-description h3 {
 	margin: 0 0 5px 0;
 	font-size: 1.2rem;
-	font-weight: 600;
+	font-weight: 400;
+	font-family: 'Lincoln Road Deco', serif;
+	color: #efd89b;
 }
 
 .tech-description p {
@@ -104,7 +119,7 @@
 	align-items: center;
 	padding: 15px;
 	background: rgba(255, 255, 255, 0.05);
-	border-radius: 8px;
+	border-radius: 0.5rem;
 	margin-top: 30px;
 }
 

@@ -5,6 +5,20 @@
 	src: url('/Redrum.otf') format('opentype');
 }
 
+@font-face {
+	font-family: 'Lincoln Road Deco';
+	src: url('/Lincoln-Road-Deco.ttf') format('truetype');
+	font-weight: normal;
+	font-style: normal;
+}
+
+@font-face {
+	font-family: 'Lincoln Road';
+	src: url('/Lincoln-Road-Regular.ttf') format('truetype');
+	font-weight: normal;
+	font-style: normal;
+}
+
 .interface {
 	position: relative;
 	height: 100%;
@@ -62,12 +76,11 @@
 
 .dialogue-popup {
 	position: absolute;
-	background: rgba(26, 26, 26, 0.8);
-
+	background: rgba(8, 8, 7, 0.9);
 	font-size: 1rem;
 	color: #ffffff;
-	/* color: #ffd400; */
-	border-radius: 5px;
+	font-family: 'Lincoln Road', serif;
+	border-radius: 0.5rem;
 	padding: 0 15px;
 	width: auto;
 	max-width: 80%;
@@ -82,8 +95,8 @@
 	position: fixed;
 	top: 0;
 	left: 0;
-	width: 100vw;
-	height: 100vh;
+	width: 100%;
+	height: 100%;
 	pointer-events: none;
 	display: flex;
 	align-items: center;
@@ -182,7 +195,7 @@
 	left: 0;
 	width: 100%;
 	height: 100%;
-	background: #0b0b0b;
+	background: rgba(8, 8, 7, 0.98);
 	display: flex;
 	flex-direction: column;
 	justify-content: center;
@@ -200,13 +213,16 @@
 }
 
 .end-screen > svg > path {
-	fill: #c1c1c1;
+	fill: #efd89b;
 }
 
 .end-message {
-	color: #c1c1c1;
+	color: #efd89b;
 	font-size: 2rem;
 	text-align: center;
+	font-family: 'Lincoln Road Deco', serif;
+	letter-spacing: 1px;
+	font-weight: 400;
 }
 
 .end-screen-button {
@@ -215,16 +231,17 @@
 	align-items: center;
 	justify-content: center;
 	text-align: center;
-	border: 1px solid #c1c1c1;
+	border: 1px solid #777d90;
 	border-radius: 0.5rem;
 	cursor: pointer;
-	color: #c1c1c1;
+	color: #777d90;
 	padding: 0.5rem;
+	font-family: 'Lincoln Road', serif;
 }
 
 .end-screen-button:hover {
-	background: #c1c1c1;
-	color: #0b0b0b;
+	background: rgba(255, 255, 255, 0.2);
+	color: #ffffff;
 }
 
 @keyframes fadeIn {
@@ -277,12 +294,14 @@
 }
 
 .title {
-	font-family: 'Redrum', sans-serif;
+	font-family: 'Lincoln Road Deco', serif;
 	font-size: 4rem;
-	color: #8b0000;
+	color: #efd89b;
 	position: relative;
 	z-index: 2;
 	transform: translateX(0.5rem);
+	letter-spacing: 1px;
+	font-weight: 400;
 }
 
 @media (max-height: 500px) {
@@ -295,6 +314,8 @@
 .death-message {
 	max-width: 80dvw;
 	text-align: center;
+	font-family: 'Lincoln Road', serif;
+	color: #efd89b;
 }
 
 .flex {
@@ -304,9 +325,9 @@
 }
 
 .full-screen-button {
-	background: rgba(255, 255, 255, 0.1);
-	border: none;
-	color: #c1c1c1;
+	background: transparent;
+	border: 1px solid #777d90;
+	color: #777d90;
 	font-size: 1rem;
 	display: flex;
 	align-items: center;
@@ -316,12 +337,12 @@
 	border-radius: 0.5rem;
 	margin: 1rem 0;
 	cursor: pointer;
-	/* font-family: 'Merriweather', serif; */
-	font-family: 'Libre Baskerville', serif;
+	font-family: 'Lincoln Road', serif;
 }
 
 .full-screen-button:hover {
 	background: rgba(255, 255, 255, 0.2);
+	color: #ffffff;
 }
 
 .full-screen-button svg {
@@ -330,8 +351,14 @@
 }
 
 .full-screen-button svg path {
-	fill: #c1c1c1;
+	fill: #777d90;
 }
+
+.full-screen-button:hover svg path {
+	fill: #ffffff;
+}
+
+/* JOYSTICK */
 
 .joystick {
 	position: absolute;
@@ -375,18 +402,32 @@
 	width: 100%;
 	height: 100%;
 	background: #0b0b0b;
-	color: #c1c1c1;
+	color: #efd89b;
 	z-index: 10000;
 	display: flex;
 	flex-direction: column;
 	align-items: center;
 	justify-content: center;
 	gap: 1rem;
+	font-family: 'Lincoln Road', serif;
 }
 
 .restart {
 	position: fixed;
 	bottom: 5rem;
+	background: transparent;
+	border: 1px solid #777d90;
+	color: #777d90;
+	padding: 0.8rem 2rem;
+	border-radius: 0.5rem;
+	cursor: pointer;
+	font-family: 'Lincoln Road', serif;
+	transition: all 0.2s ease;
+}
+
+.restart:hover {
+	background: rgba(255, 255, 255, 0.2);
+	color: #ffffff;
 }
 
 /* MOBILE */
@@ -418,21 +459,18 @@
 	width: 100%;
 	padding: 12px;
 	border: none;
-	border-radius: 20px;
+	border-radius: 0.5rem;
 	background-color: rgba(255, 255, 255, 0.2);
 	color: rgba(255, 255, 255, 0.8);
 	font-size: 14px;
-
 	line-height: 20px;
-	font-family: 'Roboto', sans-serif;
-	font-weight: 800;
+	font-family: 'Lincoln Road', serif;
+	font-weight: 400;
 	font-size: 18px;
-
 	display: flex;
 	align-items: center;
 	justify-content: center;
-
-	color: rgba(255, 255, 255, 0.5);
+	color: rgba(255, 255, 255, 0.8);
 }
 
 .mobile-button svg {
@@ -441,7 +479,7 @@
 }
 
 .mobile-button svg path {
-	fill: rgba(255, 255, 255, 0.5);
+	fill: rgba(255, 255, 255, 0.8);
 }
 
 .mobile-button:active,

@@ -11,6 +11,10 @@ const useInterfaceStore = create(
 		fadeToBlack: 0, // 0 = no fade, 1 = fully black
 		setFadeToBlack: (value) => set(() => ({ fadeToBlack: value })),
 
+		// Settings popup state
+		isSettingsOpen: false,
+		setIsSettingsOpen: (state) => set(() => ({ isSettingsOpen: state })),
+
 		isAnyPopupOpen: false,
 		setIsAnyPopupOpen: (state) => {
 			if (get().isAnyPopupOpen === true && state === false) {
@@ -21,6 +25,15 @@ const useInterfaceStore = create(
 				set({ isAnyPopupOpen: state });
 			}
 		},
+
+		// Animation tracking
+		completedAnimations: 0,
+		totalAnimations: 7, // 1 AnimatedTitle + 6 TrianglePatterns
+		incrementCompletedAnimations: () =>
+			set((state) => ({ completedAnimations: state.completedAnimations + 1 })),
+		resetAnimationsCount: () => set({ completedAnimations: 0 }),
+		isAllAnimationsComplete: () =>
+			get().completedAnimations >= get().totalAnimations - 1,
 
 		// Objectives
 		tutorialObjectives:
@@ -80,6 +93,8 @@ const useInterfaceStore = create(
 				cursor: null,
 				fadeToBlack: 0,
 				customTutorialObjectives: null,
+				completedAnimations: 0,
+				isSettingsOpen: false,
 			}));
 		},
 	}))

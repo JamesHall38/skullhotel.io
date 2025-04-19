@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, memo, useMemo, useRef } from 'react';
 import { useProgress } from '@react-three/drei';
 // import { ReactComponent as SkullHotelLogo } from './logo.svg';
 import SkullHotelLogo from './Logo';
-import Settings from './Settings';
+import Settings from './Settings/Settings';
 import { FaArrowCircleDown, FaArrowCircleUp } from 'react-icons/fa';
 import useGameplaySettings from '../../hooks/useGameplaySettings';
 import { TbXboxXFilled } from 'react-icons/tb';
@@ -24,12 +24,17 @@ import { regenerateData } from '../../utils/config';
 import './Interface.css';
 import { measurePerformance } from '../../hooks/usePerformance';
 import useTextureQueue from '../../hooks/useTextureQueue';
-import LoadingScreen from './LoadingScreen';
+import LoadingScreen from './Loading/LoadingScreen';
 import {
 	getKeyAudioPool,
 	areSoundsLoaded,
 	preloadSounds,
 } from '../../utils/audio';
+import {
+	isPointerLocked,
+	exitPointerLock,
+	requestPointerLock,
+} from '../../utils/pointerLock';
 
 function resetGame() {
 	useGame.getState().restart();
@@ -38,6 +43,7 @@ function resetGame() {
 	useMonster.getState().restart();
 	useGame.getState().setPlayIntro(true);
 	useLight.getState().restart();
+	useInterface.getState().setIsSettingsOpen(false);
 }
 
 const Dialogue = memo(({ id, text, index, onRemove }) => {
@@ -278,6 +284,9 @@ export default function Interface() {
 	const setPerformanceMode = useGame((state) => state.setPerformanceMode);
 	const [drawCallsStabilized, setDrawCallsStabilized] = useState(false);
 	const [loadedTextureNumber, setLoadedTextureNumber] = useState(0);
+	const isEndScreen = useGame((state) => state.isEndScreen);
+	const deviceMode = useGame((state) => state.deviceMode);
+	const isAnyPopupOpen = useInterface((state) => state.isAnyPopupOpen);
 
 	const setIsListening = useGame((state) => state.setIsListening);
 	const setCursor = useInterface((state) => state.setCursor);
@@ -298,8 +307,9 @@ export default function Interface() {
 		(state) => state.customTutorialObjectives
 	);
 	const [activeDialogues, setActiveDialogues] = useState([]);
-	const deviceMode = useGame((state) => state.deviceMode);
 	const [isRestarting, setIsRestarting] = useState(false);
+	const setIsSettingsOpen = useInterface((state) => state.setIsSettingsOpen);
+	const isSettingsOpen = useInterface((state) => state.isSettingsOpen);
 
 	const queue = useTextureQueue((state) => state.queues);
 	const oldQueue = useRef(queue);
@@ -555,6 +565,55 @@ export default function Interface() {
 		incrementRealDeaths,
 	]);
 
+	useEffect(() => {
+		const handleKeyDown = (event) => {
+			if (event.key === 'Tab') {
+				event.preventDefault();
+				if (isSettingsOpen) {
+					setIsSettingsOpen(false);
+				} else if (
+					!openDeathScreen &&
+					!isEndScreen &&
+					!end &&
+					!isAnyPopupOpen
+				) {
+					setIsSettingsOpen(true);
+				} else if (loading) {
+					setIsSettingsOpen(true);
+				}
+			}
+		};
+
+		window.addEventListener('keydown', handleKeyDown);
+		return () => {
+			window.removeEventListener('keydown', handleKeyDown);
+		};
+	}, [
+		loading,
+		openDeathScreen,
+		isEndScreen,
+		end,
+		setIsSettingsOpen,
+		isSettingsOpen,
+		isAnyPopupOpen,
+	]);
+
+	useEffect(() => {
+		if (openDeathScreen && deviceMode === 'keyboard') {
+			if (isPointerLocked()) {
+				exitPointerLock();
+			}
+		}
+	}, [openDeathScreen, deviceMode]);
+
+	useEffect(() => {
+		if (end && deviceMode === 'keyboard') {
+			if (isPointerLocked()) {
+				exitPointerLock();
+			}
+		}
+	}, [end, deviceMode]);
+
 	return (
 		<div className={`interface ${loading ? 'animated' : ''}`}>
 			{/* Fade to black effect */}
@@ -574,7 +633,7 @@ export default function Interface() {
 				}}
 			/>
 
-			<Settings />
+			<Settings loading={loading} />
 			{loading ? (
 				<LoadingScreen onStart={() => setLoading(false)} />
 			) : doneObjectives === 10 ? (
@@ -703,7 +762,7 @@ export default function Interface() {
 					<Joystick onMove={handleJoystickMove} side="right" />
 				</div>
 			)}
-			{!loading && (
+			{!loading && !isSettingsOpen && (
 				<>
 					<div className="action">{interfaceAction}</div>
 					<div className="dialogue-container">
@@ -735,6 +794,15 @@ export default function Interface() {
 							resetGame();
 							setEnd(false);
 							document.documentElement.click();
+
+							if (deviceMode === 'keyboard') {
+								const canvas = document.querySelector('canvas');
+								if (canvas && !isPointerLocked()) {
+									setTimeout(() => {
+										requestPointerLock(canvas);
+									}, 100);
+								}
+							}
 						}}
 						className="end-screen-button"
 					>
@@ -758,6 +826,13 @@ export default function Interface() {
 							setTimeout(() => {
 								setOpenDeathScreen(false);
 								setIsRestarting(false);
+
+								if (deviceMode === 'keyboard') {
+									const canvas = document.querySelector('canvas');
+									if (canvas && !isPointerLocked()) {
+										requestPointerLock(canvas);
+									}
+								}
 							}, 100);
 						}, 500);
 					}}

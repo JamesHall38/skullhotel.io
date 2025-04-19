@@ -23,6 +23,7 @@ export default function PopupWrapper({ children, cursorType }) {
 	const [currentFocus, setCurrentFocus] = useState(-1);
 	const cursor = useInterface((state) => state.cursor);
 	const setIsAnyPopupOpen = useInterface((state) => state.setIsAnyPopupOpen);
+	const isAnyPopupOpen = useInterface((state) => state.isAnyPopupOpen);
 	const gamepadControls = useGame((state) => state.gamepadControls);
 	const deviceMode = useGame((state) => state.deviceMode);
 	const mobileClick = useGame((state) => state.mobileClick);
@@ -34,14 +35,16 @@ export default function PopupWrapper({ children, cursorType }) {
 	const prevBButtonRef = useState(false);
 	const prevStickInputRef = useRef({ vertical: 0, horizontal: 0 });
 	const lastNavigationTime = useRef(0);
+	const loading = !useGame((state) => state.shouldRenderThreeJs);
 
 	const handleOpen = useCallback(() => {
 		setIsVisible(true);
 		setIsLocked(false);
-		if (isPointerLocked()) {
+
+		if (deviceMode === 'keyboard' && isPointerLocked()) {
 			exitPointerLock();
 		}
-	}, [setIsLocked]);
+	}, [setIsLocked, deviceMode]);
 
 	const handleClose = useCallback(() => {
 		setIsVisible(false);
@@ -53,7 +56,9 @@ export default function PopupWrapper({ children, cursorType }) {
 				!openDeathScreen &&
 				!disableControls &&
 				!isEndScreen &&
-				deviceMode === 'keyboard'
+				deviceMode === 'keyboard' &&
+				!loading &&
+				!isAnyPopupOpen
 			) {
 				setIsLocked(true);
 				const canvas = document.querySelector('canvas');
@@ -67,6 +72,8 @@ export default function PopupWrapper({ children, cursorType }) {
 		disableControls,
 		isEndScreen,
 		deviceMode,
+		loading,
+		isAnyPopupOpen,
 		setIsLocked,
 		setIsAnyPopupOpen,
 	]);

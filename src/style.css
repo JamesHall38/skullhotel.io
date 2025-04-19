@@ -119,3 +119,20 @@ html {
 		font-size: 10px;
 	}
 }
+
+/* GAMEPAD */
+
+.gamepad-focus {
+	position: relative;
+	z-index: 2;
+	transition: all 0.2s ease;
+}
+
+button.gamepad-focus,
+.pagination-button.gamepad-focus,
+.restart-button.gamepad-focus,
+.submit-button.gamepad-focus,
+.close-button.gamepad-focus,
+[role='button'].gamepad-focus {
+	background: rgba(255, 255, 255, 0.2) !important;
+}

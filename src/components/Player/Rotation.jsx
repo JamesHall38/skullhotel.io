@@ -36,7 +36,10 @@ export default function Rotation({
 	const [subscribeKeys] = useKeyboardControls();
 	const { camera } = useThree();
 	const getGamepadControls = useGamepadControls();
-	const rotationSensitivity = useSettings((state) => state.rotationSensitivity);
+	const horizontalSensitivity = useSettings(
+		(state) => state.horizontalSensitivity
+	);
+	const verticalSensitivity = useSettings((state) => state.verticalSensitivity);
 
 	const rightStickRef = useJoysticksStore((state) => state.rightStickRef);
 
@@ -104,8 +107,8 @@ export default function Rotation({
 				const movementX = event.movementX || 0;
 				const movementY = event.movementY || 0;
 
-				yaw.current -= movementX * rotationSensitivity * 0.008;
-				pitch.current -= movementY * rotationSensitivity * 0.008;
+				yaw.current -= movementX * horizontalSensitivity * 0.008;
+				pitch.current -= movementY * verticalSensitivity * 0.008;
 
 				const maxPitch = Math.PI / 2 - 0.01;
 				const minPitch = -Math.PI / 2 + 0.01;
@@ -120,7 +123,14 @@ export default function Rotation({
 
 		document.addEventListener('mousemove', onMouseMove);
 		return () => document.removeEventListener('mousemove', onMouseMove);
-	}, [camera, deviceMode, monsterState, rotationSensitivity, disableControls]);
+	}, [
+		camera,
+		deviceMode,
+		monsterState,
+		horizontalSensitivity,
+		verticalSensitivity,
+		disableControls,
+	]);
 
 	useFrame((state) => {
 		if (
@@ -136,7 +146,7 @@ export default function Rotation({
 				if (Math.abs(rightStickRef.current?.x) > ROTATION_DEADZONE) {
 					yaw.current -= applySensitivityCurve(
 						rightStickRef.current.x,
-						rotationSensitivity,
+						horizontalSensitivity,
 						true
 					);
 				}
@@ -144,7 +154,7 @@ export default function Rotation({
 				if (Math.abs(rightStickRef.current?.y) > ROTATION_DEADZONE) {
 					pitch.current -= applySensitivityCurve(
 						rightStickRef.current.y,
-						rotationSensitivity,
+						verticalSensitivity,
 						true
 					);
 				}
@@ -152,7 +162,7 @@ export default function Rotation({
 				if (Math.abs(gamepadControls.rightStickX) > ROTATION_DEADZONE) {
 					yaw.current -= applySensitivityCurve(
 						gamepadControls.rightStickX,
-						rotationSensitivity,
+						horizontalSensitivity,
 						true
 					);
 				}
@@ -160,7 +170,7 @@ export default function Rotation({
 				if (Math.abs(gamepadControls.rightStickY) > ROTATION_DEADZONE) {
 					pitch.current -= applySensitivityCurve(
 						gamepadControls.rightStickY,
-						rotationSensitivity,
+						verticalSensitivity,
 						true
 					);
 				}

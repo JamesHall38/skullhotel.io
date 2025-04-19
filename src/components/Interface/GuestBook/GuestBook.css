@@ -1,15 +1,29 @@
+@font-face {
+	font-family: 'Lincoln Road Deco';
+	src: url('/Lincoln-Road-Deco.ttf') format('truetype');
+	font-weight: normal;
+	font-style: normal;
+}
+
+@font-face {
+	font-family: 'Lincoln Road';
+	src: url('/Lincoln-Road-Regular.ttf') format('truetype');
+	font-weight: normal;
+	font-style: normal;
+}
+
 .guestbook-content {
 	width: 90vw;
 	max-width: 800px;
-	background-color: rgba(20, 20, 25, 0.9);
+	background-color: rgba(8, 8, 7, 0.98);
 	backdrop-filter: blur(10px);
-	border-radius: 10px;
+	border-radius: 0.5rem;
 	padding: 25px;
 	color: #f8f8f8;
 	box-shadow: 0 4px 30px rgba(0, 0, 0, 0.4);
 	max-height: 80vh;
 	overflow-y: auto;
-	font-family: 'Inter', sans-serif;
+	font-family: 'Lincoln Road', serif;
 }
 
 .gamepad-controls-hint {
@@ -68,6 +82,10 @@
 .guestbook-header h2 {
 	margin: 0;
 	font-size: 1.8rem;
+	font-family: 'Lincoln Road Deco', serif;
+	color: #efd89b;
+	letter-spacing: 1px;
+	font-weight: 400;
 }
 
 .guestbook-controls {
@@ -77,13 +95,14 @@
 
 .guestbook-refresh,
 .close-button {
-	background: rgba(255, 255, 255, 0.1);
-	color: #f8f8f8;
-	border: none;
-	border-radius: 4px;
+	background: transparent;
+	color: #777d90;
+	border: 1px solid #777d90;
+	border-radius: 0.5rem;
 	padding: 8px 16px;
 	cursor: pointer;
 	font-size: 0.9rem;
+	font-family: 'Lincoln Road', serif;
 	transition: all 0.2s ease;
 }
 
@@ -99,8 +118,8 @@
 }
 
 .guestbook-error {
-	background-color: rgba(200, 30, 30, 0.2);
-	border: 1px solid rgba(255, 70, 70, 0.4);
+	background-color: rgba(139, 0, 0, 0.2);
+	border: 1px solid rgba(139, 0, 0, 0.4);
 	padding: 15px;
 	border-radius: 6px;
 	margin-bottom: 20px;
@@ -122,13 +141,14 @@
 }
 
 .guestbook-retry {
-	background: rgba(255, 255, 255, 0.1);
-	color: #f8f8f8;
-	border: none;
-	border-radius: 4px;
+	background: transparent;
+	color: #777d90;
+	border: 1px solid #777d90;
+	border-radius: 0.5rem;
 	padding: 6px 12px;
 	cursor: pointer;
 	font-size: 0.9rem;
+	font-family: 'Lincoln Road', serif;
 }
 
 .guestbook-retry:hover {
@@ -162,6 +182,7 @@
 .guestbook-table {
 	width: 100%;
 	border-collapse: collapse;
+	font-family: 'Lincoln Road', serif;
 }
 
 .guestbook-table th {
@@ -171,6 +192,10 @@
 	position: sticky;
 	top: 0;
 	z-index: 1;
+	color: #efd89b;
+	font-family: 'Lincoln Road Deco', serif;
+	font-weight: 400;
+	letter-spacing: 1px;
 }
 
 .guestbook-table tr:nth-child(odd) {
@@ -213,12 +238,13 @@
 }
 
 .pagination-button {
-	background: rgba(255, 255, 255, 0.1);
-	color: #f8f8f8;
-	border: none;
-	border-radius: 4px;
+	background: transparent;
+	color: #777d90;
+	border: 1px solid #777d90;
+	border-radius: 0.5rem;
 	padding: 8px 12px;
 	cursor: pointer;
+	font-family: 'Lincoln Road', serif;
 	transition: all 0.2s ease;
 }
 
@@ -235,6 +261,8 @@
 	display: flex;
 	align-items: center;
 	gap: 5px;
+	font-family: 'Lincoln Road', serif;
+	color: #efd89b;
 }
 
 .page-form {
@@ -244,27 +272,29 @@
 }
 
 .page-input {
-	background: rgba(255, 255, 255, 0.1);
-	border: 1px solid rgba(255, 255, 255, 0.2);
+	background: transparent;
+	border: 1px solid #777d90;
 	color: white;
 	padding: 8px;
-	border-radius: 4px;
+	border-radius: 0.5rem;
 	width: 100px;
 	text-align: center;
+	font-family: 'Lincoln Road', serif;
 }
 
 .page-input:focus {
 	outline: none;
-	border-color: rgba(255, 255, 255, 0.4);
+	border-color: #efd89b;
 }
 
 .go-button {
-	background: rgba(255, 255, 255, 0.1);
-	color: #f8f8f8;
-	border: none;
-	border-radius: 4px;
+	background: transparent;
+	color: #777d90;
+	border: 1px solid #777d90;
+	border-radius: 0.5rem;
 	padding: 8px 12px;
 	cursor: pointer;
+	font-family: 'Lincoln Road', serif;
 }
 
 .go-button:hover:not(:disabled) {

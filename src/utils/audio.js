@@ -140,10 +140,6 @@ export const SOUNDS = {
 		mp3: '/sounds/bedsheets.mp3',
 		settings: 'interaction',
 	},
-	bed: {
-		mp3: '/sounds/bed.mp3',
-		settings: 'interaction',
-	},
 	switchOn: {
 		mp3: '/sounds/switch_on.mp3',
 		settings: 'interaction',
@@ -168,26 +164,6 @@ export const SOUNDS = {
 		mp3: '/sounds/flashlight.mp3',
 		settings: 'interaction',
 	},
-	hurt1: {
-		mp3: '/sounds/hurt1.mp3',
-		settings: 'damage',
-	},
-	hurt2: {
-		mp3: '/sounds/hurt2.mp3',
-		settings: 'damage',
-	},
-	hurt3: {
-		mp3: '/sounds/hurt3.mp3',
-		settings: 'damage',
-	},
-	hurt4: {
-		mp3: '/sounds/hurt4.mp3',
-		settings: 'damage',
-	},
-	impact: {
-		mp3: '/sounds/impact.mp3',
-		settings: 'damage',
-	},
 	punch: {
 		mp3: '/sounds/punch.mp3',
 		settings: 'damage',
@@ -198,10 +174,6 @@ export const SOUNDS = {
 	},
 	jumpScareAmbiance: {
 		mp3: '/sounds/jump_scare_ambiance.mp3',
-		settings: 'special',
-	},
-	scratching: {
-		mp3: '/sounds/scratching.mp3',
 		settings: 'special',
 	},
 	knocking: {
@@ -224,7 +196,7 @@ async function loadAudioFile(url) {
 	}
 }
 
-export async function preloadSounds() {
+export async function preloadSounds(onSoundLoaded) {
 	if (soundsLoaded) return Promise.resolve();
 
 	const loadPromises = Object.entries(SOUNDS).map(async ([key, sound]) => {
@@ -243,7 +215,16 @@ export async function preloadSounds() {
 				audioInstances[key] = audio;
 
 				return new Promise((resolve) => {
-					audio.addEventListener('canplaythrough', resolve, { once: true });
+					audio.addEventListener(
+						'canplaythrough',
+						() => {
+							if (typeof onSoundLoaded === 'function') {
+								onSoundLoaded(key);
+							}
+							resolve();
+						},
+						{ once: true }
+					);
 					audio.load();
 				});
 			} catch (error) {
@@ -262,6 +243,15 @@ export async function preloadSounds() {
 				const audio = new Audio(keyBlobUrl);
 				audio.volume = 0.25;
 				audio.preload = 'auto';
+				if (typeof onSoundLoaded === 'function') {
+					audio.addEventListener(
+						'canplaythrough',
+						() => {
+							onSoundLoaded('keyPool');
+						},
+						{ once: true }
+					);
+				}
 				return audio;
 			});
 	} catch (error) {
