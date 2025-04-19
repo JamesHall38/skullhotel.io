@@ -25,7 +25,6 @@ export default function useProgressiveLoad(items, componentName = '') {
 	const queues = useTextureQueue((state) => state.queues);
 	const currentQueue = queues[componentName];
 
-	// Cleanup on unmount
 	useEffect(() => {
 		mountedRef.current = true;
 
@@ -37,14 +36,12 @@ export default function useProgressiveLoad(items, componentName = '') {
 		};
 	}, [componentName, items.length]);
 
-	// Add component to queue when component mounts
 	useEffect(() => {
 		if (mountedRef.current) {
 			addComponent(componentName);
 		}
 	}, [addComponent, componentName]);
 
-	// Monitor FPS and system stability
 	useEffect(() => {
 		const checkStability = (time) => {
 			if (!mountedRef.current) return;
@@ -72,7 +69,6 @@ export default function useProgressiveLoad(items, componentName = '') {
 		requestAnimationFrame(checkStability);
 	}, [isStable]);
 
-	// Add items to queue when component becomes current
 	useEffect(() => {
 		const addItemsToQueue = () => {
 			if (!mountedRef.current) return;
@@ -137,7 +133,6 @@ export default function useProgressiveLoad(items, componentName = '') {
 		queues,
 	]);
 
-	// Update progress based on queue state
 	useEffect(() => {
 		if (currentQueue && mountedRef.current) {
 			const totalItems = itemsRef.current.length;

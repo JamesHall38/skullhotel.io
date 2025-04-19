@@ -1,10 +1,11 @@
-import { useRef } from 'react';
+import { useRef, useEffect } from 'react';
 import { gsap } from 'gsap';
 import { useGSAP } from '@gsap/react';
 import './TrianglePattern.css';
 
 const TrianglePattern = ({ position = 'left', onComplete }) => {
 	const patternRef = useRef(null);
+	const timelineRef = useRef(null);
 
 	// // SIMPLE ANIMATION
 	// 	useGSAP(
@@ -48,18 +49,15 @@ const TrianglePattern = ({ position = 'left', onComplete }) => {
 
 			gsap.set(paths, {
 				strokeDasharray: 1500,
-				strokeDashoffset: -1500,
-				opacity: 1,
+				strokeDashoffset: 1500,
 			});
 
 			const tl = gsap.timeline({
 				delay: -0.2,
-				onComplete: () => {
-					if (onComplete && typeof onComplete === 'function') {
-						onComplete();
-					}
-				},
+				// Nous ne mettons plus le onComplete ici, il sera déclenché séparément
 			});
+
+			timelineRef.current = tl;
 
 			const shuffledPaths = [...paths].sort(() => Math.random() - 0.5);
 
@@ -80,13 +78,13 @@ const TrianglePattern = ({ position = 'left', onComplete }) => {
 			filteredGroups.sort(() => Math.random() - 0.5);
 
 			filteredGroups.forEach((group, groupIndex) => {
-				const groupDelay = groupIndex * 0.5 + Math.random() * 0.2;
+				const groupDelay = groupIndex * 0.75 + Math.random() * 0.3;
 
 				tl.to(
 					group,
 					{
 						strokeDashoffset: 0,
-						duration: 2.5,
+						duration: 5,
 						stagger: {
 							amount: 0.8,
 							from: 'random',
@@ -101,6 +99,25 @@ const TrianglePattern = ({ position = 'left', onComplete }) => {
 		},
 		{ scope: patternRef }
 	);
+
+	useEffect(() => {
+		if (!timelineRef.current) return;
+
+		const checkProgress = () => {
+			if (timelineRef.current.progress() >= 0.7) {
+				if (onComplete && typeof onComplete === 'function') {
+					onComplete();
+				}
+				gsap.ticker.remove(checkProgress);
+			}
+		};
+
+		gsap.ticker.add(checkProgress);
+
+		return () => {
+			gsap.ticker.remove(checkProgress);
+		};
+	}, [onComplete]);
 
 	const transform = position.includes('right') ? 'scale(-1, 1)' : '';
 

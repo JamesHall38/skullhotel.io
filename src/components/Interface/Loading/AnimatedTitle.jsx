@@ -16,12 +16,11 @@ const AnimatedTitle = ({ onComplete }) => {
 
 			gsap.set(paths, {
 				strokeDasharray: 1500,
-				strokeDashoffset: -1500,
-				opacity: 1,
+				strokeDashoffset: 1500,
 			});
 
 			const tl = gsap.timeline({
-				delay: -0.2,
+				delay: 0.2,
 				onComplete: () => {
 					if (onComplete && typeof onComplete === 'function') {
 						onComplete();
@@ -48,13 +47,13 @@ const AnimatedTitle = ({ onComplete }) => {
 			filteredGroups.sort(() => Math.random() - 0.5);
 
 			filteredGroups.forEach((group, groupIndex) => {
-				const groupDelay = groupIndex * 0.5 + Math.random() * 0.2;
+				const groupDelay = groupIndex * 0.75 + Math.random() * 0.3;
 
 				tl.to(
 					group,
 					{
 						strokeDashoffset: 0,
-						duration: 2,
+						duration: 4,
 						stagger: {
 							amount: 1.2,
 							from: 'random',

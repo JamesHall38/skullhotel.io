@@ -177,7 +177,6 @@
 .triangle-patterns-container {
 	position: fixed;
 	top: 0;
-	left: -0.5rem;
 	width: 100%;
 	height: 100%;
 	z-index: 2;
@@ -189,6 +188,7 @@
 
 @media (max-aspect-ratio: 1/1) {
 	.triangle-patterns-container {
+		left: -0.5rem;
 		width: 100dvh;
 		transform: rotate(90deg);
 		align-items: flex-end;

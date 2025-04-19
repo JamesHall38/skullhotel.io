@@ -32,8 +32,7 @@ const useInterfaceStore = create(
 		incrementCompletedAnimations: () =>
 			set((state) => ({ completedAnimations: state.completedAnimations + 1 })),
 		resetAnimationsCount: () => set({ completedAnimations: 0 }),
-		isAllAnimationsComplete: () =>
-			get().completedAnimations >= get().totalAnimations - 1,
+		isAllAnimationsComplete: () => get().completedAnimations > 0,
 
 		// Objectives
 		tutorialObjectives:
