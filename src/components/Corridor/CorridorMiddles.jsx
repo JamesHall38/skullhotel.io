@@ -76,5 +76,3 @@ function CorridorMiddles(props) {
 }
 
 export default CorridorMiddles;
-
-// useGLTF.preload('/models/corridor.glb');

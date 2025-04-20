@@ -110,9 +110,10 @@ export default function DeskDoor() {
 					material={doorMaterial.current}
 					material-opacity={opacity}
 				/>
+				<a.mesh castShadow receiveShadow geometry={nodes.handle.geometry}>
+					<meshStandardMaterial color="grey" metalness={1} roughness={0.5} />
+				</a.mesh>
 			</group>
 		</DoorWrapper>
 	);
 }
-
-// useGLTF.preload('/models/doors/desk_door.glb');

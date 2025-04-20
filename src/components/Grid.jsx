@@ -1,3 +1,6 @@
+// // THIS COMPONENT VISUALIZES COLLISION BOXES BUT CONSUMES A LOT OF RESOURCES
+// // ONLY UNCOMMENT IN DEVELOPMENT
+
 // import React, { useState, useEffect } from 'react';
 // import { Box } from '@react-three/drei';
 // import useGridStore, { CELL_TYPES } from '../hooks/useGrid';

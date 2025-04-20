@@ -283,5 +283,3 @@ export default function Bedsheets() {
 		</group>
 	);
 }
-
-// useGLTF.preload('/models/objectives/bedsheets.glb');

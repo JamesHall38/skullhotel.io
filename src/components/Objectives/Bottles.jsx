@@ -308,5 +308,3 @@ export default function Bottles() {
 		</group>
 	);
 }
-
-// useGLTF.preload('/models/objectives/bottles.glb');

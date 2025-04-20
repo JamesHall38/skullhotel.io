@@ -21,6 +21,8 @@ const useGamepadControls = () => {
 		leftStickX: 0,
 		leftStickY: 0,
 	});
+	const buttonStateHistoryRef = useRef([]);
+	const MAX_HISTORY = 3;
 
 	useEffect(() => {
 		const handleMouseMove = (event) => {
@@ -101,7 +103,15 @@ const useGamepadControls = () => {
 			}
 
 			controls.jump = controls.jump || gamepad.buttons[0].pressed; // A
-			controls.crouch = controls.crouch || gamepad.buttons[1].pressed; // B
+
+			const bButtonPressed = gamepad.buttons[1].pressed;
+
+			buttonStateHistoryRef.current.push(bButtonPressed);
+			if (buttonStateHistoryRef.current.length > MAX_HISTORY) {
+				buttonStateHistoryRef.current.shift();
+			}
+
+			controls.crouch = bButtonPressed;
 
 			const xButtonPressed = gamepad.buttons[2].pressed;
 			const leftTriggerPressed = gamepad.buttons[6].pressed; // L2/LT

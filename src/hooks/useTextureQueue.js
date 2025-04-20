@@ -24,7 +24,6 @@ const useTextureQueue = create((set, get) => ({
 				componentQueue: [...state.componentQueue, componentName],
 			}));
 
-			// Start processing if this is the first component
 			if (!state.currentComponent) {
 				setTimeout(() => get().processComponentQueue(), 0);
 			}
@@ -47,7 +46,6 @@ const useTextureQueue = create((set, get) => ({
 			componentQueue: state.componentQueue.slice(1),
 		}));
 
-		// Check if there are items in the queue before completing
 		const componentQueue = get().queues[nextComponent];
 		if (!componentQueue?.queue?.length) {
 			return;
@@ -80,7 +78,6 @@ const useTextureQueue = create((set, get) => ({
 			};
 		});
 
-		// Start processing if this is the current component and not already processing
 		const updatedState = get();
 		const updatedQueue = updatedState.queues[componentName];
 		if (
@@ -117,7 +114,6 @@ const useTextureQueue = create((set, get) => ({
 		}));
 
 		try {
-			// Simulate texture loading with a delay
 			await new Promise((resolve) => setTimeout(resolve, 100));
 
 			set((state) => {
@@ -140,7 +136,6 @@ const useTextureQueue = create((set, get) => ({
 				};
 			});
 
-			// Process next item
 			get().processQueue(componentName);
 		} catch (error) {
 			console.error(
@@ -173,7 +168,6 @@ const useTextureQueue = create((set, get) => ({
 			currentComponent: null,
 		}));
 
-		// Process next component
 		setTimeout(() => get().processComponentQueue(), 0);
 	},
 }));

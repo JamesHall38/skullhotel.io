@@ -273,5 +273,3 @@ export default function Switches(props) {
 		</group>
 	);
 }
-
-// useGLTF.preload('/models/room/switchs.glb');

@@ -14,7 +14,7 @@ import useProgressiveLoad from '../../hooks/useProgressiveLoad';
 import useGameplaySettings from '../../hooks/useGameplaySettings';
 
 const BASE_SPEED = 5;
-const CHASE_SPEED = 0.5;
+const CHASE_SPEED_BASE = 0.5;
 const CLAYMORE_CHASE_SPEED = 1.5;
 const NEXT_POINT_THRESHOLD = 0.5;
 const MIN_DISTANCE_FOR_RECALCULATION = 2;
@@ -66,7 +66,7 @@ const Monster = (props) => {
 	const [soundsReady, setSoundsReady] = useState(false);
 	const { gl } = useThree();
 	const [directPathFailures, setDirectPathFailures] = useState(0);
-	const [currentChaseSpeed, setCurrentChaseSpeed] = useState(CHASE_SPEED);
+	const [currentChaseSpeed, setCurrentChaseSpeed] = useState(CHASE_SPEED_BASE);
 	const lastChaseTimeRef = useRef(0);
 	const { nodes, materials, animations } = useGLTF(
 		'/models/monster-opt.glb',
@@ -84,6 +84,8 @@ const Monster = (props) => {
 
 	const seedData = useGame((state) => state.seedData);
 	const playerPositionRoom = useGame((state) => state.playerPositionRoom);
+	const isMobile = useGame((state) => state.isMobile);
+	const chaseSpeed = isMobile ? CHASE_SPEED_BASE / 3 : CHASE_SPEED_BASE;
 	const roomCount = useGameplaySettings((state) => state.roomCount);
 	const setShakeIntensity = useGame((state) => state.setShakeIntensity);
 	const monsterState = useMonster((state) => state.monsterState);
@@ -193,15 +195,15 @@ const Monster = (props) => {
 
 	useEffect(() => {
 		if (monsterState !== 'chase') {
-			setCurrentChaseSpeed(CHASE_SPEED);
+			setCurrentChaseSpeed(chaseSpeed);
 			lastChaseTimeRef.current = 0;
 		}
-	}, [monsterState]);
+	}, [monsterState, chaseSpeed]);
 
 	useEffect(() => {
-		setCurrentChaseSpeed(CHASE_SPEED);
+		setCurrentChaseSpeed(chaseSpeed);
 		lastChaseTimeRef.current = 0;
-	}, [playerPositionRoom]);
+	}, [playerPositionRoom, chaseSpeed]);
 
 	const lookAtCamera = useCallback((camera) => {
 		const targetPosition = new THREE.Vector3(
@@ -234,7 +236,7 @@ const Monster = (props) => {
 					roomKey === 'claymoreDesk' || roomKey === 'claymoreNightstand';
 				const baseChaseSpeed = isClaymoreDeskOrNightstand
 					? CLAYMORE_CHASE_SPEED
-					: CHASE_SPEED;
+					: chaseSpeed;
 
 				const newSpeed = Math.min(
 					baseChaseSpeed + elapsedTime * CHASE_SPEED_INCREMENT,
@@ -269,7 +271,7 @@ const Monster = (props) => {
 
 			if (mode === 'chase') {
 				const animationSpeedMultiplier =
-					(currentChaseSpeed / CHASE_SPEED) * distanceMultiplier;
+					(currentChaseSpeed / chaseSpeed) * distanceMultiplier;
 				setAnimationSpeed(
 					Math.max(distanceMultiplier, animationSpeedMultiplier)
 				);
@@ -649,6 +651,7 @@ const Monster = (props) => {
 			setDisableControls,
 			usedForcedPathfinding,
 			roomCount,
+			chaseSpeed,
 		]
 	);
 
@@ -983,7 +986,5 @@ const Monster = (props) => {
 		</group>
 	);
 };
-
-// useGLTF.preload('/models/monster.glb');
 
 export default Monster;

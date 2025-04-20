@@ -13,6 +13,9 @@ const useGameStore = create(
 		incrementRealDeaths: () =>
 			set((state) => ({ realDeaths: state.realDeaths + 1 })),
 
+		isGameplayActive: false,
+		setIsGameplayActive: (state) => set(() => ({ isGameplayActive: state })),
+
 		gameStartTime: Date.now(),
 		setGameStartTime: () => set({ gameStartTime: Date.now() }),
 
@@ -241,6 +244,9 @@ const useGameStore = create(
 
 		isCameraLocked: false,
 		setCameraLocked: (state) => set(() => ({ isCameraLocked: state })),
+
+		isCrouchLocked: false,
+		setIsCrouchLocked: (value) => set({ isCrouchLocked: value }),
 	}))
 );
 

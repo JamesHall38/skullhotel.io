@@ -6,6 +6,7 @@ import * as THREE from 'three';
 import { getAudioInstance, areSoundsLoaded } from '../../utils/audio';
 import useJoysticksStore from '../../hooks/useJoysticks';
 import useGamepadControls from '../../hooks/useGamepadControls';
+import useEndGameAnimation from '../../hooks/useEndGameAnimation';
 
 const floor = -0.2;
 const STEP_INTERVAL = {
@@ -69,7 +70,10 @@ export default function FootSteps({ playerPosition, playerVelocity }) {
 	const isMobile = useGame((state) => state.isMobile);
 	const getKeys = useKeyboardControls()[1];
 	const getGamepadControls = useGamepadControls();
-	const isListening = useGame((state) => state.isListening);
+	const isCameraLocked = useGame((state) => state.isCameraLocked);
+	const jumpScare = useGame((state) => state.jumpScare);
+	const isAnyPopupOpen = useGame((state) => state.isAnyPopupOpen);
+	const isPlaying = useEndGameAnimation((state) => state.isPlaying);
 	const leftStickRef = useJoysticksStore((state) => state.leftStickRef);
 	const controls = useJoysticksStore((state) => state.controls);
 
@@ -110,7 +114,15 @@ export default function FootSteps({ playerPosition, playerVelocity }) {
 	}, [isMobile, soundsReady]);
 
 	useEffect(() => {
-		if (!soundsReady) return;
+		if (
+			!soundsReady ||
+			isPlaying ||
+			isCameraLocked ||
+			jumpScare ||
+			isAnyPopupOpen
+		) {
+			return;
+		}
 
 		if (isMobile && controls.jump) {
 			setTimeout(() => {
@@ -125,56 +137,92 @@ export default function FootSteps({ playerPosition, playerVelocity }) {
 				}
 			}, JUMP_SOUND_DELAY);
 		}
-	}, [controls.jump, isMobile, soundsReady]);
+	}, [
+		controls.jump,
+		isMobile,
+		soundsReady,
+		isPlaying,
+		isCameraLocked,
+		jumpScare,
+		isAnyPopupOpen,
+	]);
 
 	useFrame((state) => {
-		if (!soundsReady || !isListening) {
-			if (playerPosition.current.y <= floor) {
-				const currentTime = state.clock.getElapsedTime() * 1000;
+		if (
+			!soundsReady ||
+			isPlaying ||
+			isCameraLocked ||
+			jumpScare ||
+			isAnyPopupOpen
+		) {
+			return;
+		}
 
-				// Keyboard's controls
-				const {
-					forward: keyForward,
-					backward: keyBackward,
-					left: keyLeft,
-					right: keyRight,
-				} = getKeys();
-				const gamepadControls = getGamepadControls();
+		if (playerPosition.current.y <= floor) {
+			const currentTime = state.clock.getElapsedTime() * 1000;
 
-				let forward = keyForward || gamepadControls.forward;
-				let backward = keyBackward || gamepadControls.backward;
-				let left = keyLeft || gamepadControls.left;
-				let right = keyRight || gamepadControls.right;
+			// Keyboard's controls
+			const {
+				forward: keyForward,
+				backward: keyBackward,
+				left: keyLeft,
+				right: keyRight,
+			} = getKeys();
+			const gamepadControls = getGamepadControls();
 
-				// Mobile joystick's controls
-				if (isMobile && leftStickRef.current) {
-					if (Math.abs(leftStickRef.current.y) > 0.1) {
-						forward = leftStickRef.current.y < 0;
-						backward = leftStickRef.current.y > 0;
-					}
-					if (Math.abs(leftStickRef.current.x) > 0.1) {
-						left = leftStickRef.current.x < 0;
-						right = leftStickRef.current.x > 0;
+			let forward = keyForward || gamepadControls.forward;
+			let backward = keyBackward || gamepadControls.backward;
+			let left = keyLeft || gamepadControls.left;
+			let right = keyRight || gamepadControls.right;
+
+			// Mobile joystick's controls
+			if (isMobile && leftStickRef.current) {
+				if (Math.abs(leftStickRef.current.y) > 0.1) {
+					forward = leftStickRef.current.y < 0;
+					backward = leftStickRef.current.y > 0;
+				}
+				if (Math.abs(leftStickRef.current.x) > 0.1) {
+					left = leftStickRef.current.x < 0;
+					right = leftStickRef.current.x > 0;
+				}
+			}
+
+			const keysPressed = forward || backward || left || right;
+
+			const currentPosition = playerPosition.current;
+			const movement = new THREE.Vector3().subVectors(
+				currentPosition,
+				lastPosition.current
+			);
+			const actuallyMoving = movement.lengthSq() > MOVEMENT_THRESHOLD;
+
+			lastPosition.current.copy(currentPosition);
+
+			const isMoving = keysPressed && actuallyMoving;
+
+			const speed = playerVelocity ? playerVelocity.current.length() : 0;
+			const isPlayerRunning = speed > RUN_SPEED * 0.9;
+
+			if (isMoving && !wasMovingRef.current) {
+				const sound = footstepRefs.current[footstepIndexRef.current];
+				if (sound) {
+					sound.volume = isPlayerRunning ? VOLUMES.run : VOLUMES.walk;
+					sound.currentTime = 0;
+					if (!resetFootstepSound) {
+						sound.play().catch(() => {});
+					} else {
+						setResetFootstepSound(false);
 					}
 				}
 
-				const keysPressed = forward || backward || left || right;
-
-				const currentPosition = playerPosition.current;
-				const movement = new THREE.Vector3().subVectors(
-					currentPosition,
-					lastPosition.current
-				);
-				const actuallyMoving = movement.lengthSq() > MOVEMENT_THRESHOLD;
-
-				lastPosition.current.copy(currentPosition);
-
-				const isMoving = keysPressed && actuallyMoving;
-
-				const speed = playerVelocity ? playerVelocity.current.length() : 0;
-				const isPlayerRunning = speed > RUN_SPEED * 0.9;
-
-				if (isMoving && !wasMovingRef.current) {
+				footstepIndexRef.current =
+					(footstepIndexRef.current + 1) % footstepRefs.current.length;
+				lastStepTime.current = currentTime;
+			} else if (isMoving) {
+				const interval = isPlayerRunning
+					? STEP_INTERVAL.run
+					: STEP_INTERVAL.walk;
+				if (currentTime - lastStepTime.current > interval) {
 					const sound = footstepRefs.current[footstepIndexRef.current];
 					if (sound) {
 						sound.volume = isPlayerRunning ? VOLUMES.run : VOLUMES.walk;
@@ -189,30 +237,10 @@ export default function FootSteps({ playerPosition, playerVelocity }) {
 					footstepIndexRef.current =
 						(footstepIndexRef.current + 1) % footstepRefs.current.length;
 					lastStepTime.current = currentTime;
-				} else if (isMoving) {
-					const interval = isPlayerRunning
-						? STEP_INTERVAL.run
-						: STEP_INTERVAL.walk;
-					if (currentTime - lastStepTime.current > interval) {
-						const sound = footstepRefs.current[footstepIndexRef.current];
-						if (sound) {
-							sound.volume = isPlayerRunning ? VOLUMES.run : VOLUMES.walk;
-							sound.currentTime = 0;
-							if (!resetFootstepSound) {
-								sound.play().catch(() => {});
-							} else {
-								setResetFootstepSound(false);
-							}
-						}
-
-						footstepIndexRef.current =
-							(footstepIndexRef.current + 1) % footstepRefs.current.length;
-						lastStepTime.current = currentTime;
-					}
 				}
-
-				wasMovingRef.current = isMoving;
 			}
+
+			wasMovingRef.current = isMoving;
 		}
 	});
 

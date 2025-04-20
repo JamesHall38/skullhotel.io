@@ -26,5 +26,3 @@ export default function Metal(props) {
 		</group>
 	);
 }
-
-// useGLTF.preload('/models/room/metal.glb');

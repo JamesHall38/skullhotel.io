@@ -334,5 +334,3 @@ export default function Window() {
 		</group>
 	);
 }
-
-// useGLTF.preload('/models/objectives/window.glb');

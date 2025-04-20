@@ -50,6 +50,7 @@ const EndGameScreen = () => {
 	const gameEndTime = useGame((state) => state.gameEndTime);
 	const setGameStartTime = useGame((state) => state.setGameStartTime);
 	const setIsAnyPopupOpen = useInterface((state) => state.setIsAnyPopupOpen);
+	const setIsGameplayActive = useGame((state) => state.setIsGameplayActive);
 
 	const [completionTime, setCompletionTime] = useState(0);
 	const lastNavigationTime = useRef(0);
@@ -61,6 +62,7 @@ const EndGameScreen = () => {
 			setNameError('');
 			setFocusedElement(0);
 			setIsAnyPopupOpen(true);
+			setIsGameplayActive(false);
 
 			const timeTaken = gameEndTime
 				? Math.floor((gameEndTime - gameStartTime) / 1000)
@@ -82,7 +84,13 @@ const EndGameScreen = () => {
 		} else {
 			setIsAnyPopupOpen(false);
 		}
-	}, [isEndScreen, gameStartTime, gameEndTime, setIsAnyPopupOpen]);
+	}, [
+		isEndScreen,
+		gameStartTime,
+		gameEndTime,
+		setIsAnyPopupOpen,
+		setIsGameplayActive,
+	]);
 
 	useEffect(() => {
 		if (isEndScreen && deviceMode === 'keyboard') {
@@ -195,6 +203,7 @@ const EndGameScreen = () => {
 		setIsEndAnimationPlaying(false);
 		setEndAnimationPlaying(false);
 		setIsAnyPopupOpen(false);
+		setIsGameplayActive(true);
 
 		incrementRealDeaths();
 		restart();

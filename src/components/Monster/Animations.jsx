@@ -5,7 +5,6 @@ import useMonster from '../../hooks/useMonster';
 import useGame from '../../hooks/useGame';
 import useInterface from '../../hooks/useInterface';
 import useDoor from '../../hooks/useDoor';
-// import useLight from '../../hooks/useLight';
 import { getAudioInstance, areSoundsLoaded } from '../../utils/audio';
 import * as THREE from 'three';
 
@@ -48,7 +47,6 @@ export default function Animations({ group, animations }) {
 	const creepingStateRef = useRef('playing'); // 'playing', 'paused', 'reversing', 'done'
 	const creepingPauseTimeRef = useRef(0);
 
-	// Add state for monster step sounds
 	const [monsterStepSounds, setMonsterStepSounds] = useState([]);
 	const [soundsReady, setSoundsReady] = useState(false);
 
@@ -61,9 +59,6 @@ export default function Animations({ group, animations }) {
 	const isTposeRef = useRef(false);
 	const lastAnimationTimeRef = useRef(0);
 
-	//const setIsRedLight = useLight((state) => state.setIsRedLight);
-
-	// Initialize monster step sounds properly
 	useEffect(() => {
 		const checkSounds = () => {
 			if (areSoundsLoaded()) {
@@ -74,16 +69,13 @@ export default function Animations({ group, animations }) {
 					getAudioInstance('monsterStep4'),
 				];
 
-				// Only set sounds if all were loaded successfully
 				if (stepSounds.every((sound) => sound !== null)) {
 					setMonsterStepSounds(stepSounds);
 					setSoundsReady(true);
 				} else {
-					// If any sound failed to load, retry after a delay
 					setTimeout(checkSounds, 100);
 				}
 			} else {
-				// If sounds aren't loaded yet, try again after a delay
 				setTimeout(checkSounds, 100);
 			}
 		};

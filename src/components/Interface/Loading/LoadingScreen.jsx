@@ -19,6 +19,7 @@ const LoadingScreen = ({ onStart }) => {
 	);
 	const setPlayIntro = useGame((state) => state.setPlayIntro);
 	const setGameStartTime = useGame((state) => state.setGameStartTime);
+	const setIsGameplayActive = useGame((state) => state.setIsGameplayActive);
 	const [loadedTextureNumber, setLoadedTextureNumber] = useState(0);
 	const [loadedSoundsCounter, setLoadedSoundsCounter] = useState(0);
 	const queue = useTextureQueue((state) => state.queues);
@@ -151,6 +152,7 @@ const LoadingScreen = ({ onStart }) => {
 			}
 		}
 
+		setIsGameplayActive(true);
 		setPlayIntro(true);
 		setGameStartTime();
 		if (onStart) onStart();

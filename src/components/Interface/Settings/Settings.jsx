@@ -52,6 +52,7 @@ export default function Settings({ loading }) {
 	const openDeathScreen = useGame((state) => state.openDeathScreen);
 	const isEndScreen = useGame((state) => state.isEndScreen);
 	const end = useGame((state) => state.end);
+	const setIsGameplayActive = useGame((state) => state.setIsGameplayActive);
 
 	const [focusedElement, setFocusedElement] = useState(0);
 	const [isFullscreen, setIsFullscreen] = useState(
@@ -151,7 +152,20 @@ export default function Settings({ loading }) {
 
 	useEffect(() => {
 		setIsAnyPopupOpen(isSettingsOpen);
-	}, [isSettingsOpen, setIsAnyPopupOpen]);
+		if (isSettingsOpen) {
+			setIsGameplayActive(false);
+		} else if (!openDeathScreen && !isEndScreen && !end && !loading) {
+			setIsGameplayActive(true);
+		}
+	}, [
+		isSettingsOpen,
+		setIsAnyPopupOpen,
+		setIsGameplayActive,
+		openDeathScreen,
+		isEndScreen,
+		end,
+		loading,
+	]);
 
 	useEffect(() => {
 		if (!isSettingsOpen || deviceMode !== 'gamepad') return;
@@ -289,6 +303,9 @@ export default function Settings({ loading }) {
 			if (bButtonPressed) {
 				setIsSettingsOpen(false);
 				setIsAnyPopupOpen(false);
+				if (!openDeathScreen && !isEndScreen && !end) {
+					setIsGameplayActive(true);
+				}
 				playMenuSound();
 				lastInputTime.current = now;
 			}
@@ -307,6 +324,10 @@ export default function Settings({ loading }) {
 		setShadows,
 		setIsSettingsOpen,
 		setIsAnyPopupOpen,
+		setIsGameplayActive,
+		openDeathScreen,
+		isEndScreen,
+		end,
 	]);
 
 	useEffect(() => {
@@ -385,6 +406,7 @@ export default function Settings({ loading }) {
 				onClick={(e) => {
 					e.stopPropagation();
 					setIsSettingsOpen(true);
+					setIsGameplayActive(false);
 					playMenuSound();
 				}}
 			>
@@ -409,6 +431,9 @@ export default function Settings({ loading }) {
 					className="settings-close"
 					onClick={() => {
 						setIsSettingsOpen(false);
+						if (!openDeathScreen && !isEndScreen && !end) {
+							setIsGameplayActive(true);
+						}
 						playMenuSound();
 					}}
 					onMouseEnter={handleMouseEnter}

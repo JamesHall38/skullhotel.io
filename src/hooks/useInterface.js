@@ -7,11 +7,9 @@ const useInterfaceStore = create(
 		cursor: null,
 		setCursor: (cursor) => set(() => ({ cursor })),
 
-		// Fade to black effect
 		fadeToBlack: 0, // 0 = no fade, 1 = fully black
 		setFadeToBlack: (value) => set(() => ({ fadeToBlack: value })),
 
-		// Settings popup state
 		isSettingsOpen: false,
 		setIsSettingsOpen: (state) => set(() => ({ isSettingsOpen: state })),
 
@@ -26,7 +24,6 @@ const useInterfaceStore = create(
 			}
 		},
 
-		// Animation tracking
 		completedAnimations: 0,
 		totalAnimations: 7, // 1 AnimatedTitle + 6 TrianglePatterns
 		incrementCompletedAnimations: () =>
@@ -34,12 +31,11 @@ const useInterfaceStore = create(
 		resetAnimationsCount: () => set({ completedAnimations: 0 }),
 		isAllAnimationsComplete: () => get().completedAnimations > 0,
 
-		// Objectives
 		tutorialObjectives:
 			window.location.hash === '#debug'
 				? [true, true, true]
 				: [false, false, false],
-		// tutorialObjectives: [true, true, true],
+
 		setTutorialObjectives: (objective) =>
 			set(() => ({ tutorialObjectives: objective })),
 		interfaceObjectives: [...Array(roomNumber)].map(() => [
@@ -75,7 +71,6 @@ const useInterfaceStore = create(
 		interfaceAction: '',
 		setInterfaceAction: (action) => set(() => ({ interfaceAction: action })),
 
-		// Dialogues
 		currentDialogueIndex: null,
 		setCurrentDialogueIndex: (index) =>
 			set(() => ({ currentDialogueIndex: index })),

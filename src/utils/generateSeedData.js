@@ -1,7 +1,6 @@
 import levelData from '../components/Monster/Triggers/levelData';
 import useGameplaySettings from '../hooks/useGameplaySettings';
 
-// Helper function to get random room data of a specific type
 function getRandomRoomDataByType(type, usedRoomData = []) {
 	const roomsOfType = Object.entries(levelData)
 		.filter(([, data]) => data.type === type)
@@ -41,16 +40,14 @@ export default function generateSeedData() {
 
 	const seed = {};
 	const hidingRooms = {};
-	const usedKeys = new Set(); // Track used keys to avoid duplicates
+	const usedKeys = new Set();
 
-	// Function to ensure unique keys while preserving the base key identifier
 	const getUniqueKey = (baseKey) => {
 		if (!usedKeys.has(baseKey)) {
 			usedKeys.add(baseKey);
 			return baseKey;
 		}
 
-		// For duplicate keys, we'll use a counter suffix but store the original type
 		let uniqueKey = baseKey;
 		let counter = 1;
 
@@ -63,19 +60,16 @@ export default function generateSeedData() {
 		return uniqueKey;
 	};
 
-	// Add hiding rooms first (these are the mandatory rooms)
 	Object.entries(hidingRooms).forEach(([key, room]) => {
 		const uniqueKey = getUniqueKey(key);
 		seed[uniqueKey] = {
 			...room,
-			baseKey: key, // Store the original identifier
+			baseKey: key,
 		};
 	});
 
-	// Calculate remaining rooms (roomCount - 1 car nous avons déjà une pièce empty)
 	const remainingRooms = roomCount - Object.keys(hidingRooms).length;
 
-	// Calculate rooms for each type based on percentages
 	const totalPercentage =
 		hideoutPercentage +
 		landminePercentage +
@@ -86,7 +80,6 @@ export default function generateSeedData() {
 		randomRoomPercentage +
 		emptyRoomPercentage;
 
-	// Calculate exact numbers first
 	const hideoutRoomsExact =
 		remainingRooms * (hideoutPercentage / totalPercentage);
 	const landmineRoomsExact =
@@ -100,7 +93,6 @@ export default function generateSeedData() {
 	const randomRoomsExact =
 		remainingRooms * (randomRoomPercentage / totalPercentage);
 
-	// Round to nearest integer instead of floor
 	const hideoutRooms = Math.round(hideoutRoomsExact);
 	const landmineRooms = Math.round(landmineRoomsExact);
 	const claymoreRooms = Math.round(claymoreRoomsExact);
@@ -109,7 +101,6 @@ export default function generateSeedData() {
 	const raidRooms = Math.round(raidRoomsExact);
 	const randomRooms = Math.round(randomRoomsExact);
 
-	// Ensure total rooms equals roomCount by adjusting empty rooms if necessary
 	const totalRoomsBeforeEmpty =
 		hideoutRooms +
 		landmineRooms +
@@ -137,7 +128,7 @@ export default function generateSeedData() {
 				...roomData.data,
 				type: 'hideout',
 				number: currentRoom + i + 1,
-				baseKey: roomData.key, // Store the original room identifier
+				baseKey: roomData.key,
 			};
 		}
 	}

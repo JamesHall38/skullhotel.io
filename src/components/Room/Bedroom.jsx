@@ -2,15 +2,12 @@ import { useEffect, useRef } from 'react';
 import { useGLTF, useKTX2 } from '@react-three/drei';
 import * as THREE from 'three';
 import useGame from '../../hooks/useGame';
-// import DetectionZone from '../DetectionZone';
 import { useControls } from 'leva';
 import useLight from '../../hooks/useLight';
 import useProgressiveLoad from '../../hooks/useProgressiveLoad';
 import FloorLightMaterial from '../materials/FloorLightMaterial';
 import WallsLightMaterial from '../materials/WallsLightMaterial';
 import WoodLightMaterial from '../materials/WoodLightMaterial';
-
-// const PROBABILITY_OF_DARKNESS = 20;
 
 export default function Bedroom() {
 	const { scene, nodes } = useGLTF('/models/room/bedroom.glb');
@@ -245,58 +242,8 @@ export default function Bedroom() {
 		}
 	);
 
-	// const [isDetectionActive, setIsDetectionActive] = useState(false);
-	// const [isDark, setIsDark] = useState(false);
-	// const playerPositionRoom = useGame((state) => state.playerPositionRoom);
-	// const deaths = useGame((state) => state.deaths);
-
-	// const isRadioOn = useGame((state) => state.radio);
-
-	// const [randomRoomNumber, setRandomRoomNumber] = useState(
-	// 	Math.floor(Math.random() * PROBABILITY_OF_DARKNESS)
-	// );
-
-	// const generateRandomRoomNumber = useCallback(
-	// 	() => Math.floor(Math.random() * PROBABILITY_OF_DARKNESS),
-	// 	[]
-	// );
-
-	// useEffect(() => {
-	// 	setRandomRoomNumber(generateRandomRoomNumber());
-	// 	setIsDark(false);
-	// }, [deaths, generateRandomRoomNumber]);
-
-	// useEffect(() => {
-	// 	if (playerPositionRoom === randomRoomNumber) {
-	// 		setIsDetectionActive(true);
-	// 	} else {
-	// 		setIsDetectionActive(false);
-	// 	}
-	// }, [playerPositionRoom, randomRoomNumber]);
-
-	// useEffect(() => {
-	// 	if (!isDark) {
-	// 		if (isRadioOn) {
-	// 			useLight.getState().setRadioLight('#fff0be', 0.1);
-	// 		} else {
-	// 			useLight.getState().setRadioLight('#000000', 0);
-	// 		}
-	// 	}
-	// }, [isRadioOn, isDark]);
-
 	return (
 		<>
-			{/* {isDetectionActive && (
-				<DetectionZone
-					position={[2, 0, 0]}
-					scale={[2, 2, 2]}
-					onDetect={() => {
-						setIsDark(true);
-					}}
-					onDetectEnd={() => {}}
-					downward={true}
-				/>
-			)} */}
 			<mesh
 				castShadow
 				receiveShadow

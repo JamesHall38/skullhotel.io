@@ -42,6 +42,7 @@ export default function Jump({
 	const introIsPlaying = useGame((state) => state.introIsPlaying);
 	const gamepadControlsRef = useGamepadControls();
 	const isAnyPopupOpen = useInterface((state) => state.isAnyPopupOpen);
+	const setIsCrouchLocked = useGame((state) => state.setIsCrouchLocked);
 
 	const roomDoor = useDoorStore((state) => state.roomDoor);
 	const bathroomDoor = useDoorStore((state) => state.bathroomDoor);
@@ -306,6 +307,20 @@ export default function Jump({
 				setJumpState('jumping');
 				jumpVelocity.current = JUMP_FORCE;
 				setCanJump(false);
+
+				// Make player stand up when jumping while crouched
+				const cellX = Math.floor(playerPosition.current.x * 10 + gridOffsetX);
+				const cellZ = Math.floor(playerPosition.current.z * 10 + GRID_OFFSET_Z);
+				const cell = getCell(cellX, cellZ);
+				const isCrouchOnlyArea =
+					cell.type === CELL_TYPES.CROUCH_ONLY ||
+					cell.type === CELL_TYPES.DESK_DOOR_CLOSED ||
+					cell.type === CELL_TYPES.NIGHTSTAND_DOOR_CLOSED;
+
+				if (isCrouchingRef.current && !isCrouchOnlyArea) {
+					isCrouchingRef.current = false;
+					setIsCrouchLocked(false);
+				}
 			}
 
 			if (jumpState === 'grounded' && !spacePressed) {

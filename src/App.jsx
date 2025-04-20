@@ -2,7 +2,6 @@ import { useEffect, Suspense, useMemo, useRef, useState } from 'react';
 import { KeyboardControls, PointerLockControls } from '@react-three/drei';
 import { Canvas, useThree, useFrame } from '@react-three/fiber';
 import Interface from './components/Interface/Interface';
-// import Settings from './components/Interface/Settings';
 import './style.css';
 import useGame from './hooks/useGame';
 import useInterface from './hooks/useInterface';

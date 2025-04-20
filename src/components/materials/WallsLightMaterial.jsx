@@ -121,7 +121,6 @@ export default function WallsLightMaterial({
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [geometry, uvScale]);
 
-	// Update uniforms when light props change
 	useEffect(() => {
 		if (!materialRef.current || !materialRef.current.userData?.shader?.uniforms)
 			return;

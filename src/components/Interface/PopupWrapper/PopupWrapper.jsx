@@ -32,6 +32,7 @@ export default function PopupWrapper({ children, cursorType }) {
 	const openDeathScreen = useGame((state) => state.openDeathScreen);
 	const disableControls = useGame((state) => state.disableControls);
 	const isEndScreen = useGame((state) => state.isEndScreen);
+	const setIsGameplayActive = useGame((state) => state.setIsGameplayActive);
 	const prevBButtonRef = useState(false);
 	const prevStickInputRef = useRef({ vertical: 0, horizontal: 0 });
 	const lastNavigationTime = useRef(0);
@@ -40,14 +41,16 @@ export default function PopupWrapper({ children, cursorType }) {
 	const handleOpen = useCallback(() => {
 		setIsVisible(true);
 		setIsLocked(false);
+		setIsGameplayActive(false);
 
 		if (deviceMode === 'keyboard' && isPointerLocked()) {
 			exitPointerLock();
 		}
-	}, [setIsLocked, deviceMode]);
+	}, [setIsLocked, deviceMode, setIsGameplayActive]);
 
 	const handleClose = useCallback(() => {
 		setIsVisible(false);
+		setIsGameplayActive(true);
 
 		setTimeout(() => {
 			setIsAnyPopupOpen(false);
@@ -76,6 +79,7 @@ export default function PopupWrapper({ children, cursorType }) {
 		isAnyPopupOpen,
 		setIsLocked,
 		setIsAnyPopupOpen,
+		setIsGameplayActive,
 	]);
 
 	const handleContainerClick = useCallback(

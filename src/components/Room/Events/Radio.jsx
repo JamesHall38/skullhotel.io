@@ -43,7 +43,6 @@ const Radio = () => {
 		setRadio(activeRadios.includes(playerPositionRoom));
 	}, [playerPositionRoom, activeRadios, setRadio]);
 
-	// Determine if we should play the hide sound
 	useEffect(() => {
 		if (radio && activeRaids.includes(playerPositionRoom)) {
 			setPlayHideSound(true);

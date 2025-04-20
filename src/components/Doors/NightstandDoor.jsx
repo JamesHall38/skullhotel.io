@@ -109,15 +109,10 @@ export default function NightstandDoor() {
 					material={doorMaterial.current}
 					material-opacity={opacity}
 				/>
-				{/* <mesh
-					castShadow
-					receiveShadow
-					geometry={nodes.Mesh_1.geometry}
-					// material={materials.GOLD}
-				/> */}
+				<a.mesh castShadow receiveShadow geometry={nodes.handle.geometry}>
+					<meshStandardMaterial color="gold" metalness={1} roughness={0} />
+				</a.mesh>
 			</group>
 		</DoorWrapper>
 	);
 }
-
-// useGLTF.preload('/models/doors/nightstand_door.glb');

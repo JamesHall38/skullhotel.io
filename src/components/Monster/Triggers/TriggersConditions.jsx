@@ -17,7 +17,10 @@ import * as THREE from 'three';
 
 const CORRIDORLENGTH = 5.95;
 const LOOK_AT_DURATION = 10000;
-const MONSTER_KNOCK_DURATION = 8000;
+const RAID_DURATION = 8000;
+const RAID_DURATION_MOBILE = 11000;
+const CLAYMORE_DURATION = 2000;
+const CLAYMORE_DURATION_MOBILE = 4000;
 
 export default function TriggersConditions({
 	monsterBox,
@@ -50,6 +53,7 @@ export default function TriggersConditions({
 	const setMonsterAttackDisableControls = useGame(
 		(state) => state.setMonsterAttackDisableControls
 	);
+	const isMobile = useGame((state) => state.isMobile);
 
 	// Interface
 	const interfaceObjectives = useInterface(
@@ -74,7 +78,6 @@ export default function TriggersConditions({
 	const deskDoors = useDoor((state) => state.desks);
 	const nightstandDoors = useDoor((state) => state.nightStands);
 	const bathroomDoors = useDoor((state) => state.bathroomDoors);
-	const setBathroomDoors = useDoor((state) => state.setBathroomDoors);
 	const bathroomCurtains = useDoor((state) => state.bathroomCurtains);
 	const setNightStands = useDoor((state) => state.setNightStands);
 	const setRoomCurtains = useDoor((state) => state.setRoomCurtains);
@@ -99,7 +102,6 @@ export default function TriggersConditions({
 	const sonarBathroomRef = useRef({ stateSet: false, attackTriggered: false });
 	const hunterTriggeredRoomsRef = useRef({});
 	const hunterDoorClosedFromOutsideRef = useRef({});
-	const lastTimeRef = useRef(0);
 
 	const triggerRAID = useCallback(
 		(room) => {
@@ -137,35 +139,38 @@ export default function TriggersConditions({
 					setSilentKnocking(false);
 				}
 
-				setTimeout(() => {
-					if (useHiding.getState().isMonsterKnocking) {
-						setShakeIntensity(1);
-						setRoomDoor(room, true);
-						playAnimation('Idle');
+				setTimeout(
+					() => {
+						if (useHiding.getState().isMonsterKnocking) {
+							setShakeIntensity(1);
+							setRoomDoor(room, true);
+							playAnimation('Idle');
 
-						const isHidden = useHiding.getState().isPlayerHidden;
+							const isHidden = useHiding.getState().isPlayerHidden;
 
-						if (!isHidden) {
-							setMonsterKnocking(false);
-							setMonsterEntering(true);
-							setMonsterState('run');
-							playAnimation('Run');
-							setAnimationSpeed(1);
-							setSilentKnocking(false);
-						} else {
-							setMonsterKnocking(false);
-							setAnimationMixSpeed(2);
-							setAnimationSpeed(0.5);
-							setMonsterState('leaving');
-							if (Object.values(seedData)[playerPositionRoom].ceiling) {
-								playAnimation('CeilingCrawl');
+							if (!isHidden) {
+								setMonsterKnocking(false);
+								setMonsterEntering(true);
+								setMonsterState('run');
+								playAnimation('Run');
+								setAnimationSpeed(1);
+								setSilentKnocking(false);
 							} else {
-								playAnimation('Walk');
+								setMonsterKnocking(false);
+								setAnimationMixSpeed(2);
+								setAnimationSpeed(0.5);
+								setMonsterState('leaving');
+								if (Object.values(seedData)[playerPositionRoom].ceiling) {
+									playAnimation('CeilingCrawl');
+								} else {
+									playAnimation('Walk');
+								}
+								setSilentKnocking(false);
 							}
-							setSilentKnocking(false);
 						}
-					}
-				}, MONSTER_KNOCK_DURATION);
+					},
+					isMobile ? RAID_DURATION_MOBILE : RAID_DURATION
+				);
 			}
 		},
 		[
@@ -187,6 +192,7 @@ export default function TriggersConditions({
 			setMonsterEntering,
 			setAnimationMixSpeed,
 			setSilentKnocking,
+			isMobile,
 		]
 	);
 
@@ -337,13 +343,6 @@ export default function TriggersConditions({
 				delayed
 			)
 		) {
-			// setMonsterPosition([
-			// 	Object.values(seedData)[playerPositionRoom]?.monsterInitialPosition[0] +
-			// 		position[0],
-			// 	10,
-			// 	Object.values(seedData)[playerPositionRoom]?.monsterInitialPosition[2] +
-			// 		position[2],
-			// ]);
 			monsterLandmineAttack();
 		}
 	};
@@ -353,10 +352,13 @@ export default function TriggersConditions({
 
 		if (doorState) {
 			if (!quickTimeoutRef.current) {
-				quickTimeoutRef.current = setTimeout(() => {
-					monsterAttack();
-					quickTimeoutRef.current = null;
-				}, 2000);
+				quickTimeoutRef.current = setTimeout(
+					() => {
+						monsterAttack();
+						quickTimeoutRef.current = null;
+					},
+					isMobile ? CLAYMORE_DURATION_MOBILE : CLAYMORE_DURATION
+				);
 			}
 		} else {
 			if (quickTimeoutRef.current) {
@@ -541,13 +543,8 @@ export default function TriggersConditions({
 			case 'bathroomVent':
 			case 'hideoutMirror':
 				if (interfaceObjectives[playerPositionRoom]?.[0]) {
-					const currentTime = clock.getElapsedTime();
-					if (Math.floor(currentTime) > Math.floor(lastTimeRef.current || 0)) {
-						lastTimeRef.current = currentTime;
-						setBathroomDoors(playerPositionRoom, true);
-					}
+					monsterAttack();
 				}
-				basicHiding(clock, camera, raycaster, false, 0);
 				break;
 			case 'roomVent':
 				basicHiding(clock, camera, raycaster, false, 2);
@@ -866,7 +863,7 @@ export default function TriggersConditions({
 
 						setTimeout(() => {
 							triggerRAID(playerPositionRoom);
-						}, 4000);
+						}, RAID_DURATION / 4);
 					}
 				}
 				break;

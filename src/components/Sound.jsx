@@ -11,7 +11,6 @@ const Sound = () => {
 	const openDeathScreen = useGame((state) => state.openDeathScreen);
 	const isListening = useGame((state) => state.isListening);
 	const endAnimationPlaying = useGame((state) => state.endAnimationPlaying);
-	// const roomNumber = useGame((state) => state.roomNumber);
 	const roomCount = useGameplaySettings((state) => state.roomCount);
 
 	const [soundsReady, setSoundsReady] = useState(false);
@@ -70,7 +69,6 @@ const Sound = () => {
 		checkSounds();
 	}, []);
 
-	// Setup audio properties once sounds are loaded
 	useEffect(() => {
 		if (!soundsReady) return;
 
@@ -136,7 +134,6 @@ const Sound = () => {
 		let fadeInterval;
 
 		if (isListening) {
-			// Fade out
 			fadeInterval = setInterval(() => {
 				[ambiant1Ref, boomRef, ambiant2Ref, tenseRef].forEach((ref) => {
 					if (ref.current && ref.current.volume > 0.1) {
@@ -145,7 +142,6 @@ const Sound = () => {
 				});
 			}, 100);
 		} else {
-			// Restore original volumes
 			if (ambiant1Ref.current)
 				ambiant1Ref.current.volume = defaultVolumes.current.ambiant1;
 			if (boomRef.current) boomRef.current.volume = defaultVolumes.current.boom;

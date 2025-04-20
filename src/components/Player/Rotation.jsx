@@ -6,7 +6,6 @@ import useGame from '../../hooks/useGame';
 import useGamepadControls from '../../hooks/useGamepadControls';
 import useJoysticksStore from '../../hooks/useJoysticks';
 import useSettings from '../../hooks/useSettings';
-import useInterface from '../../hooks/useInterface';
 
 const floor = -0.2;
 
@@ -23,6 +22,17 @@ const applySensitivityCurve = (value, sensitivity, isJoystick = false) => {
 	}
 };
 
+const applyRotationWithDelta = (
+	value,
+	sensitivity,
+	delta,
+	isJoystick = false
+) => {
+	const baseRotation = applySensitivityCurve(value, sensitivity, isJoystick);
+
+	return baseRotation * delta * 60;
+};
+
 export default function Rotation({
 	playerPosition,
 	playerVelocity,
@@ -33,6 +43,7 @@ export default function Rotation({
 	const deaths = useGame((state) => state.deaths);
 	const deviceMode = useGame((state) => state.deviceMode);
 	const isMobile = useGame((state) => state.isMobile);
+	const isGameplayActive = useGame((state) => state.isGameplayActive);
 	const [subscribeKeys] = useKeyboardControls();
 	const { camera } = useThree();
 	const getGamepadControls = useGamepadControls();
@@ -45,8 +56,6 @@ export default function Rotation({
 
 	const yaw = useRef(-Math.PI);
 	const pitch = useRef(0);
-
-	const isAnyPopupOpen = useInterface((state) => state.isAnyPopupOpen);
 
 	const reset = useCallback(() => {
 		playerPosition.current.set(10.77, floor, -3);
@@ -101,8 +110,7 @@ export default function Rotation({
 			if (
 				deviceMode === 'keyboard' &&
 				monsterState !== 'run' &&
-				document.pointerLockElement &&
-				!disableControls
+				document.pointerLockElement
 			) {
 				const movementX = event.movementX || 0;
 				const movementY = event.movementY || 0;
@@ -132,45 +140,48 @@ export default function Rotation({
 		disableControls,
 	]);
 
-	useFrame((state) => {
+	useFrame((state, delta) => {
 		if (
 			(isMobile || deviceMode === 'gamepad') &&
 			monsterState !== 'run' &&
-			!disableControls &&
-			!isAnyPopupOpen
+			!disableControls
 		) {
 			const ROTATION_DEADZONE = 0.15;
 			const gamepadControls = getGamepadControls();
 
 			if (isMobile) {
 				if (Math.abs(rightStickRef.current?.x) > ROTATION_DEADZONE) {
-					yaw.current -= applySensitivityCurve(
+					yaw.current -= applyRotationWithDelta(
 						rightStickRef.current.x,
 						horizontalSensitivity,
+						delta,
 						true
 					);
 				}
 
 				if (Math.abs(rightStickRef.current?.y) > ROTATION_DEADZONE) {
-					pitch.current -= applySensitivityCurve(
+					pitch.current -= applyRotationWithDelta(
 						rightStickRef.current.y,
 						verticalSensitivity,
+						delta,
 						true
 					);
 				}
-			} else if (deviceMode === 'gamepad') {
+			} else if (deviceMode === 'gamepad' && isGameplayActive) {
 				if (Math.abs(gamepadControls.rightStickX) > ROTATION_DEADZONE) {
-					yaw.current -= applySensitivityCurve(
+					yaw.current -= applyRotationWithDelta(
 						gamepadControls.rightStickX,
 						horizontalSensitivity,
+						delta,
 						true
 					);
 				}
 
 				if (Math.abs(gamepadControls.rightStickY) > ROTATION_DEADZONE) {
-					pitch.current -= applySensitivityCurve(
+					pitch.current -= applyRotationWithDelta(
 						gamepadControls.rightStickY,
 						verticalSensitivity,
+						delta,
 						true
 					);
 				}

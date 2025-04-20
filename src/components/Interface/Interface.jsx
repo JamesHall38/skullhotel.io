@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback, memo, useMemo, useRef } from 'react';
 import { useProgress } from '@react-three/drei';
-// import { ReactComponent as SkullHotelLogo } from './logo.svg';
 import SkullHotelLogo from './Logo';
 import Settings from './Settings/Settings';
 import { FaArrowCircleDown, FaArrowCircleUp } from 'react-icons/fa';
@@ -268,6 +267,7 @@ export default function Interface() {
 	const [loading, setLoading] = useState(true);
 
 	const tutorialObjectives = useInterface((state) => state.tutorialObjectives);
+	const setIsGameplayActive = useGame((state) => state.setIsGameplayActive);
 	const setEnd = useGame((state) => state.setEnd);
 	const setMobileClick = useGame((state) => state.setMobileClick);
 	const setReleaseMobileClick = useGame((state) => state.setReleaseMobileClick);
@@ -500,6 +500,7 @@ export default function Interface() {
 							regenerateData();
 							useGridStore.getState().initializeIfNeeded();
 							setTimeout(() => {
+								setIsGameplayActive(true);
 								setOpenDeathScreen(false);
 								setIsRestarting(false);
 							}, 100);
@@ -511,7 +512,13 @@ export default function Interface() {
 
 		const interval = setInterval(checkGamepadXButton, 100);
 		return () => clearInterval(interval);
-	}, [openDeathScreen, deviceMode, setOpenDeathScreen, isRestarting]);
+	}, [
+		openDeathScreen,
+		deviceMode,
+		setOpenDeathScreen,
+		isRestarting,
+		setIsGameplayActive,
+	]);
 
 	useEffect(() => {
 		if (deviceMode !== 'gamepad') return;
@@ -532,6 +539,7 @@ export default function Interface() {
 							regenerateData();
 							useGridStore.getState().initializeIfNeeded();
 							setTimeout(() => {
+								setIsGameplayActive(true);
 								setOpenDeathScreen(false);
 								setIsRestarting(false);
 							}, 100);
@@ -540,6 +548,7 @@ export default function Interface() {
 					}
 
 					if (loading && displayProgress === 100 && aButtonPressed) {
+						setIsGameplayActive(true);
 						setLoading(false);
 						setPlayIntro(true);
 						setGameStartTime();
@@ -563,6 +572,7 @@ export default function Interface() {
 		setGameStartTime,
 		isRestarting,
 		incrementRealDeaths,
+		setIsGameplayActive,
 	]);
 
 	useEffect(() => {
@@ -614,6 +624,18 @@ export default function Interface() {
 		}
 	}, [end, deviceMode]);
 
+	useEffect(() => {
+		if (openDeathScreen) {
+			setIsGameplayActive(false);
+		}
+	}, [openDeathScreen, setIsGameplayActive]);
+
+	useEffect(() => {
+		if (end) {
+			setIsGameplayActive(false);
+		}
+	}, [end, setIsGameplayActive]);
+
 	return (
 		<div className={`interface ${loading ? 'animated' : ''}`}>
 			{/* Fade to black effect */}
@@ -636,7 +658,7 @@ export default function Interface() {
 			<Settings loading={loading} />
 			{loading ? (
 				<LoadingScreen onStart={() => setLoading(false)} />
-			) : doneObjectives === 10 ? (
+			) : doneObjectives >= roomCount / 2 ? (
 				<div className="objectives">Find the exit</div>
 			) : tutorialObjectives.every((objective) => objective === true) ? (
 				<div className="objectives">
@@ -793,6 +815,7 @@ export default function Interface() {
 							e.stopPropagation();
 							resetGame();
 							setEnd(false);
+							setIsGameplayActive(true);
 							document.documentElement.click();
 
 							if (deviceMode === 'keyboard') {
@@ -826,6 +849,7 @@ export default function Interface() {
 							setTimeout(() => {
 								setOpenDeathScreen(false);
 								setIsRestarting(false);
+								setIsGameplayActive(true);
 
 								if (deviceMode === 'keyboard') {
 									const canvas = document.querySelector('canvas');

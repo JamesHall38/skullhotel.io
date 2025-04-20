@@ -3,7 +3,6 @@ import * as THREE from 'three';
 import { useFrame } from '@react-three/fiber';
 import { useKeyboardControls } from '@react-three/drei';
 import useGame from '../../hooks/useGame';
-import useInterface from '../../hooks/useInterface';
 import useGamepadControls from '../../hooks/useGamepadControls';
 import useJoysticksStore from '../../hooks/useJoysticks';
 import useGridStore, { CELL_TYPES } from '../../hooks/useGrid';
@@ -25,7 +24,6 @@ const floor = -0.2;
 const GRID_OFFSET_Z = 150;
 
 const LISTENING_SPEED_MULTIPLIER = 0;
-const LISTENING_THRESHOLD = 0.9;
 
 export default function Movement({
 	playerPosition,
@@ -38,10 +36,10 @@ export default function Movement({
 	const playerPositionRoom = useGame((state) => state.realPlayerPositionRoom);
 	const jumpScare = useGame((state) => state.jumpScare);
 	const isPlaying = useGame((state) => state.isPlaying);
+	const isGameplayActive = useGame((state) => state.isGameplayActive);
 	const getCell = useGridStore((state) => state.getCell);
 	const getKeys = useKeyboardControls()[1];
 	const gamepadControlsRef = useGamepadControls();
-	const isAnyPopupOpen = useInterface((state) => state.isAnyPopupOpen);
 
 	const leftStickRef = useRef({ x: 0, y: 0 });
 	const rightStickRef = useRef({ x: 0, y: 0 });
@@ -238,13 +236,7 @@ export default function Movement({
 	};
 
 	useFrame((state, delta) => {
-		if (
-			!isPlaying ||
-			isCameraLocked ||
-			jumpScare ||
-			listeningProgress > LISTENING_THRESHOLD ||
-			isAnyPopupOpen
-		) {
+		if (!isPlaying || isCameraLocked || jumpScare) {
 			return;
 		}
 
@@ -254,21 +246,23 @@ export default function Movement({
 		frontVector.set(0, 0, 0);
 		sideVector.set(0, 0, 0);
 
-		if (isMobile) {
-			frontVector.z = -leftStickRef.current.y;
-			sideVector.x = leftStickRef.current.x;
-		} else {
-			if (forward) frontVector.z += 1;
-			if (backward) frontVector.z -= 1;
-			if (left) sideVector.x -= 1;
-			if (right) sideVector.x += 1;
+		if (isGameplayActive) {
+			if (isMobile) {
+				frontVector.z = -leftStickRef.current.y;
+				sideVector.x = leftStickRef.current.x;
+			} else {
+				if (forward) frontVector.z += 1;
+				if (backward) frontVector.z -= 1;
+				if (left) sideVector.x -= 1;
+				if (right) sideVector.x += 1;
 
-			if (
-				Math.abs(gamepadControls.leftStickX) > 0.1 ||
-				Math.abs(gamepadControls.leftStickY) > 0.1
-			) {
-				frontVector.set(0, 0, -gamepadControls.leftStickY);
-				sideVector.set(gamepadControls.leftStickX, 0, 0);
+				if (
+					Math.abs(gamepadControls.leftStickX) > 0.1 ||
+					Math.abs(gamepadControls.leftStickY) > 0.1
+				) {
+					frontVector.set(0, 0, -gamepadControls.leftStickY);
+					sideVector.set(gamepadControls.leftStickX, 0, 0);
+				}
 			}
 		}
 
@@ -337,7 +331,6 @@ export default function Movement({
 			playerPosition.current.z = newPosition.z;
 		}
 
-		// state.camera.position.copy(playerPosition.current);
 		state.camera.position.x = playerPosition.current.x;
 		state.camera.position.z = playerPosition.current.z;
 		const standingHeight = 1.7;

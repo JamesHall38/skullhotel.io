@@ -59,6 +59,8 @@ export default function Tutorial() {
 	const hasTriggered = useRef(false);
 	const hasStarted = useRef(false);
 	const doorClosedRef = useRef(false);
+	const step10CompletedRef = useRef(false);
+	const step11CompletedRef = useRef(false);
 	const [hasOpenedBathroomCurtain, setHasOpenedBathroomCurtain] =
 		useState(false);
 	const [doorClosed, setDoorClosed] = useState(false);
@@ -268,10 +270,8 @@ export default function Tutorial() {
 	// STEP 10: CLEAN_OBJECTIVES - Original cleaning tasks
 	// ===========================
 	useEffect(() => {
-		if (
-			tutorialStage === TUTORIAL_STAGE.CLOSE_NIGHTSTAND &&
-			tutorialObjectives.every(Boolean)
-		) {
+		if (tutorialObjectives.every(Boolean) && !step10CompletedRef.current) {
+			step10CompletedRef.current = true;
 			setTutorialStage(TUTORIAL_STAGE.CLEAN_OBJECTIVES);
 			setCurrentDialogueIndex(WELL_DONE_DIALOGUE);
 		}
@@ -281,7 +281,12 @@ export default function Tutorial() {
 	// STEP 11: WELL_DONE - Completion of objectives
 	// ===========================
 	useEffect(() => {
-		if (corridorDoorOpen && tutorialStage === TUTORIAL_STAGE.CLEAN_OBJECTIVES) {
+		if (
+			corridorDoorOpen &&
+			tutorialStage === TUTORIAL_STAGE.CLEAN_OBJECTIVES &&
+			!step11CompletedRef.current
+		) {
+			step11CompletedRef.current = true;
 			setTutorialStage(TUTORIAL_STAGE.WELL_DONE);
 			setCurrentDialogueIndex(OCCUPIED_ROOMS_DIALOGUE);
 		}
@@ -335,7 +340,7 @@ export default function Tutorial() {
 			case TUTORIAL_STAGE.DOOR_CLOSED:
 				return ['Listen at the bathroom door'];
 			case TUTORIAL_STAGE.LISTEN:
-				return ['Hide inside the bath curtains'];
+				return ['Hide behind the bathroom curtains'];
 			case TUTORIAL_STAGE.BATHROOM_WARNING:
 				return ['Hide inside the desk'];
 			case TUTORIAL_STAGE.FURNITURE_HIDING:
@@ -394,7 +399,6 @@ export default function Tutorial() {
 				<Inscriptions endTitle />
 			) : (
 				<>
-					{/* <Inscriptions /> */}
 					<Instructions
 						tutorialStage={tutorialStage}
 						stageInfo={instructionStageInfo}

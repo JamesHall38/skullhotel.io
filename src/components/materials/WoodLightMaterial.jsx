@@ -26,7 +26,6 @@ export default function WoodLightMaterial({
 		geometry.setAttribute('uv', geometry.attributes['uv1']);
 		geometry.setAttribute('uv2', geometry.attributes['uv2']);
 
-		// Scale UVs if needed
 		const uvs = geometry.attributes.uv1.array;
 		for (let i = 0; i < uvs.length; i++) {
 			uvs[i] *= uvScale;
@@ -119,7 +118,6 @@ export default function WoodLightMaterial({
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [geometry, uvScale]);
 
-	// Update uniforms when light props change
 	useEffect(() => {
 		if (!materialRef.current || !materialRef.current.userData?.shader?.uniforms)
 			return;

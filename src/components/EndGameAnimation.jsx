@@ -42,6 +42,7 @@ const EndGameAnimation = () => {
 	);
 	const deaths = useGame((state) => state.deaths);
 	const isEndScreen = useGame((state) => state.isEndScreen);
+	const setIsGameplayActive = useGame((state) => state.setIsGameplayActive);
 
 	const setFlashlightEnabled = useLight((state) => state.setFlashlightEnabled);
 
@@ -198,6 +199,7 @@ const EndGameAnimation = () => {
 
 		setIsLocked(true);
 		setDisableControls(true);
+		setIsGameplayActive(false);
 
 		// Save the game end time
 		useGame.getState().setGameEndTime();
@@ -237,6 +239,7 @@ const EndGameAnimation = () => {
 		startAnimation,
 		setFadeToBlack,
 		hasCompletedAnimation,
+		setIsGameplayActive,
 	]);
 
 	useEffect(() => {

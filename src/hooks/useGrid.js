@@ -265,8 +265,6 @@ const useGridStore = create((set, get) => ({
 		const roomsPerRow = roomCount / 2;
 		const startX = 20;
 		const startZ = 162;
-		// const adjustEveryXRooms = 2;
-		// const adjustment = 1;
 
 		const tutorialRoomX = baseX - 85;
 		const tutorialRoomZ = 180;
@@ -541,7 +539,6 @@ const useGridStore = create((set, get) => ({
 	printGridASCII: () => {
 		const width = 160 + (useGameplaySettings.getState().roomCount / 2) * 59;
 		const height = 300;
-		// const seedData = useGame.getState().seedData;
 
 		let asciiGrid = '';
 		const heightScaleFactor = 2;
@@ -549,7 +546,6 @@ const useGridStore = create((set, get) => ({
 		const scaledHeight = Math.ceil(height / heightScaleFactor);
 		const scaledWidth = Math.ceil(width / widthScaleFactor);
 
-		// Colors for existing elements
 		const darkGray = '\x1b[90m■\x1b[0m'; // Dark gray
 		const mediumGray = '\x1b[37m■\x1b[0m'; // Medium gray
 		const lightGray = '\x1b[97m■\x1b[0m'; // Light gray
@@ -557,7 +553,6 @@ const useGridStore = create((set, get) => ({
 		const brightBlue = '\x1b[94m■\x1b[0m'; // Bright blue for open doors
 		const redMonster = '\x1b[31m██\x1b[0m'; // Bright red for monster
 
-		// Nouvelles couleurs pour les types de salles
 		const hideoutColor = '\x1b[95m█\x1b[0m';
 		const landmineColor = '\x1b[91m█\x1b[0m';
 		const claymoreColor = '\x1b[93m█\x1b[0m';
@@ -734,26 +729,11 @@ const useGridStore = create((set, get) => ({
 		const state = get();
 		state.initializeGrid();
 
-		// Only print grid in debug mode
 		if (window.location.hash === '#debug') {
 			state.printGridASCII();
 		}
 	},
 }));
-
-// const requestIdleCallback =
-// 	window.requestIdleCallback ||
-// 	function (cb) {
-// 		const start = Date.now();
-// 		return setTimeout(function () {
-// 			cb({
-// 				didTimeout: false,
-// 				timeRemaining: function () {
-// 					return Math.max(0, 50 - (Date.now() - start));
-// 				},
-// 			});
-// 		}, 1);
-// 	};
 
 export { ROOM_WIDTH, START_X, START_Z };
 export default useGridStore;
