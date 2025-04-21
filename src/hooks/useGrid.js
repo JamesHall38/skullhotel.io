@@ -553,14 +553,14 @@ const useGridStore = create((set, get) => ({
 		const brightBlue = '\x1b[94m■\x1b[0m'; // Bright blue for open doors
 		const redMonster = '\x1b[31m██\x1b[0m'; // Bright red for monster
 
-		const hideoutColor = '\x1b[95m█\x1b[0m';
-		const landmineColor = '\x1b[91m█\x1b[0m';
-		const claymoreColor = '\x1b[93m█\x1b[0m';
-		const hunterColor = '\x1b[96m█\x1b[0m';
-		const sonarColor = '\x1b[94m█\x1b[0m';
-		const raidColor = '\x1b[92m█\x1b[0m';
-		const emptyColor = '\x1b[90m█\x1b[0m';
-		const tutorialColor = '\x1b[97m█\x1b[0m';
+		const hideoutColor = '\x1b[95m█\x1b[0m'; // Purple for hideout
+		const landmineColor = '\x1b[91m█\x1b[0m'; // Red for landmine
+		const claymoreColor = '\x1b[93m█\x1b[0m'; // Yellow for claymore
+		const hunterColor = '\x1b[33m█\x1b[0m'; // Orange for hunter
+		const sonarColor = '\x1b[94m█\x1b[0m'; // Blue for sonar
+		const raidColor = '\x1b[92m█\x1b[0m'; // Green for raid
+		const emptyColor = '\x1b[90m█\x1b[0m'; // Dark gray for empty
+		const tutorialColor = '\x1b[97m█\x1b[0m'; // White for tutorial
 
 		// Légende
 		asciiGrid += 'Room Types: ';

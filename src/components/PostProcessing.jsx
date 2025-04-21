@@ -1,9 +1,9 @@
 import { useMemo, useEffect, useState, useRef } from 'react';
 import {
 	EffectComposer,
-	ChromaticAberration,
+	// ChromaticAberration,
 	Vignette,
-	Noise,
+	// Noise,
 	Glitch,
 } from '@react-three/postprocessing';
 import { Effect, BlendFunction } from 'postprocessing';
@@ -232,7 +232,7 @@ const Saturation = ({ isListening }) => {
 
 const PostProcessing = () => {
 	const monsterState = useMonster((state) => state.monsterState);
-	const performanceMode = useGame((state) => state.performanceMode);
+	// const performanceMode = useGame((state) => state.performanceMode);
 	const { playIntro } = useGame();
 	const [isNeonFlickering, setIsNeonFlickering] = useState(false);
 	const [isDistorting, setIsDistorting] = useState(false);
@@ -406,11 +406,11 @@ const PostProcessing = () => {
 
 	return (
 		<EffectComposer multisampling={0} stencilBuffer={false} autoClear={true}>
-			<ChromaticAberration offset={[0.001, 0.001]} />
+			{/* <ChromaticAberration offset={[0.001, 0.001]} /> */}
 			<FOVDistortion playIntro={playIntro} />
 			<CustomBlur />
 			<Saturation isListening={isListening} />
-			<Noise opacity={performanceMode ? 0.1 : 0.05} />
+			{/* <Noise opacity={performanceMode ? 0.1 : 0.05} /> */}
 			<Glitch strength={glitchStrength} columns={jumpScare ? 0.05 : 0} />
 			<Vignette />
 		</EffectComposer>
