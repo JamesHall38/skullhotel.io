@@ -70,11 +70,12 @@
 .dialogue-popup {
 	position: absolute;
 	background: rgba(8, 8, 7, 0.9);
-	font-size: 1rem;
-	color: #ffffff;
+	font-size: 1.25rem;
+	/* color: #ffffff; */
+	color: #efd89b;
 	font-family: 'Lincoln Road', serif;
 	border-radius: 0.5rem;
-	padding: 0 15px;
+	padding: 0 2rem;
 	width: auto;
 	max-width: 80%;
 	text-align: center;
@@ -177,9 +178,41 @@
 	}
 }
 
+.objectives {
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+	align-items: flex-end;
+}
+
+.objectives-count {
+	margin-right: 0.5rem;
+}
+
+.objectives li {
+	font-family: 'Lincoln Road', serif;
+	font-size: 1.5rem;
+	list-style-type: none;
+	display: flex;
+	align-items: center;
+	gap: 1rem;
+}
+
 .objectives li.completed {
 	text-decoration: line-through;
 	opacity: 0.6;
+}
+
+.objectives-title {
+	font-family: 'Lincoln Road Deco', serif;
+	font-size: 2rem;
+	color: #efd89b;
+}
+
+.objectives-flex {
+	display: flex;
+	align-items: center;
+	gap: 1rem;
 }
 
 .end-screen {
@@ -429,6 +462,7 @@
 	width: 100%;
 	height: 100%;
 	position: absolute;
+	z-index: 100;
 }
 
 .mobile-buttons {

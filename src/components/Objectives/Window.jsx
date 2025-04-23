@@ -28,6 +28,9 @@ export default function Window() {
 	const setTutorialObjectives = useInterface(
 		(state) => state.setTutorialObjectives
 	);
+	const recentlyChangedObjectives = useInterface(
+		(state) => state.recentlyChangedObjectives
+	);
 	const objective = useInterface(
 		(state) => state.interfaceObjectives[roomNumber]?.[2]
 	);
@@ -118,10 +121,7 @@ export default function Window() {
 	useEffect(() => {
 		const handleProgressComplete = () => {
 			if (isDetected && delayedRoomCurtain && !(type === 3 && number === 0)) {
-				document.removeEventListener(
-					'progressComplete',
-					handleProgressComplete
-				);
+				setCursor(null);
 
 				Object.values(actions).forEach((action) => {
 					if (!action.isRunning()) {
@@ -136,7 +136,10 @@ export default function Window() {
 							}
 
 							action.play();
-							if (tutorialObjectives[2] === false) {
+							if (
+								tutorialObjectives[2] === false &&
+								!recentlyChangedObjectives[2]
+							) {
 								setTutorialObjectives([
 									tutorialObjectives[0],
 									tutorialObjectives[1],
@@ -177,6 +180,7 @@ export default function Window() {
 		setInterfaceObjectives,
 		roomNumber,
 		tutorialObjectives,
+		recentlyChangedObjectives,
 		setTutorialObjectives,
 		setCursor,
 	]);

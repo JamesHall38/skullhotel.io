@@ -218,6 +218,19 @@ export default function Jump({
 			) {
 				setSpacePressed(true);
 				setCanJump(true);
+
+				const cellX = Math.floor(playerPosition.current.x * 10 + gridOffsetX);
+				const cellZ = Math.floor(playerPosition.current.z * 10 + GRID_OFFSET_Z);
+				const cell = getCell(cellX, cellZ);
+				const isCrouchOnlyArea =
+					cell.type === CELL_TYPES.CROUCH_ONLY ||
+					cell.type === CELL_TYPES.DESK_DOOR_CLOSED ||
+					cell.type === CELL_TYPES.NIGHTSTAND_DOOR_CLOSED;
+
+				if (isCrouchingRef.current && !isCrouchOnlyArea) {
+					isCrouchingRef.current = false;
+					setIsCrouchLocked(false);
+				}
 			} else if (!gamepadControls.jump && spacePressed) {
 				setSpacePressed(false);
 			}
@@ -234,6 +247,11 @@ export default function Jump({
 		isMobile,
 		isAnyPopupOpen,
 		introIsPlaying,
+		playerPosition,
+		getCell,
+		gridOffsetX,
+		isCrouchingRef,
+		setIsCrouchLocked,
 	]);
 
 	useEffect(() => {
@@ -242,10 +260,34 @@ export default function Jump({
 		if (controls.jump && !spacePressed && !isListening && !isAnyPopupOpen) {
 			setSpacePressed(true);
 			setCanJump(true);
+
+			const cellX = Math.floor(playerPosition.current.x * 10 + gridOffsetX);
+			const cellZ = Math.floor(playerPosition.current.z * 10 + GRID_OFFSET_Z);
+			const cell = getCell(cellX, cellZ);
+			const isCrouchOnlyArea =
+				cell.type === CELL_TYPES.CROUCH_ONLY ||
+				cell.type === CELL_TYPES.DESK_DOOR_CLOSED ||
+				cell.type === CELL_TYPES.NIGHTSTAND_DOOR_CLOSED;
+
+			if (isCrouchingRef.current && !isCrouchOnlyArea) {
+				isCrouchingRef.current = false;
+				setIsCrouchLocked(false);
+			}
 		} else if (!controls.jump && spacePressed) {
 			setSpacePressed(false);
 		}
-	}, [controls.jump, spacePressed, isListening, isMobile, isAnyPopupOpen]);
+	}, [
+		controls.jump,
+		spacePressed,
+		isListening,
+		isMobile,
+		isAnyPopupOpen,
+		playerPosition,
+		getCell,
+		gridOffsetX,
+		isCrouchingRef,
+		setIsCrouchLocked,
+	]);
 
 	useEffect(() => {
 		const cellX = Math.floor(playerPosition.current.x * 10 + gridOffsetX);

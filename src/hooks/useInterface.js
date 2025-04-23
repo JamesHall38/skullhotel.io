@@ -36,8 +36,34 @@ const useInterfaceStore = create(
 				? [true, true, true]
 				: [false, false, false],
 
-		setTutorialObjectives: (objective) =>
-			set(() => ({ tutorialObjectives: objective })),
+		recentlyChangedObjectives: [false, false, false],
+
+		setTutorialObjectives: (objective) => {
+			const current = get().tutorialObjectives;
+			if (JSON.stringify(current) !== JSON.stringify(objective)) {
+				const changedIndices = [];
+				for (let i = 0; i < objective.length; i++) {
+					if (current[i] !== objective[i]) {
+						changedIndices.push(i);
+					}
+				}
+
+				const newRecentlyChanged = [false, false, false];
+				changedIndices.forEach((index) => {
+					newRecentlyChanged[index] = true;
+				});
+
+				set(() => ({
+					tutorialObjectives: objective,
+					recentlyChangedObjectives: newRecentlyChanged,
+				}));
+
+				setTimeout(() => {
+					set(() => ({ recentlyChangedObjectives: [false, false, false] }));
+				}, 1000);
+			}
+		},
+
 		interfaceObjectives: [...Array(roomNumber)].map(() => [
 			false,
 			false,
@@ -84,6 +110,8 @@ const useInterfaceStore = create(
 					false,
 					false,
 				]),
+				tutorialObjectives: [false, false, false],
+				recentlyChangedObjectives: [false, false, false],
 				cursor: null,
 				fadeToBlack: 0,
 				customTutorialObjectives: null,

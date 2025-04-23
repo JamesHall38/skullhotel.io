@@ -32,6 +32,9 @@ export default function Bottles() {
 	const setTutorialObjectives = useInterface(
 		(state) => state.setTutorialObjectives
 	);
+	const recentlyChangedObjectives = useInterface(
+		(state) => state.recentlyChangedObjectives
+	);
 	const objective = useInterface(
 		(state) => state.interfaceObjectives[roomNumber]?.[0]
 	);
@@ -105,10 +108,7 @@ export default function Bottles() {
 	useEffect(() => {
 		const handleProgressComplete = () => {
 			if (isDetected && delayedBathroomCurtain) {
-				document.removeEventListener(
-					'progressComplete',
-					handleProgressComplete
-				);
+				setCursor(null);
 
 				Object.values(actions).forEach((action) => {
 					if (!action.isRunning()) {
@@ -124,7 +124,10 @@ export default function Bottles() {
 							}, 600);
 
 							action.play();
-							if (!tutorialObjectives.every((value) => value === true)) {
+							if (
+								!tutorialObjectives.every((value) => value === true) &&
+								!recentlyChangedObjectives[0]
+							) {
 								setTutorialObjectives([
 									true,
 									tutorialObjectives[1],
@@ -164,6 +167,7 @@ export default function Bottles() {
 		roomNumber,
 		setTutorialObjectives,
 		tutorialObjectives,
+		recentlyChangedObjectives,
 		setCursor,
 	]);
 

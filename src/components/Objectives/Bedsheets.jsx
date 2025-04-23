@@ -32,6 +32,9 @@ export default function Bedsheets() {
 	const setTutorialObjectives = useInterface(
 		(state) => state.setTutorialObjectives
 	);
+	const recentlyChangedObjectives = useInterface(
+		(state) => state.recentlyChangedObjectives
+	);
 	const objective = useInterface(
 		(state) => state.interfaceObjectives[roomNumber]?.[1]
 	);
@@ -104,7 +107,7 @@ export default function Bedsheets() {
 					bedsheetsSoundRef.current.play();
 				}
 
-				if (tutorialObjectives[1] === false) {
+				if (tutorialObjectives[1] === false && !recentlyChangedObjectives[1]) {
 					setTutorialObjectives([
 						tutorialObjectives[0],
 						true,
@@ -127,6 +130,7 @@ export default function Bedsheets() {
 		visibleMesh,
 		roomNumber,
 		tutorialObjectives,
+		recentlyChangedObjectives,
 		setTutorialObjectives,
 		setInterfaceObjectives,
 		isDetected,

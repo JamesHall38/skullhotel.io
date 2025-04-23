@@ -408,7 +408,7 @@ const PostProcessing = () => {
 		<EffectComposer multisampling={0} stencilBuffer={false} autoClear={true}>
 			{/* <ChromaticAberration offset={[0.001, 0.001]} /> */}
 			<FOVDistortion playIntro={playIntro} />
-			<CustomBlur />
+			{/* <CustomBlur /> */}
 			<Saturation isListening={isListening} />
 			{/* <Noise opacity={performanceMode ? 0.1 : 0.05} /> */}
 			<Glitch strength={glitchStrength} columns={jumpScare ? 0.05 : 0} />

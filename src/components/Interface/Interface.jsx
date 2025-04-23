@@ -4,6 +4,7 @@ import SkullHotelLogo from './Logo';
 import Settings from './Settings/Settings';
 import { FaArrowCircleDown, FaArrowCircleUp } from 'react-icons/fa';
 import useGameplaySettings from '../../hooks/useGameplaySettings';
+import AnimatedObjectives from './AnimatedObjectives';
 import { TbXboxXFilled } from 'react-icons/tb';
 import { TbXboxYFilled } from 'react-icons/tb';
 import { TbXboxAFilled } from 'react-icons/tb';
@@ -34,6 +35,7 @@ import {
 	exitPointerLock,
 	requestPointerLock,
 } from '../../utils/pointerLock';
+import React from 'react';
 
 function resetGame() {
 	useGame.getState().restart();
@@ -156,7 +158,7 @@ const Dialogue = memo(({ id, text, index, onRemove }) => {
 	return (
 		<div
 			className={`dialogue-popup ${isFadingOut ? 'fade-out' : ''}`}
-			style={{ transform: `translateY(-${index * 60}px)` }}
+			style={{ transform: `translateY(-${index * 5}rem)` }}
 		>
 			<p>{displayedText}</p>
 		</div>
@@ -250,6 +252,100 @@ const Joystick = ({ onMove, side }) => {
 
 const DRAW_CALLS_STABILIZATION_TIME = 3000;
 
+const AnimatedObjectiveItem = ({ objective, index }) => {
+	const [oldText, setOldText] = useState(null);
+	const [currentText, setCurrentText] = useState(objective.text);
+	const [isTransitioning, setIsTransitioning] = useState(false);
+	const [svgCompleted, setSvgCompleted] = useState(false);
+	const [isStrikethrough, setIsStrikethrough] = useState(false);
+	const [isFadingOut, setIsFadingOut] = useState(false);
+	const [isAnimating, setIsAnimating] = useState(false);
+	const oldTextRef = useRef(null);
+	const [svgKey, setSvgKey] = useState(`${index}-initial`);
+	const setCustomTutorialObjectives = useInterface(
+		(state) => state.setCustomTutorialObjectives
+	);
+
+	useEffect(() => {
+		if (objective.text !== currentText && !isTransitioning && !isAnimating) {
+			setIsAnimating(true);
+
+			setIsTransitioning(true);
+			setOldText(currentText);
+
+			setTimeout(() => {
+				setIsStrikethrough(true);
+			}, 50);
+
+			setTimeout(() => {
+				setSvgCompleted(true);
+			}, 500);
+
+			setTimeout(() => {
+				setIsFadingOut(true);
+			}, 800);
+
+			setTimeout(() => {
+				setCurrentText(objective.text);
+
+				if (objective.text === 'Refill soap bottles') {
+					setCustomTutorialObjectives([
+						{ text: 'Refill soap bottles', completed: false },
+						{ text: 'Make the bed', completed: false },
+						{ text: 'Open the window', completed: false },
+					]);
+				}
+
+				setSvgKey(`${index}-${Date.now()}`);
+
+				setSvgCompleted(false);
+				setIsStrikethrough(false);
+				setIsFadingOut(false);
+
+				setTimeout(() => {
+					setIsTransitioning(false);
+					setIsAnimating(false);
+				}, 50);
+			}, 1300);
+		}
+	}, [
+		objective.text,
+		currentText,
+		index,
+		isTransitioning,
+		isAnimating,
+		setCustomTutorialObjectives,
+	]);
+
+	return (
+		<li key={index} className={objective.completed ? 'completed' : ''}>
+			<AnimatedObjectives
+				key={svgKey}
+				animationKey={svgKey}
+				completed={svgCompleted || objective.completed}
+			/>
+			{isTransitioning ? (
+				<div className="text-container">
+					{oldText && (
+						<span
+							ref={oldTextRef}
+							className={`text-content old ${
+								isStrikethrough ? 'strikethrough' : ''
+							} ${isFadingOut ? 'fade-out' : ''}`}
+						>
+							{oldText}
+						</span>
+					)}
+				</div>
+			) : (
+				<div className="text-container">
+					<span className="text-content">{currentText}</span>
+				</div>
+			)}
+		</li>
+	);
+};
+
 export default function Interface() {
 	const { setIsLocked } = useGame();
 	const isMobile = useGame((state) => state.isMobile);
@@ -287,6 +383,7 @@ export default function Interface() {
 	const isEndScreen = useGame((state) => state.isEndScreen);
 	const deviceMode = useGame((state) => state.deviceMode);
 	const isAnyPopupOpen = useInterface((state) => state.isAnyPopupOpen);
+	const isEndAnimationPlaying = useGame((state) => state.isEndAnimationPlaying);
 
 	const setIsListening = useGame((state) => state.setIsListening);
 	const setCursor = useInterface((state) => state.setCursor);
@@ -655,25 +752,48 @@ export default function Interface() {
 				}}
 			/>
 
-			<Settings loading={loading} />
+			{!isEndAnimationPlaying && <Settings loading={loading} />}
 			{loading ? (
 				<LoadingScreen onStart={() => setLoading(false)} />
 			) : doneObjectives >= roomCount / 2 ? (
-				<div className="objectives">Find the exit</div>
+				<div className="objectives">
+					<div className="objectives-flex">
+						<AnimatedObjectives
+							key={`objectives-exit`}
+							animationKey={`objectives-exit`}
+						/>
+						Find the exit
+					</div>
+				</div>
 			) : tutorialObjectives.every((objective) => objective === true) ? (
 				<div className="objectives">
-					{doneObjectives} / {roomCount / 2}{' '}
+					<div className="objectives-title">Rooms made</div>
+					<div className="objectives-flex">
+						<AnimatedObjectives
+							key={`objectives-count-${doneObjectives}`}
+							animationKey={doneObjectives}
+							completed={doneObjectives >= roomCount / 2}
+						/>
+						<div className="objectives-count">
+							{doneObjectives} / {roomCount / 2}{' '}
+						</div>
+					</div>
 				</div>
 			) : (
-				<ul className="objectives">
-					{customTutorialObjectives?.map((objective, index) => (
-						<li key={index} className={objective.completed ? 'completed' : ''}>
-							{objective.text}
-						</li>
-					))}
-				</ul>
+				<div className="objectives">
+					{/* <div className="objectives-title">Clean the tutorial room</div> */}
+					<div>
+						{customTutorialObjectives?.map((objective, index) => (
+							<AnimatedObjectiveItem
+								key={index}
+								objective={objective}
+								index={index}
+							/>
+						))}
+					</div>
+				</div>
 			)}
-			{!loading && isMobile && (
+			{!loading && isMobile && !isEndAnimationPlaying && (
 				<div
 					className="mobile-interface"
 					onPointerDown={(e) => e.stopPropagation()}

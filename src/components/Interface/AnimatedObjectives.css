@@ -1,0 +1,80 @@
+.animated-objectives {
+	pointer-events: none;
+	z-index: 1;
+	max-width: 100%;
+	height: auto;
+	fill: none;
+	stroke-linecap: round;
+	stroke-linejoin: round;
+}
+
+.animated-objectives path {
+	stroke: #efd89b;
+	stroke-linecap: round;
+	stroke-linejoin: round;
+	vector-effect: non-scaling-stroke;
+}
+
+.animated-objectives.size-small {
+	width: 2rem;
+	height: 2rem;
+}
+
+.animated-objectives.size-medium {
+	width: 3rem;
+	height: 3rem;
+	transform: translateY(-0.2rem);
+}
+
+.objectives li {
+	position: relative;
+	min-height: 30px;
+}
+
+.objectives li.completed .text-content {
+	text-decoration: line-through;
+	text-decoration-color: #efd89b;
+	text-decoration-thickness: 2px;
+	opacity: 0.7;
+}
+
+.text-container {
+	position: relative;
+	display: inline-block;
+	min-height: 20px;
+}
+
+.text-content {
+	left: 0;
+	top: 0;
+	opacity: 1;
+	white-space: nowrap;
+	color: #efd89b;
+	transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.text-content.old {
+	position: relative;
+	text-decoration-color: #efd89b;
+	text-decoration-thickness: 2px;
+}
+
+.text-content.old.strikethrough {
+	text-decoration: line-through;
+	opacity: 0.7;
+	transform: none;
+	transition: text-decoration 0.3s ease, opacity 0.5s ease 0.4s;
+}
+
+.text-content.old.fade-out {
+	opacity: 0;
+	transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.text-content.new {
+	opacity: 0;
+}
+
+.text-content.new.active {
+	opacity: 1;
+}

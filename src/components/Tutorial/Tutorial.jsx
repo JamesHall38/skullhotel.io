@@ -26,6 +26,7 @@ const TUTORIAL_STAGE = {
 	CLEAN_OBJECTIVES: 10,
 	WELL_DONE: 11,
 	FINAL_WARNING: 12,
+	LEAVE_TUTORIAL: 13,
 };
 
 // Dialogue constants (matching src/components/Interface/dialogues.js)
@@ -36,8 +37,9 @@ const BATHROOM_WARNING_DIALOGUE = 4; // 'If you hear sounds coming from the bath
 const UNUSUAL_WARNING_DIALOGUE = 5; // 'If there is something unusual happening, hide immediately.',
 const CHECK_FURNITURE_DIALOGUE = 6; // 'Check the whole room for their presence',
 const NIGHTSTAND_WARNING_DIALOGUE = 7; // 'If you see one of them, be quick to close and leave the room.',
-const WELL_DONE_DIALOGUE = 8; // 'Well done! Now clean 8 rooms.',
-const OCCUPIED_ROOMS_DIALOGUE = 9; // 'Half of these rooms are randomly occupied. Proceed with caution.',
+const WELL_DONE_DIALOGUE = 8; // 'Well done! Now clean 8 rooms to call it a day.',
+const REMEMBER_WARNING_DIALOGUE = 9; // 'Remember: if you see one of them in a room, turn back immediately.'
+const OCCUPIED_ROOMS_DIALOGUE = 10; // 'Half of these rooms are randomly occupied. Proceed with caution.',
 
 export default function Tutorial() {
 	const isDead = useInterfaceStore((state) => state.isDead);
@@ -89,7 +91,11 @@ export default function Tutorial() {
 
 	// Welcome back on death
 	useEffect(() => {
-		if (isDead && tutorialStage === TUTORIAL_STAGE.FINAL_WARNING) {
+		if (
+			isDead &&
+			(tutorialStage === TUTORIAL_STAGE.FINAL_WARNING ||
+				tutorialStage === TUTORIAL_STAGE.LEAVE_TUTORIAL)
+		) {
 			setCurrentDialogueIndex(WELCOME_BACK_DIALOGUE);
 		}
 	}, [isDead, tutorialStage, setCurrentDialogueIndex]);
@@ -246,8 +252,9 @@ export default function Tutorial() {
 	useEffect(() => {
 		if (tutorialStage === TUTORIAL_STAGE.FURNITURE_HIDING && nightStandOpen) {
 			setTutorialStage(TUTORIAL_STAGE.CHECK_NIGHTSTAND);
+			setCurrentDialogueIndex(NIGHTSTAND_WARNING_DIALOGUE);
 		}
-	}, [nightStandOpen, tutorialStage]);
+	}, [nightStandOpen, tutorialStage, setCurrentDialogueIndex]);
 
 	// ===========================
 	// STEP 9: CLOSE_NIGHTSTAND - Close nightstand with warning
@@ -256,15 +263,9 @@ export default function Tutorial() {
 		if (tutorialStage === TUTORIAL_STAGE.CHECK_NIGHTSTAND && !nightStandOpen) {
 			setTimeout(() => {
 				setTutorialStage(TUTORIAL_STAGE.CLOSE_NIGHTSTAND);
-				setCurrentDialogueIndex(NIGHTSTAND_WARNING_DIALOGUE);
 			}, 200);
 		}
-	}, [
-		nightStandOpen,
-		tutorialStage,
-		setCurrentDialogueIndex,
-		setTutorialObjectives,
-	]);
+	}, [nightStandOpen, tutorialStage, setCurrentDialogueIndex]);
 
 	// ===========================
 	// STEP 10: CLEAN_OBJECTIVES - Original cleaning tasks
@@ -274,6 +275,10 @@ export default function Tutorial() {
 			step10CompletedRef.current = true;
 			setTutorialStage(TUTORIAL_STAGE.CLEAN_OBJECTIVES);
 			setCurrentDialogueIndex(WELL_DONE_DIALOGUE);
+
+			setTimeout(() => {
+				setCurrentDialogueIndex(REMEMBER_WARNING_DIALOGUE);
+			}, 4000);
 		}
 	}, [tutorialObjectives, tutorialStage, setCurrentDialogueIndex]);
 
@@ -348,7 +353,7 @@ export default function Tutorial() {
 			case TUTORIAL_STAGE.CHECK_NIGHTSTAND:
 				return ['Close the nightstand door'];
 			case TUTORIAL_STAGE.CLOSE_NIGHTSTAND:
-				return ['Refill soap bottles', 'Make the bed', 'Open the window'];
+				return ['Refill soap bottles'];
 			case TUTORIAL_STAGE.CLEAN_OBJECTIVES:
 				return [];
 			default:
