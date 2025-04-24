@@ -44,6 +44,9 @@ export default function Rotation({
 	const deviceMode = useGame((state) => state.deviceMode);
 	const isMobile = useGame((state) => state.isMobile);
 	const isGameplayActive = useGame((state) => state.isGameplayActive);
+	const temporaryDisableMouseLook = useGame(
+		(state) => state.temporaryDisableMouseLook
+	);
 	const [subscribeKeys] = useKeyboardControls();
 	const { camera } = useThree();
 	const getGamepadControls = useGamepadControls();
@@ -110,7 +113,8 @@ export default function Rotation({
 			if (
 				deviceMode === 'keyboard' &&
 				monsterState !== 'run' &&
-				document.pointerLockElement
+				document.pointerLockElement &&
+				!temporaryDisableMouseLook
 			) {
 				const movementX = event.movementX || 0;
 				const movementY = event.movementY || 0;
@@ -138,6 +142,7 @@ export default function Rotation({
 		horizontalSensitivity,
 		verticalSensitivity,
 		disableControls,
+		temporaryDisableMouseLook,
 	]);
 
 	useFrame((state, delta) => {

@@ -398,7 +398,6 @@ const EndGameScreen = () => {
 						value={playerName}
 						onChange={handleNameChange}
 						placeholder="Enter your name"
-						autoFocus
 						disabled={isSubmitting}
 						className={nameError ? 'input-error' : ''}
 						onClick={(e) => e.stopPropagation()}

@@ -11,7 +11,7 @@ import { Uniform } from 'three';
 import useMonster from '../hooks/useMonster';
 import useLight from '../hooks/useLight';
 import { useFrame } from '@react-three/fiber';
-import { useControls } from 'leva';
+// import { useControls } from 'leva';
 import useGame from '../hooks/useGame';
 import useInterface from '../hooks/useInterface';
 import * as THREE from 'three';
@@ -54,45 +54,45 @@ const createFOVEffect = () => {
 	);
 };
 
-const createBlurEffect = () => {
-	return new Effect(
-		'CustomBlurEffect',
-		/* glsl */ `
-		uniform float intensity;
-		uniform float vignetteRadius;
-		uniform float vignetteSoftness;
-		uniform float vignetteStrength;
+// const createBlurEffect = () => {
+// 	return new Effect(
+// 		'CustomBlurEffect',
+// 		/* glsl */ `
+// 		uniform float intensity;
+// 		uniform float vignetteRadius;
+// 		uniform float vignetteSoftness;
+// 		uniform float vignetteStrength;
 
-		void mainImage(const in vec4 inputColor, const in vec2 uv, out vec4 outputColor) {
-			vec2 center = vec2(0.5);
-			float dist = distance(uv, center);
-			
-			float vignetteFactor = smoothstep(vignetteRadius, vignetteRadius + vignetteSoftness, dist);
-			float vignetteBlur = vignetteFactor * vignetteStrength;
-			float finalIntensity = mix(intensity, max(intensity, vignetteBlur), vignetteFactor);
-			
-			vec2 offset1 = vec2(1.0, 1.0) * finalIntensity * 0.01;
-			vec2 offset2 = vec2(-1.0, 1.0) * finalIntensity * 0.01;
-			
-			vec4 color1 = texture2D(inputBuffer, uv + offset1);
-			vec4 color2 = texture2D(inputBuffer, uv - offset1);
-			vec4 color3 = texture2D(inputBuffer, uv + offset2);
-			vec4 color4 = texture2D(inputBuffer, uv - offset2);
-			
-			outputColor = (inputColor + color1 + color2 + color3 + color4) / 5.0;
-		}
-	`,
-		{
-			blendFunction: BlendFunction.NORMAL,
-			uniforms: new Map([
-				['intensity', new Uniform(0.0)],
-				['vignetteRadius', new Uniform(0.5)],
-				['vignetteSoftness', new Uniform(0.5)],
-				['vignetteStrength', new Uniform(0.0)],
-			]),
-		}
-	);
-};
+// 		void mainImage(const in vec4 inputColor, const in vec2 uv, out vec4 outputColor) {
+// 			vec2 center = vec2(0.5);
+// 			float dist = distance(uv, center);
+
+// 			float vignetteFactor = smoothstep(vignetteRadius, vignetteRadius + vignetteSoftness, dist);
+// 			float vignetteBlur = vignetteFactor * vignetteStrength;
+// 			float finalIntensity = mix(intensity, max(intensity, vignetteBlur), vignetteFactor);
+
+// 			vec2 offset1 = vec2(1.0, 1.0) * finalIntensity * 0.01;
+// 			vec2 offset2 = vec2(-1.0, 1.0) * finalIntensity * 0.01;
+
+// 			vec4 color1 = texture2D(inputBuffer, uv + offset1);
+// 			vec4 color2 = texture2D(inputBuffer, uv - offset1);
+// 			vec4 color3 = texture2D(inputBuffer, uv + offset2);
+// 			vec4 color4 = texture2D(inputBuffer, uv - offset2);
+
+// 			outputColor = (inputColor + color1 + color2 + color3 + color4) / 5.0;
+// 		}
+// 	`,
+// 		{
+// 			blendFunction: BlendFunction.NORMAL,
+// 			uniforms: new Map([
+// 				['intensity', new Uniform(0.0)],
+// 				['vignetteRadius', new Uniform(0.5)],
+// 				['vignetteSoftness', new Uniform(0.5)],
+// 				['vignetteStrength', new Uniform(0.0)],
+// 			]),
+// 		}
+// 	);
+// };
 
 const createSaturationEffect = () => {
 	return new Effect(
@@ -162,54 +162,54 @@ const FOVDistortion = ({ playIntro }) => {
 	return <primitive object={effect} />;
 };
 
-const CustomBlur = () => {
-	const { intensity, vignetteRadius, vignetteSoftness, vignetteStrength } =
-		useControls(
-			'Blur Effect',
-			{
-				intensity: {
-					value: 0,
-					min: 0,
-					max: 5,
-					step: 0.1,
-					label: 'Base Blur',
-				},
-				vignetteRadius: {
-					value: 0.3,
-					min: 0,
-					max: 1,
-					step: 0.01,
-					label: 'Vignette Radius',
-				},
-				vignetteSoftness: {
-					value: 0.15,
-					min: 0,
-					max: 1,
-					step: 0.01,
-					label: 'Vignette Softness',
-				},
-				vignetteStrength: {
-					value: 0.5,
-					min: 0,
-					max: 5,
-					step: 0.1,
-					label: 'Vignette Strength',
-				},
-			},
-			{ collapsed: true }
-		);
+// const CustomBlur = () => {
+// 	const { intensity, vignetteRadius, vignetteSoftness, vignetteStrength } =
+// 		useControls(
+// 			'Blur Effect',
+// 			{
+// 				intensity: {
+// 					value: 0,
+// 					min: 0,
+// 					max: 5,
+// 					step: 0.1,
+// 					label: 'Base Blur',
+// 				},
+// 				vignetteRadius: {
+// 					value: 0.3,
+// 					min: 0,
+// 					max: 1,
+// 					step: 0.01,
+// 					label: 'Vignette Radius',
+// 				},
+// 				vignetteSoftness: {
+// 					value: 0.15,
+// 					min: 0,
+// 					max: 1,
+// 					step: 0.01,
+// 					label: 'Vignette Softness',
+// 				},
+// 				vignetteStrength: {
+// 					value: 0.5,
+// 					min: 0,
+// 					max: 5,
+// 					step: 0.1,
+// 					label: 'Vignette Strength',
+// 				},
+// 			},
+// 			{ collapsed: true }
+// 		);
 
-	const effect = useMemo(() => createBlurEffect(), []);
+// 	const effect = useMemo(() => createBlurEffect(), []);
 
-	useEffect(() => {
-		effect.uniforms.get('intensity').value = intensity;
-		effect.uniforms.get('vignetteRadius').value = vignetteRadius;
-		effect.uniforms.get('vignetteSoftness').value = vignetteSoftness;
-		effect.uniforms.get('vignetteStrength').value = vignetteStrength;
-	}, [effect, intensity, vignetteRadius, vignetteSoftness, vignetteStrength]);
+// 	useEffect(() => {
+// 		effect.uniforms.get('intensity').value = intensity;
+// 		effect.uniforms.get('vignetteRadius').value = vignetteRadius;
+// 		effect.uniforms.get('vignetteSoftness').value = vignetteSoftness;
+// 		effect.uniforms.get('vignetteStrength').value = vignetteStrength;
+// 	}, [effect, intensity, vignetteRadius, vignetteSoftness, vignetteStrength]);
 
-	return <primitive object={effect} />;
-};
+// 	return <primitive object={effect} />;
+// };
 
 const Saturation = ({ isListening }) => {
 	const effect = useMemo(() => createSaturationEffect(), []);

@@ -529,8 +529,47 @@
 	transition: opacity 3s ease-out, visibility 0s;
 }
 
-/* Ensure popups have higher z-index than cursor */
 .guestbook-container,
 .howitsmade-container {
 	z-index: 10;
+}
+
+.animated-objective-text {
+	display: flex;
+	align-items: center;
+	min-height: 3rem;
+}
+
+.animated-objective-text .text-container {
+	margin-left: 10px;
+	position: relative;
+	display: inline-block;
+	min-height: 20px;
+}
+
+.animated-objective-text .text-content {
+	left: 0;
+	top: 0;
+	opacity: 1;
+	white-space: nowrap;
+	color: #efd89b;
+	transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.animated-objective-text .text-content.old {
+	position: relative;
+	text-decoration-color: #efd89b;
+	text-decoration-thickness: 2px;
+}
+
+.animated-objective-text .text-content.old.strikethrough {
+	text-decoration: line-through;
+	opacity: 0.7;
+	transform: none;
+	transition: text-decoration 0.3s ease, opacity 0.5s ease 0.4s;
+}
+
+.animated-objective-text .text-content.old.fade-out {
+	opacity: 0;
+	transition: opacity 0.5s ease, transform 0.5s ease;
 }

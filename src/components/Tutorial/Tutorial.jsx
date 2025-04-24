@@ -79,9 +79,6 @@ export default function Tutorial() {
 	const tutorialObjectives = useInterfaceStore(
 		(state) => state.tutorialObjectives
 	);
-	const setTutorialObjectives = useInterfaceStore(
-		(state) => state.setTutorialObjectives
-	);
 	const setCustomTutorialObjectives = useInterfaceStore(
 		(state) => state.setCustomTutorialObjectives
 	);

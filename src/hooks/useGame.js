@@ -247,6 +247,10 @@ const useGameStore = create(
 
 		isCrouchLocked: false,
 		setIsCrouchLocked: (value) => set({ isCrouchLocked: value }),
+
+		temporaryDisableMouseLook: false,
+		setTemporaryDisableMouseLook: (value) =>
+			set({ temporaryDisableMouseLook: value }),
 	}))
 );
 

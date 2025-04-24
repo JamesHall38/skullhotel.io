@@ -45,6 +45,7 @@ function resetGame() {
 	useGame.getState().setPlayIntro(true);
 	useLight.getState().restart();
 	useInterface.getState().setIsSettingsOpen(false);
+	useInterface.getState().setTutorialObjectives([true, true, true]);
 }
 
 const Dialogue = memo(({ id, text, index, onRemove }) => {
@@ -252,6 +253,86 @@ const Joystick = ({ onMove, side }) => {
 
 const DRAW_CALLS_STABILIZATION_TIME = 3000;
 
+const AnimatedObjectiveText = ({ children, prevText }) => {
+	const [currentText, setCurrentText] = useState(children);
+	const [oldText, setOldText] = useState(prevText);
+	const [isTransitioning, setIsTransitioning] = useState(!!prevText);
+	const [svgCompleted, setSvgCompleted] = useState(false);
+	const [isStrikethrough, setIsStrikethrough] = useState(false);
+	const [isFadingOut, setIsFadingOut] = useState(false);
+	const [svgKey, setSvgKey] = useState(`objective-${Date.now()}`);
+	const contentRef = useRef(null);
+
+	useEffect(() => {
+		if (!isTransitioning) {
+			setCurrentText(children);
+		}
+	}, [children, isTransitioning]);
+
+	useEffect(() => {
+		if (!prevText) return;
+
+		setIsTransitioning(true);
+		setOldText(prevText);
+
+		const step1 = setTimeout(() => {
+			setIsStrikethrough(true);
+		}, 50);
+
+		const step2 = setTimeout(() => {
+			setSvgCompleted(true);
+		}, 500);
+
+		const step3 = setTimeout(() => {
+			setIsFadingOut(true);
+		}, 800);
+
+		const step4 = setTimeout(() => {
+			setCurrentText(children);
+			setSvgKey(`objective-${Date.now()}`);
+			setSvgCompleted(false);
+			setIsStrikethrough(false);
+			setIsFadingOut(false);
+			setIsTransitioning(false);
+		}, 1300);
+
+		return () => {
+			clearTimeout(step1);
+			clearTimeout(step2);
+			clearTimeout(step3);
+			clearTimeout(step4);
+		};
+	}, [prevText, children]);
+
+	return (
+		<div className="animated-objective-text">
+			<AnimatedObjectives
+				key={svgKey}
+				animationKey={svgKey}
+				completed={svgCompleted}
+			/>
+			{isTransitioning ? (
+				<div className="text-container">
+					{oldText && (
+						<span
+							ref={contentRef}
+							className={`text-content old ${
+								isStrikethrough ? 'strikethrough' : ''
+							} ${isFadingOut ? 'fade-out' : ''}`}
+						>
+							{oldText}
+						</span>
+					)}
+				</div>
+			) : (
+				<div className="text-container">
+					<span className="text-content">{currentText}</span>
+				</div>
+			)}
+		</div>
+	);
+};
+
 const AnimatedObjectiveItem = ({ objective, index }) => {
 	const [oldText, setOldText] = useState(null);
 	const [currentText, setCurrentText] = useState(objective.text);
@@ -414,6 +495,10 @@ export default function Interface() {
 	const [lastDeathMessage, setLastDeathMessage] = useState(null);
 
 	const fadeToBlack = useInterface((state) => state.fadeToBlack);
+
+	const [prevObjectiveText, setPrevObjectiveText] = useState(null);
+	const [showFindExit, setShowFindExit] = useState(false);
+	const prevDoneObjectives = useRef(0);
 
 	useEffect(() => {
 		if (playerPositionRoom !== null && playerPositionRoom >= 0) {
@@ -733,9 +818,17 @@ export default function Interface() {
 		}
 	}, [end, setIsGameplayActive]);
 
+	useEffect(() => {
+		if (doneObjectives >= roomCount / 2 && !showFindExit) {
+			setPrevObjectiveText(`${doneObjectives} / ${roomCount / 2}`);
+			setShowFindExit(true);
+		}
+
+		prevDoneObjectives.current = doneObjectives;
+	}, [doneObjectives, roomCount, showFindExit]);
+
 	return (
 		<div className={`interface ${loading ? 'animated' : ''}`}>
-			{/* Fade to black effect */}
 			<div
 				className="fade-to-black"
 				style={{
@@ -755,25 +848,18 @@ export default function Interface() {
 			{!isEndAnimationPlaying && <Settings loading={loading} />}
 			{loading ? (
 				<LoadingScreen onStart={() => setLoading(false)} />
-			) : doneObjectives >= roomCount / 2 ? (
+			) : isEndAnimationPlaying ? null : doneObjectives >= roomCount / 2 ? (
 				<div className="objectives">
 					<div className="objectives-flex">
-						<AnimatedObjectives
-							key={`objectives-exit`}
-							animationKey={`objectives-exit`}
-						/>
-						Find the exit
+						<AnimatedObjectiveText prevText={prevObjectiveText}>
+							Find the exit
+						</AnimatedObjectiveText>
 					</div>
 				</div>
 			) : tutorialObjectives.every((objective) => objective === true) ? (
 				<div className="objectives">
-					<div className="objectives-title">Rooms made</div>
 					<div className="objectives-flex">
-						<AnimatedObjectives
-							key={`objectives-count-${doneObjectives}`}
-							animationKey={doneObjectives}
-							completed={doneObjectives >= roomCount / 2}
-						/>
+						<AnimatedObjectives />
 						<div className="objectives-count">
 							{doneObjectives} / {roomCount / 2}{' '}
 						</div>
@@ -781,7 +867,6 @@ export default function Interface() {
 				</div>
 			) : (
 				<div className="objectives">
-					{/* <div className="objectives-title">Clean the tutorial room</div> */}
 					<div>
 						{customTutorialObjectives?.map((objective, index) => (
 							<AnimatedObjectiveItem

@@ -704,8 +704,44 @@ export const findPath = (startX, startZ, targetX, targetZ) => {
 		`Grid coords: (${gridStartX}, ${gridStartZ}) to (${gridTargetX}, ${gridTargetZ})`
 	);
 
+	console.warn('Pathfinding failed. Forcing direct movement towards player.');
+
+	const dx = targetX - startX;
+	const dz = targetZ - startZ;
+	const distance = Math.sqrt(dx * dx + dz * dz);
+
+	const dirX = dx / distance;
+	const dirZ = dz / distance;
+
+	const directPath = [];
+	directPath.push({ x: startX, z: startZ, cost: 1, weight: 1 });
+
+	const numPoints = 3;
+	for (let i = 1; i < numPoints; i++) {
+		const ratio = i / numPoints;
+		const intermediateX = startX + dirX * distance * ratio;
+		const intermediateZ = startZ + dirZ * distance * ratio;
+		directPath.push({
+			x: intermediateX,
+			z: intermediateZ,
+			cost: 1,
+			weight: 1,
+			forcedPath: true,
+		});
+	}
+
+	directPath.push({
+		x: targetX,
+		z: targetZ,
+		cost: 1,
+		weight: 1,
+		forcedPath: true,
+	});
+
+	pathCache.set(cacheKey, directPath);
+
 	resetPathfindingCaches();
-	return null;
+	return directPath;
 };
 
 const printPathASCII = (path) => {

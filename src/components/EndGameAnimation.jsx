@@ -265,6 +265,9 @@ const EndGameAnimation = () => {
 		setEndAnimationPlaying(false);
 		setHasCompletedAnimation(true);
 
+		// Skip tutorial and start with 0/8 objectives
+		useInterface.getState().setTutorialObjectives([true, true, true]);
+
 		setTimeout(() => {
 			camera.position.set(10.77, 1.5, -3);
 			camera.rotation.set(0, Math.PI, 0);

@@ -110,7 +110,7 @@ const useInterfaceStore = create(
 					false,
 					false,
 				]),
-				tutorialObjectives: [false, false, false],
+				tutorialObjectives: [true, true, true],
 				recentlyChangedObjectives: [false, false, false],
 				cursor: null,
 				fadeToBlack: 0,

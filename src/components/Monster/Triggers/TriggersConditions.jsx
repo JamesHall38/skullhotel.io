@@ -54,6 +54,9 @@ export default function TriggersConditions({
 		(state) => state.setMonsterAttackDisableControls
 	);
 	const isMobile = useGame((state) => state.isMobile);
+	const setTemporaryDisableMouseLook = useGame(
+		(state) => state.setTemporaryDisableMouseLook
+	);
 
 	// Interface
 	const interfaceObjectives = useInterface(
@@ -219,6 +222,8 @@ export default function TriggersConditions({
 			setDisableControls(true);
 			setMonsterAttackDisableControls(true);
 
+			setTemporaryDisableMouseLook(true);
+
 			setTimeout(() => {
 				setShakeIntensity(10);
 				setMonsterState('run');
@@ -227,6 +232,7 @@ export default function TriggersConditions({
 				lookAtTargetRef.current = null;
 				lookAtStartTimeRef.current = null;
 				setIsLookingAtTarget(false);
+				setTemporaryDisableMouseLook(false);
 			}, 800);
 		}
 	}, [
@@ -240,6 +246,7 @@ export default function TriggersConditions({
 		setShakeIntensity,
 		setMonsterState,
 		playAnimation,
+		setTemporaryDisableMouseLook,
 	]);
 
 	const checkObjectiveAndAttack = (objectives, objectiveIndex) => {
@@ -325,6 +332,7 @@ export default function TriggersConditions({
 		raycaster,
 		camera,
 		clock,
+		shakeIntensity,
 		delayed
 	) => {
 		if (monsterState !== monsterStateValue) {
@@ -401,12 +409,15 @@ export default function TriggersConditions({
 			direction
 		);
 
-		const adaptiveIntensity = Math.min(
-			0.15,
-			intensity * (1 + lookAtProgress * 2)
-		);
-
-		camera.quaternion.slerp(targetQuaternion, adaptiveIntensity);
+		if (lookAtProgress > 0.2) {
+			camera.quaternion.copy(targetQuaternion);
+		} else {
+			const adaptiveIntensity = Math.min(
+				0.5,
+				intensity * (1 + lookAtProgress * 3)
+			);
+			camera.quaternion.slerp(targetQuaternion, adaptiveIntensity);
+		}
 	}
 
 	function playHunterIdleAnimation(
@@ -640,7 +651,7 @@ export default function TriggersConditions({
 						clearTimeout(attackTimeoutRef.current);
 						attackTimeoutRef.current = null;
 					}
-					monsterLandmineAttack();
+					monsterAttack();
 				}
 				break;
 			}
@@ -668,10 +679,23 @@ export default function TriggersConditions({
 			case 'behindCouch':
 			case 'behindDesk':
 			case 'insideDesk':
-				doNotGetAnyCloser('hidden', raycaster, camera, clock, true);
+				doNotGetAnyCloser(
+					'hidden',
+					raycaster,
+					camera,
+					clock,
+					shakeIntensity,
+					true
+				);
 				break;
 			case 'landmineMirror':
-				doNotGetAnyCloser('facingCamera', raycaster, camera, clock);
+				doNotGetAnyCloser(
+					'facingCamera',
+					raycaster,
+					camera,
+					clock,
+					shakeIntensity
+				);
 				break;
 
 			case 'sonarBathroom':

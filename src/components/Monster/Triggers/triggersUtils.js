@@ -6,7 +6,7 @@ const angleThreshold = Math.PI / 3;
 
 const SHAKE_INCREASE_RATE = 0.8;
 const SHAKE_DECREASE_RATE = 1.0;
-const SHAKE_THRESHOLD = 0.015;
+const SHAKE_THRESHOLD = 0.008;
 
 let shakeDelayTimer = 0;
 
@@ -132,15 +132,17 @@ export const shakeCamera = (
 ) => {
 	const deltaTime = clock.getDelta();
 
+	// console.log('shakeCamera', shouldShake, shakeIntensity);
 	if (shouldShake) {
 		if (delayed) {
 			shakeDelayTimer += deltaTime;
-			if (shakeDelayTimer > 1) {
+			console.log('shakeDelayTimer', shakeDelayTimer);
+			setShakeIntensity(
+				Math.min(10, shakeIntensity + SHAKE_INCREASE_RATE * deltaTime * 60)
+			);
+			if (shakeDelayTimer > SHAKE_THRESHOLD) {
 				shakeDelayTimer = 0;
-				setShakeIntensity(
-					Math.min(10, shakeIntensity + SHAKE_INCREASE_RATE * deltaTime * 60)
-				);
-				return shakeIntensity > SHAKE_THRESHOLD;
+				return true;
 			}
 		} else {
 			setShakeIntensity(
