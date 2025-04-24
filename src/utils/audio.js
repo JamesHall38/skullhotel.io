@@ -161,10 +161,6 @@ export const SOUNDS = {
 		mp3: '/sounds/neon.mp3',
 		settings: 'interaction',
 	},
-	beep: {
-		mp3: '/sounds/beep.mp3',
-		settings: 'interaction',
-	},
 	flashlight: {
 		mp3: '/sounds/flashlight.mp3',
 		settings: 'interaction',

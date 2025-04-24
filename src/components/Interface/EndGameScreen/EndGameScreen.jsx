@@ -279,6 +279,22 @@ const EndGameScreen = () => {
 		setIsAnyPopupOpen(false);
 		setIsGameplayActive(true);
 
+		const positionCamera = () => {
+			const camera =
+				document.querySelector('canvas')?._reactInternals?.fiber?.reconciler
+					?.config?.roots[0]?.containerInfo?._internalRoot?.current?.child
+					?.child?.memoizedState?.instance?.state?.gl?.camera;
+
+			if (camera) {
+				camera.position.set(10.77, -0.2, -3);
+				camera.rotation.set(0, Math.PI, 0);
+				camera.updateMatrixWorld(true);
+				console.log('Camera repositioned:', camera.position);
+			}
+		};
+
+		positionCamera();
+
 		incrementRealDeaths();
 		restart();
 		restartDoor();
@@ -287,18 +303,24 @@ const EndGameScreen = () => {
 		regenerateData();
 		initializeIfNeeded();
 		restartInterface();
-		setPlayIntro(true);
 
-		setGameStartTime();
+		positionCamera();
 
-		if (deviceMode === 'keyboard') {
-			setTimeout(() => {
+		setTimeout(() => {
+			positionCamera();
+
+			setPlayIntro(true);
+			setGameStartTime();
+
+			if (deviceMode === 'keyboard') {
 				const canvas = document.querySelector('canvas');
 				if (canvas && !isPointerLocked()) {
 					requestPointerLock(canvas);
 				}
-			}, 100);
-		}
+			}
+
+			setTimeout(positionCamera, 100);
+		}, 100);
 	};
 
 	const validatePlayerName = (name) => {

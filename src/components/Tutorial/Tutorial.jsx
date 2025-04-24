@@ -105,8 +105,10 @@ export default function Tutorial() {
 			if (playIntro && currentDialogueIndex === null) {
 				hasStarted.current = true;
 				timeoutRef.current = setTimeout(() => {
-					setCurrentDialogueIndex(WELCOME_DIALOGUE);
-					setTutorialStage(TUTORIAL_STAGE.INTRO);
+					if (deaths === 0) {
+						setCurrentDialogueIndex(WELCOME_DIALOGUE);
+						setTutorialStage(TUTORIAL_STAGE.INTRO);
+					}
 				}, 4000);
 			}
 		}

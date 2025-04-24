@@ -29,10 +29,13 @@ export default function DoorWrapper({
 	const group = useRef();
 	const openRef = useRef();
 	const closeRef = useRef();
-	const beepRef = useRef();
 	const roomCount = useGameplaySettings((state) => state.roomCount);
 	const playerPositionRoom = useGame((state) => state.playerPositionRoom);
 	const isTutorialOpen = useGame((state) => state.isTutorialOpen);
+	const endAnimationPlaying = useGame((state) => state.endAnimationPlaying);
+	const introIsPlaying = useGame((state) => state.introIsPlaying);
+	const endAnimationPlayingRef = useRef(endAnimationPlaying);
+	const introIsPlayingRef = useRef(introIsPlaying);
 	const cursorRef = useRef(null);
 	const setCursor = useInterface((state) => state.setCursor);
 	const canOpenRef = useRef(false);
@@ -44,6 +47,14 @@ export default function DoorWrapper({
 	const deviceMode = useGame((state) => state.deviceMode);
 	const gamepadControlsRef = useGamepadControls();
 	const wasActionPressedRef = useRef(false);
+
+	useEffect(() => {
+		endAnimationPlayingRef.current = endAnimationPlaying;
+	}, [endAnimationPlaying]);
+
+	useEffect(() => {
+		introIsPlayingRef.current = introIsPlaying;
+	}, [introIsPlaying]);
 
 	const targetAngle = useMemo(() => {
 		let angle = reverse ? -Math.PI / 2 : Math.PI / 2;
@@ -71,7 +82,6 @@ export default function DoorWrapper({
 			return tutorialRoomOffset;
 		}
 
-		// Adjust Y position for adjacent doors when in a room (not in corridor)
 		if (playerPositionRoom !== null && !closet && isInRoom) {
 			const isAdjacent = Math.abs(roomNumber - playerPositionRoom) === 1;
 			if (isAdjacent) {
@@ -101,23 +111,26 @@ export default function DoorWrapper({
 
 	const openSound = usePositionalSound(closet ? 'closetOpen' : 'doorOpen');
 	const closeSound = usePositionalSound(closet ? 'closetClose' : 'doorClose');
-	const beepSound = usePositionalSound('beep');
 
 	useEffect(() => {
 		if (hasInitialized) {
-			if (isOpen) {
-				if (openRef.current && !openRef.current.isPlaying) {
-					openRef.current.play();
-					if (!closet && beepRef.current && !beepRef.current.isPlaying) {
-						beepRef.current.play();
+			if (!endAnimationPlayingRef.current && !introIsPlayingRef.current) {
+				if (isOpen) {
+					if (openRef.current && !openRef.current.isPlaying) {
+						openRef.current.play();
 					}
+				} else {
+					setTimeout(() => {
+						if (
+							closeRef.current &&
+							!closeRef.current.isPlaying &&
+							!endAnimationPlayingRef.current &&
+							!introIsPlayingRef.current
+						) {
+							closeRef.current.play();
+						}
+					}, 800);
 				}
-			} else {
-				setTimeout(() => {
-					if (closeRef.current && !closeRef.current.isPlaying) {
-						closeRef.current.play();
-					}
-				}, 800);
 			}
 		} else if (isOpen) {
 			setHasInitialized(true);
@@ -195,7 +208,6 @@ export default function DoorWrapper({
 	useFrame(({ camera }, delta) => {
 		if (!doorRef.current) return;
 
-		// Update isInRoom based on camera position
 		setIsInRoom(Math.abs(camera.position.z) > 1.3);
 
 		const doorPosition = doorRef.current.position;
@@ -276,9 +288,6 @@ export default function DoorWrapper({
 					<group>
 						<PositionalAudio ref={openRef} {...openSound} loop={false} />
 						<PositionalAudio ref={closeRef} {...closeSound} loop={false} />
-						{!closet && (
-							<PositionalAudio ref={beepRef} {...beepSound} loop={false} />
-						)}
 					</group>
 				)}
 				<group ref={group} dispose={null}>

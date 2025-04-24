@@ -685,6 +685,13 @@ export default function Interface() {
 								setIsGameplayActive(true);
 								setOpenDeathScreen(false);
 								setIsRestarting(false);
+
+								setTimeout(() => {
+									useInterface.getState().setCurrentDialogueIndex(1);
+									setTimeout(() => {
+										useInterface.getState().setCurrentDialogueIndex(null);
+									}, 3000);
+								}, 1500);
 							}, 100);
 						}, 500);
 					}
@@ -724,6 +731,13 @@ export default function Interface() {
 								setIsGameplayActive(true);
 								setOpenDeathScreen(false);
 								setIsRestarting(false);
+
+								setTimeout(() => {
+									useInterface.getState().setCurrentDialogueIndex(1);
+									setTimeout(() => {
+										useInterface.getState().setCurrentDialogueIndex(null);
+									}, 3000);
+								}, 1500);
 							}, 100);
 						}, 500);
 						return;
@@ -1031,6 +1045,13 @@ export default function Interface() {
 									}, 100);
 								}
 							}
+
+							setTimeout(() => {
+								useInterface.getState().setCurrentDialogueIndex(1);
+								setTimeout(() => {
+									useInterface.getState().setCurrentDialogueIndex(null);
+								}, 3000);
+							}, 1500);
 						}}
 						className="end-screen-button"
 					>
@@ -1062,6 +1083,13 @@ export default function Interface() {
 										requestPointerLock(canvas);
 									}
 								}
+
+								setTimeout(() => {
+									useInterface.getState().setCurrentDialogueIndex(1);
+									setTimeout(() => {
+										useInterface.getState().setCurrentDialogueIndex(null);
+									}, 3000);
+								}, 1500);
 							}, 100);
 						}, 500);
 					}}
