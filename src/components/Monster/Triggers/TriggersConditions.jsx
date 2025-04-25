@@ -106,6 +106,8 @@ export default function TriggersConditions({
 	const hunterTriggeredRoomsRef = useRef({});
 	const hunterDoorClosedFromOutsideRef = useRef({});
 
+	const claymoreDoorsRef = useRef({});
+
 	const triggerRAID = useCallback(
 		(room) => {
 			let monsterX;
@@ -355,10 +357,40 @@ export default function TriggersConditions({
 		}
 	};
 
-	const closeTheDoorQuickly = (doorState, clock) => {
+	const closeTheDoorQuickly = (doorState, clock, roomKey) => {
+		const doorStateKey = `${playerPositionRoom}-${roomKey}`;
+		if (!claymoreDoorsRef.current[doorStateKey]) {
+			claymoreDoorsRef.current[doorStateKey] = {
+				wasOpened: false,
+				wasClosed: false,
+				reopened: false,
+			};
+		}
+
+		if (doorState && !claymoreDoorsRef.current[doorStateKey].wasOpened) {
+			claymoreDoorsRef.current[doorStateKey].wasOpened = true;
+		} else if (
+			!doorState &&
+			claymoreDoorsRef.current[doorStateKey].wasOpened &&
+			!claymoreDoorsRef.current[doorStateKey].wasClosed
+		) {
+			claymoreDoorsRef.current[doorStateKey].wasClosed = true;
+		} else if (
+			doorState &&
+			claymoreDoorsRef.current[doorStateKey].wasOpened &&
+			claymoreDoorsRef.current[doorStateKey].wasClosed
+		) {
+			claymoreDoorsRef.current[doorStateKey].reopened = true;
+		}
+
 		shakeCamera(clock, doorState, setShakeIntensity, shakeIntensity);
 
-		if (doorState) {
+		if (doorState && claymoreDoorsRef.current[doorStateKey].reopened) {
+			monsterAttack();
+			return;
+		}
+
+		if (doorState && !claymoreDoorsRef.current[doorStateKey].wasClosed) {
 			if (!quickTimeoutRef.current) {
 				quickTimeoutRef.current = setTimeout(
 					() => {
@@ -519,11 +551,14 @@ export default function TriggersConditions({
 
 	useEffect(() => {
 		sonarBathroomRef.current = { stateSet: false, attackTriggered: false };
+
+		claymoreDoorsRef.current = {};
 	}, [playerPositionRoom]);
 
 	useEffect(() => {
 		hunterTriggeredRoomsRef.current = {};
 		hunterDoorClosedFromOutsideRef.current = {};
+		claymoreDoorsRef.current = {};
 	}, [seedData]);
 
 	useFrame(({ camera, raycaster, clock }) => {
@@ -606,7 +641,8 @@ export default function TriggersConditions({
 					playerIsInsideZone(cameraShakingBox, raycaster, camera) &&
 						playerIsLookingAtBox(instantBox, camera),
 					setShakeIntensity,
-					shakeIntensity
+					shakeIntensity,
+					true
 				);
 
 				const shouldAttack =
@@ -621,7 +657,7 @@ export default function TriggersConditions({
 							clearTimeout(attackTimeoutRef.current);
 							attackTimeoutRef.current = null;
 						}
-						monsterLandmineAttack();
+						monsterAttack();
 					}, 100);
 				} else if (shouldAttack) {
 					if (!attackTimeoutRef.current) {
@@ -630,7 +666,7 @@ export default function TriggersConditions({
 								!roomDoors[playerPositionRoom] &&
 								Math.abs(camera.position.z) > 1.3
 							) {
-								monsterLandmineAttack();
+								monsterAttack();
 							}
 							attackTimeoutRef.current = null;
 						}, 1000);
@@ -722,8 +758,18 @@ export default function TriggersConditions({
 			// 	closeTheDoorQuickly(roomCurtains[playerPositionRoom], clock);
 			// 	break;
 			case 'claymoreBath':
-				closeTheDoorQuickly(bathroomCurtains[playerPositionRoom], clock);
+				closeTheDoorQuickly(
+					bathroomCurtains[playerPositionRoom],
+					clock,
+					roomKey
+				);
 				checkObjectiveAndAttack(interfaceObjectives, 0);
+
+				if (Math.abs(camera.position.z) < 1.5) {
+					setMonsterPosition([monsterPosition[0], 10, monsterPosition[2]]);
+				} else {
+					setMonsterPosition([monsterPosition[0], 0, monsterPosition[2]]);
+				}
 				break;
 			case 'claymoreDesk':
 				if (interfaceObjectives[playerPositionRoom]?.[2]) {
@@ -734,7 +780,7 @@ export default function TriggersConditions({
 						deskDoors[playerPositionRoom] = true;
 					}
 				} else {
-					closeTheDoorQuickly(deskDoors[playerPositionRoom], clock);
+					closeTheDoorQuickly(deskDoors[playerPositionRoom], clock, roomKey);
 				}
 				break;
 			case 'claymoreNightstand':
@@ -746,14 +792,18 @@ export default function TriggersConditions({
 						nightstandDoors[playerPositionRoom] = true;
 					}
 				} else {
-					closeTheDoorQuickly(nightstandDoors[playerPositionRoom], clock);
+					closeTheDoorQuickly(
+						nightstandDoors[playerPositionRoom],
+						clock,
+						roomKey
+					);
 				}
 				break;
 			case 'claymoreBathroom':
 				if (monsterState !== 'facingCamera') {
 					setMonsterState('facingCamera');
 				}
-				closeTheDoorQuickly(bathroomDoors[playerPositionRoom], clock);
+				closeTheDoorQuickly(bathroomDoors[playerPositionRoom], clock, roomKey);
 				break;
 			case 'hunterLivingRoom':
 			case 'hunterCeilingLivingRoom':

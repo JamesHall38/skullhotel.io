@@ -728,6 +728,12 @@ const Monster = (props) => {
 		}
 	}, [isEndAnimationPlaying, monsterState]);
 
+	useEffect(() => {
+		if (monsterState === 'facingCamera' && headBoneRef.current) {
+			headBoneRef.current.rotation.set(0, 0, 0);
+		}
+	}, [monsterState]);
+
 	useFrame(({ camera }) => {
 		if (monsterState === 'endAnimation' || isEndAnimationPlaying) {
 			if (group.current) {

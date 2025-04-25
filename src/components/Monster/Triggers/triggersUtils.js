@@ -136,16 +136,18 @@ export const shakeCamera = (
 
 	if (shouldShake) {
 		if (delayed) {
-			if (shakeIntensity === 0) {
+			// if (shakeIntensity === 0) {
+			if (shakeStartTime === 0) {
 				shakeStartTime = currentTime;
 			}
 
-			setShakeIntensity(
-				Math.min(10, shakeIntensity + SHAKE_INCREASE_RATE * deltaTime * 60)
-			);
+			// setShakeIntensity(
+			// 	Math.min(10, shakeIntensity + SHAKE_INCREASE_RATE * deltaTime * 60)
+			// );
 
 			const timeElapsed = currentTime - shakeStartTime;
 			if (timeElapsed > SHAKE_DURATION_MS) {
+				setShakeIntensity(10);
 				shakeStartTime = 0;
 				return true;
 			}

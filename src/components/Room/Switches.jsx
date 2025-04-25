@@ -30,6 +30,7 @@ export default function Switches(props) {
 	const [bulbBurned, setBulbBurned] = useState(false);
 	const switch1Ref = useRef();
 	const switch2Ref = useRef();
+	const wasClickProcessedRef = useRef(false);
 
 	const switchOnSoundRef = useRef(null);
 	const switchOffSoundRef = useRef(null);
@@ -144,7 +145,18 @@ export default function Switches(props) {
 
 		const handleClickSwitch1 = (e) => {
 			if (e.button !== 0) return;
+
+			if (wasClickProcessedRef.current) {
+				return;
+			}
+
 			if (switch1Clickable && cursor.includes('light')) {
+				wasClickProcessedRef.current = true;
+
+				setTimeout(() => {
+					wasClickProcessedRef.current = false;
+				}, 300);
+
 				setBathroomLight(!bathroomLight);
 				if (!bathroomLight) {
 					switchOnSoundRef.current.currentTime = 0;
@@ -162,7 +174,18 @@ export default function Switches(props) {
 
 		const handleClickSwitch2 = (e) => {
 			if (e.button !== 0) return;
+
+			if (wasClickProcessedRef.current) {
+				return;
+			}
+
 			if (switch2Clickable) {
+				wasClickProcessedRef.current = true;
+
+				setTimeout(() => {
+					wasClickProcessedRef.current = false;
+				}, 300);
+
 				const totalSteps = 6;
 				const currentStep = Math.floor(
 					(doneObjectivesNumberRef.current / (roomCount / 2)) * totalSteps

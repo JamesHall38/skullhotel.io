@@ -87,7 +87,7 @@ const levelData = {
 		monsterInitialPosition: [3.9, 0, -4.1],
 		instantTriggerPosition: [4.1, 0.5, -4.15],
 		instantTriggerScale: [1, 1, 1],
-		cameraShakingPosition: [3, 0, -2.2],
+		cameraShakingPosition: [3, 0, -1.6],
 		cameraShakingScale: [2, 1, 2.5],
 		animation: 'BehindDoor',
 	},
