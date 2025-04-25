@@ -8,7 +8,8 @@ const SHAKE_INCREASE_RATE = 0.8;
 const SHAKE_DECREASE_RATE = 1.0;
 const SHAKE_THRESHOLD = 0.008;
 
-let shakeDelayTimer = 0;
+const SHAKE_DURATION_MS = 2000;
+let shakeStartTime = 0;
 
 export const getMonsterInitialPosition = (
 	playerPositionRoom,
@@ -131,17 +132,21 @@ export const shakeCamera = (
 	delayed
 ) => {
 	const deltaTime = clock.getDelta();
+	const currentTime = performance.now();
 
-	// console.log('shakeCamera', shouldShake, shakeIntensity);
 	if (shouldShake) {
 		if (delayed) {
-			shakeDelayTimer += deltaTime;
-			console.log('shakeDelayTimer', shakeDelayTimer);
+			if (shakeIntensity === 0) {
+				shakeStartTime = currentTime;
+			}
+
 			setShakeIntensity(
 				Math.min(10, shakeIntensity + SHAKE_INCREASE_RATE * deltaTime * 60)
 			);
-			if (shakeDelayTimer > SHAKE_THRESHOLD) {
-				shakeDelayTimer = 0;
+
+			const timeElapsed = currentTime - shakeStartTime;
+			if (timeElapsed > SHAKE_DURATION_MS) {
+				shakeStartTime = 0;
 				return true;
 			}
 		} else {
@@ -151,12 +156,13 @@ export const shakeCamera = (
 			return shakeIntensity > SHAKE_THRESHOLD;
 		}
 	} else {
+		shakeStartTime = 0;
+
 		if (shakeIntensity > 0) {
 			setShakeIntensity(
 				Math.max(0, shakeIntensity - SHAKE_DECREASE_RATE * deltaTime * 60)
 			);
 		}
-		shakeDelayTimer = 0;
 	}
 
 	return false;

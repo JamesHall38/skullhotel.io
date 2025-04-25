@@ -335,10 +335,6 @@ export default function TriggersConditions({
 		shakeIntensity,
 		delayed
 	) => {
-		if (monsterState !== monsterStateValue) {
-			setMonsterState(monsterStateValue);
-		}
-
 		if (
 			playerIsInsideZone(monsterBox, raycaster, camera) ||
 			playerIsInsideZone(instantBox, raycaster, camera) ||
@@ -352,6 +348,10 @@ export default function TriggersConditions({
 			)
 		) {
 			monsterLandmineAttack();
+		}
+
+		if (monsterState !== monsterStateValue) {
+			setMonsterState(monsterStateValue);
 		}
 	};
 

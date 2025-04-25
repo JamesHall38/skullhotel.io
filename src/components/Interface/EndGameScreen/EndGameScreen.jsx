@@ -289,7 +289,6 @@ const EndGameScreen = () => {
 				camera.position.set(10.77, -0.2, -3);
 				camera.rotation.set(0, Math.PI, 0);
 				camera.updateMatrixWorld(true);
-				console.log('Camera repositioned:', camera.position);
 			}
 		};
 
