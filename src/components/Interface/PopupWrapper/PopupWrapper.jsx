@@ -23,7 +23,6 @@ export default function PopupWrapper({ children, cursorType }) {
 	const [currentFocus, setCurrentFocus] = useState(-1);
 	const cursor = useInterface((state) => state.cursor);
 	const setIsAnyPopupOpen = useInterface((state) => state.setIsAnyPopupOpen);
-	const isAnyPopupOpen = useInterface((state) => state.isAnyPopupOpen);
 	const gamepadControls = useGame((state) => state.gamepadControls);
 	const deviceMode = useGame((state) => state.deviceMode);
 	const mobileClick = useGame((state) => state.mobileClick);
@@ -33,15 +32,22 @@ export default function PopupWrapper({ children, cursorType }) {
 	const disableControls = useGame((state) => state.disableControls);
 	const isEndScreen = useGame((state) => state.isEndScreen);
 	const setIsGameplayActive = useGame((state) => state.setIsGameplayActive);
+	const isMobile = useGame((state) => state.isMobile);
 	const prevBButtonRef = useState(false);
 	const prevStickInputRef = useRef({ vertical: 0, horizontal: 0 });
 	const lastNavigationTime = useRef(0);
 	const loading = !useGame((state) => state.shouldRenderThreeJs);
+	const justOpenedRef = useRef(false);
 
 	const handleOpen = useCallback(() => {
 		setIsVisible(true);
 		setIsLocked(false);
 		setIsGameplayActive(false);
+		justOpenedRef.current = true;
+
+		setTimeout(() => {
+			justOpenedRef.current = false;
+		}, 500);
 
 		if (deviceMode === 'keyboard' && isPointerLocked()) {
 			exitPointerLock();
@@ -49,47 +55,52 @@ export default function PopupWrapper({ children, cursorType }) {
 	}, [setIsLocked, deviceMode, setIsGameplayActive]);
 
 	const handleClose = useCallback(() => {
+		if (isMobile && justOpenedRef.current) {
+			return;
+		}
+
 		setIsVisible(false);
 		setIsGameplayActive(true);
+		setIsAnyPopupOpen(false);
 
-		setTimeout(() => {
-			setIsAnyPopupOpen(false);
-
-			if (
-				!openDeathScreen &&
-				!disableControls &&
-				!isEndScreen &&
-				deviceMode === 'keyboard' &&
-				!loading &&
-				!isAnyPopupOpen
-			) {
-				setIsLocked(true);
-				const canvas = document.querySelector('canvas');
-				if (canvas && !isPointerLocked()) {
-					requestPointerLock(canvas);
-				}
+		if (
+			!openDeathScreen &&
+			!disableControls &&
+			!isEndScreen &&
+			deviceMode === 'keyboard' &&
+			!loading
+		) {
+			setIsLocked(true);
+			const canvas = document.querySelector('canvas');
+			if (canvas && !isPointerLocked()) {
+				requestPointerLock(canvas);
 			}
-		}, 150);
+		}
 	}, [
 		openDeathScreen,
 		disableControls,
 		isEndScreen,
 		deviceMode,
 		loading,
-		isAnyPopupOpen,
 		setIsLocked,
 		setIsAnyPopupOpen,
 		setIsGameplayActive,
+		isMobile,
 	]);
 
 	const handleContainerClick = useCallback(
 		(e) => {
+			if (isMobile && justOpenedRef.current) {
+				e.stopPropagation();
+				return;
+			}
+
 			if (e.target === e.currentTarget) {
 				handleClose();
 			}
 			e.stopPropagation();
 		},
-		[handleClose]
+		[handleClose, isMobile]
 	);
 
 	useEffect(() => {
@@ -97,13 +108,33 @@ export default function PopupWrapper({ children, cursorType }) {
 	}, [deviceMode]);
 
 	useEffect(() => {
+		const handleClickOutside = (e) => {
+			if (isMobile && justOpenedRef.current) {
+				return;
+			}
+
+			if (e.target.classList.contains('popup-content-container')) {
+				handleClose();
+				setIsAnyPopupOpen(false);
+			}
+		};
+
+		window.addEventListener('mousedown', handleClickOutside);
+		return () => window.removeEventListener('mousedown', handleClickOutside);
+	}, [handleClose, setIsAnyPopupOpen, isMobile]);
+
+	useEffect(() => {
 		if (isVisible && contentRef.current && deviceMode === 'gamepad') {
 			const elements = contentRef.current.querySelectorAll(
 				'button, a, input, [role="button"], .pagination-button, .restart-button, .submit-button, .guestbook-entry'
 			);
 
-			setFocusableElements(Array.from(elements));
-			if (elements.length > 0) {
+			const filteredElements = Array.from(elements).filter(
+				(element) => !element.hasAttribute('data-gamepad-skip')
+			);
+
+			setFocusableElements(filteredElements);
+			if (filteredElements.length > 0) {
 				setCurrentFocus(0);
 			}
 		}
@@ -120,18 +151,6 @@ export default function PopupWrapper({ children, cursorType }) {
 			});
 		};
 	}, [currentFocus, focusableElements]);
-
-	useEffect(() => {
-		const handleKeyDown = (e) => {
-			if (e.key === 'Escape' && isVisible) {
-				handleClose();
-				setIsAnyPopupOpen(false);
-			}
-		};
-
-		window.addEventListener('keydown', handleKeyDown);
-		return () => window.removeEventListener('keydown', handleKeyDown);
-	}, [isVisible, handleClose, setIsAnyPopupOpen]);
 
 	useEffect(() => {
 		if (!isVisible || deviceMode !== 'gamepad') return;
@@ -185,10 +204,16 @@ export default function PopupWrapper({ children, cursorType }) {
 
 			let shouldUpdateNavigationTime = false;
 
-			if (up && !prevStickInputRef.current.up) {
+			if (
+				(up || left) &&
+				(!prevStickInputRef.current.up || !prevStickInputRef.current.left)
+			) {
 				setCurrentFocus((prev) => Math.max(0, prev - 1));
 				shouldUpdateNavigationTime = true;
-			} else if (down && !prevStickInputRef.current.down) {
+			} else if (
+				(down || right) &&
+				(!prevStickInputRef.current.down || !prevStickInputRef.current.right)
+			) {
 				setCurrentFocus((prev) =>
 					Math.min(focusableElements.length - 1, prev + 1)
 				);

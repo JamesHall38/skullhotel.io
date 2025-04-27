@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { IoCloseOutline } from 'react-icons/io5';
 import headerSvg from '../header.svg';
 import useGame from '../../../hooks/useGame';
@@ -20,6 +20,7 @@ function GuestBookContent({ onClose }) {
 	const [totalPages, setTotalPages] = useState(1);
 	const [pageInput, setPageInput] = useState('');
 	const deviceMode = useGame((state) => state.deviceMode);
+	const guestBookRef = useRef(null);
 
 	const loadInitialData = async () => {
 		try {
@@ -48,6 +49,42 @@ function GuestBookContent({ onClose }) {
 	useEffect(() => {
 		loadInitialData();
 	}, []);
+
+	useEffect(() => {
+		if (deviceMode === 'gamepad' && guestBookRef.current) {
+			setTimeout(() => {
+				const lastButton = guestBookRef.current.querySelector(
+					'.pagination-button:last-child'
+				);
+				if (lastButton && !lastButton.disabled) {
+					const focusedElements = document.querySelectorAll('.gamepad-focus');
+					focusedElements.forEach((el) => {
+						el.classList.remove('gamepad-focus');
+					});
+
+					lastButton.classList.add('gamepad-focus');
+
+					const popupContainer = guestBookRef.current.closest(
+						'.popup-content-container'
+					);
+					if (popupContainer) {
+						const allFocusableElements = popupContainer.querySelectorAll(
+							'button, a, input, [role="button"], .pagination-button, .restart-button, .submit-button, .guestbook-entry'
+						);
+
+						const lastButtonIndex = Array.from(allFocusableElements).findIndex(
+							(el) => el === lastButton
+						);
+
+						popupContainer.setAttribute(
+							'data-current-focus',
+							lastButtonIndex.toString()
+						);
+					}
+				}
+			}, 100);
+		}
+	}, [deviceMode]);
 
 	const loadFirstPage = async () => {
 		if (currentPage === 1 || loading) return;
@@ -172,7 +209,7 @@ function GuestBookContent({ onClose }) {
 	};
 
 	return (
-		<div className="guestbook-content">
+		<div className="guestbook-content" ref={guestBookRef}>
 			<img src={headerSvg} alt="Guest Book" />
 			<div className="guestbook-header">
 				{/* <button onClick={loadInitialData} className="guestbook-refresh">
@@ -228,7 +265,7 @@ function GuestBookContent({ onClose }) {
 							className="pagination-button"
 							disabled={loading || currentPage <= 1}
 						>
-							&laquo; First
+							&laquo; &laquo;
 						</button>
 
 						<button
@@ -236,7 +273,7 @@ function GuestBookContent({ onClose }) {
 							className="pagination-button"
 							disabled={loading || currentPage <= 1}
 						>
-							&laquo; Previous
+							&laquo;
 						</button>
 
 						<div className="page-indicator">
@@ -246,9 +283,10 @@ function GuestBookContent({ onClose }) {
 									max={totalPages}
 									value={pageInput}
 									onChange={handlePageInputChange}
-									placeholder={`Page ${currentPage}/${totalPages}`}
+									placeholder={`${currentPage}/${totalPages}`}
 									className="page-input"
 									disabled={loading || totalPages <= 1}
+									data-gamepad-skip="true"
 								/>
 							</form>
 						</div>
@@ -258,7 +296,7 @@ function GuestBookContent({ onClose }) {
 							className="pagination-button"
 							disabled={loading || currentPage >= totalPages}
 						>
-							Next &raquo;
+							&raquo;
 						</button>
 
 						<button
@@ -266,26 +304,9 @@ function GuestBookContent({ onClose }) {
 							className="pagination-button"
 							disabled={loading || currentPage >= totalPages}
 						>
-							Last &raquo;
+							&raquo; &raquo;
 						</button>
 					</div>
-
-					{deviceMode === 'gamepad' && (
-						<div className="gamepad-controls-hint">
-							<div className="gamepad-control">
-								<div className="gamepad-button dpad">↑↓</div>
-								<span>Navigate</span>
-							</div>
-							<div className="gamepad-control">
-								<div className="gamepad-button a">A</div>
-								<span>Select</span>
-							</div>
-							<div className="gamepad-control">
-								<div className="gamepad-button b">B</div>
-								<span>Close</span>
-							</div>
-						</div>
-					)}
 				</>
 			)}
 		</div>

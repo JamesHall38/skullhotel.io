@@ -66,6 +66,7 @@ export default function Settings({ loading }) {
 	const lastStartButtonState = useRef(false);
 	const lastFocusedElement = useRef(0);
 	const lastMenuSoundTime = useRef(0);
+	const prevIsSettingsOpen = useRef(isSettingsOpen);
 
 	useEffect(() => {
 		const handleKeyDown = (e) => {
@@ -80,6 +81,13 @@ export default function Settings({ loading }) {
 	}, [isSettingsOpen, setIsSettingsOpen, setIsAnyPopupOpen]);
 
 	useEffect(() => {
+		if (!prevIsSettingsOpen.current && isSettingsOpen) {
+			playMenuSound();
+		}
+		prevIsSettingsOpen.current = isSettingsOpen;
+	}, [isSettingsOpen]);
+
+	useEffect(() => {
 		if (isSettingsOpen && deviceMode === 'keyboard') {
 			if (isPointerLocked()) {
 				exitPointerLock();
@@ -88,9 +96,7 @@ export default function Settings({ loading }) {
 			if (!isAnyPopupOpen && !openDeathScreen && !isEndScreen && !end) {
 				const canvas = document.querySelector('canvas');
 				if (canvas && !isPointerLocked()) {
-					setTimeout(() => {
-						requestPointerLock(canvas);
-					}, 100);
+					requestPointerLock(canvas);
 				}
 			}
 		}
@@ -178,6 +184,13 @@ export default function Settings({ loading }) {
 
 			if (interactiveElements.current.length > 0) {
 				setFocusedElement(0);
+				interactiveElements.current.forEach((el, index) => {
+					if (index === 0) {
+						el.classList.add('gamepad-focus');
+					} else {
+						el.classList.remove('gamepad-focus');
+					}
+				});
 			}
 		}, 100);
 	}, [isSettingsOpen, deviceMode]);

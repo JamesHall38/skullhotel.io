@@ -942,24 +942,28 @@ export default function Interface() {
 								window.dispatchEvent(clickEvent);
 								setMobileClick(true);
 
-								const cursor = useInterface.getState().cursor;
-								if (cursor?.includes('clean')) {
-									const event = new CustomEvent('startProgress');
-									document.dispatchEvent(event);
-								}
+								setTimeout(() => {
+									const cursor = useInterface.getState().cursor;
+									if (cursor?.includes('clean')) {
+										const event = new CustomEvent('startProgress');
+										document.dispatchEvent(event);
+									}
+								}, 50);
 							}}
 							onTouchEnd={() => {
 								setActiveButtons((prev) => ({ ...prev, leftClick: false }));
-								const pointerEvent = new PointerEvent('pointerup', {
-									bubbles: true,
-									cancelable: true,
-									pointerType: 'touch',
-									button: 0,
-									clientX: window.innerWidth / 2,
-									clientY: window.innerHeight / 2,
-								});
-								window.dispatchEvent(pointerEvent);
-								setReleaseMobileClick(true);
+								setTimeout(() => {
+									const pointerEvent = new PointerEvent('pointerup', {
+										bubbles: true,
+										cancelable: true,
+										pointerType: 'touch',
+										button: 0,
+										clientX: window.innerWidth / 2,
+										clientY: window.innerHeight / 2,
+									});
+									window.dispatchEvent(pointerEvent);
+									setReleaseMobileClick(true);
+								}, 50);
 							}}
 						>
 							<TbXboxXFilled />
@@ -1040,9 +1044,7 @@ export default function Interface() {
 							if (deviceMode === 'keyboard') {
 								const canvas = document.querySelector('canvas');
 								if (canvas && !isPointerLocked()) {
-									setTimeout(() => {
-										requestPointerLock(canvas);
-									}, 100);
+									requestPointerLock(canvas);
 								}
 							}
 

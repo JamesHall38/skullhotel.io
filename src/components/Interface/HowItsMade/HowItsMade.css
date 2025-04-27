@@ -1,137 +1,167 @@
-@font-face {
-	font-family: 'Lincoln Road Deco';
-	src: url('/Lincoln-Road-Deco.ttf') format('truetype');
-	font-weight: normal;
-	font-style: normal;
-}
-
-@font-face {
-	font-family: 'Lincoln Road';
-	src: url('/Lincoln-Road-Regular.ttf') format('truetype');
-	font-weight: normal;
-	font-style: normal;
-}
-
 .how-its-made-content {
-	padding: 20px;
-	color: #f8f8f8;
+	display: flex;
+	flex-direction: column;
+	gap: 1.5rem;
 	font-family: 'Lincoln Road', serif;
-	background-color: rgba(8, 8, 7, 0.98);
+	max-width: 800px;
+	margin: 0 auto;
+	padding: 1.5rem;
+	max-height: calc(100dvh - 3rem);
+	overflow-y: auto;
+	background: rgba(8, 8, 7, 0.8);
 	border-radius: 0.5rem;
-	box-shadow: 0 4px 30px rgba(0, 0, 0, 0.4);
-	backdrop-filter: blur(5px);
+	color: #f8f8f8;
 }
 
 .how-its-made-header {
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
-	margin-bottom: 20px;
-	padding-bottom: 15px;
-	border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+	margin-bottom: 1rem;
 }
 
 .how-its-made-header h2 {
-	margin: 0;
-	font-size: 1.8rem;
-	font-weight: 400;
 	font-family: 'Lincoln Road Deco', serif;
 	color: #efd89b;
-	letter-spacing: 1px;
+	font-size: 2rem;
+	font-weight: 400;
+	margin: 0;
+}
+
+.close-button {
+	background: transparent;
+	border: none;
+	color: #efd89b;
+	font-size: 1.8rem;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0.5rem;
+	border-radius: 50%;
+}
+
+.close-button:hover,
+.close-button.gamepad-focus {
+	background: rgba(239, 216, 155, 0.2);
 }
 
 .tech-container {
 	display: flex;
 	flex-direction: column;
-	gap: 20px;
-	margin-bottom: 20px;
+	gap: 2rem;
 }
 
 .tech-item {
 	display: flex;
-	align-items: center;
-	gap: 6px;
-	padding: 15px;
-	background: rgba(255, 255, 255, 0.05);
+	gap: 1.5rem;
+	padding: 1rem;
 	border-radius: 0.5rem;
-	transition: transform 0.2s ease, background 0.2s ease;
+	background: rgba(255, 255, 255, 0.05);
 }
 
-.tech-item:hover {
-	background: rgba(255, 255, 255, 0.08);
+.tech-item.gamepad-focus {
+	background: rgba(255, 255, 255, 0.15);
+	outline: 2px solid #efd89b;
 }
 
 .tech-icon {
-	font-size: 2rem;
-	margin-right: 15px;
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	width: 40px;
-	height: 40px;
+	font-size: 2.5rem;
 	color: #efd89b;
-}
-
-.tech-icon svg {
-	width: 100%;
-	height: 100%;
-	color: #efd89b;
-	fill: #efd89b;
+	min-width: 3.5rem;
 }
 
 .tech-description {
-	flex: 1;
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
 }
 
 .tech-description h3 {
-	margin: 0 0 5px 0;
+	margin: 0;
 	font-size: 1.2rem;
 	font-weight: 400;
-	font-family: 'Lincoln Road Deco', serif;
 	color: #efd89b;
+}
+
+.tech-description h3 a {
+	color: #efd89b;
+	text-decoration: none;
+	padding: 0.25rem 0.5rem;
+	margin: -0.25rem -0.5rem;
+	border-radius: 0.25rem;
+}
+
+.tech-description h3 a:hover,
+.tech-description h3 a.gamepad-focus {
+	text-decoration: underline;
+	text-underline-offset: 4px;
+	text-decoration-thickness: 2px;
+	outline: none;
 }
 
 .tech-description p {
 	margin: 0;
-	font-size: 0.95rem;
-	opacity: 0.9;
-	line-height: 1.5;
+	color: #fff;
+	font-size: 0.9rem;
+}
+
+.tech-author {
+	font-size: 0.8rem !important;
+	color: rgba(255, 255, 255, 0.7) !important;
+}
+
+.tech-author a {
+	color: rgba(255, 255, 255, 0.9);
+	text-decoration: none;
+	padding: 0.25rem 0.5rem;
+	margin: -0.25rem -0.5rem;
+	border-radius: 0.25rem;
+}
+
+.tech-author a:hover,
+.tech-author a.gamepad-focus {
+	text-decoration: underline;
+	text-underline-offset: 4px;
+	text-decoration-thickness: 2px;
+	color: #fff;
+	outline: none;
 }
 
 .footer-note {
-	display: flex;
-	align-items: center;
-	padding: 15px;
-	background: rgba(255, 255, 255, 0.05);
-	border-radius: 0.5rem;
-	margin-top: 30px;
+	margin-top: 1rem;
+	text-align: center;
+	font-size: 0.9rem;
+	color: rgba(255, 255, 255, 0.7);
 }
 
-a {
-	color: #6bb5ff;
+.footer-note a {
+	color: #efd89b;
 	text-decoration: none;
-	transition: color 0.2s ease;
-	position: relative;
+	padding: 0.25rem 0.5rem;
+	margin: -0.25rem -0.5rem;
+	border-radius: 0.25rem;
 }
 
-a:hover {
-	color: #94cfff;
+.footer-note a:hover,
+.footer-note a.gamepad-focus {
+	text-decoration: underline;
+	text-underline-offset: 4px;
+	text-decoration-thickness: 2px;
+	outline: none;
 }
 
-a::after {
-	content: '';
-	position: absolute;
-	width: 100%;
-	height: 1px;
-	bottom: -2px;
-	left: 0;
-	background-color: #94cfff;
-	transform: scaleX(0);
-	transform-origin: bottom right;
-	transition: transform 0.3s ease;
-}
+@media (max-width: 600px) {
+	.tech-item {
+		flex-direction: column;
+		align-items: center;
+		text-align: center;
+	}
 
-a:hover::after {
-	transform: scaleX(1);
-	transform-origin: bottom left;
+	.tech-icon {
+		margin-bottom: 0.5rem;
+	}
 }

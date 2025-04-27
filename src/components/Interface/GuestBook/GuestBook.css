@@ -56,7 +56,7 @@
 	font-size: 12px;
 }
 
-/* Guest Book Header */
+/* Guest Book Popup */
 
 .guestbook-content {
 	background: rgba(8, 8, 7, 0.8);
@@ -66,18 +66,30 @@
 
 	max-width: 1120px;
 	width: calc(100% - 4rem);
+	height: fit-content;
 
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	gap: 1rem;
 }
 
 .guestbook-content img {
 	position: absolute;
 	max-width: 60%;
-	width: 40rem;
+	width: 30rem;
 	margin-top: 2rem;
+}
+
+@media (max-width: 700px) {
+	.guestbook-content {
+		width: 100%;
+	}
+}
+
+@media (max-height: 800px) {
+	.guestbook-content {
+		height: 100%;
+	}
 }
 
 @media (max-width: 440px) {
@@ -95,9 +107,15 @@
 	padding: 2rem;
 }
 
+@media (max-width: 700px) {
+	.guestbook-header {
+		padding-bottom: 1rem;
+	}
+}
+
 .guestbook-content h2 {
 	margin: 0;
-	font-size: 2.5rem;
+	font-size: 2rem;
 	font-family: 'Lincoln Road Deco', serif;
 	color: #efd89b;
 	font-weight: 400;
@@ -148,7 +166,7 @@
 	padding: 20px;
 	color: rgba(255, 255, 255, 0.7);
 	font-style: italic;
-	margin-top: 10rem;
+	margin-top: 8rem;
 }
 
 .guestbook-empty {
@@ -166,9 +184,15 @@
 
 .guestbook-entries {
 	width: calc(100% - 4rem);
-	/* max-height: calc(100dvh - 25rem); */
 	height: calc(100dvh - 25rem);
 	overflow: auto;
+}
+
+@media (max-height: 800px) {
+	.guestbook-entries {
+		height: 100%;
+		width: calc(100% - 1rem);
+	}
 }
 
 .guestbook-table {
@@ -242,7 +266,6 @@
 	justify-content: center;
 	gap: 10px;
 	margin: 2rem 0;
-	flex-wrap: wrap;
 }
 
 .pagination-button {
@@ -285,7 +308,7 @@
 	color: white;
 	padding: 8px;
 	border-radius: 0.5rem;
-	width: 100px;
+	width: 3rem;
 	text-align: center;
 	font-family: 'Lincoln Road', serif;
 }
@@ -308,20 +331,3 @@
 .go-button:hover:not(:disabled) {
 	background: rgba(255, 255, 255, 0.2);
 }
-
-/* @media (max-width: 600px) {
-	.guestbook-header {
-		flex-direction: column;
-		align-items: flex-start;
-		gap: 15px;
-	}
-
-	.guestbook-pagination {
-		flex-wrap: wrap;
-	}
-
-	.pagination-button {
-		padding: 8px 12px;
-		font-size: 0.8rem;
-	}
-} */
