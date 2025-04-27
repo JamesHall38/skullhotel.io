@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { useGLTF, useKTX2, Html } from '@react-three/drei';
+import { useGLTF, useKTX2, Text, Svg } from '@react-three/drei';
 import * as THREE from 'three';
 import useGame from '../../hooks/useGame';
 import Metal from './Metal';
@@ -11,7 +11,6 @@ import WoodLightMaterial from '../materials/WoodLightMaterial';
 import WallsLightMaterial from '../materials/WallsLightMaterial';
 import CarpetLightMaterial from '../materials/CarpetLightMaterial';
 import useInterface from '../../hooks/useInterface';
-import { FaArrowDown } from 'react-icons/fa';
 import './Reception.css';
 
 export default function Reception(props) {
@@ -25,6 +24,8 @@ export default function Reception(props) {
 
 	const guestBookBoxRef = useRef();
 	const howItsMadeBoxRef = useRef();
+	const guestBookArrowRef = useRef();
+	const howItsMadeArrowRef = useRef();
 
 	const cursor = useInterface((state) => state.cursor);
 	const setCursor = useInterface((state) => state.setCursor);
@@ -59,7 +60,17 @@ export default function Reception(props) {
 
 	const { loadedItems } = useProgressiveLoad(textureParts, 'Reception');
 
-	useFrame(({ camera }) => {
+	useFrame((state) => {
+		const time = state.clock.elapsedTime;
+
+		if (guestBookArrowRef.current) {
+			guestBookArrowRef.current.position.y = 1.2 + Math.sin(time * 2) * 0.05;
+		}
+		if (howItsMadeArrowRef.current) {
+			howItsMadeArrowRef.current.position.y = 1.2 + Math.sin(time * 2) * 0.05;
+		}
+
+		const { camera } = state;
 		const isInRoom = Math.abs(camera.position.z) > 1;
 		const isInTutorial =
 			(camera.position.x > 1 && camera.position.z > -1) ||
@@ -374,25 +385,43 @@ export default function Reception(props) {
 			</mesh>
 
 			{showGuestBook && (
-				<Html position={[-1.9, 1.5, 0.15]} center distanceFactor={10} sprite>
-					<div className="info-panel">
-						<div className="panel-title">Guest Book</div>
-						<div className="panel-arrow">
-							<FaArrowDown />
-						</div>
-					</div>
-				</Html>
+				<group>
+					<Text
+						font={'/LibreBaskerville-Regular.ttf'}
+						position={[-1.9, 1.4, 0.25]}
+						rotation={[0, -Math.PI / 2, 0]}
+						scale={0.1}
+					>
+						Guest Book
+					</Text>
+					<Svg
+						ref={guestBookArrowRef}
+						src={`data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="white" d="M169.4 502.6c12.5 12.5 32.8 12.5 45.3 0l128-128c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L224 402.7 224 32c0-17.7-14.3-32-32-32s-32 14.3-32 32l0 370.7L86.6 329.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l128 128z"/></svg>`}
+						position={[-1.9, 1.2, 0.15]}
+						rotation={[0, -Math.PI / 2, 0]}
+						scale={0.0005}
+					/>
+				</group>
 			)}
 
 			{showHowItsMade && (
-				<Html position={[-1.9, 1.5, 1.95]} center distanceFactor={10} sprite>
-					<div className="info-panel">
-						<div className="panel-title">Infos</div>
-						<div className="panel-arrow">
-							<FaArrowDown />
-						</div>
-					</div>
-				</Html>
+				<group>
+					<Text
+						font={'/LibreBaskerville-Regular.ttf'}
+						position={[-1.9, 1.4, 1.95]}
+						rotation={[0, -Math.PI / 2, 0]}
+						scale={0.1}
+					>
+						Infos
+					</Text>
+					<Svg
+						ref={howItsMadeArrowRef}
+						src={`data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="white" d="M169.4 502.6c12.5 12.5 32.8 12.5 45.3 0l128-128c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L224 402.7 224 32c0-17.7-14.3-32-32-32s-32 14.3-32 32l0 370.7L86.6 329.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l128 128z"/></svg>`}
+						position={[-1.9, 1.2, 1.85]}
+						rotation={[0, -Math.PI / 2, 0]}
+						scale={0.0005}
+					/>
+				</group>
 			)}
 		</group>
 	);

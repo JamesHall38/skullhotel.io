@@ -5,9 +5,41 @@
 	width: 100%;
 	height: 100%;
 	background-color: rgba(0, 0, 0, 0.75);
-	z-index: 1000;
+	z-index: 200000;
 	display: flex;
 	align-items: center;
 	justify-content: center;
 	backdrop-filter: blur(2px);
+}
+
+.popup-content-container {
+	width: 100%;
+	height: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.close-button {
+	background: transparent;
+	color: #777d90;
+	border: 1px solid #777d90;
+	border-radius: 0.5rem;
+	cursor: pointer;
+	font-size: 0.9rem;
+	font-family: 'Lincoln Road', serif;
+	transition: all 0.2s ease;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0.5rem;
+}
+
+.close-button svg {
+	width: 1.5rem;
+	height: 1.5rem;
+}
+
+.close-button:hover {
+	background: rgba(255, 255, 255, 0.2);
 }

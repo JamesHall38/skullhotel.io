@@ -299,7 +299,9 @@ export default function PopupWrapper({ children, cursorType }) {
 			onClick={handleContainerClick}
 			data-gamepad={isGamepad}
 		>
-			<div ref={contentRef}>{childrenWithProps}</div>
+			<div className="popup-content-container" ref={contentRef}>
+				{childrenWithProps}
+			</div>
 		</div>
 	);
 }

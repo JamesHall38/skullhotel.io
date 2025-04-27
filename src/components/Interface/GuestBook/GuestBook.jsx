@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { IoCloseOutline } from 'react-icons/io5';
+import headerSvg from '../header.svg';
 import useGame from '../../../hooks/useGame';
 import PopupWrapper from '../PopupWrapper/PopupWrapper';
 import {
@@ -166,24 +167,23 @@ function GuestBookContent({ onClose }) {
 		const pageNumber = parseInt(pageInput);
 		if (pageNumber && pageNumber >= 1 && pageNumber <= totalPages) {
 			loadSpecificPage(pageNumber);
+			setPageInput('');
 		}
-
-		setPageInput('');
 	};
 
 	return (
 		<div className="guestbook-content">
+			<img src={headerSvg} alt="Guest Book" />
 			<div className="guestbook-header">
-				<h2>Guest Book</h2>
-				<div className="guestbook-controls">
-					{/* <button onClick={loadInitialData} className="guestbook-refresh">
+				{/* <button onClick={loadInitialData} className="guestbook-refresh">
 						Refresh
 					</button> */}
-					<button onClick={onClose} className="close-button">
-						<IoCloseOutline />
-					</button>
-				</div>
+				<button onClick={onClose} className="close-button">
+					<IoCloseOutline />
+				</button>
 			</div>
+
+			<h2>Guest Book</h2>
 
 			{error && (
 				<div className="guestbook-error">
@@ -208,13 +208,6 @@ function GuestBookContent({ onClose }) {
 				<>
 					<div className="guestbook-entries">
 						<table className="guestbook-table">
-							<thead>
-								<tr>
-									<th>#</th>
-									<th>Player</th>
-									<th>Time</th>
-								</tr>
-							</thead>
 							<tbody>
 								{entries.map((entry, index) => (
 									<tr key={entry.id} className="guestbook-entry">
@@ -249,20 +242,14 @@ function GuestBookContent({ onClose }) {
 						<div className="page-indicator">
 							<form onSubmit={handlePageInputSubmit} className="page-form">
 								<input
-									type="text"
+									min="1"
+									max={totalPages}
 									value={pageInput}
 									onChange={handlePageInputChange}
 									placeholder={`Page ${currentPage}/${totalPages}`}
 									className="page-input"
 									disabled={loading || totalPages <= 1}
 								/>
-								<button
-									type="submit"
-									className="go-button"
-									disabled={!pageInput || loading}
-								>
-									Go
-								</button>
 							</form>
 						</div>
 

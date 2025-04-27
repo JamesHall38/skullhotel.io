@@ -12,20 +12,6 @@
 	font-style: normal;
 }
 
-.guestbook-content {
-	width: 90vw;
-	max-width: 800px;
-	background-color: rgba(8, 8, 7, 0.98);
-	backdrop-filter: blur(10px);
-	border-radius: 0.5rem;
-	padding: 25px;
-	color: #f8f8f8;
-	box-shadow: 0 4px 30px rgba(0, 0, 0, 0.4);
-	max-height: 80vh;
-	overflow-y: auto;
-	font-family: 'Lincoln Road', serif;
-}
-
 .gamepad-controls-hint {
 	margin-top: 20px;
 	background: rgba(0, 0, 0, 0.3);
@@ -70,51 +56,52 @@
 	font-size: 12px;
 }
 
+/* Guest Book Header */
+
+.guestbook-content {
+	background: rgba(8, 8, 7, 0.8);
+	border-radius: 0.5rem;
+	color: #f8f8f8;
+	font-family: 'Lincoln Road', serif;
+
+	max-width: 1120px;
+	width: calc(100% - 4rem);
+
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 1rem;
+}
+
+.guestbook-content img {
+	position: absolute;
+	max-width: 60%;
+	width: 40rem;
+	margin-top: 2rem;
+}
+
+@media (max-width: 440px) {
+	.guestbook-content img {
+		margin-top: 3rem;
+		max-width: 40%;
+	}
+}
+
 .guestbook-header {
 	display: flex;
-	justify-content: space-between;
+	justify-content: flex-end;
 	align-items: center;
-	margin-bottom: 20px;
-	padding-bottom: 10px;
-	border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+	width: calc(100% - 4rem);
+	padding: 2rem;
 }
 
-.guestbook-header h2 {
+.guestbook-content h2 {
 	margin: 0;
-	font-size: 1.8rem;
+	font-size: 2.5rem;
 	font-family: 'Lincoln Road Deco', serif;
 	color: #efd89b;
-	letter-spacing: 1px;
 	font-weight: 400;
-}
-
-.guestbook-controls {
-	display: flex;
-	gap: 10px;
-}
-
-.guestbook-refresh,
-.close-button {
-	background: transparent;
-	color: #777d90;
-	border: 1px solid #777d90;
-	border-radius: 0.5rem;
-	padding: 8px 16px;
-	cursor: pointer;
-	font-size: 0.9rem;
-	font-family: 'Lincoln Road', serif;
-	transition: all 0.2s ease;
-}
-
-.guestbook-refresh:hover,
-.close-button:hover {
-	background: rgba(255, 255, 255, 0.2);
-}
-
-.close-button {
-	display: flex;
-	align-items: center;
-	justify-content: center;
+	margin-bottom: 1rem;
 }
 
 .guestbook-error {
@@ -156,10 +143,12 @@
 }
 
 .guestbook-loading {
+	position: absolute;
 	text-align: center;
 	padding: 20px;
 	color: rgba(255, 255, 255, 0.7);
 	font-style: italic;
+	margin-top: 10rem;
 }
 
 .guestbook-empty {
@@ -173,21 +162,25 @@
 	margin-bottom: 15px;
 }
 
+/* Guest Book Entries */
+
 .guestbook-entries {
-	margin-bottom: 20px;
-	max-height: 50vh;
-	overflow-y: auto;
+	width: calc(100% - 4rem);
+	/* max-height: calc(100dvh - 25rem); */
+	height: calc(100dvh - 25rem);
+	overflow: auto;
 }
 
 .guestbook-table {
 	width: 100%;
-	border-collapse: collapse;
+	max-width: 100%;
+	border-collapse: separate;
+	border-spacing: 0 8px;
 	font-family: 'Lincoln Road', serif;
 }
 
 .guestbook-table th {
 	text-align: left;
-	padding: 10px;
 	background-color: rgba(0, 0, 0, 0.3);
 	position: sticky;
 	top: 0;
@@ -199,12 +192,14 @@
 }
 
 .guestbook-table tr:nth-child(odd) {
-	background-color: rgba(255, 255, 255, 0.05);
+	background-color: transparent;
 }
 
 .guestbook-entry {
 	cursor: pointer;
 	transition: background-color 0.2s ease;
+	word-break: break-all;
+	background-color: rgba(255, 255, 255, 0.05);
 }
 
 .guestbook-entry:hover {
@@ -213,6 +208,17 @@
 
 .guestbook-entry td {
 	padding: 10px;
+	line-height: 1.2;
+}
+
+.guestbook-entry td:first-child {
+	border-top-left-radius: 6px;
+	border-bottom-left-radius: 6px;
+}
+
+.guestbook-entry td:last-child {
+	border-top-right-radius: 6px;
+	border-bottom-right-radius: 6px;
 }
 
 .guestbook-rank {
@@ -220,20 +226,22 @@
 	width: 50px;
 }
 
-.guestbook-name {
-	width: 60%;
-}
+/* .guestbook-name {
+} */
 
 .guestbook-time {
 	text-align: right;
+	width: 3rem;
 }
+
+/* Guest Book Pagination */
 
 .guestbook-pagination {
 	display: flex;
 	align-items: center;
 	justify-content: center;
 	gap: 10px;
-	margin-top: 20px;
+	margin: 2rem 0;
 	flex-wrap: wrap;
 }
 
@@ -301,7 +309,7 @@
 	background: rgba(255, 255, 255, 0.2);
 }
 
-@media (max-width: 600px) {
+/* @media (max-width: 600px) {
 	.guestbook-header {
 		flex-direction: column;
 		align-items: flex-start;
@@ -316,4 +324,4 @@
 		padding: 8px 12px;
 		font-size: 0.8rem;
 	}
-}
+} */
