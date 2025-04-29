@@ -26,6 +26,8 @@ export default function Reception(props) {
 	const howItsMadeBoxRef = useRef();
 	const guestBookArrowRef = useRef();
 	const howItsMadeArrowRef = useRef();
+	const guestBookGroupRef = useRef();
+	const howItsMadeGroupRef = useRef();
 
 	const cursor = useInterface((state) => state.cursor);
 	const setCursor = useInterface((state) => state.setCursor);
@@ -62,6 +64,7 @@ export default function Reception(props) {
 
 	useFrame((state) => {
 		const time = state.clock.elapsedTime;
+		const { camera } = state;
 
 		if (guestBookArrowRef.current) {
 			guestBookArrowRef.current.position.y = 1.2 + Math.sin(time * 2) * 0.05;
@@ -70,7 +73,32 @@ export default function Reception(props) {
 			howItsMadeArrowRef.current.position.y = 1.2 + Math.sin(time * 2) * 0.05;
 		}
 
-		const { camera } = state;
+		// Update group rotations to face camera
+		if (guestBookGroupRef.current) {
+			const direction = new THREE.Vector3();
+			camera.getWorldDirection(direction);
+			const angle = Math.atan2(direction.x, direction.z);
+			guestBookGroupRef.current.rotation.y = angle + Math.PI / 2;
+		}
+		if (guestBookArrowRef.current) {
+			const direction = new THREE.Vector3();
+			camera.getWorldDirection(direction);
+			const angle = Math.atan2(direction.x, direction.z);
+			guestBookArrowRef.current.rotation.y = angle + Math.PI / 2;
+		}
+		if (howItsMadeGroupRef.current) {
+			const direction = new THREE.Vector3();
+			camera.getWorldDirection(direction);
+			const angle = Math.atan2(direction.x, direction.z);
+			howItsMadeGroupRef.current.rotation.y = angle + Math.PI / 2;
+		}
+		if (howItsMadeArrowRef.current) {
+			const direction = new THREE.Vector3();
+			camera.getWorldDirection(direction);
+			const angle = Math.atan2(direction.x, direction.z);
+			howItsMadeArrowRef.current.rotation.y = angle + Math.PI / 2;
+		}
+
 		const isInRoom = Math.abs(camera.position.z) > 1;
 		const isInTutorial =
 			(camera.position.x > 1 && camera.position.z > -1) ||
@@ -92,23 +120,23 @@ export default function Reception(props) {
 
 			if (guestBookIntersects.length > 0) {
 				setShowGuestBook(true);
-				if (cursor !== 'help-guestbook') {
-					setCursor('help-guestbook');
+				if (cursor !== 'book') {
+					setCursor('book');
 				}
 			} else if (howItsMadeIntersects.length > 0) {
 				setShowHowItsMade(true);
-				if (cursor !== 'help-howItsMade') {
-					setCursor('help-howItsMade');
+				if (cursor !== 'help') {
+					setCursor('help');
 				}
 			} else {
-				if (cursor === 'help-guestbook' || cursor === 'help-howItsMade') {
+				if (cursor === 'book' || cursor === 'help') {
 					setCursor(null);
 				}
 				setShowGuestBook(false);
 				setShowHowItsMade(false);
 			}
 		} else {
-			if (cursor === 'help-guestbook' || cursor === 'help-howItsMade') {
+			if (cursor === 'book' || cursor === 'help') {
 				setCursor(null);
 			}
 			setShowGuestBook(false);
@@ -387,19 +415,18 @@ export default function Reception(props) {
 			{showGuestBook && (
 				<group>
 					<Text
-						font={'/LibreBaskerville-Regular.ttf'}
-						position={[-1.9, 1.4, 0.25]}
-						rotation={[0, -Math.PI / 2, 0]}
+						ref={guestBookGroupRef}
+						font={'/Futura.ttf'}
+						position={[-2, 1.4, 0.25]}
 						scale={0.1}
 					>
 						Guest Book
 					</Text>
 					<Svg
 						ref={guestBookArrowRef}
-						src={`data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="white" d="M169.4 502.6c12.5 12.5 32.8 12.5 45.3 0l128-128c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L224 402.7 224 32c0-17.7-14.3-32-32-32s-32 14.3-32 32l0 370.7L86.6 329.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l128 128z"/></svg>`}
-						position={[-1.9, 1.2, 0.15]}
-						rotation={[0, -Math.PI / 2, 0]}
-						scale={0.0005}
+						src={`data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="white" d="M23.3711 0C25.0279 0 26.3711 1.34315 26.3711 3V84.9609L45.6289 104.217L23 126.843L0.371094 104.217L20.3711 84.2188V3C20.3711 1.34315 21.7142 0 23.3711 0ZM9.16309 104.217L23 118.052L36.8359 104.217L23 90.3818L9.16309 104.217ZM31.3418 104.076L22.8564 112.562L14.3711 104.076L22.8564 95.5908L31.3418 104.076Z"/></svg>`}
+						position={[-2, 1.2, 0.185]}
+						scale={0.002}
 					/>
 				</group>
 			)}
@@ -407,19 +434,18 @@ export default function Reception(props) {
 			{showHowItsMade && (
 				<group>
 					<Text
-						font={'/LibreBaskerville-Regular.ttf'}
-						position={[-1.9, 1.4, 1.95]}
-						rotation={[0, -Math.PI / 2, 0]}
+						ref={howItsMadeGroupRef}
+						font={'/Futura.ttf'}
+						position={[-2, 1.4, 1.95]}
 						scale={0.1}
 					>
-						Infos
+						Informations
 					</Text>
 					<Svg
 						ref={howItsMadeArrowRef}
-						src={`data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="white" d="M169.4 502.6c12.5 12.5 32.8 12.5 45.3 0l128-128c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L224 402.7 224 32c0-17.7-14.3-32-32-32s-32 14.3-32 32l0 370.7L86.6 329.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l128 128z"/></svg>`}
-						position={[-1.9, 1.2, 1.85]}
-						rotation={[0, -Math.PI / 2, 0]}
-						scale={0.0005}
+						src={`data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="white" d="M23.3711 0C25.0279 0 26.3711 1.34315 26.3711 3V84.9609L45.6289 104.217L23 126.843L0.371094 104.217L20.3711 84.2188V3C20.3711 1.34315 21.7142 0 23.3711 0ZM9.16309 104.217L23 118.052L36.8359 104.217L23 90.3818L9.16309 104.217ZM31.3418 104.076L22.8564 112.562L14.3711 104.076L22.8564 95.5908L31.3418 104.076Z"/></svg>`}
+						position={[-2, 1.2, 1.9]}
+						scale={0.002}
 					/>
 				</group>
 			)}

@@ -276,7 +276,7 @@ function HowItsMadeContent({ onClose }) {
 
 export default function HowItsMade() {
 	return (
-		<PopupWrapper cursorType="help-howItsMade">
+		<PopupWrapper cursorType="help">
 			<HowItsMadeContent />
 		</PopupWrapper>
 	);

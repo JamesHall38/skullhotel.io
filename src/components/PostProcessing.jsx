@@ -8,7 +8,7 @@ import {
 } from '@react-three/postprocessing';
 import { Effect, BlendFunction } from 'postprocessing';
 import { Uniform } from 'three';
-import useMonster from '../hooks/useMonster';
+// import useMonster from '../hooks/useMonster';
 import useLight from '../hooks/useLight';
 import { useFrame } from '@react-three/fiber';
 // import { useControls } from 'leva';
@@ -231,7 +231,7 @@ const Saturation = ({ isListening }) => {
 };
 
 const PostProcessing = () => {
-	const monsterState = useMonster((state) => state.monsterState);
+	// const monsterState = useMonster((state) => state.monsterState);
 	// const performanceMode = useGame((state) => state.performanceMode);
 	const { playIntro } = useGame();
 	const [isNeonFlickering, setIsNeonFlickering] = useState(false);
@@ -255,10 +255,10 @@ const PostProcessing = () => {
 	const glitchStrength = useMemo(() => {
 		if (isDistorting || isNeonFlickering) return 0.2;
 		if (jumpScare) return 0.5;
-		if (['run', 'chase'].includes(monsterState)) return 0.2;
+		// if (['run', 'chase'].includes(monsterState)) return 0.2;
 		if (shakeIntensity) return 0.05;
 		return 0;
-	}, [isDistorting, isNeonFlickering, jumpScare, monsterState, shakeIntensity]);
+	}, [isDistorting, isNeonFlickering, jumpScare, shakeIntensity]);
 
 	useEffect(() => {
 		const checkSounds = () => {

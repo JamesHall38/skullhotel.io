@@ -14,7 +14,8 @@ import useProgressiveLoad from '../../hooks/useProgressiveLoad';
 import useGameplaySettings from '../../hooks/useGameplaySettings';
 
 const BASE_SPEED = 5;
-const CHASE_SPEED_BASE = 0.5;
+// const CHASE_SPEED_BASE = 0.5;
+const CHASE_SPEED_BASE = 0.75;
 const CLAYMORE_CHASE_SPEED = 1.5;
 const NEXT_POINT_THRESHOLD = 0.5;
 const MIN_DISTANCE_FOR_RECALCULATION = 2;
@@ -26,8 +27,8 @@ const DISTANCE_REFERENCE = 4;
 const SPEED_GROWTH_FACTOR = 2;
 const MAX_SPEED_MULTIPLIER = 8;
 const MAX_DIRECT_PATH_FAILURES = 5;
-const CHASE_SPEED_INCREMENT = 0.1;
-const MAX_CHASE_SPEED = 2.0;
+// const CHASE_SPEED_INCREMENT = 0.1;
+// const MAX_CHASE_SPEED = 2.0;
 const OFFSET_X = 304;
 const OFFSET_Z = 150;
 
@@ -66,7 +67,7 @@ const Monster = (props) => {
 	const [soundsReady, setSoundsReady] = useState(false);
 	const { gl } = useThree();
 	const [directPathFailures, setDirectPathFailures] = useState(0);
-	const [currentChaseSpeed, setCurrentChaseSpeed] = useState(CHASE_SPEED_BASE);
+	// const [currentChaseSpeed, setCurrentChaseSpeed] = useState(CHASE_SPEED_BASE);
 	const lastChaseTimeRef = useRef(0);
 	const { nodes, materials, animations } = useGLTF(
 		'/models/monster-opt.glb',
@@ -84,8 +85,6 @@ const Monster = (props) => {
 
 	const seedData = useGame((state) => state.seedData);
 	const playerPositionRoom = useGame((state) => state.playerPositionRoom);
-	const isMobile = useGame((state) => state.isMobile);
-	const chaseSpeed = isMobile ? CHASE_SPEED_BASE / 3 : CHASE_SPEED_BASE;
 	const roomCount = useGameplaySettings((state) => state.roomCount);
 	const setShakeIntensity = useGame((state) => state.setShakeIntensity);
 	const monsterState = useMonster((state) => state.monsterState);
@@ -195,15 +194,15 @@ const Monster = (props) => {
 
 	useEffect(() => {
 		if (monsterState !== 'chase') {
-			setCurrentChaseSpeed(chaseSpeed);
+			// setCurrentChaseSpeed(chaseSpeed);
 			lastChaseTimeRef.current = 0;
 		}
-	}, [monsterState, chaseSpeed]);
+	}, [monsterState]);
 
 	useEffect(() => {
-		setCurrentChaseSpeed(chaseSpeed);
+		// setCurrentChaseSpeed(chaseSpeed);
 		lastChaseTimeRef.current = 0;
-	}, [playerPositionRoom, chaseSpeed]);
+	}, [playerPositionRoom]);
 
 	const lookAtCamera = useCallback((camera) => {
 		const targetPosition = new THREE.Vector3(
@@ -226,8 +225,8 @@ const Monster = (props) => {
 					lastChaseTimeRef.current = Date.now();
 				}
 
-				const currentTime = Date.now();
-				const elapsedTime = (currentTime - lastChaseTimeRef.current) / 1000;
+				// const currentTime = Date.now();
+				// const elapsedTime = (currentTime - lastChaseTimeRef.current) / 1000;
 
 				const roomKey =
 					Object.values(seedData)[playerPositionRoom]?.baseKey ||
@@ -236,15 +235,16 @@ const Monster = (props) => {
 					roomKey === 'claymoreDesk' || roomKey === 'claymoreNightstand';
 				const baseChaseSpeed = isClaymoreDeskOrNightstand
 					? CLAYMORE_CHASE_SPEED
-					: chaseSpeed;
+					: CHASE_SPEED_BASE;
 
-				const newSpeed = Math.min(
-					baseChaseSpeed + elapsedTime * CHASE_SPEED_INCREMENT,
-					MAX_CHASE_SPEED
-				);
+				// const newSpeed = Math.min(
+				// 	baseChaseSpeed + elapsedTime * CHASE_SPEED_INCREMENT,
+				// 	MAX_CHASE_SPEED
+				// );
 
-				setCurrentChaseSpeed(newSpeed);
-				baseSpeed = newSpeed;
+				// setCurrentChaseSpeed(newSpeed);
+				// baseSpeed = newSpeed;
+				baseSpeed = baseChaseSpeed;
 			} else {
 				baseSpeed = BASE_SPEED;
 			}
@@ -267,13 +267,15 @@ const Monster = (props) => {
 				MAX_SPEED_MULTIPLIER
 			);
 
-			const speed = baseSpeed * distanceMultiplier;
+			const speed = baseSpeed;
+			//  * distanceMultiplier;
 
 			if (mode === 'chase') {
-				const animationSpeedMultiplier =
-					(currentChaseSpeed / chaseSpeed) * distanceMultiplier;
+				// const animationSpeedMultiplier =
+				// 	(currentChaseSpeed / chaseSpeed) * distanceMultiplier;
 				setAnimationSpeed(
-					Math.max(distanceMultiplier, animationSpeedMultiplier)
+					// Math.max(distanceMultiplier, animationSpeedMultiplier)
+					2
 				);
 			} else {
 				setAnimationSpeed(distanceMultiplier);
@@ -647,11 +649,10 @@ const Monster = (props) => {
 			setMonsterState,
 			setShakeIntensity,
 			directPathFailures,
-			currentChaseSpeed,
+			// currentChaseSpeed,
 			setDisableControls,
 			usedForcedPathfinding,
 			roomCount,
-			chaseSpeed,
 		]
 	);
 

@@ -383,8 +383,6 @@ export default function TriggersConditions({
 			claymoreDoorsRef.current[doorStateKey].reopened = true;
 		}
 
-		shakeCamera(clock, doorState, setShakeIntensity, shakeIntensity);
-
 		if (doorState && claymoreDoorsRef.current[doorStateKey].reopened) {
 			monsterAttack();
 			return;

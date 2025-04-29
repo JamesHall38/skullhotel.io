@@ -2,12 +2,11 @@ import { useState, useEffect, useCallback, memo, useMemo, useRef } from 'react';
 import { useProgress } from '@react-three/drei';
 import SkullHotelLogo from './Logo';
 import Settings from './Settings/Settings';
-import { FaArrowCircleDown, FaArrowCircleUp } from 'react-icons/fa';
+import { HiMiniArrowDownCircle, HiMiniArrowUpCircle } from 'react-icons/hi2';
 import useGameplaySettings from '../../hooks/useGameplaySettings';
 import AnimatedObjectives from './AnimatedObjectives';
 import { TbXboxXFilled } from 'react-icons/tb';
 import { TbXboxYFilled } from 'react-icons/tb';
-import { TbXboxAFilled } from 'react-icons/tb';
 import useDoor from '../../hooks/useDoor';
 import useMonster from '../../hooks/useMonster';
 import dialogues from './dialogues';
@@ -15,12 +14,11 @@ import useInterface from '../../hooks/useInterface';
 import useGame from '../../hooks/useGame';
 import useJoysticks from '../../hooks/useJoysticks';
 import useLight from '../../hooks/useLight';
-import useGridStore from '../../hooks/useGrid';
 import Cursor from './Cursor';
 import EndGameScreen from './EndGameScreen/EndGameScreen';
 import GuestBook from './GuestBook/GuestBook';
 import HowItsMade from './HowItsMade/HowItsMade';
-import { regenerateData } from '../../utils/config';
+import DeathScreen from './DeathScreen/DeathScreen';
 import './Interface.css';
 import { measurePerformance } from '../../hooks/usePerformance';
 import useTextureQueue from '../../hooks/useTextureQueue';
@@ -452,9 +450,6 @@ export default function Interface() {
 	const roomCount = useGameplaySettings((state) => state.roomCount);
 	const openDeathScreen = useGame((state) => state.openDeathScreen);
 	const setOpenDeathScreen = useGame((state) => state.setOpenDeathScreen);
-	const incrementRealDeaths = useGame((state) => state.incrementRealDeaths);
-	const playerPositionRoom = useGame((state) => state.playerPositionRoom);
-	const seedData = useGame((state) => state.seedData);
 	const setIsPlaying = useGame((state) => state.setIsPlaying);
 	const [assetsLoaded, setAssetsLoaded] = useState(false);
 	const [performanceMeasured, setPerformanceMeasured] = useState(false);
@@ -478,39 +473,23 @@ export default function Interface() {
 	const currentDialogueIndex = useInterface(
 		(state) => state.currentDialogueIndex
 	);
-	const customMessage = useGame((state) => state.customDeathMessage);
 	const objectives = useInterface((state) => state.interfaceObjectives);
 	const interfaceAction = useInterface((state) => state.interfaceAction);
 	const customTutorialObjectives = useInterface(
 		(state) => state.customTutorialObjectives
 	);
 	const [activeDialogues, setActiveDialogues] = useState([]);
-	const [isRestarting, setIsRestarting] = useState(false);
 	const setIsSettingsOpen = useInterface((state) => state.setIsSettingsOpen);
 	const isSettingsOpen = useInterface((state) => state.isSettingsOpen);
 
 	const queue = useTextureQueue((state) => state.queues);
 	const oldQueue = useRef(queue);
 
-	const [lastDeathMessage, setLastDeathMessage] = useState(null);
-
 	const fadeToBlack = useInterface((state) => state.fadeToBlack);
 
 	const [prevObjectiveText, setPrevObjectiveText] = useState(null);
 	const [showFindExit, setShowFindExit] = useState(false);
 	const prevDoneObjectives = useRef(0);
-
-	useEffect(() => {
-		if (playerPositionRoom !== null && playerPositionRoom >= 0) {
-			const currentRoom = Object.values(seedData)[playerPositionRoom];
-			const message =
-				customMessage ||
-				(currentRoom?.isRaid
-					? 'If you hear a client knocking at the door, hide until they leave'
-					: currentRoom?.deathReason);
-			setLastDeathMessage(message);
-		}
-	}, [playerPositionRoom, seedData, customMessage]);
 
 	useEffect(() => {
 		const hasQueueChanged = Object.keys(queue).some((key) => {
@@ -663,53 +642,6 @@ export default function Interface() {
 	}, [fadeToBlack]);
 
 	useEffect(() => {
-		if (!openDeathScreen || deviceMode !== 'gamepad') return;
-
-		const checkGamepadXButton = () => {
-			const gamepads = navigator.getGamepads ? navigator.getGamepads() : [];
-			for (const gamepad of gamepads) {
-				if (gamepad && gamepad.connected) {
-					const xButtonPressed = gamepad.buttons[2]?.pressed;
-					const leftTriggerPressed = gamepad.buttons[6]?.pressed; // L2/LT
-					const rightTriggerPressed = gamepad.buttons[7]?.pressed; // R2/RT
-					const actionPressed =
-						xButtonPressed || leftTriggerPressed || rightTriggerPressed;
-
-					if (actionPressed && !isRestarting) {
-						setIsRestarting(true);
-						setTimeout(() => {
-							resetGame();
-							regenerateData();
-							useGridStore.getState().initializeIfNeeded();
-							setTimeout(() => {
-								setIsGameplayActive(true);
-								setOpenDeathScreen(false);
-								setIsRestarting(false);
-
-								setTimeout(() => {
-									useInterface.getState().setCurrentDialogueIndex(1);
-									setTimeout(() => {
-										useInterface.getState().setCurrentDialogueIndex(null);
-									}, 3000);
-								}, 1500);
-							}, 100);
-						}, 500);
-					}
-				}
-			}
-		};
-
-		const interval = setInterval(checkGamepadXButton, 100);
-		return () => clearInterval(interval);
-	}, [
-		openDeathScreen,
-		deviceMode,
-		setOpenDeathScreen,
-		isRestarting,
-		setIsGameplayActive,
-	]);
-
-	useEffect(() => {
 		if (deviceMode !== 'gamepad') return;
 
 		if (!openDeathScreen && !end && !loading) return;
@@ -719,29 +651,6 @@ export default function Interface() {
 			for (const gamepad of gamepads) {
 				if (gamepad && gamepad.connected) {
 					const aButtonPressed = gamepad.buttons[0]?.pressed;
-
-					if (openDeathScreen && aButtonPressed && !isRestarting) {
-						incrementRealDeaths();
-						setIsRestarting(true);
-						setTimeout(() => {
-							resetGame();
-							regenerateData();
-							useGridStore.getState().initializeIfNeeded();
-							setTimeout(() => {
-								setIsGameplayActive(true);
-								setOpenDeathScreen(false);
-								setIsRestarting(false);
-
-								setTimeout(() => {
-									useInterface.getState().setCurrentDialogueIndex(1);
-									setTimeout(() => {
-										useInterface.getState().setCurrentDialogueIndex(null);
-									}, 3000);
-								}, 1500);
-							}, 100);
-						}, 500);
-						return;
-					}
 
 					if (loading && displayProgress === 100 && aButtonPressed) {
 						setIsGameplayActive(true);
@@ -766,8 +675,6 @@ export default function Interface() {
 		setOpenDeathScreen,
 		setEnd,
 		setGameStartTime,
-		isRestarting,
-		incrementRealDeaths,
 		setIsGameplayActive,
 	]);
 
@@ -984,7 +891,7 @@ export default function Interface() {
 								setControl('jump', false);
 							}}
 						>
-							<FaArrowCircleUp />
+							<HiMiniArrowUpCircle />
 						</button>
 						<button
 							className={`mobile-button bottom ${
@@ -999,7 +906,7 @@ export default function Interface() {
 								setControl('crouch', false);
 							}}
 						>
-							<FaArrowCircleDown />
+							<HiMiniArrowDownCircle />
 						</button>
 					</div>
 
@@ -1061,65 +968,8 @@ export default function Interface() {
 					</div>
 				</div>
 			)}
-			{openDeathScreen && (
-				<div
-					className="death-screen"
-					onClick={() => {
-						if (isRestarting) return;
 
-						setIsRestarting(true);
-						incrementRealDeaths();
-
-						setTimeout(() => {
-							resetGame();
-							regenerateData();
-							useGridStore.getState().initializeIfNeeded();
-							setTimeout(() => {
-								setOpenDeathScreen(false);
-								setIsRestarting(false);
-								setIsGameplayActive(true);
-
-								if (deviceMode === 'keyboard') {
-									const canvas = document.querySelector('canvas');
-									if (canvas && !isPointerLocked()) {
-										requestPointerLock(canvas);
-									}
-								}
-
-								setTimeout(() => {
-									useInterface.getState().setCurrentDialogueIndex(1);
-									setTimeout(() => {
-										useInterface.getState().setCurrentDialogueIndex(null);
-									}, 3000);
-								}, 1500);
-							}, 100);
-						}, 500);
-					}}
-				>
-					<div className="title">You died</div>
-					<div className="death-message">{lastDeathMessage}</div>
-					<div className="start">
-						{deviceMode === 'gamepad' ? (
-							<>
-								<TbXboxAFilled
-									style={{ verticalAlign: 'middle', marginRight: '5px' }}
-								/>{' '}
-								or{' '}
-								<TbXboxXFilled
-									style={{
-										verticalAlign: 'middle',
-										marginLeft: '5px',
-										marginRight: '5px',
-									}}
-								/>{' '}
-								to start
-							</>
-						) : (
-							<>{isRestarting ? 'Restarting...' : 'click to start'}</>
-						)}
-					</div>
-				</div>
-			)}
+			<DeathScreen />
 
 			<EndGameScreen />
 

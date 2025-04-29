@@ -1,4 +1,11 @@
-import { useEffect, Suspense, useMemo, useRef, useState } from 'react';
+import {
+	useEffect,
+	Suspense,
+	useMemo,
+	useRef,
+	useState,
+	useCallback,
+} from 'react';
 import { KeyboardControls, PointerLockControls } from '@react-three/drei';
 import { Canvas, useThree, useFrame } from '@react-three/fiber';
 import Interface from './components/Interface/Interface';
@@ -510,10 +517,17 @@ export default function AppCanvas() {
 	const setPlayIntro = useGame((state) => state.setPlayIntro);
 	const shadows = useSettings((state) => state.shadows);
 	const setShadows = useSettings((state) => state.setShadows);
+	const setMonsterState = useMonster((state) => state.setMonsterState);
+	const playAnimation = useMonster((state) => state.playAnimation);
 
 	useEffect(() => {
 		setShadows(performanceMode && !isMobile);
 	}, [performanceMode, isMobile, setShadows]);
+
+	const triggerMonsterAttack = useCallback(() => {
+		setMonsterState('run');
+		playAnimation('Run');
+	}, [setMonsterState, playAnimation]);
 
 	const { perfVisible } = useControls(
 		{
@@ -528,8 +542,10 @@ export default function AppCanvas() {
 			'Complete All Objectives': button(() => {
 				useInterface.getState().setAllObjectivesCompleted();
 			}),
+			Die: button(() => {
+				triggerMonsterAttack();
+			}),
 		},
-
 		{
 			collapsed: true,
 		}

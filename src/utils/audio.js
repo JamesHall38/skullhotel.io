@@ -113,6 +113,26 @@ export const SOUNDS = {
 		mp3: '/sounds/monster_step4.mp3',
 		settings: 'monster',
 	},
+	monsterStep5: {
+		mp3: '/sounds/monster_step5.mp3',
+		settings: 'monster',
+	},
+	monsterStep6: {
+		mp3: '/sounds/monster_step6.mp3',
+		settings: 'monster',
+	},
+	monsterStep7: {
+		mp3: '/sounds/monster_step7.mp3',
+		settings: 'monster',
+	},
+	monsterStep8: {
+		mp3: '/sounds/monster_step8.mp3',
+		settings: 'monster',
+	},
+	monsterStep9: {
+		mp3: '/sounds/monster_step9.mp3',
+		settings: 'monster',
+	},
 	doorOpen: {
 		mp3: '/sounds/open.mp3',
 		settings: 'interaction',

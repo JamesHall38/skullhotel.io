@@ -21,7 +21,7 @@ const TrianglePattern = ({ position = 'left', onComplete }) => {
 			});
 
 			const tl = gsap.timeline({
-				delay: -0.2,
+				delay: 0.2,
 			});
 
 			timelineRef.current = tl;

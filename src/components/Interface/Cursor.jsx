@@ -9,7 +9,8 @@ import { FaHandPaper } from 'react-icons/fa';
 import { BiSolidDoorOpen } from 'react-icons/bi';
 import { HiLightBulb } from 'react-icons/hi';
 import { FaPowerOff } from 'react-icons/fa';
-import { FaQuestionCircle } from 'react-icons/fa';
+import { FaBook } from 'react-icons/fa6';
+import { IoInformationCircle } from 'react-icons/io5';
 import useInterface from '../../hooks/useInterface';
 import useGame from '../../hooks/useGame';
 import './Interface.css';
@@ -50,9 +51,14 @@ const cursorIcons = {
 			</svg>
 		</div>
 	),
+	book: (
+		<div className="cursor-icon cursor-icon-book">
+			<FaBook />
+		</div>
+	),
 	help: (
 		<div className="cursor-icon cursor-icon-help">
-			<FaQuestionCircle />
+			<IoInformationCircle />
 		</div>
 	),
 };

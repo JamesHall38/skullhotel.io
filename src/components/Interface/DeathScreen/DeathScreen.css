@@ -1,0 +1,140 @@
+@font-face {
+	font-family: 'Lincoln Road Deco';
+	src: url('/Lincoln-Road-Deco.ttf') format('truetype');
+	font-weight: normal;
+	font-style: normal;
+}
+
+@font-face {
+	font-family: 'Lincoln Road';
+	src: url('/Lincoln-Road-Regular.ttf') format('truetype');
+	font-weight: normal;
+	font-style: normal;
+}
+
+/* Animations */
+@keyframes fadeIn {
+	0% {
+		opacity: 0;
+	}
+	100% {
+		opacity: 1;
+	}
+}
+
+@keyframes logoReveal {
+	0% {
+		opacity: 0;
+		transform: scale(0.95);
+	}
+	100% {
+		opacity: 1;
+		transform: scale(1);
+	}
+}
+
+@keyframes titleAppear {
+	0% {
+		opacity: 0;
+		transform: translateY(-20px) translateX(0.5rem);
+	}
+	100% {
+		opacity: 1;
+		transform: translateY(0) translateX(0.5rem);
+	}
+}
+
+@keyframes messageAppear {
+	0% {
+		opacity: 0;
+	}
+	100% {
+		opacity: 1;
+	}
+}
+
+@keyframes blink {
+	0%,
+	100% {
+		opacity: 1;
+	}
+	50% {
+		opacity: 0;
+	}
+}
+
+/* DEATH SCREEN */
+.death-screen {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background: #0b0b0b;
+	color: #c83535;
+	z-index: 10000;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 4rem;
+	font-family: 'Lincoln Road', serif;
+}
+
+.death-screen-flex {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 0.5rem;
+}
+
+.death-screen-title {
+	font-family: 'Lincoln Road Deco', serif;
+	font-size: 8rem;
+	color: #c83535;
+	position: relative;
+	z-index: 2;
+	transform: translateX(0.5rem);
+	letter-spacing: 1px;
+	font-weight: 600;
+	opacity: 0;
+	animation: titleAppear 1.5s ease 0s forwards;
+}
+
+@media (max-width: 500px) {
+	.death-screen-title {
+		font-size: 6rem;
+	}
+}
+
+@media (max-width: 390px) {
+	.death-screen-title {
+		font-size: 4rem;
+	}
+}
+
+@media (max-width: 280px) {
+	.death-screen-title {
+		font-size: 2rem;
+	}
+}
+
+.death-message {
+	font-size: 1.5rem;
+	text-align: center;
+	font-family: 'Lincoln Road', serif;
+	color: #fff;
+	opacity: 0;
+	animation: messageAppear 1.5s ease 1s forwards;
+}
+
+.death-screen-start {
+	font-size: 1.5rem;
+	margin-top: 1rem;
+	font-family: 'Lincoln Road', serif;
+	color: #fff;
+	opacity: 0;
+	animation: messageAppear 1s ease 2.5s forwards,
+		blink 2s ease-in-out 4.5s infinite;
+}

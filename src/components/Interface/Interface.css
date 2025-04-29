@@ -122,6 +122,11 @@
 	height: 1.5rem;
 }
 
+.cursor-icon-book {
+	width: 1.5rem;
+	height: 1.5rem;
+}
+
 .progress-circle {
 	position: absolute;
 	top: 50%;
@@ -319,31 +324,6 @@
 	}
 }
 
-.title {
-	font-family: 'Lincoln Road Deco', serif;
-	font-size: 4rem;
-	color: #efd89b;
-	position: relative;
-	z-index: 2;
-	transform: translateX(0.5rem);
-	letter-spacing: 1px;
-	font-weight: 400;
-}
-
-@media (max-height: 500px) {
-	.title {
-		font-size: 2rem;
-		padding-bottom: 2.5rem;
-	}
-}
-
-.death-message {
-	max-width: 80dvw;
-	text-align: center;
-	font-family: 'Lincoln Road', serif;
-	color: #efd89b;
-}
-
 .flex {
 	display: flex;
 	align-items: center;
@@ -394,11 +374,11 @@
 }
 
 .joystick.left {
-	left: 20px;
+	left: 10%;
 }
 
 .joystick.right {
-	right: 20px;
+	right: 10%;
 }
 
 .joystick-base {
@@ -412,48 +392,11 @@
 }
 
 .joystick-handle {
-	width: 50px;
-	height: 50px;
+	width: 60px;
+	height: 60px;
 	border-radius: 50%;
-	background-color: rgba(255, 255, 255, 0.5);
+	border: 4px solid rgba(255, 255, 255, 0.4);
 	position: relative;
-}
-
-/* DEATH SCREEN */
-
-.death-screen {
-	position: fixed;
-	top: 0;
-	left: 0;
-	width: 100%;
-	height: 100%;
-	background: #0b0b0b;
-	color: #efd89b;
-	z-index: 10000;
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	justify-content: center;
-	gap: 1rem;
-	font-family: 'Lincoln Road', serif;
-}
-
-.restart {
-	position: fixed;
-	bottom: 5rem;
-	background: transparent;
-	border: 1px solid #777d90;
-	color: #777d90;
-	padding: 0.8rem 2rem;
-	border-radius: 0.5rem;
-	cursor: pointer;
-	font-family: 'Lincoln Road', serif;
-	transition: all 0.2s ease;
-}
-
-.restart:hover {
-	background: rgba(255, 255, 255, 0.2);
-	color: #ffffff;
 }
 
 /* MOBILE */
@@ -475,11 +418,11 @@
 }
 
 .mobile-buttons.left {
-	left: 20px;
+	left: 10%;
 }
 
 .mobile-buttons.right {
-	right: 20px;
+	right: 10%;
 }
 
 .mobile-button {

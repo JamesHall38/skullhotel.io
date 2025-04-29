@@ -362,6 +362,11 @@ const EndGameScreen = () => {
 					gameEndTime,
 					realDeaths
 				);
+				const isDebugMode = window.location.hash === '#debug';
+				const storageKey = isDebugMode
+					? 'skullhotel_debug_last_player_name'
+					: 'skullhotel_last_player_name';
+				localStorage.setItem(storageKey, playerName.trim());
 				setSubmitted(true);
 			} catch (error) {
 				console.error('Failed to submit score:', error);

@@ -10,7 +10,7 @@ import * as THREE from 'three';
 
 const VOLUMES = {
 	walk: 0.5,
-	run: 1,
+	run: 0.8,
 };
 
 const PAUSE_DURATION = 1;
@@ -43,7 +43,7 @@ export default function Animations({ group, animations }) {
 	const { actions } = useAnimations(animations, group);
 	const previousAnimationRef = useRef('Idle');
 	const setOpenDeathScreen = useGame((state) => state.setOpenDeathScreen);
-	const footstepIndexRef = useRef(0);
+	// const footstepIndexRef = useRef(0);
 	const creepingStateRef = useRef('playing'); // 'playing', 'paused', 'reversing', 'done'
 	const creepingPauseTimeRef = useRef(0);
 
@@ -67,6 +67,11 @@ export default function Animations({ group, animations }) {
 					getAudioInstance('monsterStep2'),
 					getAudioInstance('monsterStep3'),
 					getAudioInstance('monsterStep4'),
+					getAudioInstance('monsterStep5'),
+					getAudioInstance('monsterStep6'),
+					getAudioInstance('monsterStep7'),
+					getAudioInstance('monsterStep8'),
+					getAudioInstance('monsterStep9'),
 				];
 
 				if (stepSounds.every((sound) => sound !== null)) {
@@ -309,12 +314,16 @@ export default function Animations({ group, animations }) {
 				(anim) => anim.name === animationName
 			);
 			const animationDuration = currentAnimation
-				? currentAnimation.duration * 1000
-				: 1000;
-			const stepInterval = animationDuration / 2;
+				? currentAnimation.duration * 450
+				: 450;
+			const stepInterval =
+				animationDuration / (animationName === 'CeilingCrawl' ? 1 : 2);
 
 			intervalId = setInterval(() => {
-				const sound = monsterStepSounds[footstepIndexRef.current];
+				const randomIndex = Math.floor(
+					Math.random() * monsterStepSounds.length
+				);
+				const sound = monsterStepSounds[randomIndex];
 				if (sound) {
 					sound.volume = animationName === 'Run' ? VOLUMES.run : VOLUMES.walk;
 
@@ -322,9 +331,6 @@ export default function Animations({ group, animations }) {
 						sound.currentTime = 0;
 					}
 					sound.play().catch(() => {});
-
-					footstepIndexRef.current =
-						(footstepIndexRef.current + 1) % monsterStepSounds.length;
 				}
 			}, stepInterval);
 		}

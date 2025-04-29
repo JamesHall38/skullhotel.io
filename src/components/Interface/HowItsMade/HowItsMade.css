@@ -41,11 +41,6 @@
 	border-radius: 50%;
 }
 
-.close-button:hover,
-.close-button.gamepad-focus {
-	background: rgba(239, 216, 155, 0.2);
-}
-
 .tech-container {
 	display: flex;
 	flex-direction: column;

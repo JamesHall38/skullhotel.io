@@ -223,11 +223,15 @@
 	cursor: pointer;
 	transition: background-color 0.2s ease;
 	word-break: break-all;
-	background-color: rgba(255, 255, 255, 0.05);
+	background-color: transparent;
 }
 
 .guestbook-entry:hover {
 	background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.guestbook-entry:hover .guestbook-rank {
+	color: #efd89b;
 }
 
 .guestbook-entry td {
@@ -248,6 +252,7 @@
 .guestbook-rank {
 	text-align: center;
 	width: 50px;
+	transition: color 0.2s ease;
 }
 
 /* .guestbook-name {
@@ -263,24 +268,37 @@
 .guestbook-pagination {
 	display: flex;
 	align-items: center;
-	justify-content: center;
+	justify-content: space-between;
+	width: calc(100% - 4rem);
 	gap: 10px;
 	margin: 2rem 0;
 }
 
+.pagination-button-container {
+	display: flex;
+	align-items: center;
+	gap: 2rem;
+}
+
 .pagination-button {
 	background: transparent;
-	color: #777d90;
-	border: 1px solid #777d90;
-	border-radius: 0.5rem;
-	padding: 8px 12px;
+	border: none;
+
+	padding: 0.5rem 1rem;
+	border-radius: 0.25rem;
+
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
 	cursor: pointer;
 	font-family: 'Lincoln Road', serif;
 	transition: all 0.2s ease;
-}
 
-.pagination-button:hover:not(:disabled) {
-	background: rgba(255, 255, 255, 0.2);
+	stroke-linecap: round;
+	stroke-linejoin: miter;
+	stroke-dasharray: none;
+	paint-order: stroke markers fill;
 }
 
 .pagination-button:disabled {
@@ -288,12 +306,31 @@
 	cursor: default;
 }
 
+.pagination-button:hover:not(:disabled) {
+	background: rgba(239, 216, 155, 0.1);
+}
+
+.hover-visible-path {
+	opacity: 0;
+	transition: opacity 0.2s ease;
+}
+
+.pagination-button:hover:not(:disabled) .hover-visible-path,
+.pagination-button.gamepad-focus .hover-visible-path {
+	opacity: 1;
+}
+
 .page-indicator {
 	display: flex;
 	align-items: center;
+	justify-content: center;
+
 	gap: 5px;
 	font-family: 'Lincoln Road', serif;
 	color: #efd89b;
+	width: calc(100% - 4rem);
+
+	margin-bottom: 1rem;
 }
 
 .page-form {
@@ -303,14 +340,18 @@
 }
 
 .page-input {
+	width: 20rem;
 	background: transparent;
-	border: 1px solid #777d90;
+	border: 1px solid #fff;
 	color: white;
 	padding: 8px;
 	border-radius: 0.5rem;
-	width: 3rem;
 	text-align: center;
 	font-family: 'Lincoln Road', serif;
+}
+
+.page-input::placeholder {
+	color: #fff;
 }
 
 .page-input:focus {
@@ -330,4 +371,14 @@
 
 .go-button:hover:not(:disabled) {
 	background: rgba(255, 255, 255, 0.2);
+}
+
+.page-info {
+	color: #efd89b;
+	width: 5rem;
+	text-align: center;
+}
+
+.invisible-path {
+	opacity: 0;
 }

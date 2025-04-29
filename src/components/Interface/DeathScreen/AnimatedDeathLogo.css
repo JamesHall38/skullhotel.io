@@ -1,0 +1,25 @@
+.animated-death-logo {
+	pointer-events: none;
+	z-index: 2;
+	width: 50rem;
+	max-width: 80%;
+	height: auto;
+	transform-origin: center center;
+	opacity: 1;
+}
+
+.animated-death-logo path {
+	fill: none;
+}
+
+@media (max-width: 768px) {
+	.animated-death-logo {
+		width: 40rem;
+	}
+}
+
+@media (max-width: 480px) {
+	.animated-death-logo {
+		width: 32rem;
+	}
+}

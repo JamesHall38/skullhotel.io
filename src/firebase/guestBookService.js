@@ -6,10 +6,12 @@ import {
 	orderBy,
 	limit,
 	startAfter,
-	startAt,
 	getDocs,
 	serverTimestamp,
 	getCountFromServer,
+	where,
+	startAt,
+	endAt,
 } from 'firebase/firestore';
 
 const COLLECTION_NAME = 'guestbook';
@@ -74,6 +76,7 @@ export const addGuestBookEntry = async (
 
 		const docRef = await addDoc(collection(db, collectionToUse), {
 			playerName: playerName.trim(),
+			playerNameLower: playerName.trim().toLowerCase(),
 			startTime: startTime,
 			endTime: endTime,
 			deaths: deaths,
@@ -104,8 +107,21 @@ export const getTotalEntries = async () => {
 };
 
 export const getTotalPages = async () => {
-	const total = await getTotalEntries();
-	return Math.ceil(total / PAGE_SIZE);
+	try {
+		const isDebugMode = window.location.hash === '#debug';
+		const collectionToUse = isDebugMode
+			? DEBUG_COLLECTION_NAME
+			: COLLECTION_NAME;
+
+		const coll = collection(db, collectionToUse);
+		const snapshot = await getCountFromServer(coll);
+		const totalEntries = snapshot.data().count;
+
+		return Math.ceil(totalEntries / PAGE_SIZE);
+	} catch (error) {
+		console.error('Error getting total pages:', error);
+		throw error;
+	}
 };
 
 export const getFirstGuestBookPage = async () => {
@@ -188,61 +204,56 @@ export const getNextGuestBookPage = async (lastVisible, currentPage) => {
 	}
 };
 
-let paginationCache = {};
-
 export const getSpecificPage = async (pageNumber) => {
 	if (pageNumber < 1) pageNumber = 1;
 
 	try {
+		const isDebugMode = window.location.hash === '#debug';
+		const collectionToUse = isDebugMode
+			? DEBUG_COLLECTION_NAME
+			: COLLECTION_NAME;
+
 		if (pageNumber === 1) {
 			return await getFirstGuestBookPage();
 		}
 
-		const isDebugMode = window.location.hash === '#debug';
-		const cacheKey = isDebugMode ? `debug_${pageNumber}` : pageNumber;
+		const documentsToSkip = (pageNumber - 1) * PAGE_SIZE;
 
-		if (paginationCache[cacheKey]) {
-			const collectionToUse = isDebugMode
-				? DEBUG_COLLECTION_NAME
-				: COLLECTION_NAME;
+		const skipQuery = query(
+			collection(db, collectionToUse),
+			orderBy('createdAt', 'asc'),
+			limit(documentsToSkip)
+		);
 
-			const q = query(
-				collection(db, collectionToUse),
-				orderBy('createdAt', 'asc'),
-				startAt(paginationCache[cacheKey]),
-				limit(PAGE_SIZE)
-			);
+		const skipSnapshot = await getDocs(skipQuery);
 
-			const querySnapshot = await getDocs(q);
-			const entries = processQuerySnapshot(querySnapshot);
-			const lastVisible =
-				entries.length > 0
-					? querySnapshot.docs[querySnapshot.docs.length - 1]
-					: null;
-			const totalPages = await getTotalPages();
-
-			return { entries, lastVisible, currentPage: pageNumber, totalPages };
+		if (skipSnapshot.empty) {
+			return await getFirstGuestBookPage();
 		}
 
-		let result = await getFirstGuestBookPage();
-		let currentPage = 1;
+		const lastDoc = skipSnapshot.docs[skipSnapshot.docs.length - 1];
 
-		if (result.lastVisible) {
-			const cacheKey = isDebugMode ? `debug_${currentPage}` : currentPage;
-			paginationCache[cacheKey] = result.lastVisible;
-		}
+		const pageQuery = query(
+			collection(db, collectionToUse),
+			orderBy('createdAt', 'asc'),
+			startAfter(lastDoc),
+			limit(PAGE_SIZE)
+		);
 
-		while (currentPage < pageNumber && result.lastVisible) {
-			result = await getNextGuestBookPage(result.lastVisible, currentPage);
-			currentPage++;
+		const querySnapshot = await getDocs(pageQuery);
+		const entries = processQuerySnapshot(querySnapshot);
+		const lastVisible =
+			entries.length > 0
+				? querySnapshot.docs[querySnapshot.docs.length - 1]
+				: null;
+		const totalPages = await getTotalPages();
 
-			if (result.lastVisible) {
-				const cacheKey = isDebugMode ? `debug_${currentPage}` : currentPage;
-				paginationCache[cacheKey] = result.lastVisible;
-			}
-		}
-
-		return result;
+		return {
+			entries,
+			lastVisible,
+			currentPage: pageNumber,
+			totalPages,
+		};
 	} catch (error) {
 		console.error(`Error getting page ${pageNumber}:`, error);
 		throw error;
@@ -276,4 +287,114 @@ export const formatTime = (timeInSeconds) => {
 	return `${minutes.toString().padStart(2, '0')}:${seconds
 		.toString()
 		.padStart(2, '0')}`;
+};
+
+export const findPageByPlayerName = async (playerName) => {
+	try {
+		const isDebugMode = window.location.hash === '#debug';
+		const collectionToUse = isDebugMode
+			? DEBUG_COLLECTION_NAME
+			: COLLECTION_NAME;
+
+		const searchTerm = playerName.toLowerCase();
+
+		const exactMatchQuery = query(
+			collection(db, collectionToUse),
+			where('playerNameLower', '==', searchTerm),
+			limit(1)
+		);
+
+		let exactSnapshot = await getDocs(exactMatchQuery);
+
+		if (!exactSnapshot.empty) {
+			const matchingDoc = exactSnapshot.docs[0];
+			const matchData = matchingDoc.data();
+
+			const countQuery = query(
+				collection(db, collectionToUse),
+				where('createdAt', '<', matchData.createdAt)
+			);
+
+			const countSnapshot = await getCountFromServer(countQuery);
+			const position = countSnapshot.data().count;
+
+			const pageNumber = Math.floor(position / PAGE_SIZE) + 1;
+
+			return {
+				pageNumber,
+				createdAt: matchData.createdAt,
+			};
+		}
+
+		const prefixQuery = query(
+			collection(db, collectionToUse),
+			orderBy('playerName'),
+			startAt(searchTerm),
+			endAt(searchTerm + '\uf8ff'),
+			limit(1)
+		);
+
+		let querySnapshot = await getDocs(prefixQuery);
+
+		if (querySnapshot.empty) {
+			const allNamesQuery = query(
+				collection(db, collectionToUse),
+				orderBy('playerName'),
+				limit(100)
+			);
+
+			const allNames = await getDocs(allNamesQuery);
+
+			let matchingDoc = allNames.docs.find((doc) =>
+				doc.data().playerName.toLowerCase().includes(searchTerm)
+			);
+
+			if (!matchingDoc && /^\d/.test(searchTerm)) {
+				matchingDoc = allNames.docs.find((doc) => {
+					const name = doc.data().playerName.toLowerCase();
+					const searchChars = searchTerm.split('');
+					let nameIndex = 0;
+
+					for (let i = 0; i < searchChars.length; i++) {
+						const char = searchChars[i];
+						nameIndex = name.indexOf(char, nameIndex);
+						if (nameIndex === -1) return false;
+						nameIndex++;
+					}
+					return true;
+				});
+			}
+
+			if (!matchingDoc) {
+				console.error('No matching document found');
+				return null;
+			}
+
+			querySnapshot = {
+				docs: [matchingDoc],
+				empty: false,
+			};
+		}
+
+		const matchingDoc = querySnapshot.docs[0];
+		const matchData = matchingDoc.data();
+
+		const countQuery = query(
+			collection(db, collectionToUse),
+			where('createdAt', '<', matchData.createdAt)
+		);
+
+		const countSnapshot = await getCountFromServer(countQuery);
+		const position = countSnapshot.data().count;
+
+		const pageNumber = Math.floor(position / PAGE_SIZE) + 1;
+
+		return {
+			pageNumber,
+			createdAt: matchData.createdAt,
+		};
+	} catch (error) {
+		console.error('Error finding page by player name:', error);
+		throw error;
+	}
 };
