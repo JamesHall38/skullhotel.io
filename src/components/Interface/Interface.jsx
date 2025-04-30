@@ -33,7 +33,6 @@ import {
 	exitPointerLock,
 	requestPointerLock,
 } from '../../utils/pointerLock';
-import React from 'react';
 
 function resetGame() {
 	useGame.getState().restart();

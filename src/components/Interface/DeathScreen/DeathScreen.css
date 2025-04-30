@@ -12,31 +12,10 @@
 	font-style: normal;
 }
 
-/* Animations */
-@keyframes fadeIn {
-	0% {
-		opacity: 0;
-	}
-	100% {
-		opacity: 1;
-	}
-}
-
-@keyframes logoReveal {
-	0% {
-		opacity: 0;
-		transform: scale(0.95);
-	}
-	100% {
-		opacity: 1;
-		transform: scale(1);
-	}
-}
-
 @keyframes titleAppear {
 	0% {
 		opacity: 0;
-		transform: translateY(-20px) translateX(0.5rem);
+		transform: translateY(-10px) translateX(0.5rem);
 	}
 	100% {
 		opacity: 1;
@@ -77,8 +56,9 @@
 	flex-direction: column;
 	align-items: center;
 	justify-content: center;
-	gap: 4rem;
+	gap: 5rem;
 	font-family: 'Lincoln Road', serif;
+	cursor: pointer;
 }
 
 .death-screen-flex {
@@ -126,7 +106,7 @@
 	font-family: 'Lincoln Road', serif;
 	color: #fff;
 	opacity: 0;
-	animation: messageAppear 1.5s ease 1s forwards;
+	animation: messageAppear 1.5s ease 2s forwards;
 }
 
 .death-screen-start {

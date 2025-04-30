@@ -57,6 +57,9 @@ export default function TriggersConditions({
 	const setTemporaryDisableMouseLook = useGame(
 		(state) => state.setTemporaryDisableMouseLook
 	);
+	const setCustomDeathMessage = useGame((state) => state.setCustomDeathMessage);
+	const knockedRooms = useGame((state) => state.knockedRooms);
+	const addKnockedRoom = useGame((state) => state.addKnockedRoom);
 
 	// Interface
 	const interfaceObjectives = useInterface(
@@ -86,9 +89,6 @@ export default function TriggersConditions({
 	const setRoomCurtains = useDoor((state) => state.setRoomCurtains);
 	const setRoomCurtain = useDoor((state) => state.setRoomCurtain);
 	const setRoomDoor = useDoor((state) => state.setRoomDoor);
-
-	const knockedRooms = useGame((state) => state.knockedRooms);
-	const addKnockedRoom = useGame((state) => state.addKnockedRoom);
 
 	// Hiding
 	const setMonsterKnocking = useHiding((state) => state.setMonsterKnocking);
@@ -126,6 +126,7 @@ export default function TriggersConditions({
 				setMonsterState('run');
 				playAnimation('Run');
 				setAnimationSpeed(1);
+				setCustomDeathMessage('Always close the door before cleaning the room');
 			} else if (!knockedRooms.includes(room)) {
 				addKnockedRoom(room);
 				setMonsterKnocking(true);
@@ -198,6 +199,7 @@ export default function TriggersConditions({
 			setAnimationMixSpeed,
 			setSilentKnocking,
 			isMobile,
+			setCustomDeathMessage,
 		]
 	);
 
