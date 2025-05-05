@@ -19,29 +19,3 @@
 	align-items: center;
 	justify-content: center;
 }
-
-.close-button {
-	background: transparent;
-	color: #777d90;
-	border: 1px solid #777d90;
-	border-radius: 0.5rem;
-	cursor: pointer;
-	font-size: 0.9rem;
-	font-family: 'Lincoln Road', serif;
-	transition: all 0.2s ease;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	padding: 0.5rem;
-}
-
-.close-button svg {
-	width: 1.5rem;
-	height: 1.5rem;
-	min-width: 1.5rem;
-	min-height: 1.5rem;
-}
-
-.close-button:hover {
-	background: rgba(239, 216, 155, 0.1);
-}

@@ -1,9 +1,9 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { IoCloseOutline } from 'react-icons/io5';
 import PopupWrapper from '../PopupWrapper/PopupWrapper';
 import headerSvg from '../header.svg';
 import useGame from '../../../hooks/useGame';
 import useDebounce from '../../../hooks/useDebounce';
+import AnimatedCloseButton from '../AnimatedCloseButton/AnimatedCloseButton';
 import {
 	getFirstGuestBookPage,
 	getNextGuestBookPage,
@@ -196,9 +196,7 @@ function GuestBookContent({ onClose }) {
 		<div className="guestbook-content" ref={guestBookRef}>
 			<img src={headerSvg} alt="Guest Book" />
 			<div className="guestbook-header">
-				<button onClick={onClose} className="close-button">
-					<IoCloseOutline />
-				</button>
+				<AnimatedCloseButton onClick={onClose} size={1} />
 			</div>
 
 			<h2>Guest Book</h2>

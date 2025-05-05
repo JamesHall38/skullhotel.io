@@ -1,0 +1,65 @@
+.animated-close-button {
+	background: transparent;
+	border: none;
+	cursor: pointer;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.animated-close-button svg {
+	display: block;
+	overflow: visible;
+	pointer-events: none;
+}
+
+.animated-path {
+	fill: none;
+	stroke: #efd89b;
+	stroke-width: 2.5;
+	stroke-linecap: round;
+	pointer-events: none;
+}
+
+.animated-close-button-container {
+	background: transparent;
+	color: #777d90;
+	border-radius: 0.5rem;
+	cursor: pointer;
+	font-size: 0.9rem;
+	border-radius: 50%;
+	font-family: 'Lincoln Road', serif;
+	transition: all 0.2s ease;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0.5rem;
+}
+
+.close-button {
+	border-radius: 50%;
+	padding: 0.5rem;
+	cursor: pointer;
+}
+
+.close-button:hover {
+	background: rgba(239, 216, 155, 0.1);
+}
+
+.stacked-segments {
+	position: relative;
+	width: 100%;
+	height: 100%;
+}
+
+.segment {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	transform-origin: center;
+}

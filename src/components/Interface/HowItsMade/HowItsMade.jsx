@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import PopupWrapper from '../PopupWrapper/PopupWrapper';
-import { IoCloseOutline } from 'react-icons/io5';
+import AnimatedCloseButton from '../AnimatedCloseButton/AnimatedCloseButton';
 import { SiThreedotjs } from 'react-icons/si';
 import useGame from '../../../hooks/useGame';
 import './HowItsMade.css';
@@ -151,9 +151,9 @@ function HowItsMadeContent({ onClose }) {
 						fill="#EFD89B"
 					/>
 				</svg>
-				<button onClick={onClose} className="close-button">
-					<IoCloseOutline />
-				</button>
+				<div className="close-container">
+					<AnimatedCloseButton onClick={onClose} size={1} />
+				</div>
 			</div>
 
 			<div className="tech-container">

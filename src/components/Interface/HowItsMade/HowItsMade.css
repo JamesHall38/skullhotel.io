@@ -31,23 +31,11 @@
 	white-space: nowrap;
 }
 
-.how-its-made-header svg {
-	width: 100%;
-	height: 100%;
-	max-width: 8rem;
-}
-
-.close-button {
-	background: transparent;
-	border: none;
-	color: #efd89b;
-	font-size: 1.8rem;
-	cursor: pointer;
+.close-container {
 	display: flex;
+	justify-content: flex-end;
 	align-items: center;
-	justify-content: center;
 	padding: 0.5rem;
-	border-radius: 50%;
 }
 
 .tech-container {
