@@ -100,6 +100,7 @@ export default function NightstandDoor() {
 			setInstantChange={setInstantChange}
 			closet
 			tutorialRoomOffset={tutorialRoomCenter}
+			isNightstand={true}
 		>
 			<group dispose={null}>
 				<a.mesh

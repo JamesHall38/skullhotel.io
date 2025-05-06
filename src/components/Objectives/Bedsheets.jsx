@@ -185,7 +185,10 @@ export default function Bedsheets() {
 	});
 
 	const handleDetection = useCallback(() => {
-		if (Math.abs(camera.position.z) < 4.2) {
+		if (
+			Math.abs(camera.position.z) < 4.2 ||
+			(camera.position.z < 5.9 && camera.position.x > 1.9)
+		) {
 			return;
 		}
 

@@ -24,6 +24,7 @@ export default function DoorWrapper({
 	instantChange,
 	closet = false,
 	doubleRotate = false,
+	isNightstand = false,
 }) {
 	const doorRef = useRef();
 	const group = useRef();
@@ -218,6 +219,19 @@ export default function DoorWrapper({
 		).distanceTo(camera.position);
 
 		if (distance < 3) {
+			if (
+				isNightstand &&
+				(Math.abs(camera.position.z) < 4.2 ||
+					(camera.position.z < 5.9 && camera.position.x > 1.9))
+			) {
+				if (cursorRef.current?.includes('door')) {
+					cursorRef.current = null;
+					setCursor(null);
+				}
+				if (canOpenRef.current) canOpenRef.current = false;
+				return;
+			}
+
 			const raycaster = new THREE.Raycaster();
 			raycaster.setFromCamera(new THREE.Vector2(0, 0), camera);
 			const intersects = raycaster.intersectObject(group.current, true);
