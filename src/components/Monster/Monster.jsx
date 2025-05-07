@@ -869,6 +869,14 @@ const Monster = (props) => {
 				}, 5000);
 			}
 		}
+		if (!Object.values(seedData)[playerPositionRoom]?.type) {
+			group.current.position.y = 10;
+			setMonsterPosition([
+				group.current.position.x,
+				10,
+				group.current.position.z,
+			]);
+		}
 	});
 
 	useEffect(() => {

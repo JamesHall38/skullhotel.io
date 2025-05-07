@@ -9,6 +9,7 @@ import useMonster from '../../hooks/useMonster';
 import useJoysticks from '../../hooks/useJoysticks';
 import useGameplaySettings from '../../hooks/useGameplaySettings';
 import useGamepadControls from '../../hooks/useGamepadControls';
+import { getAudioInstance, areSoundsLoaded } from '../../utils/audio';
 
 const GRID_OFFSET_Z = 150;
 const RAISED_AREA_LOW_HEIGHT = 0.5;
@@ -43,6 +44,8 @@ export default function Jump({
 	const gamepadControlsRef = useGamepadControls();
 	const isAnyPopupOpen = useInterface((state) => state.isAnyPopupOpen);
 	const setIsCrouchLocked = useGame((state) => state.setIsCrouchLocked);
+	const [soundsReady, setSoundsReady] = useState(false);
+	const landingSoundRef = useRef(null);
 
 	const roomDoor = useDoorStore((state) => state.roomDoor);
 	const bathroomDoor = useDoorStore((state) => state.bathroomDoor);
@@ -60,6 +63,28 @@ export default function Jump({
 	useEffect(() => {
 		setGridOffsetX(roomCount * 29.5 + 10);
 	}, [roomCount]);
+
+	useEffect(() => {
+		const checkSounds = () => {
+			if (areSoundsLoaded()) {
+				landingSoundRef.current = getAudioInstance('step1');
+				if (landingSoundRef.current) {
+					setSoundsReady(true);
+				}
+			} else {
+				setTimeout(checkSounds, 100);
+			}
+		};
+
+		checkSounds();
+
+		return () => {
+			if (landingSoundRef.current) {
+				landingSoundRef.current.pause();
+				landingSoundRef.current.currentTime = 0;
+			}
+		};
+	}, []);
 
 	const isRaisedArea = (pos) => {
 		const cellX = Math.floor(pos.x * 10 + gridOffsetX);
@@ -414,6 +439,15 @@ export default function Jump({
 					if (playerPosition.current.y <= floor + raisedAreaHeight) {
 						playerPosition.current.y = floor + raisedAreaHeight;
 						jumpVelocity.current = 0;
+						if (
+							jumpState !== 'grounded' &&
+							soundsReady &&
+							landingSoundRef.current
+						) {
+							landingSoundRef.current.volume = 0.5;
+							landingSoundRef.current.currentTime = 0;
+							landingSoundRef.current.play().catch(() => {});
+						}
 						setJumpState('grounded');
 					}
 				} else if (
@@ -430,6 +464,15 @@ export default function Jump({
 				if (playerPosition.current.y <= floor) {
 					playerPosition.current.y = floor;
 					jumpVelocity.current = 0;
+					if (
+						jumpState !== 'grounded' &&
+						soundsReady &&
+						landingSoundRef.current
+					) {
+						landingSoundRef.current.volume = 0.5;
+						landingSoundRef.current.currentTime = 0;
+						landingSoundRef.current.play().catch(() => {});
+					}
 					setJumpState('grounded');
 				} else if (jumpVelocity.current < 0) {
 					setJumpState('falling');
@@ -460,4 +503,6 @@ export default function Jump({
 			);
 		}
 	});
+
+	return null;
 }

@@ -22,7 +22,6 @@ const VOLUMES = {
 
 const RUN_SPEED = 1;
 
-const JUMP_SOUND_DELAY = 400;
 const MOVEMENT_THRESHOLD = 0.00001;
 
 export default function FootSteps({ playerPosition, playerVelocity }) {
@@ -75,77 +74,11 @@ export default function FootSteps({ playerPosition, playerVelocity }) {
 	const isAnyPopupOpen = useGame((state) => state.isAnyPopupOpen);
 	const isPlaying = useEndGameAnimation((state) => state.isPlaying);
 	const leftStickRef = useJoysticksStore((state) => state.leftStickRef);
-	const controls = useJoysticksStore((state) => state.controls);
 
 	const lastPosition = useRef(new THREE.Vector3());
 	const footstepIndexRef = useRef(0);
 	const lastStepTime = useRef(0);
 	const wasMovingRef = useRef(false);
-
-	useEffect(() => {
-		if (!soundsReady) return;
-
-		const handleJumpSound = () => {
-			setTimeout(() => {
-				const soundIndex = Math.floor(
-					Math.random() * footstepRefs.current.length
-				);
-				const sound = footstepRefs.current[soundIndex];
-				if (sound) {
-					sound.volume = VOLUMES.landing;
-					sound.currentTime = 0;
-					sound.play().catch(() => {});
-				}
-			}, JUMP_SOUND_DELAY);
-		};
-
-		const handleKeyDown = (event) => {
-			if (event.code === 'Space') {
-				handleJumpSound();
-			}
-		};
-
-		if (!isMobile) {
-			window.addEventListener('keydown', handleKeyDown);
-			return () => {
-				window.removeEventListener('keydown', handleKeyDown);
-			};
-		}
-	}, [isMobile, soundsReady]);
-
-	useEffect(() => {
-		if (
-			!soundsReady ||
-			isPlaying ||
-			isCameraLocked ||
-			jumpScare ||
-			isAnyPopupOpen
-		) {
-			return;
-		}
-
-		if (isMobile && controls.jump) {
-			setTimeout(() => {
-				const soundIndex = Math.floor(
-					Math.random() * footstepRefs.current.length
-				);
-				const sound = footstepRefs.current[soundIndex];
-				if (sound) {
-					sound.volume = VOLUMES.landing;
-					sound.currentTime = 0;
-					sound.play().catch(() => {});
-				}
-			}, JUMP_SOUND_DELAY);
-		}
-	}, [
-		controls.jump,
-		isMobile,
-		soundsReady,
-		isPlaying,
-		isCameraLocked,
-		jumpScare,
-		isAnyPopupOpen,
-	]);
 
 	useFrame((state) => {
 		if (
@@ -205,7 +138,7 @@ export default function FootSteps({ playerPosition, playerVelocity }) {
 
 			if (isMoving && !wasMovingRef.current) {
 				const sound = footstepRefs.current[footstepIndexRef.current];
-				if (sound) {
+				if (sound && currentTime - lastStepTime.current > STEP_INTERVAL.run) {
 					sound.volume = isPlayerRunning ? VOLUMES.run : VOLUMES.walk;
 					sound.currentTime = 0;
 					if (!resetFootstepSound) {
@@ -213,11 +146,10 @@ export default function FootSteps({ playerPosition, playerVelocity }) {
 					} else {
 						setResetFootstepSound(false);
 					}
+					footstepIndexRef.current =
+						(footstepIndexRef.current + 1) % footstepRefs.current.length;
+					lastStepTime.current = currentTime;
 				}
-
-				footstepIndexRef.current =
-					(footstepIndexRef.current + 1) % footstepRefs.current.length;
-				lastStepTime.current = currentTime;
 			} else if (isMoving) {
 				const interval = isPlayerRunning
 					? STEP_INTERVAL.run

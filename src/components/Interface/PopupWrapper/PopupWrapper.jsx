@@ -113,7 +113,7 @@ export default function PopupWrapper({ children, cursorType }) {
 				return;
 			}
 
-			if (e.target.classList.contains('popup-content-container')) {
+			if (e.target.classList?.contains('popup-content-container')) {
 				handleClose();
 				setIsAnyPopupOpen(false);
 			}
