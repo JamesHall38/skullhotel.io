@@ -114,6 +114,18 @@ function HowItsMadeContent({ onClose }) {
 				<div className="how-its-made-header-col">
 					<img src={LogoIcon} alt="Logo" />
 					<h2>How it&apos;s made</h2>
+					<div className="footer-note">
+						<p>
+							This is an open source project. Check out the{' '}
+							<a
+								href="https://github.com/JamesHall38/skullhotel.io"
+								target="_blank"
+								rel="noopener noreferrer"
+							>
+								GitHub repository
+							</a>
+						</p>
+					</div>
 				</div>
 
 				<div className="close-container">
@@ -338,18 +350,6 @@ function HowItsMadeContent({ onClose }) {
 								<RxExternalLink className="external-link-icon" />
 							</div>
 						</h3>
-					</div>
-					<div className="footer-note">
-						<p>
-							This is an open source project. Check out the{' '}
-							<a
-								href="https://github.com/JamesHall38/skullhotel.io"
-								target="_blank"
-								rel="noopener noreferrer"
-							>
-								GitHub repository
-							</a>
-						</p>
 					</div>
 				</div>
 			</div>

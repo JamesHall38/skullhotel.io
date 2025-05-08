@@ -206,6 +206,10 @@
 	border-radius: 0.25rem;
 }
 
+.footer-note p {
+	margin: 0;
+}
+
 .footer-note a:hover,
 .footer-note a.gamepad-focus {
 	text-decoration: underline;
