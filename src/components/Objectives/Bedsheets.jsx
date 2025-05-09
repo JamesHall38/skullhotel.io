@@ -107,13 +107,11 @@ export default function Bedsheets() {
 					bedsheetsSoundRef.current.play();
 				}
 
-				if (tutorialObjectives[1] === false && !recentlyChangedObjectives[1]) {
-					setTutorialObjectives([
-						tutorialObjectives[0],
-						true,
-						tutorialObjectives[2],
-					]);
-				}
+				setTutorialObjectives([
+					tutorialObjectives[0],
+					true,
+					tutorialObjectives[2],
+				]);
 
 				setCursor(null);
 				setIsDetected(false);
@@ -137,6 +135,7 @@ export default function Bedsheets() {
 		objective,
 		setCursor,
 		camera,
+		seedData,
 	]);
 
 	const isInit = useRef(false);
