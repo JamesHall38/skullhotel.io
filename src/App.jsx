@@ -552,7 +552,6 @@ export default function AppCanvas() {
 	);
 
 	const isDebugMode = window.location.hash === '#debug';
-	console.log('itch');
 
 	return (
 		<>
