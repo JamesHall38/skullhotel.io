@@ -6,7 +6,10 @@
 	"scripts": {
 		"dev": "vite",
 		"build": "vite build",
-		"preview": "vite preview"
+		"build:itch": "vite build --config vite.config.itch.js && node fix-paths.js",
+		"build:firebase": "vite build",
+		"preview": "vite preview",
+		"fix-paths": "node fix-paths.js"
 	},
 	"dependencies": {
 		"@gsap/react": "^2.1.2",
