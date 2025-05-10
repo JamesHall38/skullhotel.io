@@ -14,7 +14,6 @@ import useProgressiveLoad from '../../hooks/useProgressiveLoad';
 import useGameplaySettings from '../../hooks/useGameplaySettings';
 
 const BASE_SPEED = 5;
-// const CHASE_SPEED_BASE = 0.5;
 const CHASE_SPEED_BASE = 0.75;
 const CLAYMORE_CHASE_SPEED = 1.5;
 const NEXT_POINT_THRESHOLD = 0.5;
@@ -27,8 +26,6 @@ const DISTANCE_REFERENCE = 4;
 const SPEED_GROWTH_FACTOR = 2;
 const MAX_SPEED_MULTIPLIER = 8;
 const MAX_DIRECT_PATH_FAILURES = 5;
-// const CHASE_SPEED_INCREMENT = 0.1;
-// const MAX_CHASE_SPEED = 2.0;
 const OFFSET_X = 304;
 const OFFSET_Z = 150;
 
@@ -67,7 +64,6 @@ const Monster = (props) => {
 	const [soundsReady, setSoundsReady] = useState(false);
 	const { gl } = useThree();
 	const [directPathFailures, setDirectPathFailures] = useState(0);
-	// const [currentChaseSpeed, setCurrentChaseSpeed] = useState(CHASE_SPEED_BASE);
 	const lastChaseTimeRef = useRef(0);
 	const { nodes, materials, animations } = useGLTF(
 		'/models/monster-opt.glb',
@@ -194,13 +190,11 @@ const Monster = (props) => {
 
 	useEffect(() => {
 		if (monsterState !== 'chase') {
-			// setCurrentChaseSpeed(chaseSpeed);
 			lastChaseTimeRef.current = 0;
 		}
 	}, [monsterState]);
 
 	useEffect(() => {
-		// setCurrentChaseSpeed(chaseSpeed);
 		lastChaseTimeRef.current = 0;
 	}, [playerPositionRoom]);
 
@@ -224,10 +218,6 @@ const Monster = (props) => {
 				if (lastChaseTimeRef.current === 0) {
 					lastChaseTimeRef.current = Date.now();
 				}
-
-				// const currentTime = Date.now();
-				// const elapsedTime = (currentTime - lastChaseTimeRef.current) / 1000;
-
 				const roomKey =
 					Object.values(seedData)[playerPositionRoom]?.baseKey ||
 					Object.keys(seedData)[playerPositionRoom];
@@ -237,13 +227,6 @@ const Monster = (props) => {
 					? CLAYMORE_CHASE_SPEED
 					: CHASE_SPEED_BASE;
 
-				// const newSpeed = Math.min(
-				// 	baseChaseSpeed + elapsedTime * CHASE_SPEED_INCREMENT,
-				// 	MAX_CHASE_SPEED
-				// );
-
-				// setCurrentChaseSpeed(newSpeed);
-				// baseSpeed = newSpeed;
 				baseSpeed = baseChaseSpeed;
 			} else {
 				baseSpeed = BASE_SPEED;
@@ -268,15 +251,9 @@ const Monster = (props) => {
 			);
 
 			const speed = baseSpeed;
-			//  * distanceMultiplier;
 
 			if (mode === 'chase') {
-				// const animationSpeedMultiplier =
-				// 	(currentChaseSpeed / chaseSpeed) * distanceMultiplier;
-				setAnimationSpeed(
-					// Math.max(distanceMultiplier, animationSpeedMultiplier)
-					2
-				);
+				setAnimationSpeed(2);
 			} else {
 				setAnimationSpeed(distanceMultiplier);
 			}
