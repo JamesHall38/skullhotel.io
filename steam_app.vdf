@@ -1,0 +1,21 @@
+"appbuild"
+{
+    "appid" "YOUR_APP_ID"
+    "desc" "Skull Hotel"
+    "buildoutput" "build"
+    "contentroot" "dist-electron"
+    "setlive" "beta"
+    "preview" "0"
+    "local" ""
+    "depots"
+    {
+        "YOUR_DEPOT_ID"
+        {
+            "filelisting"
+            {
+                "exclude" "*.pdb"
+                "exclude" "*.map"
+            }
+        }
+    }
+} 
