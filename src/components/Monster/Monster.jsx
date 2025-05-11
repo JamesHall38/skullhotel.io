@@ -81,6 +81,7 @@ const Monster = (props) => {
 
 	const seedData = useGame((state) => state.seedData);
 	const playerPositionRoom = useGame((state) => state.playerPositionRoom);
+	const endAnimationPlaying = useGame((state) => state.endAnimationPlaying);
 	const roomCount = useGameplaySettings((state) => state.roomCount);
 	const setShakeIntensity = useGame((state) => state.setShakeIntensity);
 	const monsterState = useMonster((state) => state.monsterState);
@@ -626,7 +627,6 @@ const Monster = (props) => {
 			setMonsterState,
 			setShakeIntensity,
 			directPathFailures,
-			// currentChaseSpeed,
 			setDisableControls,
 			usedForcedPathfinding,
 			roomCount,
@@ -846,7 +846,10 @@ const Monster = (props) => {
 				}, 5000);
 			}
 		}
-		if (!Object.values(seedData)[playerPositionRoom]?.type) {
+		if (
+			!Object.values(seedData)[playerPositionRoom]?.type &&
+			!endAnimationPlaying
+		) {
 			group.current.position.y = 10;
 			setMonsterPosition([
 				group.current.position.x,
