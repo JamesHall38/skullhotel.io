@@ -3,6 +3,8 @@
 	"version": "1.0.0",
 	"type": "module",
 	"license": "MIT",
+	"description": "Skull Hotel - A first-person horror game playable in browser",
+	"author": "James Hall",
 	"main": "main.js",
 	"scripts": {
 		"dev": "vite",
@@ -57,7 +59,9 @@
 		],
 		"win": {
 			"target": "nsis",
-			"icon": "assets/icon.ico"
+			"icon": "assets/icon.ico",
+			"signingHashAlgorithms": null,
+			"signAndEditExecutable": false
 		},
 		"mac": {
 			"target": "dmg",
