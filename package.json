@@ -1,15 +1,21 @@
 {
 	"name": "skullhotel",
 	"version": "1.0.0",
-	"type": "module",
+	"type": "commonjs",
 	"license": "MIT",
+	"main": "electron/main.js",
+	"description": "Skull Hotel Game",
+	"author": "Skull Hotel Team",
 	"scripts": {
 		"dev": "vite",
 		"build": "vite build",
 		"build:itch": "vite build --config vite.config.itch.js && node fix-paths.js",
 		"build:firebase": "vite build",
+		"build:steam": "vite build && electron electron/main.js",
+		"build:steam-dist": "vite build && electron-builder --config.appId=3739730 --win nsis",
 		"preview": "vite preview",
-		"fix-paths": "node fix-paths.js"
+		"fix-paths": "node fix-paths.js",
+		"electron": "electron ."
 	},
 	"dependencies": {
 		"@gsap/react": "^2.1.2",
@@ -31,10 +37,40 @@
 	"devDependencies": {
 		"@eslint/js": "^9.19.0",
 		"@vitejs/plugin-react": "^4.3.4",
+		"electron": "^30.1.0",
+		"electron-builder": "^24.13.1",
 		"eslint": "^9.19.0",
 		"eslint-plugin-react": "^7.37.4",
 		"eslint-plugin-react-hooks": "^5.1.0",
 		"globals": "^15.14.0",
 		"vite": "^6.0.11"
+	},
+	"build": {
+		"appId": "3739730",
+		"productName": "Skull Hotel",
+		"files": [
+			"build/**/*",
+			"electron/**/*",
+			"public/**/*"
+		],
+		"directories": {
+			"output": "dist",
+			"buildResources": "public"
+		},
+		"extraResources": [
+			{
+				"from": "build",
+				"to": "app/build"
+			}
+		],
+		"win": {
+			"target": "nsis",
+			"icon": "public/images/web-app-manifest-512x512.png"
+		},
+		"nsis": {
+			"oneClick": false,
+			"allowToChangeInstallationDirectory": true,
+			"createDesktopShortcut": true
+		}
 	}
 }

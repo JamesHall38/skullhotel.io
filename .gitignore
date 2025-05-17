@@ -1,4 +1,11 @@
 node_modules/
-build/
-.firebase/
+/.pnp
+.pnp.js
+
+/build/
+/dist/
+
+/output/
+/steamcontent/
+
 .env

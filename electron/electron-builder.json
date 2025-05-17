@@ -1,0 +1,19 @@
+{
+	"appId": "com.skullhotel.app",
+	"productName": "Skull Hotel",
+	"directories": {
+		"output": "dist"
+	},
+	"files": ["build/**/*", "electron/**/*", "package.json"],
+	"win": {
+		"target": "nsis",
+		"icon": null
+	},
+	"nsis": {
+		"oneClick": false,
+		"allowToChangeInstallationDirectory": true,
+		"createDesktopShortcut": true,
+		"createStartMenuShortcut": true,
+		"shortcutName": "Skull Hotel"
+	}
+}
