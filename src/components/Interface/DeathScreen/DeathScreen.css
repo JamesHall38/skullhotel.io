@@ -106,7 +106,7 @@
 	font-family: 'Lincoln Road', serif;
 	color: #fff;
 	opacity: 0;
-	animation: messageAppear 1.5s ease 2s forwards;
+	animation: messageAppear 1.5s ease 1s forwards;
 }
 
 .death-screen-start {
@@ -116,5 +116,5 @@
 	color: #fff;
 	opacity: 0;
 	animation: messageAppear 1s ease 2.5s forwards,
-		blink 2s ease-in-out 4.5s infinite;
+		blink 2s ease-in-out 5.5s infinite;
 }

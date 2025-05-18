@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { subscribeWithSelector } from 'zustand/middleware';
 import { seed } from '../utils/config';
 import useHiding from './useHiding';
+import levelData from '../components/Monster/Triggers/levelData';
 
 const useGameStore = create(
 	subscribeWithSelector((set) => ({
@@ -251,6 +252,22 @@ const useGameStore = create(
 		temporaryDisableMouseLook: false,
 		setTemporaryDisableMouseLook: (value) =>
 			set({ temporaryDisableMouseLook: value }),
+
+		seenLevels: new Set(),
+
+		addSeenLevel: (levelKey) =>
+			set((state) => {
+				if (levelKey.includes('_empty')) return state;
+
+				const validLevelKeys = Object.keys(levelData);
+				if (!validLevelKeys.includes(levelKey)) return state;
+
+				const newSeenLevels = new Set(state.seenLevels);
+				newSeenLevels.add(levelKey);
+				return { seenLevels: newSeenLevels };
+			}),
+
+		totalLevelTypes: Object.keys(levelData).length,
 	}))
 );
 

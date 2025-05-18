@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-// import { TbXboxAFilled, TbXboxXFilled } from 'react-icons/tb';
 import useGame from '../../../hooks/useGame';
 import useInterface from '../../../hooks/useInterface';
 import useGridStore from '../../../hooks/useGrid';
@@ -29,6 +28,7 @@ function resetGame() {
 const DeathScreen = () => {
 	const [isRestarting, setIsRestarting] = useState(false);
 	const [lastDeathMessage, setLastDeathMessage] = useState(null);
+	const [animationsComplete, setAnimationsComplete] = useState(false);
 
 	const deviceMode = useGame((state) => state.deviceMode);
 	const openDeathScreen = useGame((state) => state.openDeathScreen);
@@ -38,6 +38,20 @@ const DeathScreen = () => {
 	const playerPositionRoom = useGame((state) => state.playerPositionRoom);
 	const seedData = useGame((state) => state.seedData);
 	const customMessage = useGame((state) => state.customDeathMessage);
+	const seenLevels = useGame((state) => state.seenLevels);
+	const totalLevelTypes = useGame((state) => state.totalLevelTypes);
+	const addSeenLevel = useGame((state) => state.addSeenLevel);
+
+	useEffect(() => {
+		if (openDeathScreen) {
+			setAnimationsComplete(false);
+			const timer = setTimeout(() => {
+				setAnimationsComplete(true);
+			}, 3500);
+
+			return () => clearTimeout(timer);
+		}
+	}, [openDeathScreen]);
 
 	useEffect(() => {
 		if (playerPositionRoom !== null && playerPositionRoom >= 0) {
@@ -48,16 +62,33 @@ const DeathScreen = () => {
 					? 'If you hear a client knocking at the door, hide until they leave'
 					: currentRoom?.deathReason);
 			setLastDeathMessage(message);
+
+			if (currentRoom?.baseKey) {
+				addSeenLevel(currentRoom.baseKey);
+			}
 		}
-	}, [playerPositionRoom, seedData, customMessage]);
+	}, [playerPositionRoom, seedData, customMessage, addSeenLevel]);
 
 	useEffect(() => {
-		if (openDeathScreen && deviceMode === 'keyboard') {
+		if (openDeathScreen) {
 			if (isPointerLocked()) {
 				exitPointerLock();
 			}
+
+			const preventPointerLock = (e) => {
+				if (!animationsComplete) {
+					e.preventDefault();
+					exitPointerLock();
+				}
+			};
+
+			document.addEventListener('pointerlockchange', preventPointerLock);
+
+			return () => {
+				document.removeEventListener('pointerlockchange', preventPointerLock);
+			};
 		}
-	}, [openDeathScreen, deviceMode]);
+	}, [openDeathScreen, animationsComplete]);
 
 	useEffect(() => {
 		if (openDeathScreen) {
@@ -72,13 +103,17 @@ const DeathScreen = () => {
 			const gamepads = navigator.getGamepads ? navigator.getGamepads() : [];
 			for (const gamepad of gamepads) {
 				if (gamepad && gamepad.connected) {
-					const xButtonPressed = gamepad.buttons[2]?.pressed;
+					const aButtonPressed = gamepad.buttons[0]?.pressed; // A button
+					const xButtonPressed = gamepad.buttons[2]?.pressed; // X button
 					const leftTriggerPressed = gamepad.buttons[6]?.pressed; // L2/LT
 					const rightTriggerPressed = gamepad.buttons[7]?.pressed; // R2/RT
 					const actionPressed =
-						xButtonPressed || leftTriggerPressed || rightTriggerPressed;
+						aButtonPressed ||
+						xButtonPressed ||
+						leftTriggerPressed ||
+						rightTriggerPressed;
 
-					if (actionPressed && !isRestarting) {
+					if (actionPressed && !isRestarting && animationsComplete) {
 						setIsRestarting(true);
 						setTimeout(() => {
 							resetGame();
@@ -110,10 +145,11 @@ const DeathScreen = () => {
 		setOpenDeathScreen,
 		isRestarting,
 		setIsGameplayActive,
+		animationsComplete,
 	]);
 
 	const handleRestart = () => {
-		if (isRestarting) return;
+		if (isRestarting || !animationsComplete) return;
 
 		setIsRestarting(true);
 		incrementRealDeaths();
@@ -151,27 +187,12 @@ const DeathScreen = () => {
 			<AnimatedDeathLogo />
 			<div className="death-screen-flex">
 				<div className="death-screen-title">YOU DIED</div>
-				<div className="death-message">{lastDeathMessage}</div>
+				<div className="death-message">
+					{lastDeathMessage}
+					<br /> {seenLevels.size}/{totalLevelTypes} Hiding Spots Found
+				</div>
 			</div>
 			<div className="death-screen-start">
-				{/* {deviceMode === 'gamepad' ? (
-					<>
-						<TbXboxAFilled
-							style={{ verticalAlign: 'middle', marginRight: '5px' }}
-						/>{' '}
-						or{' '}
-						<TbXboxXFilled
-							style={{
-								verticalAlign: 'middle',
-								marginLeft: '5px',
-								marginRight: '5px',
-							}}
-						/>{' '}
-						to start
-					</>
-				) : (
-					<>{isRestarting ? 'Restarting...' : 'CONTINUE'}</>
-				)} */}
 				<>{isRestarting ? 'Restarting...' : 'CONTINUE'}</>
 			</div>
 		</div>
