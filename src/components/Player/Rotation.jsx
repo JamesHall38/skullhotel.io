@@ -9,6 +9,8 @@ import useSettings from '../../hooks/useSettings';
 import * as THREE from 'three';
 
 const floor = -0.2;
+const WALK_SPEED = 0.75;
+const RUN_SPEED = 1.25;
 
 const applySensitivityCurve = (value, sensitivity, isJoystick = false) => {
 	const sign = Math.sign(value);
@@ -39,6 +41,7 @@ export default function Rotation({
 	playerVelocity,
 	setIsRunning,
 	disableControls,
+	isCrouchingRef,
 }) {
 	const monsterState = useMonster((state) => state.monsterState);
 	const deaths = useGame((state) => state.deaths);
@@ -118,7 +121,8 @@ export default function Rotation({
 				deviceMode === 'keyboard' &&
 				monsterState !== 'run' &&
 				document.pointerLockElement &&
-				!temporaryDisableMouseLook
+				!temporaryDisableMouseLook &&
+				isGameplayActive
 			) {
 				const movementX = event.movementX || 0;
 				const movementY = event.movementY || 0;
@@ -147,6 +151,7 @@ export default function Rotation({
 		verticalSensitivity,
 		disableControls,
 		temporaryDisableMouseLook,
+		isGameplayActive,
 	]);
 
 	useFrame((state, delta) => {
@@ -162,10 +167,29 @@ export default function Rotation({
 		const gamepadRunning = isUsingGamepad && gamepadControls.run;
 		const isPlayerRunning = isRunning || gamepadRunning;
 
-		if (speed > 0.1 && monsterState !== 'run' && !disableControls) {
+		if (
+			speed > 0.1 &&
+			monsterState !== 'run' &&
+			!disableControls &&
+			!isCrouchingRef.current
+		) {
+			let targetIntensity = 1.0;
+
+			if (isUsingGamepad) {
+				const leftStickMagnitude = Math.min(
+					1,
+					Math.sqrt(
+						Math.pow(gamepadControls.leftStickX, 2) +
+							Math.pow(gamepadControls.leftStickY, 2)
+					)
+				);
+
+				targetIntensity = Math.max(0.1, leftStickMagnitude);
+			}
+
 			bobIntensity.current = THREE.MathUtils.lerp(
 				bobIntensity.current,
-				1.0,
+				targetIntensity,
 				delta * 3.0
 			);
 

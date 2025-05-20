@@ -67,10 +67,12 @@ export default function Player() {
 				playerVelocity={playerVelocity}
 				setIsRunning={setIsRunning}
 				disableControls={disableControls}
+				isCrouchingRef={isCrouchingRef}
 			/>
 			<FootSteps
 				playerPosition={playerPosition}
 				playerVelocity={playerVelocity}
+				isCrouchingRef={isCrouchingRef}
 			/>
 		</>
 	);

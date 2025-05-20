@@ -12,7 +12,7 @@ import useGameplaySettings from '../../hooks/useGameplaySettings';
 const WALK_SPEED = 0.75;
 const RUN_SPEED = 1.25;
 const MOBILE_SPEED = (WALK_SPEED + RUN_SPEED) / 2;
-const CROUCH_SPEED = 1;
+const CROUCH_SPEED = 0.4;
 const CROUCH_CAMERA_OFFSET = 0.8;
 const RAISED_AREA_LOW_HEIGHT = 0.5;
 const RAISED_AREA_HIGH_HEIGHT = 0.7;
@@ -129,7 +129,7 @@ export default function Movement({
 		if (isMobile) return;
 
 		const handleKeyDown = (event) => {
-			if (event.shiftKey) {
+			if (event.shiftKey && !isCrouchingRef.current) {
 				setIsRunningState(true);
 			}
 		};
@@ -147,26 +147,27 @@ export default function Movement({
 			window.removeEventListener('keydown', handleKeyDown);
 			window.removeEventListener('keyup', handleKeyUp);
 		};
-	}, [isMobile]);
+	}, [isMobile, isCrouchingRef]);
 
 	useFrame(() => {
 		if (isMobile) return;
 
 		const gamepadControls = gamepadControlsRef();
 
-		if (gamepadControls.run) {
+		if (gamepadControls.run && !isCrouchingRef.current) {
 			setIsGamepadRunning(true);
 			setIsRunning(true);
 		}
 
 		if (
 			isGamepadRunning &&
-			Math.abs(leftStickRef.current.x) < 0.1 &&
-			Math.abs(leftStickRef.current.y) < 0.1 &&
-			!gamepadControls.forward &&
-			!gamepadControls.backward &&
-			!gamepadControls.left &&
-			!gamepadControls.right
+			((Math.abs(leftStickRef.current.x) < 0.1 &&
+				Math.abs(leftStickRef.current.y) < 0.1 &&
+				!gamepadControls.forward &&
+				!gamepadControls.backward &&
+				!gamepadControls.left &&
+				!gamepadControls.right) ||
+				isCrouchingRef.current)
 		) {
 			setIsGamepadRunning(false);
 			setIsRunning(false);
@@ -293,10 +294,10 @@ export default function Movement({
 		direction.multiplyScalar(
 			(isMobile
 				? MOBILE_SPEED
-				: isRunningState || isGamepadRunning
-				? RUN_SPEED
 				: isCrouchingRef.current
 				? CROUCH_SPEED
+				: isRunningState || isGamepadRunning
+				? RUN_SPEED
 				: WALK_SPEED) *
 				(1 - listeningProgress * (1 - LISTENING_SPEED_MULTIPLIER))
 		);

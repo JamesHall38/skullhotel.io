@@ -24,7 +24,11 @@ const RUN_SPEED = 1;
 
 const MOVEMENT_THRESHOLD = 0.00001;
 
-export default function FootSteps({ playerPosition, playerVelocity }) {
+export default function FootSteps({
+	playerPosition,
+	playerVelocity,
+	isCrouchingRef,
+}) {
 	const [soundsReady, setSoundsReady] = useState(false);
 	const footstepRefs = useRef(null);
 
@@ -86,7 +90,8 @@ export default function FootSteps({ playerPosition, playerVelocity }) {
 			isPlaying ||
 			isCameraLocked ||
 			jumpScare ||
-			isAnyPopupOpen
+			isAnyPopupOpen ||
+			isCrouchingRef.current
 		) {
 			return;
 		}

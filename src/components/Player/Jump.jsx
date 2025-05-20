@@ -46,6 +46,7 @@ export default function Jump({
 	const setIsCrouchLocked = useGame((state) => state.setIsCrouchLocked);
 	const [soundsReady, setSoundsReady] = useState(false);
 	const landingSoundRef = useRef(null);
+	const isGameplayActive = useGame((state) => state.isGameplayActive);
 
 	const roomDoor = useDoorStore((state) => state.roomDoor);
 	const bathroomDoor = useDoorStore((state) => state.bathroomDoor);
@@ -199,7 +200,8 @@ export default function Jump({
 				!spacePressed &&
 				!isListening &&
 				!isAnyPopupOpen &&
-				!introIsPlaying
+				!introIsPlaying &&
+				isGameplayActive
 			) {
 				setSpacePressed(true);
 				setCanJump(true);
@@ -226,6 +228,7 @@ export default function Jump({
 		isMobile,
 		isAnyPopupOpen,
 		introIsPlaying,
+		isGameplayActive,
 	]);
 
 	useEffect(() => {
@@ -239,7 +242,8 @@ export default function Jump({
 				!spacePressed &&
 				!isListening &&
 				!isAnyPopupOpen &&
-				!introIsPlaying
+				!introIsPlaying &&
+				isGameplayActive
 			) {
 				setSpacePressed(true);
 				setCanJump(true);
@@ -277,12 +281,19 @@ export default function Jump({
 		gridOffsetX,
 		isCrouchingRef,
 		setIsCrouchLocked,
+		isGameplayActive,
 	]);
 
 	useEffect(() => {
 		if (!isMobile) return;
 
-		if (controls.jump && !spacePressed && !isListening && !isAnyPopupOpen) {
+		if (
+			controls.jump &&
+			!spacePressed &&
+			!isListening &&
+			!isAnyPopupOpen &&
+			isGameplayActive
+		) {
 			setSpacePressed(true);
 			setCanJump(true);
 
@@ -312,6 +323,7 @@ export default function Jump({
 		gridOffsetX,
 		isCrouchingRef,
 		setIsCrouchLocked,
+		isGameplayActive,
 	]);
 
 	useEffect(() => {

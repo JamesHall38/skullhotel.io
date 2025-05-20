@@ -71,7 +71,13 @@ export default function Crouch({
 	);
 
 	const toggleCrouchLock = useCallback(() => {
-		if (monsterState === 'run' || isAnyPopupOpen || introIsPlaying) return;
+		if (
+			monsterState === 'run' ||
+			isAnyPopupOpen ||
+			introIsPlaying ||
+			!isGameplayActive
+		)
+			return;
 
 		if (isCrouchLocked && checkCrouchArea(playerPosition.current)) return;
 
@@ -97,6 +103,7 @@ export default function Crouch({
 		monsterState,
 		isAnyPopupOpen,
 		introIsPlaying,
+		isGameplayActive,
 	]);
 
 	const handleCrouchChange = useCallback(
