@@ -36,6 +36,7 @@ export default function Movement({
 	const playerPositionRoom = useGame((state) => state.realPlayerPositionRoom);
 	const jumpScare = useGame((state) => state.jumpScare);
 	const isPlaying = useGame((state) => state.isPlaying);
+	const setIsRunning = useGame((state) => state.setIsRunning);
 	const isGameplayActive = useGame((state) => state.isGameplayActive);
 	const getCell = useGridStore((state) => state.getCell);
 	const getKeys = useKeyboardControls()[1];
@@ -155,6 +156,7 @@ export default function Movement({
 
 		if (gamepadControls.run) {
 			setIsGamepadRunning(true);
+			setIsRunning(true);
 		}
 
 		if (
@@ -167,6 +169,7 @@ export default function Movement({
 			!gamepadControls.right
 		) {
 			setIsGamepadRunning(false);
+			setIsRunning(false);
 		}
 	});
 

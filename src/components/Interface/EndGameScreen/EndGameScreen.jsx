@@ -455,25 +455,6 @@ const EndGameScreen = () => {
 			>
 				{isRestarting ? 'RESTARTING...' : 'PLAY AGAIN'}
 			</button>
-
-			{deviceMode === 'gamepad' && (
-				<div className="gamepad-controls-hint">
-					<div className="gamepad-control">
-						<div className="gamepad-button dpad">↑↓</div>
-						<span>Navigate</span>
-					</div>
-					<div className="gamepad-control">
-						<div className="gamepad-button a">A</div>
-						<span>Select</span>
-					</div>
-					{!submitted && (
-						<div className="gamepad-control">
-							<div className="gamepad-button b">B</div>
-							<span>Exit input</span>
-						</div>
-					)}
-				</div>
-			)}
 		</div>
 	);
 };

@@ -6,6 +6,7 @@ import useGame from '../../hooks/useGame';
 import useGamepadControls from '../../hooks/useGamepadControls';
 import useJoysticksStore from '../../hooks/useJoysticks';
 import useSettings from '../../hooks/useSettings';
+import * as THREE from 'three';
 
 const floor = -0.2;
 
@@ -44,6 +45,7 @@ export default function Rotation({
 	const deviceMode = useGame((state) => state.deviceMode);
 	const isMobile = useGame((state) => state.isMobile);
 	const isGameplayActive = useGame((state) => state.isGameplayActive);
+	const isRunning = useGame((state) => state.isRunning);
 	const temporaryDisableMouseLook = useGame(
 		(state) => state.temporaryDisableMouseLook
 	);
@@ -59,6 +61,8 @@ export default function Rotation({
 
 	const yaw = useRef(-Math.PI);
 	const pitch = useRef(0);
+	const bobTimer = useRef(0);
+	const bobIntensity = useRef(0);
 
 	const reset = useCallback(() => {
 		playerPosition.current.set(10.77, floor, -3);
@@ -146,13 +150,67 @@ export default function Rotation({
 	]);
 
 	useFrame((state, delta) => {
+		const velocity = new THREE.Vector3(
+			playerVelocity.current.x,
+			0,
+			playerVelocity.current.z
+		);
+		const speed = velocity.length();
+
+		const gamepadControls = getGamepadControls();
+		const isUsingGamepad = deviceMode === 'gamepad';
+		const gamepadRunning = isUsingGamepad && gamepadControls.run;
+		const isPlayerRunning = isRunning || gamepadRunning;
+
+		if (speed > 0.1 && monsterState !== 'run' && !disableControls) {
+			bobIntensity.current = THREE.MathUtils.lerp(
+				bobIntensity.current,
+				1.0,
+				delta * 3.0
+			);
+
+			const bobSpeed = isPlayerRunning ? 16 : 8;
+			bobTimer.current += delta * bobSpeed;
+
+			const bobAmplitude = 0.03 * bobIntensity.current;
+			const bobOffset = Math.sin(bobTimer.current) * bobAmplitude;
+
+			state.camera.position.y += bobOffset;
+
+			const rollAmplitude = 0.008 * bobIntensity.current;
+			camera.rotation.z = Math.sin(bobTimer.current * 0.5) * rollAmplitude;
+		} else if (monsterState !== 'run') {
+			bobIntensity.current = THREE.MathUtils.lerp(
+				bobIntensity.current,
+				0,
+				delta * 5.0
+			);
+
+			if (bobIntensity.current > 0.01) {
+				bobTimer.current += delta * 8;
+
+				const bobAmplitude = 0.03 * bobIntensity.current;
+				const bobOffset = Math.sin(bobTimer.current) * bobAmplitude;
+
+				state.camera.position.y += bobOffset;
+
+				const rollAmplitude = 0.008 * bobIntensity.current;
+				camera.rotation.z = Math.sin(bobTimer.current * 0.5) * rollAmplitude;
+			} else {
+				camera.rotation.z = THREE.MathUtils.lerp(
+					camera.rotation.z,
+					0,
+					delta * 5
+				);
+			}
+		}
+
 		if (
 			(isMobile || deviceMode === 'gamepad') &&
 			monsterState !== 'run' &&
 			!disableControls
 		) {
 			const ROTATION_DEADZONE = 0.15;
-			const gamepadControls = getGamepadControls();
 
 			if (isMobile) {
 				if (Math.abs(rightStickRef.current?.x) > ROTATION_DEADZONE) {
