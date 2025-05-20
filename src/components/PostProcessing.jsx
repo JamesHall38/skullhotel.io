@@ -16,6 +16,7 @@ import useGame from '../hooks/useGame';
 import useInterface from '../hooks/useInterface';
 import * as THREE from 'three';
 import { getAudioInstance, areSoundsLoaded } from '../utils/audio';
+import { vibrateControllers } from '../hooks/useGamepadControls';
 
 const DISTORTION_SPEED = 5;
 
@@ -358,6 +359,8 @@ const PostProcessing = () => {
 				setIsDistorting(true);
 				setCursor('hidden');
 
+				vibrateControllers(0.7, 100);
+
 				// Start white noise with fade in
 				whiteNoiseRef.current.play().catch(() => {});
 				whiteNoiseRef.current.currentTime = 0.2;
@@ -367,6 +370,9 @@ const PostProcessing = () => {
 				await new Promise((resolve) => setTimeout(resolve, 200));
 				setIsDistorting(false);
 				setIsNeonFlickering(true);
+
+				vibrateControllers(0.4, 500);
+
 				const startTime = Date.now();
 				const flickerInterval = setInterval(() => {
 					const intensity = Math.random() < 0.5 ? 0 : Math.random() * 0.8 + 0.2;

@@ -2,6 +2,23 @@ import { useRef, useCallback, useEffect } from 'react';
 import { useFrame } from '@react-three/fiber';
 import useGame from './useGame';
 
+let vibrateControllersGlobal = (intensity = 1.0, duration = 500) => {
+	const gamepads = navigator.getGamepads();
+
+	for (const gamepad of gamepads) {
+		if (!gamepad || !gamepad.connected) continue;
+
+		if (gamepad.vibrationActuator) {
+			gamepad.vibrationActuator.playEffect('dual-rumble', {
+				startDelay: 0,
+				duration: duration,
+				weakMagnitude: intensity * 0.5,
+				strongMagnitude: intensity,
+			});
+		}
+	}
+};
+
 const useGamepadControls = () => {
 	const deviceMode = useGame((state) => state.deviceMode);
 	const setDeviceMode = useGame((state) => state.setDeviceMode);
@@ -23,6 +40,7 @@ const useGamepadControls = () => {
 	});
 	const buttonStateHistoryRef = useRef([]);
 	const MAX_HISTORY = 3;
+	const gamepadsRef = useRef([]);
 
 	useEffect(() => {
 		const handleMouseMove = (event) => {
@@ -40,8 +58,26 @@ const useGamepadControls = () => {
 		};
 	}, [deviceMode, setDeviceMode]);
 
+	vibrateControllersGlobal = (intensity = 1.0, duration = 500) => {
+		const gamepads = navigator.getGamepads();
+
+		for (const gamepad of gamepads) {
+			if (!gamepad || !gamepad.connected) continue;
+
+			if (gamepad.vibrationActuator) {
+				gamepad.vibrationActuator.playEffect('dual-rumble', {
+					startDelay: 0,
+					duration: duration,
+					weakMagnitude: intensity * 0.5,
+					strongMagnitude: intensity,
+				});
+			}
+		}
+	};
+
 	const handleGamepadInput = useCallback(() => {
 		const gamepads = navigator.getGamepads();
+		gamepadsRef.current = gamepads;
 		let anyGamepadActive = false;
 
 		const controls = {
@@ -150,5 +186,7 @@ const useGamepadControls = () => {
 
 	return () => controlsRef.current;
 };
+
+export const vibrateControllers = vibrateControllersGlobal;
 
 export default useGamepadControls;

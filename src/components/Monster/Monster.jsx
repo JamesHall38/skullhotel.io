@@ -12,6 +12,9 @@ import { getAudioInstance, areSoundsLoaded } from '../../utils/audio';
 import { KTX2Loader } from 'three/examples/jsm/loaders/KTX2Loader';
 import useProgressiveLoad from '../../hooks/useProgressiveLoad';
 import useGameplaySettings from '../../hooks/useGameplaySettings';
+import useGamepadControls, {
+	vibrateControllers,
+} from '../../hooks/useGamepadControls';
 
 const BASE_SPEED = 5;
 const CHASE_SPEED_BASE = 0.75;
@@ -61,10 +64,14 @@ const Monster = (props) => {
 	const group = useRef();
 	const jumpScareSoundRef = useRef(null);
 	const [hasPlayedJumpScare, setHasPlayedJumpScare] = useState(false);
+	const [hasTriggeredVibration, setHasTriggeredVibration] = useState(false);
+	const [hasTriggeredDeathVibration, setHasTriggeredDeathVibration] =
+		useState(false);
 	const [soundsReady, setSoundsReady] = useState(false);
 	const { gl } = useThree();
 	const [directPathFailures, setDirectPathFailures] = useState(0);
 	const lastChaseTimeRef = useRef(0);
+	useGamepadControls();
 	const { nodes, materials, animations } = useGLTF(
 		'/models/monster-opt.glb',
 		undefined,
@@ -168,6 +175,8 @@ const Monster = (props) => {
 
 	useEffect(() => {
 		setHasPlayedJumpScare(false);
+		setHasTriggeredVibration(false);
+		setHasTriggeredDeathVibration(false);
 	}, [deaths]);
 
 	useEffect(() => {
@@ -290,6 +299,11 @@ const Monster = (props) => {
 			if (distanceToCamera <= ATTACK_DISTANCE) {
 				if (!jumpScare) {
 					setJumpScare(true);
+
+					if (!hasTriggeredVibration) {
+						vibrateControllers(1.0, 1500);
+						setHasTriggeredVibration(true);
+					}
 				}
 				playAnimation('Attack');
 				setAnimationSpeed(1);
@@ -630,6 +644,7 @@ const Monster = (props) => {
 			setDisableControls,
 			usedForcedPathfinding,
 			roomCount,
+			hasTriggeredVibration,
 		]
 	);
 
@@ -881,6 +896,25 @@ const Monster = (props) => {
 			headBoneRef.current.rotation.set(0, 0, 0);
 		}
 	}, [animationName]);
+
+	useFrame(() => {
+		if (
+			jumpScare &&
+			animationName === 'Attack' &&
+			!hasTriggeredDeathVibration
+		) {
+			const mixer = useMonster.getState().mixer;
+			if (mixer && mixer._actions.length > 0) {
+				const attackAction = mixer._actions.find(
+					(action) => action._clip.name === 'Attack'
+				);
+				if (attackAction && attackAction.time > 0.5) {
+					vibrateControllers(1.0, 1500);
+					setHasTriggeredDeathVibration(true);
+				}
+			}
+		}
+	});
 
 	return (
 		<group>
