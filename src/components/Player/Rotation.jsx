@@ -196,12 +196,12 @@ export default function Rotation({
 			const bobSpeed = isPlayerRunning ? 16 : 8;
 			bobTimer.current += delta * bobSpeed;
 
-			const bobAmplitude = 0.03 * bobIntensity.current;
+			const bobAmplitude = 0.02 * bobIntensity.current;
 			const bobOffset = Math.sin(bobTimer.current) * bobAmplitude;
 
 			state.camera.position.y += bobOffset;
 
-			const rollAmplitude = 0.008 * bobIntensity.current;
+			const rollAmplitude = 0.004 * bobIntensity.current;
 			camera.rotation.z = Math.sin(bobTimer.current * 0.5) * rollAmplitude;
 		} else if (monsterState !== 'run') {
 			bobIntensity.current = THREE.MathUtils.lerp(
@@ -213,12 +213,12 @@ export default function Rotation({
 			if (bobIntensity.current > 0.01) {
 				bobTimer.current += delta * 8;
 
-				const bobAmplitude = 0.03 * bobIntensity.current;
+				const bobAmplitude = 0.02 * bobIntensity.current;
 				const bobOffset = Math.sin(bobTimer.current) * bobAmplitude;
 
 				state.camera.position.y += bobOffset;
 
-				const rollAmplitude = 0.008 * bobIntensity.current;
+				const rollAmplitude = 0.004 * bobIntensity.current;
 				camera.rotation.z = Math.sin(bobTimer.current * 0.5) * rollAmplitude;
 			} else {
 				camera.rotation.z = THREE.MathUtils.lerp(
