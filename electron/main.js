@@ -1,5 +1,5 @@
 /* eslint-disable no-undef */
-const { app, BrowserWindow, protocol } = require('electron');
+const { app, BrowserWindow, protocol, Menu } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const process = require('process');
@@ -101,6 +101,54 @@ function createWindow() {
 			contextIsolation: true,
 			webSecurity: false,
 		},
+		autoHideMenuBar: true,
+	});
+
+	const template = [
+		{
+			label: 'View',
+			submenu: [
+				{
+					label: 'Toggle Fullscreen',
+					accelerator: 'F11',
+					click: () => {
+						const isFullScreen = mainWindow.isFullScreen();
+						mainWindow.setFullScreen(!isFullScreen);
+					},
+				},
+				{
+					label: 'Exit Fullscreen',
+					accelerator: 'Escape',
+					click: () => {
+						if (mainWindow.isFullScreen()) {
+							mainWindow.setFullScreen(false);
+						}
+					},
+				},
+				{ type: 'separator' },
+				{
+					label: 'Toggle Menu Bar',
+					accelerator: 'Alt+M',
+					click: () => {
+						const isVisible = mainWindow.isMenuBarVisible();
+						mainWindow.setMenuBarVisibility(!isVisible);
+						mainWindow.setAutoHideMenuBar(isVisible);
+					},
+				},
+			],
+		},
+	];
+
+	const menu = Menu.buildFromTemplate(template);
+	Menu.setApplicationMenu(menu);
+
+	mainWindow.on('enter-full-screen', () => {
+		mainWindow.setMenuBarVisibility(false);
+	});
+
+	mainWindow.on('leave-full-screen', () => {
+		mainWindow.setAutoHideMenuBar(true);
+		mainWindow.setMenuBarVisibility(false);
 	});
 
 	const indexPath = path.join(getBasePath(), 'index.html');

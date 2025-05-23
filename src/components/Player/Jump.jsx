@@ -363,7 +363,7 @@ export default function Jump({
 	]);
 
 	useFrame((state, delta) => {
-		if (!isPlaying || isAnyPopupOpen) {
+		if (!isPlaying || isAnyPopupOpen || introIsPlaying) {
 			return;
 		}
 

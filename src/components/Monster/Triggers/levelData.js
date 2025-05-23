@@ -119,7 +119,7 @@ const levelData = {
 
 	nearWindow: {
 		type: 'landmine',
-		deathReason: 'It was hiding in the linving room',
+		deathReason: 'It was hiding next to the couch',
 		monsterPosition: [3.2, 0, 2],
 		monsterInitialPosition: [3.2, 0, 2],
 		animation: 'BehindDoor',
@@ -429,7 +429,7 @@ const levelData = {
 
 	raidTV: {
 		type: 'raid',
-		deathReason: 'If the TV turns on by itself, hide immediately',
+		deathReason: 'If the TV turns on by itself, hide',
 		signal: 'tv',
 		position: [2, 0, 4],
 		scale: [7, 0.5, 2.4],
@@ -438,7 +438,7 @@ const levelData = {
 
 	raidRadio: {
 		type: 'raid',
-		deathReason: 'If the radio turns on by itself, hide immediately',
+		deathReason: 'If the radio turns on by itself, hide',
 		signal: 'radio',
 		position: [2.5, 0, -0.6],
 		scale: [2.5, 0.5, 2],

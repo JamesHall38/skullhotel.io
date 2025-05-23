@@ -4,6 +4,7 @@ import AnimatedCloseButton from '../AnimatedCloseButton/AnimatedCloseButton';
 import { RxExternalLink } from 'react-icons/rx';
 import { SiThreedotjs } from 'react-icons/si';
 import useGame from '../../../hooks/useGame';
+import { isSteamBuild } from '../../../utils/platform';
 import './HowItsMade.css';
 import LogoIcon from './logo.svg';
 import R3FIcon from './r3f-icon.svg';
@@ -17,6 +18,15 @@ function HowItsMadeContent({ onClose }) {
 	const lastNavigationTime = useRef(0);
 	const linkClickedRef = useRef(false);
 	const lastAButtonState = useRef(false);
+	const isInSteamBuild = isSteamBuild();
+
+	const handleLinkClick = (e, url) => {
+		if (isInSteamBuild) {
+			e.preventDefault();
+			return false;
+		}
+		window.open(url, '_blank');
+	};
 
 	useEffect(() => {
 		if (contentRef.current && deviceMode === 'gamepad') {
@@ -118,9 +128,19 @@ function HowItsMadeContent({ onClose }) {
 						<p>
 							This is an open source project. Check out the{' '}
 							<a
-								href="https://github.com/JamesHall38/skullhotel.io"
-								target="_blank"
+								href={
+									isInSteamBuild
+										? '#'
+										: 'https://github.com/JamesHall38/skullhotel.io'
+								}
+								target={isInSteamBuild ? '_self' : '_blank'}
 								rel="noopener noreferrer"
+								onClick={(e) => isInSteamBuild && e.preventDefault()}
+								style={
+									isInSteamBuild
+										? { cursor: 'default', textDecoration: 'none' }
+										: {}
+								}
 							>
 								GitHub repository
 							</a>
@@ -142,36 +162,48 @@ function HowItsMadeContent({ onClose }) {
 							<SiThreedotjs />
 						</div>
 						<div className="tech-description">
-							<h3 onClick={() => window.open('https://threejs.org/', '_blank')}>
+							<h3 onClick={(e) => handleLinkClick(e, 'https://threejs.org/')}>
 								<a
-									href="https://threejs.org/"
-									target="_blank"
+									href={isInSteamBuild ? '#' : 'https://threejs.org/'}
+									target={isInSteamBuild ? '_self' : '_blank'}
 									rel="noopener noreferrer"
+									onClick={(e) => isInSteamBuild && e.preventDefault()}
+									style={
+										isInSteamBuild
+											? { cursor: 'default', textDecoration: 'none' }
+											: {}
+									}
 								>
 									Three.js
 								</a>
-								<p
-									onClick={() => window.open('https://threejs.org/', '_blank')}
-								>
+								<p onClick={(e) => handleLinkClick(e, 'https://threejs.org/')}>
 									A JavaScript library for creating 3D graphics in the browser
 								</p>
-								<RxExternalLink className="external-link-icon" />
+								{!isInSteamBuild && (
+									<RxExternalLink className="external-link-icon" />
+								)}
 							</h3>
 							<p
 								className="tech-author"
-								onClick={() =>
-									window.open('https://github.com/mrdoob', '_blank')
-								}
+								onClick={(e) => handleLinkClick(e, 'https://github.com/mrdoob')}
 							>
 								Created by{' '}
 								<a
-									href="https://github.com/mrdoob"
-									target="_blank"
+									href={isInSteamBuild ? '#' : 'https://github.com/mrdoob'}
+									target={isInSteamBuild ? '_self' : '_blank'}
 									rel="noopener noreferrer"
+									onClick={(e) => isInSteamBuild && e.preventDefault()}
+									style={
+										isInSteamBuild
+											? { cursor: 'default', textDecoration: 'none' }
+											: {}
+									}
 								>
 									mrdoob
 								</a>
-								<RxExternalLink className="external-link-icon" />
+								{!isInSteamBuild && (
+									<RxExternalLink className="external-link-icon" />
+								)}
 							</p>
 						</div>
 					</div>
@@ -187,42 +219,54 @@ function HowItsMadeContent({ onClose }) {
 						</div>
 						<div className="tech-description">
 							<h3
-								onClick={() =>
-									window.open('https://r3f.docs.pmnd.rs/', '_blank')
-								}
+								onClick={(e) => handleLinkClick(e, 'https://r3f.docs.pmnd.rs/')}
 							>
 								<a
-									href="https://r3f.docs.pmnd.rs/"
-									target="_blank"
+									href={isInSteamBuild ? '#' : 'https://r3f.docs.pmnd.rs/'}
+									target={isInSteamBuild ? '_self' : '_blank'}
 									rel="noopener noreferrer"
+									onClick={(e) => isInSteamBuild && e.preventDefault()}
+									style={
+										isInSteamBuild
+											? { cursor: 'default', textDecoration: 'none' }
+											: {}
+									}
 								>
 									React Three Fiber
 								</a>
 								<p
-									onClick={() =>
-										window.open('https://r3f.docs.pmnd.rs/', '_blank')
+									onClick={(e) =>
+										handleLinkClick(e, 'https://r3f.docs.pmnd.rs/')
 									}
 								>
 									A tool that makes it easier to use three.js with React
 								</p>
-								<RxExternalLink className="external-link-icon" />
+								{!isInSteamBuild && (
+									<RxExternalLink className="external-link-icon" />
+								)}
 							</h3>
 
 							<p
 								className="tech-author"
-								onClick={() =>
-									window.open('https://github.com/pmndrs', '_blank')
-								}
+								onClick={(e) => handleLinkClick(e, 'https://github.com/pmndrs')}
 							>
 								Created by{' '}
 								<a
-									href="https://github.com/pmndrs"
-									target="_blank"
+									href={isInSteamBuild ? '#' : 'https://github.com/pmndrs'}
+									target={isInSteamBuild ? '_self' : '_blank'}
 									rel="noopener noreferrer"
+									onClick={(e) => isInSteamBuild && e.preventDefault()}
+									style={
+										isInSteamBuild
+											? { cursor: 'default', textDecoration: 'none' }
+											: {}
+									}
 								>
 									Poimandres
 								</a>
-								<RxExternalLink className="external-link-icon" />
+								{!isInSteamBuild && (
+									<RxExternalLink className="external-link-icon" />
+								)}
 							</p>
 						</div>
 					</div>
@@ -238,42 +282,58 @@ function HowItsMadeContent({ onClose }) {
 						</div>
 						<div className="tech-description">
 							<h3
-								onClick={() =>
-									window.open('https://threejs-journey.com/', '_blank')
+								onClick={(e) =>
+									handleLinkClick(e, 'https://threejs-journey.com/')
 								}
 							>
 								<a
-									href="https://threejs-journey.com/"
-									target="_blank"
+									href={isInSteamBuild ? '#' : 'https://threejs-journey.com/'}
+									target={isInSteamBuild ? '_self' : '_blank'}
 									rel="noopener noreferrer"
+									onClick={(e) => isInSteamBuild && e.preventDefault()}
+									style={
+										isInSteamBuild
+											? { cursor: 'default', textDecoration: 'none' }
+											: {}
+									}
 								>
 									Three.js Journey
 								</a>
 								<p
-									onClick={() =>
-										window.open('https://threejs-journey.com/', '_blank')
+									onClick={(e) =>
+										handleLinkClick(e, 'https://threejs-journey.com/')
 									}
 								>
 									An online course to learn 3D for the web
 								</p>
-								<RxExternalLink className="external-link-icon" />
+								{!isInSteamBuild && (
+									<RxExternalLink className="external-link-icon" />
+								)}
 							</h3>
 
 							<p
 								className="tech-author"
-								onClick={() =>
-									window.open('https://github.com/brunosimon', '_blank')
+								onClick={(e) =>
+									handleLinkClick(e, 'https://github.com/brunosimon')
 								}
 							>
 								Created by{' '}
 								<a
-									href="https://github.com/brunosimon"
-									target="_blank"
+									href={isInSteamBuild ? '#' : 'https://github.com/brunosimon'}
+									target={isInSteamBuild ? '_self' : '_blank'}
 									rel="noopener noreferrer"
+									onClick={(e) => isInSteamBuild && e.preventDefault()}
+									style={
+										isInSteamBuild
+											? { cursor: 'default', textDecoration: 'none' }
+											: {}
+									}
 								>
 									Bruno Simon
 								</a>
-								<RxExternalLink className="external-link-icon" />
+								{!isInSteamBuild && (
+									<RxExternalLink className="external-link-icon" />
+								)}
 							</p>
 						</div>
 					</div>
@@ -283,71 +343,101 @@ function HowItsMadeContent({ onClose }) {
 					<h2>PEOPLE</h2>
 					<div className="tech-description">
 						<h3
-							onClick={() =>
-								window.open('https://github.com/JamesHall38', '_blank')
+							onClick={(e) =>
+								handleLinkClick(e, 'https://github.com/JamesHall38')
 							}
 						>
 							<a
-								href="https://github.com/JamesHall38"
-								target="_blank"
+								href={isInSteamBuild ? '#' : 'https://github.com/JamesHall38'}
+								target={isInSteamBuild ? '_self' : '_blank'}
 								rel="noopener noreferrer"
+								onClick={(e) => isInSteamBuild && e.preventDefault()}
+								style={
+									isInSteamBuild
+										? { cursor: 'default', textDecoration: 'none' }
+										: {}
+								}
 							>
 								Game concept, game design & game development
 							</a>
 							<p
 								className="tech-author"
-								onClick={() =>
-									window.open('https://github.com/JamesHall38', '_blank')
+								onClick={(e) =>
+									handleLinkClick(e, 'https://github.com/JamesHall38')
 								}
 							>
 								<a
-									href="https://github.com/JamesHall38"
-									target="_blank"
+									href={isInSteamBuild ? '#' : 'https://github.com/JamesHall38'}
+									target={isInSteamBuild ? '_self' : '_blank'}
 									rel="noopener noreferrer"
+									onClick={(e) => isInSteamBuild && e.preventDefault()}
+									style={
+										isInSteamBuild
+											? { cursor: 'default', textDecoration: 'none' }
+											: {}
+									}
 								>
 									James Hall
 								</a>
 							</p>
 							<div className="external-link-icon-container">
-								<RxExternalLink className="external-link-icon" />
+								{!isInSteamBuild && (
+									<RxExternalLink className="external-link-icon" />
+								)}
 							</div>
 						</h3>
 					</div>
 					<div className="tech-description">
 						<h3
-							onClick={() =>
-								window.open(
-									'https://www.linkedin.com/in/lucas-houbre',
-									'_blank'
-								)
+							onClick={(e) =>
+								handleLinkClick(e, 'https://www.linkedin.com/in/lucas-houbre')
 							}
 						>
 							<a
-								href="https://www.linkedin.com/in/lucas-houbre"
-								target="_blank"
+								href={
+									isInSteamBuild
+										? '#'
+										: 'https://www.linkedin.com/in/lucas-houbre'
+								}
+								target={isInSteamBuild ? '_self' : '_blank'}
 								rel="noopener noreferrer"
+								onClick={(e) => isInSteamBuild && e.preventDefault()}
+								style={
+									isInSteamBuild
+										? { cursor: 'default', textDecoration: 'none' }
+										: {}
+								}
 							>
 								User interface & Art direction
 							</a>
 							<p
 								className="tech-author"
-								onClick={() =>
-									window.open(
-										'https://www.linkedin.com/in/lucas-houbre',
-										'_blank'
-									)
+								onClick={(e) =>
+									handleLinkClick(e, 'https://www.linkedin.com/in/lucas-houbre')
 								}
 							>
 								<a
-									href="https://www.linkedin.com/in/lucas-houbre"
-									target="_blank"
+									href={
+										isInSteamBuild
+											? '#'
+											: 'https://www.linkedin.com/in/lucas-houbre'
+									}
+									target={isInSteamBuild ? '_self' : '_blank'}
 									rel="noopener noreferrer"
+									onClick={(e) => isInSteamBuild && e.preventDefault()}
+									style={
+										isInSteamBuild
+											? { cursor: 'default', textDecoration: 'none' }
+											: {}
+									}
 								>
 									Lucas Houbre
 								</a>
 							</p>
 							<div className="external-link-icon-container">
-								<RxExternalLink className="external-link-icon" />
+								{!isInSteamBuild && (
+									<RxExternalLink className="external-link-icon" />
+								)}
 							</div>
 						</h3>
 					</div>

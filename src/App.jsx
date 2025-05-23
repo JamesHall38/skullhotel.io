@@ -125,6 +125,8 @@ function App() {
 		setRaidPercentage,
 		setRandomRoomPercentage,
 	} = useGameplaySettings();
+	const introIsPlaying = useGame((state) => state.introIsPlaying);
+	const hasIntroBeenPlayedRef = useRef(false);
 
 	useEffect(() => {
 		const audioContext = new (window.AudioContext ||
@@ -266,8 +268,16 @@ function App() {
 	}, [disableControls]);
 
 	useEffect(() => {
-		camera.rotation.set(0, Math.PI, 0);
-	}, [camera]);
+		if (introIsPlaying) {
+			hasIntroBeenPlayedRef.current = true;
+		}
+	}, [introIsPlaying]);
+
+	useEffect(() => {
+		if (!introIsPlaying && !hasIntroBeenPlayedRef.current) {
+			camera.rotation.set(0, Math.PI, 0);
+		}
+	}, [camera, introIsPlaying]);
 
 	useEffect(() => {
 		if (openDeathScreen && controlsRef.current) {

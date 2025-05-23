@@ -66,6 +66,8 @@ export default function Rotation({
 	const pitch = useRef(0);
 	const bobTimer = useRef(0);
 	const bobIntensity = useRef(0);
+	const hasMovedMouseAfterIntro = useRef(false);
+	const introIsPlaying = useGame((state) => state.introIsPlaying);
 
 	const reset = useCallback(() => {
 		playerPosition.current.set(10.77, floor, -3);
@@ -74,6 +76,7 @@ export default function Rotation({
 		camera.rotation.set(0, Math.PI, 0);
 		yaw.current = -Math.PI;
 		pitch.current = 0;
+		hasMovedMouseAfterIntro.current = true;
 	}, [camera, playerPosition, playerVelocity]);
 
 	useEffect(() => {
@@ -127,6 +130,8 @@ export default function Rotation({
 				const movementX = event.movementX || 0;
 				const movementY = event.movementY || 0;
 
+				hasMovedMouseAfterIntro.current = true;
+
 				yaw.current -= movementX * horizontalSensitivity * 0.008;
 				pitch.current -= movementY * verticalSensitivity * 0.008;
 
@@ -155,6 +160,10 @@ export default function Rotation({
 	]);
 
 	useFrame((state, delta) => {
+		if (introIsPlaying) {
+			return;
+		}
+
 		const velocity = new THREE.Vector3(
 			playerVelocity.current.x,
 			0,
@@ -282,6 +291,13 @@ export default function Rotation({
 			state.camera.rotation.y = yaw.current;
 			state.camera.rotation.x = pitch.current;
 			state.camera.rotation.z = 0;
+		}
+
+		// Only apply automatic camera rotation in keyboard mode if user has moved mouse after intro
+		if (deviceMode === 'keyboard' && hasMovedMouseAfterIntro.current) {
+			state.camera.rotation.order = 'YXZ';
+			state.camera.rotation.y = yaw.current;
+			state.camera.rotation.x = pitch.current;
 		}
 	});
 }

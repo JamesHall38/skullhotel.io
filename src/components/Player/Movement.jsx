@@ -64,6 +64,7 @@ export default function Movement({
 
 	const isListening = useGame((state) => state.isListening);
 	const [listeningProgress, setListeningProgress] = useState(0);
+	const introIsPlaying = useGame((state) => state.introIsPlaying);
 
 	const [gridOffsetX, setGridOffsetX] = useState(0);
 	const roomCount = useGameplaySettings((state) => state.roomCount);
@@ -240,7 +241,7 @@ export default function Movement({
 	};
 
 	useFrame((state, delta) => {
-		if (!isPlaying || isCameraLocked || jumpScare) {
+		if (!isPlaying || isCameraLocked || jumpScare || introIsPlaying) {
 			return;
 		}
 
