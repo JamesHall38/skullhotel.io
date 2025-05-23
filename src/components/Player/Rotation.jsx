@@ -158,6 +158,13 @@ export default function Rotation({
 		temporaryDisableMouseLook,
 		isGameplayActive,
 	]);
+	console.log('disableControls', hasMovedMouseAfterIntro.current);
+
+	useEffect(() => {
+		if (disableControls) {
+			hasMovedMouseAfterIntro.current = false;
+		}
+	}, [disableControls]);
 
 	useFrame((state, delta) => {
 		if (introIsPlaying) {
