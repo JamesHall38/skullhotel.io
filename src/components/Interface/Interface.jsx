@@ -14,6 +14,7 @@ import useInterface from '../../hooks/useInterface';
 import useGame from '../../hooks/useGame';
 import useJoysticks from '../../hooks/useJoysticks';
 import useLight from '../../hooks/useLight';
+import useLocalization from '../../hooks/useLocalization';
 import Cursor from './Cursor';
 import EndGameScreen from './EndGameScreen/EndGameScreen';
 import GuestBook from './GuestBook/GuestBook';
@@ -54,6 +55,10 @@ const Dialogue = memo(({ id, text, index, onRemove }) => {
 	const textIndexRef = useRef(0);
 	const currentAudioIndex = useRef(0);
 	const keySoundsRef = useRef(null);
+	const { t } = useLocalization();
+
+	// Translate text if it's a translation key
+	const finalText = text.startsWith('game.dialogues.') ? t(text) : text;
 
 	useEffect(() => {
 		const checkSounds = () => {
@@ -100,8 +105,8 @@ const Dialogue = memo(({ id, text, index, onRemove }) => {
 			accumulatedTimeRef.current += deltaTime;
 
 			while (accumulatedTimeRef.current >= TIME_PER_CHAR) {
-				if (textIndexRef.current < text.length) {
-					const currentChar = text[textIndexRef.current];
+				if (textIndexRef.current < finalText.length) {
+					const currentChar = finalText[textIndexRef.current];
 
 					if (currentChar !== ' ' && keySoundsRef.current) {
 						try {
@@ -121,7 +126,7 @@ const Dialogue = memo(({ id, text, index, onRemove }) => {
 				accumulatedTimeRef.current -= TIME_PER_CHAR;
 			}
 
-			if (textIndexRef.current < text.length) {
+			if (textIndexRef.current < finalText.length) {
 				animationFrameRef.current = requestAnimationFrame(animate);
 			} else {
 				setTimeout(() => {
@@ -151,7 +156,7 @@ const Dialogue = memo(({ id, text, index, onRemove }) => {
 				});
 			}
 		};
-	}, [text, onRemove, id, soundsReady]);
+	}, [finalText, onRemove, id, soundsReady]);
 
 	return (
 		<div
@@ -343,6 +348,7 @@ const AnimatedObjectiveItem = ({ objective, index }) => {
 	const setCustomTutorialObjectives = useInterface(
 		(state) => state.setCustomTutorialObjectives
 	);
+	const { t } = useLocalization();
 
 	useEffect(() => {
 		if (objective.text !== currentText && !isTransitioning && !isAnimating) {
@@ -366,14 +372,6 @@ const AnimatedObjectiveItem = ({ objective, index }) => {
 			setTimeout(() => {
 				setCurrentText(objective.text);
 
-				if (objective.text === 'Refill soap bottles') {
-					setCustomTutorialObjectives([
-						{ text: 'Refill soap bottles', completed: false },
-						{ text: 'Make the bed', completed: false },
-						{ text: 'Open the window', completed: false },
-					]);
-				}
-
 				setSvgKey(`${index}-${Date.now()}`);
 
 				setSvgCompleted(false);
@@ -393,6 +391,7 @@ const AnimatedObjectiveItem = ({ objective, index }) => {
 		isTransitioning,
 		isAnimating,
 		setCustomTutorialObjectives,
+		t,
 	]);
 
 	return (
@@ -439,6 +438,7 @@ export default function Interface() {
 	const { progress } = useProgress();
 	const [displayProgress, setDisplayProgress] = useState(0);
 	const [loading, setLoading] = useState(true);
+	const { t, currentLanguage } = useLocalization();
 
 	const tutorialObjectives = useInterface((state) => state.tutorialObjectives);
 	const setIsGameplayActive = useGame((state) => state.setIsGameplayActive);
@@ -476,6 +476,9 @@ export default function Interface() {
 	const interfaceAction = useInterface((state) => state.interfaceAction);
 	const customTutorialObjectives = useInterface(
 		(state) => state.customTutorialObjectives
+	);
+	const setCustomTutorialObjectives = useInterface(
+		(state) => state.setCustomTutorialObjectives
 	);
 	const [activeDialogues, setActiveDialogues] = useState([]);
 	const setIsSettingsOpen = useInterface((state) => state.setIsSettingsOpen);
@@ -772,7 +775,7 @@ export default function Interface() {
 				<div className="objectives">
 					<div className="objectives-flex">
 						<AnimatedObjectiveText prevText={prevObjectiveText}>
-							Find the exit
+							{t('ui.objectives.findExit')}
 						</AnimatedObjectiveText>
 					</div>
 				</div>
@@ -938,7 +941,9 @@ export default function Interface() {
 					className="end-screen"
 				>
 					<SkullHotelLogo />
-					<div className="end-message">Thank you for playing</div>
+					<div className="end-message">
+						{t('game.status.thankYouForPlaying')}
+					</div>
 					<div
 						onClick={(e) => {
 							e.stopPropagation();
@@ -963,7 +968,7 @@ export default function Interface() {
 						}}
 						className="end-screen-button"
 					>
-						Play again
+						{t('game.status.playAgain')}
 					</div>
 				</div>
 			)}

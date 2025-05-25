@@ -1,0 +1,130 @@
+{
+	"ui": {
+		"settings": {
+			"title": "การตั้งค่า",
+			"visuals": "ภาพ",
+			"sensitivity": "ความไว",
+			"controls": "การควบคุม",
+			"language": "ภาษา",
+			"fullscreen": "เต็มหน้าจอ",
+			"shadows": "เงา",
+			"verticalSensitivity": "ความไวแนวตั้ง",
+			"horizontalSensitivity": "ความไวแนวนอน",
+			"move": "เคลื่อนที่",
+			"interact": "โต้ตอบ",
+			"listenCarefully": "ฟังอย่างระมัดระวัง",
+			"crouch": "หมอบ",
+			"jump": "กระโดด"
+		},
+		"loading": {
+			"loading": "กำลังโหลด",
+			"clickToStart": "คลิกเพื่อเริ่ม",
+			"settings": "การตั้งค่า"
+		},
+		"tutorial": {
+			"toMove": "เพื่อเคลื่อนที่",
+			"toInteract": "เพื่อโต้ตอบ",
+			"toJump": "เพื่อกระโดด",
+			"toCrouch": "เพื่อหมอบ",
+			"toListenCarefully": "เพื่อฟังอย่างระมัดระวัง",
+			"objectives": {
+				"enterTutorialRoom": "เข้าไปในห้องสอน",
+				"closeDoor": "ปิดประตู",
+				"listenBathroomDoor": "ฟังที่ประตูห้องน้ำ",
+				"hideBehindCurtains": "ซ่อนหลังผ้าม่านห้องน้ำ",
+				"hideInsideDesk": "ซ่อนในโต๊ะ",
+				"checkNightstand": "ตรวจสอบโต๊ะข้างเตียง",
+				"closeNightstandDoor": "ปิดประตูโต๊ะข้างเตียง"
+			}
+		},
+		"objectives": {
+			"findExit": "หาทางออก",
+			"refillSoapBottles": "เติมขวดสบู่",
+			"makeTheBed": "จัดเตียง",
+			"openTheWindow": "เปิดหน้าต่าง"
+		},
+		"deathScreen": {
+			"youDied": "คุณตาย",
+			"hidingSpotsFound": " จุดซ่อนที่พบ",
+			"continue": "ดำเนินต่อ",
+			"restarting": "กำลังเริ่มใหม่...",
+			"raidWarning": "หากคุณได้ยินลูกค้าเคาะประตู ให้ซ่อนจนกว่าพวกเขาจะไป"
+		},
+		"endGameScreen": {
+			"thankYouForPlaying": "ขอบคุณที่เล่น",
+			"yourTime": "เวลาของคุณ:",
+			"enterYourName": "ใส่ชื่อของคุณ",
+			"signGuestBook": "เซ็นสมุดแขก",
+			"saving": "กำลังบันทึก...",
+			"submissionSuccess": "คุณสามารถดูรายการของคุณที่โต๊ะต้อนรับ",
+			"playAgain": "เล่นอีกครั้ง",
+			"restarting": "กำลังเริ่มใหม่...",
+			"nameValidation": {
+				"tooShort": "ชื่อต้องมีอย่างน้อย {{min}} ตัวอักษร",
+				"tooLong": "ชื่อต้องมีไม่เกิน {{max}} ตัวอักษร",
+				"invalidPattern": "ชื่อสามารถมีได้เฉพาะตัวอักษร ตัวเลข ช่องว่าง และเครื่องหมายวรรคตอนพื้นฐาน",
+				"submitError": "ไม่สามารถส่งรายการของคุณได้ กรุณาลองอีกครั้ง"
+			}
+		},
+		"howItsMade": {
+			"title": "วิธีการสร้าง",
+			"technologies": "เทคโนโลยี",
+			"people": "บุคคล",
+			"openSource": "นี่เป็นโครงการโอเพ่นซอร์ส ดู",
+			"githubRepository": "ที่เก็บ GitHub",
+			"threejsDescription": "ไลบรารี JavaScript สำหรับสร้างกราฟิก 3D ในเบราว์เซอร์",
+			"createdBy": "สร้างโดย",
+			"r3fDescription": "เครื่องมือที่ทำให้การใช้ three.js กับ React ง่ายขึ้น",
+			"threejsJourneyDescription": "คอร์สออนไลน์เพื่อเรียนรู้ 3D สำหรับเว็บ",
+			"gameConceptDesignDev": "แนวคิดเกม การออกแบบเกม และการพัฒนาเกม",
+			"uiArtDirection": "ส่วนติดต่อผู้ใช้และการกำกับศิลป์"
+		},
+		"reception": {
+			"guestBook": "สมุดแขก",
+			"informations": "ข้อมูล"
+		}
+	},
+	"game": {
+		"dialogues": {
+			"locked": "มันถูกล็อค",
+			"welcomeBack": "ยินดีต้อนรับกลับมา",
+			"welcomeHousekeeper": "ยินดีต้อนรับ คุณต้องเป็นแม่บ้านคนใหม่",
+			"closeDoors": "ปิดประตูหลังคุณเสมอ ไม่งั้นพวกมันอาจเข้ามาขณะที่คุณทำความสะอาดห้อง",
+			"bathroomWarning": "หากคุณได้ยินเสียงจากห้องน้ำ อย่าเปิดประตู - ออกไปทันที",
+			"hideWarning": "หากคุณได้ยินเสียงเคาะหรือสังเกตเห็นสัญญาณ ให้ซ่อนทันที",
+			"checkRoom": "ตรวจสอบทั้งห้องอย่างระมัดระวัง พวกมันอาจซ่อนอยู่ที่ไหนก็ได้",
+			"spotWarning": "หากคุณเห็นหนึ่งในพวกมัน ปิดประตูอย่างรวดเร็วและออกจากห้อง",
+			"wellDone": "ทำได้ดี! ตอนนี้ทำความสะอาด 8 ห้องเพื่อจบวัน",
+			"turnBack": "จำไว้: หากคุณเห็นหนึ่งในพวกมันในห้อง ให้หันกลับทันที",
+			"infested": "ครึ่งหนึ่งของห้องเหล่านี้ติดเชื้อแบบสุ่ม ดำเนินการอย่างระมัดระวัง"
+		},
+		"deathReasons": {
+			"underBed": "มันซ่อนอยู่ใต้เตียง",
+			"bathroomVent": "มันซ่อนอยู่ในช่องระบายอากาศห้องน้ำ",
+			"roomVent": "มันซ่อนอยู่ในช่องระบายอากาศห้อง",
+			"bedBasket": "มันซ่อนอยู่ในตะกร้าผ้าใกล้เตียง",
+			"windowBasket": "มันซ่อนอยู่ในช่องชั้นวางทีวี",
+			"hideoutMirror": "หากคุณเห็นมันในกระจก วิ่งหนีทันที",
+			"behindDoor": "มันซ่อนอยู่หลังประตู",
+			"footWindow": "เท้าของมันมองเห็นได้ใต้ผ้าม่าน",
+			"landmineMirror": "มันซ่อนอยู่ในกระจก",
+			"nearWindow": "มันซ่อนอยู่ข้างโซฟา",
+			"ceilingCornerCouch": "มันอยู่บนเพดานเหนือโซฟา",
+			"behindCouch": "มันซ่อนอยู่หลังโซฟา",
+			"behindDesk": "มันซ่อนอยู่หลังโต๊ะ",
+			"insideDesk": "มันซ่อนอยู่ใต้โต๊ะ",
+			"ceilingCenter": "มันอยู่บนเพดานที่ทางเข้า",
+			"sonarBathroom": "อย่าเปิดประตูห้องน้ำหากคุณได้ยินเสียงจากข้างใน",
+			"claymore": "ปิดประตูอย่างรวดเร็วก่อนที่มันจะโจมตีคุณ",
+			"hunter": "หากคุณเห็นมัน วิ่งหนีและปิดประตูหลังคุณ",
+			"raidKnocking": "หากคุณได้ยินเสียงเคาะ ให้ซ่อน",
+			"raidTV": "หากทีวีเปิดเอง ให้ซ่อน",
+			"raidRadio": "หากวิทยุเปิดเอง ให้ซ่อน",
+			"raidInscriptions": "หากคุณเห็นข้อความเลือดบนผนัง ให้ซ่อน"
+		},
+		"status": {
+			"thankYouForPlaying": "ขอบคุณที่เล่น",
+			"playAgain": "เล่นอีกครั้ง"
+		}
+	}
+}

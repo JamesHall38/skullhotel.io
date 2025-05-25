@@ -4,6 +4,7 @@ import AnimatedCloseButton from '../AnimatedCloseButton/AnimatedCloseButton';
 import { RxExternalLink } from 'react-icons/rx';
 import { SiThreedotjs } from 'react-icons/si';
 import useGame from '../../../hooks/useGame';
+import useLocalization from '../../../hooks/useLocalization';
 import { isSteamBuild } from '../../../utils/platform';
 import './HowItsMade.css';
 import LogoIcon from './logo.svg';
@@ -19,6 +20,7 @@ function HowItsMadeContent({ onClose }) {
 	const linkClickedRef = useRef(false);
 	const lastAButtonState = useRef(false);
 	const isInSteamBuild = isSteamBuild();
+	const { t } = useLocalization();
 
 	const handleLinkClick = (e, url) => {
 		if (isInSteamBuild) {
@@ -123,10 +125,10 @@ function HowItsMadeContent({ onClose }) {
 			<div className="how-its-made-header">
 				<div className="how-its-made-header-col">
 					<img src={LogoIcon} alt="Logo" />
-					<h2>How it&apos;s made</h2>
+					<h2>{t('ui.howItsMade.title')}</h2>
 					<div className="footer-note">
 						<p>
-							This is an open source project. Check out the{' '}
+							{t('ui.howItsMade.openSource')}{' '}
 							<a
 								href={
 									isInSteamBuild
@@ -142,7 +144,7 @@ function HowItsMadeContent({ onClose }) {
 										: {}
 								}
 							>
-								GitHub repository
+								{t('ui.howItsMade.githubRepository')}
 							</a>
 						</p>
 					</div>
@@ -155,7 +157,7 @@ function HowItsMadeContent({ onClose }) {
 
 			<div className="tech-container-content-row">
 				<div className="tech-container">
-					<h2>TECHNOLOGIES</h2>
+					<h2>{t('ui.howItsMade.technologies')}</h2>
 
 					<div className="tech-item">
 						<div className="tech-icon">
@@ -177,7 +179,7 @@ function HowItsMadeContent({ onClose }) {
 									Three.js
 								</a>
 								<p onClick={(e) => handleLinkClick(e, 'https://threejs.org/')}>
-									A JavaScript library for creating 3D graphics in the browser
+									{t('ui.howItsMade.threejsDescription')}
 								</p>
 								{!isInSteamBuild && (
 									<RxExternalLink className="external-link-icon" />
@@ -187,7 +189,7 @@ function HowItsMadeContent({ onClose }) {
 								className="tech-author"
 								onClick={(e) => handleLinkClick(e, 'https://github.com/mrdoob')}
 							>
-								Created by{' '}
+								{t('ui.howItsMade.createdBy')}{' '}
 								<a
 									href={isInSteamBuild ? '#' : 'https://github.com/mrdoob'}
 									target={isInSteamBuild ? '_self' : '_blank'}
@@ -239,7 +241,7 @@ function HowItsMadeContent({ onClose }) {
 										handleLinkClick(e, 'https://r3f.docs.pmnd.rs/')
 									}
 								>
-									A tool that makes it easier to use three.js with React
+									{t('ui.howItsMade.r3fDescription')}
 								</p>
 								{!isInSteamBuild && (
 									<RxExternalLink className="external-link-icon" />
@@ -250,7 +252,7 @@ function HowItsMadeContent({ onClose }) {
 								className="tech-author"
 								onClick={(e) => handleLinkClick(e, 'https://github.com/pmndrs')}
 							>
-								Created by{' '}
+								{t('ui.howItsMade.createdBy')}{' '}
 								<a
 									href={isInSteamBuild ? '#' : 'https://github.com/pmndrs'}
 									target={isInSteamBuild ? '_self' : '_blank'}
@@ -304,7 +306,7 @@ function HowItsMadeContent({ onClose }) {
 										handleLinkClick(e, 'https://threejs-journey.com/')
 									}
 								>
-									An online course to learn 3D for the web
+									{t('ui.howItsMade.threejsJourneyDescription')}
 								</p>
 								{!isInSteamBuild && (
 									<RxExternalLink className="external-link-icon" />
@@ -317,7 +319,7 @@ function HowItsMadeContent({ onClose }) {
 									handleLinkClick(e, 'https://github.com/brunosimon')
 								}
 							>
-								Created by{' '}
+								{t('ui.howItsMade.createdBy')}{' '}
 								<a
 									href={isInSteamBuild ? '#' : 'https://github.com/brunosimon'}
 									target={isInSteamBuild ? '_self' : '_blank'}
@@ -340,7 +342,7 @@ function HowItsMadeContent({ onClose }) {
 				</div>
 
 				<div className="tech-container">
-					<h2>PEOPLE</h2>
+					<h2>{t('ui.howItsMade.people')}</h2>
 					<div className="tech-description">
 						<h3
 							onClick={(e) =>
@@ -358,7 +360,7 @@ function HowItsMadeContent({ onClose }) {
 										: {}
 								}
 							>
-								Game concept, game design & game development
+								{t('ui.howItsMade.gameConceptDesignDev')}
 							</a>
 							<p
 								className="tech-author"
@@ -408,7 +410,7 @@ function HowItsMadeContent({ onClose }) {
 										: {}
 								}
 							>
-								User interface & Art direction
+								{t('ui.howItsMade.uiArtDirection')}
 							</a>
 							<p
 								className="tech-author"

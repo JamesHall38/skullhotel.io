@@ -22,6 +22,7 @@ import mouseLeft from './mouse_left.svg';
 import useSettings from '../../../hooks/useSettings';
 import useGame from '../../../hooks/useGame';
 import useInterface from '../../../hooks/useInterface';
+import useLocalization, { languages } from '../../../hooks/useLocalization';
 import {
 	isPointerLocked,
 	exitPointerLock,
@@ -54,10 +55,14 @@ export default function Settings({ loading }) {
 	const end = useGame((state) => state.end);
 	const setIsGameplayActive = useGame((state) => state.setIsGameplayActive);
 
+	const { t, currentLanguage, setLanguage } = useLocalization();
+
 	const [focusedElement, setFocusedElement] = useState(0);
 	const [isFullscreen, setIsFullscreen] = useState(
 		!!document.fullscreenElement
 	);
+	const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+	const [dropdownSelectedIndex, setDropdownSelectedIndex] = useState(0);
 	const interactiveElements = useRef([]);
 	const lastInputTime = useRef(Date.now());
 	const horizontalSensitivitySliderRef = useRef(null);
@@ -151,10 +156,18 @@ export default function Settings({ loading }) {
 				setIsSettingsOpen(false);
 				setIsAnyPopupOpen(false);
 			}
+
+			if (
+				isDropdownOpen &&
+				!event.target.closest('.language-selector') &&
+				!event.target.closest('.dropdown-options')
+			) {
+				setIsDropdownOpen(false);
+			}
 		};
 		document.addEventListener('mousedown', handleClickOutside);
 		return () => document.removeEventListener('mousedown', handleClickOutside);
-	}, [isSettingsOpen, setIsSettingsOpen, setIsAnyPopupOpen]);
+	}, [isSettingsOpen, setIsSettingsOpen, setIsAnyPopupOpen, isDropdownOpen]);
 
 	useEffect(() => {
 		setIsAnyPopupOpen(isSettingsOpen);
@@ -178,7 +191,7 @@ export default function Settings({ loading }) {
 
 		setTimeout(() => {
 			const elements = document.querySelectorAll(
-				'.settings-content input, .settings-content button'
+				'.settings-content input, .settings-content button, .settings-content .language-selector'
 			);
 			interactiveElements.current = Array.from(elements);
 
@@ -201,6 +214,9 @@ export default function Settings({ loading }) {
 		if (lastFocusedElement.current !== focusedElement) {
 			playMenuSound();
 			lastFocusedElement.current = focusedElement;
+			if (isDropdownOpen) {
+				setIsDropdownOpen(false);
+			}
 		}
 
 		interactiveElements.current.forEach((el) => {
@@ -212,7 +228,23 @@ export default function Settings({ loading }) {
 				'gamepad-focus'
 			);
 		}
-	}, [focusedElement, isSettingsOpen]);
+	}, [focusedElement, isSettingsOpen, isDropdownOpen]);
+
+	useEffect(() => {
+		if (isDropdownOpen) {
+			const dropdownOptions = document.querySelector('.dropdown-options');
+			const selectedOption = document.querySelector(
+				'.dropdown-option.selected'
+			);
+
+			if (dropdownOptions && selectedOption) {
+				selectedOption.scrollIntoView({
+					behavior: 'smooth',
+					block: 'nearest',
+				});
+			}
+		}
+	}, [dropdownSelectedIndex, isDropdownOpen]);
 
 	useEffect(() => {
 		if (!isSettingsOpen || deviceMode !== 'gamepad') return;
@@ -254,6 +286,27 @@ export default function Settings({ loading }) {
 			const left = dpadLeft || stickLeft;
 			const right = dpadRight || stickRight;
 
+			const focusedEl = interactiveElements.current[focusedElement];
+			if (
+				focusedEl &&
+				focusedEl.classList.contains('language-selector') &&
+				isDropdownOpen
+			) {
+				if (up) {
+					setDropdownSelectedIndex((prev) => Math.max(0, prev - 1));
+					playMenuSound();
+					lastInputTime.current = now;
+					return;
+				} else if (down) {
+					setDropdownSelectedIndex((prev) =>
+						Math.min(languages.length - 1, prev + 1)
+					);
+					playMenuSound();
+					lastInputTime.current = now;
+					return;
+				}
+			}
+
 			if (up) {
 				setFocusedElement((prev) => Math.max(0, prev - 1));
 				playMenuSound();
@@ -266,7 +319,6 @@ export default function Settings({ loading }) {
 				lastInputTime.current = now;
 			}
 
-			const focusedEl = interactiveElements.current[focusedElement];
 			if (focusedEl && focusedEl.id === 'horizontalSensitivity') {
 				if (left) {
 					const newValue = Math.max(
@@ -300,7 +352,10 @@ export default function Settings({ loading }) {
 			}
 
 			const aButtonPressed = gamepad.buttons[0]?.pressed;
-			if (aButtonPressed && focusedEl) {
+			const xButtonPressed = gamepad.buttons[2]?.pressed;
+			const actionPressed = aButtonPressed || xButtonPressed;
+
+			if (actionPressed && focusedEl) {
 				if (focusedEl.type === 'checkbox') {
 					focusedEl.checked = !focusedEl.checked;
 					setShadows(focusedEl.checked);
@@ -308,18 +363,39 @@ export default function Settings({ loading }) {
 				} else if (focusedEl.tagName === 'BUTTON') {
 					focusedEl.click();
 					playMenuSound();
+				} else if (focusedEl.classList.contains('language-selector')) {
+					if (isDropdownOpen) {
+						const selectedLang = languages[dropdownSelectedIndex];
+						if (selectedLang) {
+							setLanguage(selectedLang.code);
+						}
+						setIsDropdownOpen(false);
+						playMenuSound();
+					} else {
+						setIsDropdownOpen(true);
+						const currentIndex = languages.findIndex(
+							(lang) => lang.code === currentLanguage
+						);
+						setDropdownSelectedIndex(currentIndex >= 0 ? currentIndex : 0);
+						playMenuSound();
+					}
 				}
 				lastInputTime.current = now;
 			}
 
 			const bButtonPressed = gamepad.buttons[1]?.pressed;
 			if (bButtonPressed) {
-				setIsSettingsOpen(false);
-				setIsAnyPopupOpen(false);
-				if (!openDeathScreen && !isEndScreen && !end) {
-					setIsGameplayActive(true);
+				if (isDropdownOpen) {
+					setIsDropdownOpen(false);
+					playMenuSound();
+				} else {
+					setIsSettingsOpen(false);
+					setIsAnyPopupOpen(false);
+					if (!openDeathScreen && !isEndScreen && !end) {
+						setIsGameplayActive(true);
+					}
+					playMenuSound();
 				}
-				playMenuSound();
 				lastInputTime.current = now;
 			}
 		};
@@ -341,6 +417,8 @@ export default function Settings({ loading }) {
 		openDeathScreen,
 		isEndScreen,
 		end,
+		isDropdownOpen,
+		dropdownSelectedIndex,
 	]);
 
 	useEffect(() => {
@@ -401,12 +479,41 @@ export default function Settings({ loading }) {
 		const isInteractive =
 			e.target.tagName === 'BUTTON' ||
 			e.target.tagName === 'INPUT' ||
+			e.target.tagName === 'SELECT' ||
 			e.target.closest('button') ||
-			e.target.closest('input');
+			e.target.closest('input') ||
+			e.target.closest('select');
 
 		if (deviceMode === 'keyboard' && isInteractive) {
 			playMenuSound();
 		}
+	};
+
+	const handleLanguageChange = (e) => {
+		const newLanguage = e.target.value;
+		setLanguage(newLanguage);
+		playMenuSound();
+	};
+
+	const handleDropdownOptionClick = (langCode, index) => {
+		setLanguage(langCode);
+		setDropdownSelectedIndex(index);
+		setIsDropdownOpen(false);
+		playMenuSound();
+	};
+
+	const handleSelectClick = (e) => {
+		e.preventDefault();
+		if (isDropdownOpen) {
+			setIsDropdownOpen(false);
+		} else {
+			setIsDropdownOpen(true);
+			const currentIndex = languages.findIndex(
+				(lang) => lang.code === currentLanguage
+			);
+			setDropdownSelectedIndex(currentIndex >= 0 ? currentIndex : 0);
+		}
+		playMenuSound();
 	};
 
 	if (!isSettingsOpen) {
@@ -423,7 +530,6 @@ export default function Settings({ loading }) {
 					playMenuSound();
 				}}
 			>
-				Settings
 				<div className="control-keys">
 					<img src={keyboardTab} alt="Settings" />
 					/
@@ -451,12 +557,42 @@ export default function Settings({ loading }) {
 					}}
 					onMouseEnter={handleMouseEnter}
 				>
-					SETTINGS
+					{t('ui.settings.title')}
 					<img src={closeIcon} alt="Close" />
 				</button>
 
 				<section className="settings-content">
-					<h2 className="settings-title">VISUALS</h2>
+					<h2 className="settings-title">{t('ui.settings.language')}</h2>
+					<div className="settings-item">
+						<div className="setting-label">{t('ui.settings.language')}</div>
+						<div
+							onClick={handleSelectClick}
+							onMouseEnter={handleMouseEnter}
+							className={`language-selector ${
+								isDropdownOpen ? 'dropdown-open' : ''
+							}`}
+						>
+							{languages.find((lang) => lang.code === currentLanguage)
+								?.nativeName || currentLanguage}
+						</div>
+						{isDropdownOpen && (
+							<div className="dropdown-options">
+								{languages.map((lang, index) => (
+									<div
+										key={lang.code}
+										className={`dropdown-option ${
+											index === dropdownSelectedIndex ? 'selected' : ''
+										}`}
+										onClick={(e) => handleDropdownOptionClick(lang.code, index)}
+									>
+										{lang.nativeName}
+									</div>
+								))}
+							</div>
+						)}
+					</div>
+
+					<h2 className="settings-title">{t('ui.settings.visuals')}</h2>
 					<button
 						className="settings-item settings-hover-effect"
 						onClick={(e) => {
@@ -467,7 +603,7 @@ export default function Settings({ loading }) {
 					>
 						<div className="setting-label">
 							<img src={fullScreenIcon} alt="Fullscreen" />
-							Fullscreen
+							{t('ui.settings.fullscreen')}
 						</div>
 						<div className="toggle-switch-container">
 							<span className="toggle-label">
@@ -489,7 +625,7 @@ export default function Settings({ loading }) {
 						}}
 						onMouseEnter={handleMouseEnter}
 					>
-						<div className="setting-label">Shadows</div>
+						<div className="setting-label">{t('ui.settings.shadows')}</div>
 						<div className="toggle-switch-container">
 							<span className="toggle-label">{shadows ? 'ON' : 'OFF'}</span>
 							<div className="toggle-switch">
@@ -498,9 +634,11 @@ export default function Settings({ loading }) {
 						</div>
 					</button>
 
-					<h2 className="settings-title">SENSITIVITY</h2>
+					<h2 className="settings-title">{t('ui.settings.sensitivity')}</h2>
 					<div className="settings-item">
-						<div className="setting-label">Vertical sensitivity</div>
+						<div className="setting-label">
+							{t('ui.settings.verticalSensitivity')}
+						</div>
 						<div className="slider-container">
 							<input
 								type="range"
@@ -525,7 +663,9 @@ export default function Settings({ loading }) {
 					</div>
 
 					<div className="settings-item">
-						<div className="setting-label">Horizontal sensitivity</div>
+						<div className="setting-label">
+							{t('ui.settings.horizontalSensitivity')}
+						</div>
 						<div className="slider-container">
 							<input
 								type="range"
@@ -549,9 +689,9 @@ export default function Settings({ loading }) {
 						</div>
 					</div>
 
-					<h2 className="settings-title">CONTROLS</h2>
+					<h2 className="settings-title">{t('ui.settings.controls')}</h2>
 					<div className="settings-item">
-						<span className="setting-label">Move</span>
+						<span className="setting-label">{t('ui.settings.move')}</span>
 						<div className="control-keys">
 							<div className="control-flex">
 								<img src={keyboardW} alt="Keyboard W" />
@@ -570,7 +710,7 @@ export default function Settings({ loading }) {
 						</div>
 					</div>
 					<div className="settings-item">
-						<span className="setting-label">Interact</span>
+						<span className="setting-label">{t('ui.settings.interact')}</span>
 						<div className="control-keys">
 							<img src={mouseLeft} alt="Mouse Left" />
 							/
@@ -578,7 +718,9 @@ export default function Settings({ loading }) {
 						</div>
 					</div>
 					<div className="settings-item">
-						<span className="setting-label">Listen carefully</span>
+						<span className="setting-label">
+							{t('ui.settings.listenCarefully')}
+						</span>
 						<div className="control-keys">
 							<img src={mouseRight} alt="Mouse Right" />
 							/
@@ -586,7 +728,7 @@ export default function Settings({ loading }) {
 						</div>
 					</div>
 					<div className="settings-item">
-						<span className="setting-label">Crouch</span>
+						<span className="setting-label">{t('ui.settings.crouch')}</span>
 						<div className="control-keys">
 							<img src={keyboardCtrl} alt="Keyboard Ctrl" />
 							/
@@ -594,7 +736,7 @@ export default function Settings({ loading }) {
 						</div>
 					</div>
 					<div className="settings-item">
-						<span className="setting-label">Jump</span>
+						<span className="setting-label">{t('ui.settings.jump')}</span>
 						<div className="control-keys">
 							<img src={keyboardSpace} alt="Keyboard Space" />
 							/

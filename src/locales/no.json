@@ -1,0 +1,130 @@
+{
+	"ui": {
+		"settings": {
+			"title": "INNSTILLINGER",
+			"visuals": "GRAFIKK",
+			"sensitivity": "FØLSOMHET",
+			"controls": "KONTROLLER",
+			"language": "SPRÅK",
+			"fullscreen": "Fullskjerm",
+			"shadows": "Skygger",
+			"verticalSensitivity": "Vertikal følsomhet",
+			"horizontalSensitivity": "Horisontal følsomhet",
+			"move": "Beveg",
+			"interact": "Interager",
+			"listenCarefully": "Lytt nøye",
+			"crouch": "Kryp",
+			"jump": "Hopp"
+		},
+		"loading": {
+			"loading": "LASTER",
+			"clickToStart": "KLIKK FOR Å STARTE",
+			"settings": "Innstillinger"
+		},
+		"tutorial": {
+			"toMove": "for å bevege seg",
+			"toInteract": "for å interagere",
+			"toJump": "for å hoppe",
+			"toCrouch": "for å krype",
+			"toListenCarefully": "for å lytte nøye",
+			"objectives": {
+				"enterTutorialRoom": "Gå inn i opplæringsrommet",
+				"closeDoor": "Lukk døren",
+				"listenBathroomDoor": "Lytt ved baderomsdøren",
+				"hideBehindCurtains": "Gjem deg bak baderoms-gardinene",
+				"hideInsideDesk": "Gjem deg inne i skrivebordet",
+				"checkNightstand": "Sjekk nattbordet",
+				"closeNightstandDoor": "Lukk nattbordets dør"
+			}
+		},
+		"objectives": {
+			"findExit": "Finn utgangen",
+			"refillSoapBottles": "Fyll opp såpeflasker",
+			"makeTheBed": "Red sengen",
+			"openTheWindow": "Åpne vinduet"
+		},
+		"deathScreen": {
+			"youDied": "DU DØDE",
+			"hidingSpotsFound": " gjemmesteder funnet",
+			"continue": "FORTSETT",
+			"restarting": "Starter på nytt...",
+			"raidWarning": "Hvis du hører en klient banke på døren, gjem deg til de går"
+		},
+		"endGameScreen": {
+			"thankYouForPlaying": "TAKK FOR AT DU SPILTE",
+			"yourTime": "Din tid:",
+			"enterYourName": "Skriv inn navnet ditt",
+			"signGuestBook": "Signer gjesteboken",
+			"saving": "Lagrer...",
+			"submissionSuccess": "Du kan se oppføringen din ved resepsjonen",
+			"playAgain": "SPILL IGJEN",
+			"restarting": "STARTER PÅ NYTT...",
+			"nameValidation": {
+				"tooShort": "Navnet må være minst {{min}} tegn",
+				"tooLong": "Navnet kan være maksimalt {{max}} tegn",
+				"invalidPattern": "Navnet kan bare inneholde bokstaver, tall, mellomrom og grunnleggende tegnsetting",
+				"submitError": "Kunne ikke sende oppføringen din. Prøv igjen."
+			}
+		},
+		"howItsMade": {
+			"title": "Hvordan det ble laget",
+			"technologies": "TEKNOLOGIER",
+			"people": "PERSONER",
+			"openSource": "Dette er et åpen kildekode-prosjekt. Sjekk ut",
+			"githubRepository": "GitHub-repositoriet",
+			"threejsDescription": "Et JavaScript-bibliotek for å lage 3D-grafikk i nettleseren",
+			"createdBy": "Laget av",
+			"r3fDescription": "Et verktøy som gjør det lettere å bruke three.js med React",
+			"threejsJourneyDescription": "Et nettkurs for å lære 3D for nettet",
+			"gameConceptDesignDev": "Spillkonsept, spilldesign og spillutvikling",
+			"uiArtDirection": "Brukergrensesnitt og kunstnerisk ledelse"
+		},
+		"reception": {
+			"guestBook": "Gjestebok",
+			"informations": "Informasjon"
+		}
+	},
+	"game": {
+		"dialogues": {
+			"locked": "Det er låst.",
+			"welcomeBack": "Velkommen tilbake.",
+			"welcomeHousekeeper": "Velkommen. Du må være den nye hushjelpen.",
+			"closeDoors": "Lukk alltid dører bak deg ellers kan de komme inn mens du rengjør rommet.",
+			"bathroomWarning": "Hvis du hører lyder fra badet, ikke åpne døren - gå bort med en gang.",
+			"hideWarning": "Hvis du hører banking eller legger merke til tegn, gjem deg med en gang.",
+			"checkRoom": "Sjekk hele rommet nøye. De kan gjemme seg hvor som helst.",
+			"spotWarning": "Hvis du ser en av dem, lukk døren raskt og forlat rommet.",
+			"wellDone": "Godt gjort! Nå rengjør 8 rom for å avslutte dagen.",
+			"turnBack": "Husk: hvis du ser en av dem i et rom, snu med en gang.",
+			"infested": "Halvparten av disse rommene er tilfeldig infiserte. Fortsett forsiktig."
+		},
+		"deathReasons": {
+			"underBed": "Den gjemte seg under sengen",
+			"bathroomVent": "Den gjemte seg i baderoms-ventilasjonen",
+			"roomVent": "Den gjemte seg i roms-ventilasjonen",
+			"bedBasket": "Den gjemte seg i klesskurven ved sengen",
+			"windowBasket": "Den gjemte seg i TV-stativets rom",
+			"hideoutMirror": "Hvis du ser den i speilet, løp bort med en gang",
+			"behindDoor": "Den gjemte seg bak døren",
+			"footWindow": "Føttene var synlige under gardinet",
+			"landmineMirror": "Den gjemte seg i speilet",
+			"nearWindow": "Den gjemte seg ved siden av sofaen",
+			"ceilingCornerCouch": "Den var i taket over sofaen",
+			"behindCouch": "Den gjemte seg bak sofaen",
+			"behindDesk": "Den gjemte seg bak skrivebordet",
+			"insideDesk": "Den gjemte seg under skrivebordet",
+			"ceilingCenter": "Den var i taket ved inngangen",
+			"sonarBathroom": "Ikke åpne baderomsdøren hvis du hører lyder innenfra",
+			"claymore": "Lukk døren raskt før den angriper deg",
+			"hunter": "Hvis du ser den, løp bort og lukk døren bak deg",
+			"raidKnocking": "Hvis du hører banking, gjem deg",
+			"raidTV": "Hvis TV-en slår seg på av seg selv, gjem deg",
+			"raidRadio": "Hvis radioen slår seg på av seg selv, gjem deg",
+			"raidInscriptions": "Hvis du ser blod-inskripsjoner på veggene, gjem deg"
+		},
+		"status": {
+			"thankYouForPlaying": "Takk for at du spilte",
+			"playAgain": "Spill igjen"
+		}
+	}
+}

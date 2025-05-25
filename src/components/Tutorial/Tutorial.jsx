@@ -12,6 +12,7 @@ import useInterfaceStore from '../../hooks/useInterface';
 import useDoor from '../../hooks/useDoor';
 import useGame from '../../hooks/useGame';
 import useHiding from '../../hooks/useHiding';
+import useLocalization from '../../hooks/useLocalization';
 
 const TUTORIAL_STAGE = {
 	INTRO: 1,
@@ -86,6 +87,8 @@ export default function Tutorial() {
 		(state) => state.customTutorialObjectives
 	);
 
+	const { t, currentLanguage } = useLocalization();
+
 	// Welcome back on death
 	useEffect(() => {
 		if (
@@ -106,10 +109,12 @@ export default function Tutorial() {
 				hasStarted.current = true;
 				timeoutRef.current = setTimeout(() => {
 					if (deaths === 0) {
-						setCurrentDialogueIndex(WELCOME_DIALOGUE);
 						setTutorialStage(TUTORIAL_STAGE.INTRO);
+						setTimeout(() => {
+							setCurrentDialogueIndex(WELCOME_DIALOGUE);
+						}, 2000);
 					}
-				}, 4000);
+				}, 3000);
 			}
 		}
 	}, [playIntro, deaths, currentDialogueIndex, setCurrentDialogueIndex]);
@@ -277,7 +282,7 @@ export default function Tutorial() {
 
 			setTimeout(() => {
 				setCurrentDialogueIndex(REMEMBER_WARNING_DIALOGUE);
-			}, 4000);
+			}, 9000);
 		}
 	}, [tutorialObjectives, tutorialStage, setCurrentDialogueIndex]);
 
@@ -338,27 +343,31 @@ export default function Tutorial() {
 	const getCurrentObjectives = useCallback(() => {
 		switch (tutorialStage) {
 			case TUTORIAL_STAGE.INTERACT:
-				return ['Enter the tutorial room'];
+				return [t('ui.tutorial.objectives.enterTutorialRoom')];
 			case TUTORIAL_STAGE.CLOSE_DOOR:
-				return ['Close the door'];
+				return [t('ui.tutorial.objectives.closeDoor')];
 			case TUTORIAL_STAGE.DOOR_CLOSED:
-				return ['Listen at the bathroom door'];
+				return [t('ui.tutorial.objectives.listenBathroomDoor')];
 			case TUTORIAL_STAGE.LISTEN:
-				return ['Hide behind the bathroom curtains'];
+				return [t('ui.tutorial.objectives.hideBehindCurtains')];
 			case TUTORIAL_STAGE.BATHROOM_WARNING:
-				return ['Hide inside the desk'];
+				return [t('ui.tutorial.objectives.hideInsideDesk')];
 			case TUTORIAL_STAGE.FURNITURE_HIDING:
-				return ['Check the nightstand'];
+				return [t('ui.tutorial.objectives.checkNightstand')];
 			case TUTORIAL_STAGE.CHECK_NIGHTSTAND:
-				return ['Close the nightstand door'];
+				return [t('ui.tutorial.objectives.closeNightstandDoor')];
 			case TUTORIAL_STAGE.CLOSE_NIGHTSTAND:
-				return ['Refill soap bottles'];
+				return [
+					t('ui.objectives.refillSoapBottles'),
+					t('ui.objectives.makeTheBed'),
+					t('ui.objectives.openTheWindow'),
+				];
 			case TUTORIAL_STAGE.CLEAN_OBJECTIVES:
 				return [];
 			default:
 				return [];
 		}
-	}, [tutorialStage]);
+	}, [tutorialStage, t]);
 
 	useEffect(() => {
 		if (tutorialStage >= TUTORIAL_STAGE.INTRO) {
@@ -394,6 +403,28 @@ export default function Tutorial() {
 		tutorialStage,
 		tutorialObjectives,
 		customTutorialObjectives,
+		setCustomTutorialObjectives,
+	]);
+
+	useEffect(() => {
+		if (customTutorialObjectives && customTutorialObjectives.length > 0) {
+			const updatedObjectives = getCurrentObjectives().map((text, index) => ({
+				text,
+				completed: customTutorialObjectives[index]?.completed || false,
+			}));
+
+			const hasTextChanged = updatedObjectives.some(
+				(obj, index) => obj.text !== customTutorialObjectives[index]?.text
+			);
+
+			if (hasTextChanged) {
+				setCustomTutorialObjectives(updatedObjectives);
+			}
+		}
+	}, [
+		currentLanguage,
+		customTutorialObjectives,
+		getCurrentObjectives,
 		setCustomTutorialObjectives,
 	]);
 

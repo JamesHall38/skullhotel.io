@@ -1,0 +1,130 @@
+{
+	"ui": {
+		"settings": {
+			"title": "ASETUKSET",
+			"visuals": "GRAFIIKAT",
+			"sensitivity": "HERKKYYS",
+			"controls": "OHJAIMET",
+			"language": "KIELI",
+			"fullscreen": "Koko näyttö",
+			"shadows": "Varjot",
+			"verticalSensitivity": "Pystysuuntainen herkkyys",
+			"horizontalSensitivity": "Vaakasuuntainen herkkyys",
+			"move": "Liiku",
+			"interact": "Vuorovaikuta",
+			"listenCarefully": "Kuuntele tarkasti",
+			"crouch": "Kyykisty",
+			"jump": "Hyppää"
+		},
+		"loading": {
+			"loading": "LADATAAN",
+			"clickToStart": "KLIKKAA ALOITTAAKSESI",
+			"settings": "Asetukset"
+		},
+		"tutorial": {
+			"toMove": "liikkumiseen",
+			"toInteract": "vuorovaikutukseen",
+			"toJump": "hyppimiseen",
+			"toCrouch": "kyykistymiseen",
+			"toListenCarefully": "tarkkaavaiseen kuunteluun",
+			"objectives": {
+				"enterTutorialRoom": "Mene opetushuoneeseen",
+				"closeDoor": "Sulje ovi",
+				"listenBathroomDoor": "Kuuntele kylpyhuoneen ovella",
+				"hideBehindCurtains": "Piilossa kylpyhuoneen verhojen takana",
+				"hideInsideDesk": "Piilossa pöydän sisällä",
+				"checkNightstand": "Tarkista yöpöytä",
+				"closeNightstandDoor": "Sulje yöpöydän ovi"
+			}
+		},
+		"objectives": {
+			"findExit": "Löydä uloskäynti",
+			"refillSoapBottles": "Täytä saippuapullot",
+			"makeTheBed": "Petaa sänky",
+			"openTheWindow": "Avaa ikkuna"
+		},
+		"deathScreen": {
+			"youDied": "KUOLIT",
+			"hidingSpotsFound": " piilopaikkaa löydetty",
+			"continue": "JATKA",
+			"restarting": "Käynnistetään uudelleen...",
+			"raidWarning": "Jos kuulet asiakkaan koputtavan ovea, piilossa kunnes he lähtevät"
+		},
+		"endGameScreen": {
+			"thankYouForPlaying": "KIITOS PELAAMISESTA",
+			"yourTime": "Aikasi:",
+			"enterYourName": "Syötä nimesi",
+			"signGuestBook": "Allekirjoita vieraskirja",
+			"saving": "Tallennetaan...",
+			"submissionSuccess": "Voit nähdä merkintäsi vastaanotossa",
+			"playAgain": "PELAA UUDELLEEN",
+			"restarting": "KÄYNNISTETÄÄN UUDELLEEN...",
+			"nameValidation": {
+				"tooShort": "Nimen on oltava vähintään {{min}} merkkiä",
+				"tooLong": "Nimi saa olla enintään {{max}} merkkiä",
+				"invalidPattern": "Nimi voi sisältää vain kirjaimia, numeroita, välilyöntejä ja perusvälimerkkejä",
+				"submitError": "Merkinnän lähettäminen epäonnistui. Yritä uudelleen."
+			}
+		},
+		"howItsMade": {
+			"title": "Miten se tehtiin",
+			"technologies": "TEKNOLOGIAT",
+			"people": "IHMISET",
+			"openSource": "Tämä on avoimen lähdekoodin projekti. Katso",
+			"githubRepository": "GitHub-repositorio",
+			"threejsDescription": "JavaScript-kirjasto 3D-grafiikan luomiseen selaimessa",
+			"createdBy": "Luonut",
+			"r3fDescription": "Työkalu, joka helpottaa three.js:n käyttöä Reactin kanssa",
+			"threejsJourneyDescription": "Verkkokurssi web-3D:n oppimiseen",
+			"gameConceptDesignDev": "Pelikonsepti, pelisuunnittelu ja pelikehitys",
+			"uiArtDirection": "Käyttöliittymä ja taiteellinen johtaminen"
+		},
+		"reception": {
+			"guestBook": "Vieraskirja",
+			"informations": "Tiedot"
+		}
+	},
+	"game": {
+		"dialogues": {
+			"locked": "Se on lukossa.",
+			"welcomeBack": "Tervetuloa takaisin.",
+			"welcomeHousekeeper": "Tervetuloa. Sinun täytyy olla uusi siivooja.",
+			"closeDoors": "Sulje aina ovet takanasi tai ne voivat tulla sisään kun siivoat huonetta.",
+			"bathroomWarning": "Jos kuulet ääniä kylpyhuoneesta, älä avaa ovea - lähde heti.",
+			"hideWarning": "Jos kuulet koputtamista tai huomaat merkkejä, piilossa heti.",
+			"checkRoom": "Tarkista koko huone huolellisesti. Ne voivat piilossa missä tahansa.",
+			"spotWarning": "Jos näet yhden niistä, sulje nopeasti ovi ja poistu huoneesta.",
+			"wellDone": "Hyvin tehty! Nyt siivoa 8 huonetta päättääksesi päivän.",
+			"turnBack": "Muista: jos näet yhden niistä huoneessa, käänny heti takaisin.",
+			"infested": "Puolet näistä huoneista on satunnaisesti saastuneita. Etene varovasti."
+		},
+		"deathReasons": {
+			"underBed": "Se piilossa sängyn alla",
+			"bathroomVent": "Se piilossa kylpyhuoneen tuuletuksessa",
+			"roomVent": "Se piilossa huoneen tuuletuksessa",
+			"bedBasket": "Se piilossa pyykkikorissa sängyn vieressä",
+			"windowBasket": "Se piilossa TV-telineen lokerossa",
+			"hideoutMirror": "Jos näet sen peilissä, pakene heti",
+			"behindDoor": "Se piilossa oven takana",
+			"footWindow": "Sen jalat näkyivät verhon alta",
+			"landmineMirror": "Se piilossa peilissä",
+			"nearWindow": "Se piilossa sohvan vieressä",
+			"ceilingCornerCouch": "Se oli katossa sohvan yläpuolella",
+			"behindCouch": "Se piilossa sohvan takana",
+			"behindDesk": "Se piilossa pöydän takana",
+			"insideDesk": "Se piilossa pöydän alla",
+			"ceilingCenter": "Se oli katossa sisäänkäynnillä",
+			"sonarBathroom": "Älä avaa kylpyhuoneen ovea jos kuulet ääniä sisältä",
+			"claymore": "Sulje ovi nopeasti ennen kuin se hyökkää",
+			"hunter": "Jos näet sen, pakene ja sulje ovi takanasi",
+			"raidKnocking": "Jos kuulet koputtamista, piilossa",
+			"raidTV": "Jos TV käynnistyy itsestään, piilossa",
+			"raidRadio": "Jos radio käynnistyy itsestään, piilossa",
+			"raidInscriptions": "Jos näet verikirjoituksia seinillä, piilossa"
+		},
+		"status": {
+			"thankYouForPlaying": "Kiitos pelaamisesta",
+			"playAgain": "Pelaa uudelleen"
+		}
+	}
+}

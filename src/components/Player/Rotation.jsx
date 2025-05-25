@@ -158,7 +158,6 @@ export default function Rotation({
 		temporaryDisableMouseLook,
 		isGameplayActive,
 	]);
-	console.log('disableControls', hasMovedMouseAfterIntro.current);
 
 	useEffect(() => {
 		if (disableControls) {

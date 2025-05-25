@@ -5,6 +5,7 @@ import useDoor from '../../../hooks/useDoor';
 import useMonster from '../../../hooks/useMonster';
 import useLight from '../../../hooks/useLight';
 import useGridStore from '../../../hooks/useGrid';
+import useLocalization from '../../../hooks/useLocalization';
 import SkullHotelLogo from '../Logo';
 import './EndGameScreen.css';
 import { regenerateData } from '../../../utils/config';
@@ -91,6 +92,7 @@ const EndGameScreen = () => {
 	const interactiveElements = useRef([]);
 	const [isRestarting, setIsRestarting] = useState(false);
 
+	const { t } = useLocalization();
 	const restart = useGame((state) => state.restart);
 	const incrementRealDeaths = useGame((state) => state.incrementRealDeaths);
 	const realDeaths = useGame((state) => state.realDeaths);
@@ -331,14 +333,18 @@ const EndGameScreen = () => {
 		if (!isValidPlayerName(name)) {
 			if (name.trim().length < NAME_VALIDATION_RULES.minLength) {
 				setNameError(
-					`Name must be at least ${NAME_VALIDATION_RULES.minLength} characters`
+					t('ui.endGameScreen.nameValidation.tooShort', {
+						min: NAME_VALIDATION_RULES.minLength,
+					})
 				);
 			} else if (name.trim().length > NAME_VALIDATION_RULES.maxLength) {
 				setNameError(
-					`Name must be at most ${NAME_VALIDATION_RULES.maxLength} characters`
+					t('ui.endGameScreen.nameValidation.tooLong', {
+						max: NAME_VALIDATION_RULES.maxLength,
+					})
 				);
 			} else {
-				setNameError(NAME_VALIDATION_RULES.patternMessage);
+				setNameError(t('ui.endGameScreen.nameValidation.invalidPattern'));
 			}
 		} else {
 			setNameError('');
@@ -372,7 +378,7 @@ const EndGameScreen = () => {
 				console.error('Failed to submit score:', error);
 				alert(
 					`Error: ${
-						error.message || 'Failed to submit your entry. Please try again.'
+						error.message || t('ui.endGameScreen.nameValidation.submitError')
 					}`
 				);
 			} finally {
@@ -382,9 +388,13 @@ const EndGameScreen = () => {
 	};
 
 	const formatTime = (seconds) => {
-		const minutes = Math.floor(seconds / 60);
-		const remainingSeconds = seconds % 60;
-		return `${minutes}:${remainingSeconds < 10 ? '0' : ''}${remainingSeconds}`;
+		const hours = Math.floor(seconds / 3600);
+		const minutes = Math.floor((seconds % 3600) / 60);
+		const remainingSeconds = Math.floor(seconds % 60);
+
+		return `${hours.toString().padStart(2, '0')}:${minutes
+			.toString()
+			.padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
 	};
 
 	if (!isEndScreen) return null;
@@ -406,9 +416,11 @@ const EndGameScreen = () => {
 
 			<SkullHotelLogo noOutline />
 			<div className="column">
-				<div className="end-game-message">THANK YOU FOR PLAYING</div>
+				<div className="end-game-message">
+					{t('ui.endGameScreen.thankYouForPlaying')}
+				</div>
 				<div className="completion-time">
-					Your time: {formatTime(completionTime)}
+					{t('ui.endGameScreen.yourTime')} {formatTime(completionTime)}
 				</div>
 			</div>
 
@@ -423,7 +435,7 @@ const EndGameScreen = () => {
 						id="player-name"
 						value={playerName}
 						onChange={handleNameChange}
-						placeholder="Enter your name"
+						placeholder={t('ui.endGameScreen.enterYourName')}
 						disabled={isSubmitting}
 						className={nameError ? 'input-error' : ''}
 						onClick={(e) => e.stopPropagation()}
@@ -437,12 +449,14 @@ const EndGameScreen = () => {
 							handleSubmit(e);
 						}}
 					>
-						{isSubmitting ? 'Saving...' : 'Sign the Guest Book'}
+						{isSubmitting
+							? t('ui.endGameScreen.saving')
+							: t('ui.endGameScreen.signGuestBook')}
 					</button>
 				</form>
 			) : (
 				<div className="submission-success">
-					You can see your entry on the reception desk
+					{t('ui.endGameScreen.submissionSuccess')}
 				</div>
 			)}
 
@@ -453,7 +467,9 @@ const EndGameScreen = () => {
 					resetGame();
 				}}
 			>
-				{isRestarting ? 'RESTARTING...' : 'PLAY AGAIN'}
+				{isRestarting
+					? t('ui.endGameScreen.restarting')
+					: t('ui.endGameScreen.playAgain')}
 			</button>
 		</div>
 	);

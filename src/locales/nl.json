@@ -1,0 +1,130 @@
+{
+	"ui": {
+		"settings": {
+			"title": "INSTELLINGEN",
+			"visuals": "VISUEEL",
+			"sensitivity": "GEVOELIGHEID",
+			"controls": "BESTURING",
+			"language": "TAAL",
+			"fullscreen": "Volledig scherm",
+			"shadows": "Schaduwen",
+			"verticalSensitivity": "Verticale gevoeligheid",
+			"horizontalSensitivity": "Horizontale gevoeligheid",
+			"move": "Bewegen",
+			"interact": "Interactie",
+			"listenCarefully": "Luister aandachtig",
+			"crouch": "Hurken",
+			"jump": "Springen"
+		},
+		"loading": {
+			"loading": "LADEN",
+			"clickToStart": "KLIK OM TE STARTEN",
+			"settings": "Instellingen"
+		},
+		"tutorial": {
+			"toMove": "om te bewegen",
+			"toInteract": "om te interacteren",
+			"toJump": "om te springen",
+			"toCrouch": "om te hurken",
+			"toListenCarefully": "om aandachtig te luisteren",
+			"objectives": {
+				"enterTutorialRoom": "Ga de tutorial kamer binnen",
+				"closeDoor": "Sluit de deur",
+				"listenBathroomDoor": "Luister bij de badkamerdeur",
+				"hideBehindCurtains": "Verstop je achter de badkamergordijnen",
+				"hideInsideDesk": "Verstop je in het bureau",
+				"checkNightstand": "Controleer het nachtkastje",
+				"closeNightstandDoor": "Sluit de nachtkastje deur"
+			}
+		},
+		"objectives": {
+			"findExit": "Vind de uitgang",
+			"refillSoapBottles": "Vul zeepflesjes bij",
+			"makeTheBed": "Maak het bed op",
+			"openTheWindow": "Open het raam"
+		},
+		"deathScreen": {
+			"youDied": "JE BENT DOOD",
+			"hidingSpotsFound": " verstopplekken gevonden",
+			"continue": "DOORGAAN",
+			"restarting": "Herstarten...",
+			"raidWarning": "Als je een klant hoort kloppen, verstop je tot ze weggaan"
+		},
+		"endGameScreen": {
+			"thankYouForPlaying": "BEDANKT VOOR HET SPELEN",
+			"yourTime": "Jouw tijd:",
+			"enterYourName": "Voer je naam in",
+			"signGuestBook": "Teken het gastenboek",
+			"saving": "Opslaan...",
+			"submissionSuccess": "Je kunt je inzending zien bij de receptie",
+			"playAgain": "OPNIEUW SPELEN",
+			"restarting": "HERSTARTEN...",
+			"nameValidation": {
+				"tooShort": "Naam moet minstens {{min}} karakters hebben",
+				"tooLong": "Naam mag maximaal {{max}} karakters hebben",
+				"invalidPattern": "Naam mag alleen letters, cijfers, spaties en basis leestekens bevatten",
+				"submitError": "Fout bij het verzenden van je inzending. Probeer opnieuw."
+			}
+		},
+		"howItsMade": {
+			"title": "Hoe het gemaakt is",
+			"technologies": "TECHNOLOGIEËN",
+			"people": "MENSEN",
+			"openSource": "Dit is een open source project. Bekijk de",
+			"githubRepository": "GitHub repository",
+			"threejsDescription": "Een JavaScript bibliotheek voor het maken van 3D graphics in de browser",
+			"createdBy": "Gemaakt door",
+			"r3fDescription": "Een tool die het gebruik van three.js met React makkelijker maakt",
+			"threejsJourneyDescription": "Een online cursus om 3D voor het web te leren",
+			"gameConceptDesignDev": "Game concept, game design en game ontwikkeling",
+			"uiArtDirection": "Gebruikersinterface en art direction"
+		},
+		"reception": {
+			"guestBook": "Gastenboek",
+			"informations": "Informatie"
+		}
+	},
+	"game": {
+		"dialogues": {
+			"locked": "Het is op slot.",
+			"welcomeBack": "Welkom terug.",
+			"welcomeHousekeeper": "Welkom. Je moet de nieuwe huishoudster zijn.",
+			"closeDoors": "Sluit altijd deuren achter je of ze kunnen binnenkomen terwijl je de kamer schoonmaakt.",
+			"bathroomWarning": "Als je geluiden uit de badkamer hoort, open de deur niet - ga meteen weg.",
+			"hideWarning": "Als je geklop hoort of tekenen opmerkt, verstop je meteen.",
+			"checkRoom": "Controleer de hele kamer zorgvuldig. Ze kunnen zich overal verstoppen.",
+			"spotWarning": "Als je een van hen ziet, sluit snel de deur en verlaat de kamer.",
+			"wellDone": "Goed gedaan! Maak nu 8 kamers schoon om de dag af te sluiten.",
+			"turnBack": "Onthoud: als je een van hen in een kamer ziet, ga meteen terug.",
+			"infested": "De helft van deze kamers is willekeurig besmet. Ga voorzichtig te werk."
+		},
+		"deathReasons": {
+			"underBed": "Het verstopte zich onder het bed",
+			"bathroomVent": "Het verstopte zich in de badkamer ventilatie",
+			"roomVent": "Het verstopte zich in de kamer ventilatie",
+			"bedBasket": "Het verstopte zich in de wasmand bij het bed",
+			"windowBasket": "Het verstopte zich in het TV-meubel compartiment",
+			"hideoutMirror": "Als je het in de spiegel ziet, ren meteen weg",
+			"behindDoor": "Het verstopte zich achter de deur",
+			"footWindow": "Zijn voeten waren zichtbaar onder het gordijn",
+			"landmineMirror": "Het verstopte zich in de spiegel",
+			"nearWindow": "Het verstopte zich naast de bank",
+			"ceilingCornerCouch": "Het was aan het plafond boven de bank",
+			"behindCouch": "Het verstopte zich achter de bank",
+			"behindDesk": "Het verstopte zich achter het bureau",
+			"insideDesk": "Het verstopte zich onder het bureau",
+			"ceilingCenter": "Het was aan het plafond bij de ingang",
+			"sonarBathroom": "Open de badkamerdeur niet als je geluiden van binnen hoort",
+			"claymore": "Sluit de deur snel voordat het je aanvalt",
+			"hunter": "Als je het ziet, ren weg en sluit de deur achter je",
+			"raidKnocking": "Als je geklop hoort, verstop je",
+			"raidTV": "Als de TV vanzelf aangaat, verstop je",
+			"raidRadio": "Als de radio vanzelf aangaat, verstop je",
+			"raidInscriptions": "Als je bloedinscripties op de muren ziet, verstop je"
+		},
+		"status": {
+			"thankYouForPlaying": "Bedankt voor het spelen",
+			"playAgain": "Opnieuw spelen"
+		}
+	}
+}

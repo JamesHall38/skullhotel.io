@@ -5,6 +5,8 @@ import useGridStore from '../../../hooks/useGrid';
 import useDoor from '../../../hooks/useDoor';
 import useMonster from '../../../hooks/useMonster';
 import useLight from '../../../hooks/useLight';
+import useLocalization from '../../../hooks/useLocalization';
+import { getDeathReasonTranslationKey } from '../../../utils/deathReasonMapper';
 import { regenerateData } from '../../../utils/config';
 import {
 	isPointerLocked,
@@ -30,6 +32,7 @@ const DeathScreen = () => {
 	const [lastDeathMessage, setLastDeathMessage] = useState(null);
 	const [animationsComplete, setAnimationsComplete] = useState(false);
 
+	const { t } = useLocalization();
 	const deviceMode = useGame((state) => state.deviceMode);
 	const openDeathScreen = useGame((state) => state.openDeathScreen);
 	const setOpenDeathScreen = useGame((state) => state.setOpenDeathScreen);
@@ -56,18 +59,28 @@ const DeathScreen = () => {
 	useEffect(() => {
 		if (playerPositionRoom !== null && playerPositionRoom >= 0) {
 			const currentRoom = Object.values(seedData)[playerPositionRoom];
-			const message =
-				customMessage ||
-				(currentRoom?.isRaid
-					? 'If you hear a client knocking at the door, hide until they leave'
-					: currentRoom?.deathReason);
+			let message = customMessage;
+
+			if (!message) {
+				if (currentRoom?.isRaid) {
+					message = t('ui.deathScreen.raidWarning');
+				} else if (currentRoom?.deathReason) {
+					const translationKey = getDeathReasonTranslationKey(
+						currentRoom.deathReason
+					);
+					message = translationKey.startsWith('game.deathReasons.')
+						? t(translationKey)
+						: currentRoom.deathReason;
+				}
+			}
+
 			setLastDeathMessage(message);
 
 			if (currentRoom?.baseKey) {
 				addSeenLevel(currentRoom.baseKey);
 			}
 		}
-	}, [playerPositionRoom, seedData, customMessage, addSeenLevel]);
+	}, [playerPositionRoom, seedData, customMessage, addSeenLevel, t]);
 
 	useEffect(() => {
 		if (openDeathScreen) {
@@ -186,14 +199,19 @@ const DeathScreen = () => {
 		<div className="death-screen" onClick={handleRestart}>
 			<AnimatedDeathLogo />
 			<div className="death-screen-flex">
-				<div className="death-screen-title">YOU DIED</div>
+				<div className="death-screen-title">{t('ui.deathScreen.youDied')}</div>
 				<div className="death-message">
 					{lastDeathMessage}
-					<br /> {seenLevels.size}/{totalLevelTypes} Hiding Spots Found
+					<br /> <br /> {seenLevels.size}/{totalLevelTypes}{' '}
+					{t('ui.deathScreen.hidingSpotsFound')}
 				</div>
 			</div>
 			<div className="death-screen-start">
-				<>{isRestarting ? 'Restarting...' : 'CONTINUE'}</>
+				<>
+					{isRestarting
+						? t('ui.deathScreen.restarting')
+						: t('ui.deathScreen.continue')}
+				</>
 			</div>
 		</div>
 	);

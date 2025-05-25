@@ -1,0 +1,130 @@
+{
+	"ui": {
+		"settings": {
+			"title": "设置",
+			"visuals": "视觉效果",
+			"sensitivity": "灵敏度",
+			"controls": "控制",
+			"language": "语言",
+			"fullscreen": "全屏",
+			"shadows": "阴影",
+			"verticalSensitivity": "垂直灵敏度",
+			"horizontalSensitivity": "水平灵敏度",
+			"move": "移动",
+			"interact": "互动",
+			"listenCarefully": "仔细聆听",
+			"crouch": "蹲下",
+			"jump": "跳跃"
+		},
+		"loading": {
+			"loading": "加载中",
+			"clickToStart": "点击开始",
+			"settings": "设置"
+		},
+		"tutorial": {
+			"toMove": "移动",
+			"toInteract": "互动",
+			"toJump": "跳跃",
+			"toCrouch": "蹲下",
+			"toListenCarefully": "仔细聆听",
+			"objectives": {
+				"enterTutorialRoom": "进入教程房间",
+				"closeDoor": "关门",
+				"listenBathroomDoor": "在浴室门口聆听",
+				"hideBehindCurtains": "躲在浴室窗帘后面",
+				"hideInsideDesk": "躲在桌子里",
+				"checkNightstand": "检查床头柜",
+				"closeNightstandDoor": "关闭床头柜门"
+			}
+		},
+		"objectives": {
+			"findExit": "找到出口",
+			"refillSoapBottles": "补充肥皂瓶",
+			"makeTheBed": "整理床铺",
+			"openTheWindow": "打开窗户"
+		},
+		"deathScreen": {
+			"youDied": "你死了",
+			"hidingSpotsFound": " 个藏身点被发现",
+			"continue": "继续",
+			"restarting": "重新开始...",
+			"raidWarning": "如果听到客人敲门，请躲起来直到他们离开"
+		},
+		"endGameScreen": {
+			"thankYouForPlaying": "感谢您的游戏",
+			"yourTime": "您的时间：",
+			"enterYourName": "输入您的姓名",
+			"signGuestBook": "签署客人留言簿",
+			"saving": "保存中...",
+			"submissionSuccess": "您可以在接待台看到您的条目",
+			"playAgain": "再次游戏",
+			"restarting": "重新开始...",
+			"nameValidation": {
+				"tooShort": "姓名必须至少包含{{min}}个字符",
+				"tooLong": "姓名最多只能包含{{max}}个字符",
+				"invalidPattern": "姓名只能包含字母、数字、空格和基本标点符号",
+				"submitError": "提交您的条目失败。请重试。"
+			}
+		},
+		"howItsMade": {
+			"title": "制作方式",
+			"technologies": "技术",
+			"people": "人员",
+			"openSource": "这是一个开源项目。查看",
+			"githubRepository": "GitHub仓库",
+			"threejsDescription": "用于在浏览器中创建3D图形的JavaScript库",
+			"createdBy": "创建者",
+			"r3fDescription": "使React更容易使用three.js的工具",
+			"threejsJourneyDescription": "学习网页3D的在线课程",
+			"gameConceptDesignDev": "游戏概念、游戏设计和游戏开发",
+			"uiArtDirection": "用户界面和艺术指导"
+		},
+		"reception": {
+			"guestBook": "客人留言簿",
+			"informations": "信息"
+		}
+	},
+	"game": {
+		"dialogues": {
+			"locked": "锁着的。",
+			"welcomeBack": "欢迎回来。",
+			"welcomeHousekeeper": "欢迎。您一定是新来的管家。",
+			"closeDoors": "总是在身后关门，否则它们可能会在您清洁房间时进入。",
+			"bathroomWarning": "如果听到浴室里有声音，不要开门 - 立即离开。",
+			"hideWarning": "如果听到敲门声或注意到任何迹象，立即躲起来。",
+			"checkRoom": "仔细检查整个房间。它们可能躲在任何地方。",
+			"spotWarning": "如果发现其中一个，快速关门并离开房间。",
+			"wellDone": "做得好！现在清洁8个房间来结束这一天。",
+			"turnBack": "记住：如果在房间里看到其中一个，立即转身。",
+			"infested": "这些房间中有一半是随机感染的。小心行事。"
+		},
+		"deathReasons": {
+			"underBed": "它躲在床下",
+			"bathroomVent": "它躲在浴室通风口",
+			"roomVent": "它躲在房间通风口",
+			"bedBasket": "它躲在床边的洗衣篮里",
+			"windowBasket": "它躲在电视柜的隔间里",
+			"hideoutMirror": "如果在镜子里看到它，立即逃跑",
+			"behindDoor": "它躲在门后",
+			"footWindow": "它的脚在窗帘下可见",
+			"landmineMirror": "它躲在镜子里",
+			"nearWindow": "它躲在沙发旁边",
+			"ceilingCornerCouch": "它在沙发上方的天花板上",
+			"behindCouch": "它躲在沙发后面",
+			"behindDesk": "它躲在桌子后面",
+			"insideDesk": "它躲在桌子下面",
+			"ceilingCenter": "它在入口的天花板上",
+			"sonarBathroom": "如果听到里面有声音，不要打开浴室门",
+			"claymore": "在它攻击您之前快速关门",
+			"hunter": "如果看到它，逃跑并在身后关门",
+			"raidKnocking": "如果听到敲门声，躲起来",
+			"raidTV": "如果电视自己打开，躲起来",
+			"raidRadio": "如果收音机自己打开，躲起来",
+			"raidInscriptions": "如果看到墙上的血字，躲起来"
+		},
+		"status": {
+			"thankYouForPlaying": "感谢您的游戏",
+			"playAgain": "再次游戏"
+		}
+	}
+}

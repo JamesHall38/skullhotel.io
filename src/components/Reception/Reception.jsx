@@ -11,6 +11,7 @@ import WoodLightMaterial from '../materials/WoodLightMaterial';
 import WallsLightMaterial from '../materials/WallsLightMaterial';
 import CarpetLightMaterial from '../materials/CarpetLightMaterial';
 import useInterface from '../../hooks/useInterface';
+import useLocalization from '../../hooks/useLocalization';
 import './Reception.css';
 
 export default function Reception(props) {
@@ -21,6 +22,7 @@ export default function Reception(props) {
 	const [isVisible, setIsVisible] = useState(true);
 	const [showGuestBook, setShowGuestBook] = useState(false);
 	const [showHowItsMade, setShowHowItsMade] = useState(false);
+	const { t } = useLocalization();
 
 	const guestBookBoxRef = useRef();
 	const howItsMadeBoxRef = useRef();
@@ -420,7 +422,7 @@ export default function Reception(props) {
 						position={[-2, 1.4, 0.25]}
 						scale={0.1}
 					>
-						Guest Book
+						{t('ui.reception.guestBook')}
 					</Text>
 					<Svg
 						ref={guestBookArrowRef}
@@ -439,7 +441,7 @@ export default function Reception(props) {
 						position={[-2, 1.4, 1.95]}
 						scale={0.1}
 					>
-						Informations
+						{t('ui.reception.informations')}
 					</Text>
 					<Svg
 						ref={howItsMadeArrowRef}

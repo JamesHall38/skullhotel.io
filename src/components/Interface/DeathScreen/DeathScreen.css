@@ -72,6 +72,7 @@
 .death-screen-title {
 	font-family: 'Lincoln Road Deco', serif;
 	font-size: 8rem;
+	text-align: center;
 	color: #c83535;
 	position: relative;
 	z-index: 2;

@@ -1,0 +1,130 @@
+{
+	"ui": {
+		"settings": {
+			"title": "EINSTELLUNGEN",
+			"visuals": "GRAFIK",
+			"sensitivity": "EMPFINDLICHKEIT",
+			"controls": "STEUERUNG",
+			"language": "SPRACHE",
+			"fullscreen": "Vollbild",
+			"shadows": "Schatten",
+			"verticalSensitivity": "Vertikale Empfindlichkeit",
+			"horizontalSensitivity": "Horizontale Empfindlichkeit",
+			"move": "Bewegen",
+			"interact": "Interagieren",
+			"listenCarefully": "Aufmerksam zuhören",
+			"crouch": "Ducken",
+			"jump": "Springen"
+		},
+		"loading": {
+			"loading": "LADEN",
+			"clickToStart": "KLICKEN ZUM STARTEN",
+			"settings": "Einstellungen"
+		},
+		"tutorial": {
+			"toMove": "zum Bewegen",
+			"toInteract": "zum Interagieren",
+			"toJump": "zum Springen",
+			"toCrouch": "zum Ducken",
+			"toListenCarefully": "zum aufmerksamen Zuhören",
+			"objectives": {
+				"enterTutorialRoom": "Tutorial-Raum betreten",
+				"closeDoor": "Tür schließen",
+				"listenBathroomDoor": "An der Badezimmertür lauschen",
+				"hideBehindCurtains": "Sich hinter den Badezimmervorhängen verstecken",
+				"hideInsideDesk": "Sich im Schreibtisch verstecken",
+				"checkNightstand": "Nachttisch überprüfen",
+				"closeNightstandDoor": "Nachttischtür schließen"
+			}
+		},
+		"objectives": {
+			"findExit": "Ausgang finden",
+			"refillSoapBottles": "Seifenflaschen auffüllen",
+			"makeTheBed": "Bett machen",
+			"openTheWindow": "Fenster öffnen"
+		},
+		"deathScreen": {
+			"youDied": "DU BIST GESTORBEN",
+			"hidingSpotsFound": " Verstecke gefunden",
+			"continue": "WEITER",
+			"restarting": "Neustart...",
+			"raidWarning": "Wenn du einen Gast an der Tür klopfen hörst, verstecke dich bis er geht"
+		},
+		"endGameScreen": {
+			"thankYouForPlaying": "DANKE FÜRS SPIELEN",
+			"yourTime": "Deine Zeit:",
+			"enterYourName": "Gib deinen Namen ein",
+			"signGuestBook": "Gästebuch unterschreiben",
+			"saving": "Speichern...",
+			"submissionSuccess": "Du kannst deinen Eintrag am Empfangstresen sehen",
+			"playAgain": "NOCHMAL SPIELEN",
+			"restarting": "NEUSTART...",
+			"nameValidation": {
+				"tooShort": "Name muss mindestens {{min}} Zeichen haben",
+				"tooLong": "Name darf höchstens {{max}} Zeichen haben",
+				"invalidPattern": "Name darf nur Buchstaben, Zahlen, Leerzeichen und einfache Satzzeichen enthalten",
+				"submitError": "Fehler beim Senden deines Eintrags. Bitte versuche es erneut."
+			}
+		},
+		"howItsMade": {
+			"title": "Wie es gemacht wurde",
+			"technologies": "TECHNOLOGIEN",
+			"people": "PERSONEN",
+			"openSource": "Dies ist ein Open-Source-Projekt. Schau dir das",
+			"githubRepository": "GitHub-Repository an",
+			"threejsDescription": "Eine JavaScript-Bibliothek zur Erstellung von 3D-Grafiken im Browser",
+			"createdBy": "Erstellt von",
+			"r3fDescription": "Ein Tool, das die Verwendung von three.js mit React erleichtert",
+			"threejsJourneyDescription": "Ein Online-Kurs zum Erlernen von 3D für das Web",
+			"gameConceptDesignDev": "Spielkonzept, Spieldesign und Spielentwicklung",
+			"uiArtDirection": "Benutzeroberfläche und Art Direction"
+		},
+		"reception": {
+			"guestBook": "Gästebuch",
+			"informations": "Informationen"
+		}
+	},
+	"game": {
+		"dialogues": {
+			"locked": "Es ist verschlossen.",
+			"welcomeBack": "Willkommen zurück.",
+			"welcomeHousekeeper": "Willkommen. Du musst die neue Haushälterin sein.",
+			"closeDoors": "Schließe immer die Türen hinter dir oder sie könnten hereinkommen, während du das Zimmer putzt.",
+			"bathroomWarning": "Wenn du Geräusche aus dem Badezimmer hörst, öffne nicht die Tür - geh sofort weg.",
+			"hideWarning": "Wenn du Klopfen hörst oder Zeichen bemerkst, verstecke dich sofort.",
+			"checkRoom": "Überprüfe das ganze Zimmer sorgfältig. Sie könnten sich überall verstecken.",
+			"spotWarning": "Wenn du einen von ihnen siehst, schließe schnell die Tür und verlasse das Zimmer.",
+			"wellDone": "Gut gemacht! Jetzt putze 8 Zimmer, um den Tag zu beenden.",
+			"turnBack": "Denk daran: wenn du einen von ihnen in einem Zimmer siehst, kehre sofort um.",
+			"infested": "Die Hälfte dieser Zimmer ist zufällig befallen. Gehe vorsichtig vor."
+		},
+		"deathReasons": {
+			"underBed": "Es versteckte sich unter dem Bett",
+			"bathroomVent": "Es versteckte sich in der Badezimmerlüftung",
+			"roomVent": "Es versteckte sich in der Zimmerlüftung",
+			"bedBasket": "Es versteckte sich im Wäschekorb neben dem Bett",
+			"windowBasket": "Es versteckte sich im TV-Schrank-Fach",
+			"hideoutMirror": "Wenn du es im Spiegel siehst, lauf sofort weg",
+			"behindDoor": "Es versteckte sich hinter der Tür",
+			"footWindow": "Seine Füße waren unter dem Vorhang sichtbar",
+			"landmineMirror": "Es versteckte sich im Spiegel",
+			"nearWindow": "Es versteckte sich neben dem Sofa",
+			"ceilingCornerCouch": "Es war an der Decke über dem Sofa",
+			"behindCouch": "Es versteckte sich hinter dem Sofa",
+			"behindDesk": "Es versteckte sich hinter dem Schreibtisch",
+			"insideDesk": "Es versteckte sich unter dem Schreibtisch",
+			"ceilingCenter": "Es war an der Decke am Eingang",
+			"sonarBathroom": "Öffne nicht die Badezimmertür, wenn du Geräusche von innen hörst",
+			"claymore": "Schließe die Tür schnell, bevor es dich angreift",
+			"hunter": "Wenn du es siehst, lauf weg und schließe die Tür hinter dir",
+			"raidKnocking": "Wenn du Klopfen hörst, verstecke dich",
+			"raidTV": "Wenn sich der Fernseher von selbst einschaltet, verstecke dich",
+			"raidRadio": "Wenn sich das Radio von selbst einschaltet, verstecke dich",
+			"raidInscriptions": "Wenn du Blutinschriften an den Wänden siehst, verstecke dich"
+		},
+		"status": {
+			"thankYouForPlaying": "Danke fürs Spielen",
+			"playAgain": "Nochmal spielen"
+		}
+	}
+}

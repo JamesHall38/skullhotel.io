@@ -7,6 +7,7 @@ import { useProgress } from '@react-three/drei';
 import useTextureQueue from '../../../hooks/useTextureQueue';
 import TrianglePattern from './TrianglePattern';
 import useInterface from '../../../hooks/useInterface';
+import useLocalization from '../../../hooks/useLocalization';
 import './LoadingScreen.css';
 
 const LoadingScreen = ({ onStart }) => {
@@ -30,6 +31,7 @@ const LoadingScreen = ({ onStart }) => {
 	const setIsSettingsOpen = useInterface((state) => state.setIsSettingsOpen);
 	const audioInitialized = useRef(false);
 	const animationTimerRef = useRef(null);
+	const { t } = useLocalization();
 
 	const completedAnimations = useInterface(
 		(state) => state.completedAnimations
@@ -208,14 +210,14 @@ const LoadingScreen = ({ onStart }) => {
 						} lincoln-regular`}
 					>
 						{displayProgress !== 100
-							? `LOADING: ${displayProgress.toFixed(0)}%`
-							: `CLICK TO START`}
+							? `${t('ui.loading.loading')}: ${displayProgress.toFixed(0)}%`
+							: t('ui.loading.clickToStart')}
 					</div>
 					<div
 						className="settings lincoln-regular"
 						onClick={handleSettingsClick}
 					>
-						Settings
+						{t('ui.loading.settings')}
 					</div>
 				</div>
 			</div>

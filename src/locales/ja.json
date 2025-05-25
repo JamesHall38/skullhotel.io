@@ -1,0 +1,130 @@
+{
+	"ui": {
+		"settings": {
+			"title": "設定",
+			"visuals": "ビジュアル",
+			"sensitivity": "感度",
+			"controls": "操作",
+			"language": "言語",
+			"fullscreen": "フルスクリーン",
+			"shadows": "影",
+			"verticalSensitivity": "垂直感度",
+			"horizontalSensitivity": "水平感度",
+			"move": "移動",
+			"interact": "相互作用",
+			"listenCarefully": "注意深く聞く",
+			"crouch": "しゃがむ",
+			"jump": "ジャンプ"
+		},
+		"loading": {
+			"loading": "読み込み中",
+			"clickToStart": "クリックして開始",
+			"settings": "設定"
+		},
+		"tutorial": {
+			"toMove": "移動する",
+			"toInteract": "相互作用する",
+			"toJump": "ジャンプする",
+			"toCrouch": "しゃがむ",
+			"toListenCarefully": "注意深く聞く",
+			"objectives": {
+				"enterTutorialRoom": "チュートリアルルームに入る",
+				"closeDoor": "ドアを閉める",
+				"listenBathroomDoor": "バスルームのドアで聞く",
+				"hideBehindCurtains": "バスルームのカーテンの後ろに隠れる",
+				"hideInsideDesk": "机の中に隠れる",
+				"checkNightstand": "ナイトスタンドをチェックする",
+				"closeNightstandDoor": "ナイトスタンドのドアを閉める"
+			}
+		},
+		"objectives": {
+			"findExit": "出口を見つける",
+			"refillSoapBottles": "石鹸ボトルを補充する",
+			"makeTheBed": "ベッドを整える",
+			"openTheWindow": "窓を開ける"
+		},
+		"deathScreen": {
+			"youDied": "死亡しました",
+			"hidingSpotsFound": " 隠れ場所が見つかりました",
+			"continue": "続行",
+			"restarting": "再起動中...",
+			"raidWarning": "クライアントがドアをノックする音が聞こえたら、彼らが去るまで隠れてください"
+		},
+		"endGameScreen": {
+			"thankYouForPlaying": "プレイしていただきありがとうございます",
+			"yourTime": "あなたの時間:",
+			"enterYourName": "名前を入力してください",
+			"signGuestBook": "ゲストブックにサインする",
+			"saving": "保存中...",
+			"submissionSuccess": "受付デスクでエントリーを確認できます",
+			"playAgain": "もう一度プレイ",
+			"restarting": "再起動中...",
+			"nameValidation": {
+				"tooShort": "名前は最低{{min}}文字である必要があります",
+				"tooLong": "名前は最大{{max}}文字である必要があります",
+				"invalidPattern": "名前には文字、数字、スペース、基本的な句読点のみ使用できます",
+				"submitError": "エントリーの送信に失敗しました。もう一度お試しください。"
+			}
+		},
+		"howItsMade": {
+			"title": "作り方",
+			"technologies": "技術",
+			"people": "人々",
+			"openSource": "これはオープンソースプロジェクトです。",
+			"githubRepository": "GitHubリポジトリをチェックしてください",
+			"threejsDescription": "ブラウザで3Dグラフィックスを作成するためのJavaScriptライブラリ",
+			"createdBy": "作成者",
+			"r3fDescription": "ReactでThree.jsを使いやすくするツール",
+			"threejsJourneyDescription": "ウェブ用3Dを学ぶオンラインコース",
+			"gameConceptDesignDev": "ゲームコンセプト、ゲームデザイン、ゲーム開発",
+			"uiArtDirection": "ユーザーインターフェースとアートディレクション"
+		},
+		"reception": {
+			"guestBook": "ゲストブック",
+			"informations": "情報"
+		}
+	},
+	"game": {
+		"dialogues": {
+			"locked": "鍵がかかっています。",
+			"welcomeBack": "お帰りなさい。",
+			"welcomeHousekeeper": "いらっしゃいませ。新しいハウスキーパーですね。",
+			"closeDoors": "部屋を掃除している間に彼らが入ってこないよう、必ずドアを閉めてください。",
+			"bathroomWarning": "バスルームから音が聞こえたら、ドアを開けずにすぐに立ち去ってください。",
+			"hideWarning": "ノック音や兆候に気づいたら、すぐに隠れてください。",
+			"checkRoom": "部屋全体を注意深くチェックしてください。彼らはどこにでも隠れている可能性があります。",
+			"spotWarning": "彼らの一人を見つけたら、すぐにドアを閉めて部屋から出てください。",
+			"wellDone": "よくできました！今日を終えるために8つの部屋を掃除してください。",
+			"turnBack": "覚えておいてください：部屋で彼らの一人を見たら、すぐに引き返してください。",
+			"infested": "これらの部屋の半分はランダムに感染しています。注意して進んでください。"
+		},
+		"deathReasons": {
+			"underBed": "ベッドの下に隠れていました",
+			"bathroomVent": "バスルームの換気口に隠れていました",
+			"roomVent": "部屋の換気口に隠れていました",
+			"bedBasket": "ベッド近くの洗濯かごに隠れていました",
+			"windowBasket": "テレビスタンドの収納部分に隠れていました",
+			"hideoutMirror": "鏡の中に見えたら、すぐに逃げてください",
+			"behindDoor": "ドアの後ろに隠れていました",
+			"footWindow": "カーテンの下に足が見えていました",
+			"landmineMirror": "鏡の中に隠れていました",
+			"nearWindow": "ソファの隣に隠れていました",
+			"ceilingCornerCouch": "ソファの上の天井にいました",
+			"behindCouch": "ソファの後ろに隠れていました",
+			"behindDesk": "机の後ろに隠れていました",
+			"insideDesk": "机の下に隠れていました",
+			"ceilingCenter": "入り口の天井にいました",
+			"sonarBathroom": "中から音が聞こえる場合は、バスルームのドアを開けないでください",
+			"claymore": "攻撃される前に素早くドアを閉めてください",
+			"hunter": "見つけたら、逃げて後ろのドアを閉めてください",
+			"raidKnocking": "ノック音が聞こえたら隠れてください",
+			"raidTV": "テレビが勝手につけば隠れてください",
+			"raidRadio": "ラジオが勝手につけば隠れてください",
+			"raidInscriptions": "壁に血の文字を見たら隠れてください"
+		},
+		"status": {
+			"thankYouForPlaying": "プレイしていただきありがとうございます",
+			"playAgain": "もう一度プレイ"
+		}
+	}
+}

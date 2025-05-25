@@ -1,0 +1,130 @@
+{
+	"ui": {
+		"settings": {
+			"title": "SETTINGS",
+			"visuals": "VISUALS",
+			"sensitivity": "SENSITIVITY",
+			"controls": "CONTROLS",
+			"language": "LANGUAGE",
+			"fullscreen": "Fullscreen",
+			"shadows": "Shadows",
+			"verticalSensitivity": "Vertical sensitivity",
+			"horizontalSensitivity": "Horizontal sensitivity",
+			"move": "Move",
+			"interact": "Interact",
+			"listenCarefully": "Listen carefully",
+			"crouch": "Crouch",
+			"jump": "Jump"
+		},
+		"loading": {
+			"loading": "LOADING",
+			"clickToStart": "CLICK TO START",
+			"settings": "Settings"
+		},
+		"tutorial": {
+			"toMove": "to move",
+			"toInteract": "to interact",
+			"toJump": "to jump",
+			"toCrouch": "to crouch",
+			"toListenCarefully": "to listen carefully",
+			"objectives": {
+				"enterTutorialRoom": "Enter the tutorial room",
+				"closeDoor": "Close the door",
+				"listenBathroomDoor": "Listen at the bathroom door",
+				"hideBehindCurtains": "Hide behind the bathroom curtains",
+				"hideInsideDesk": "Hide inside the desk",
+				"checkNightstand": "Check the nightstand",
+				"closeNightstandDoor": "Close the nightstand door"
+			}
+		},
+		"objectives": {
+			"findExit": "Find the exit",
+			"refillSoapBottles": "Refill soap bottles",
+			"makeTheBed": "Make the bed",
+			"openTheWindow": "Open the window"
+		},
+		"deathScreen": {
+			"youDied": "YOU DIED",
+			"hidingSpotsFound": " hiding spots found",
+			"continue": "CONTINUE",
+			"restarting": "Restarting...",
+			"raidWarning": "If you hear a client knocking at the door, hide until they leave"
+		},
+		"endGameScreen": {
+			"thankYouForPlaying": "THANK YOU FOR PLAYING",
+			"yourTime": "Your time:",
+			"enterYourName": "Enter your name",
+			"signGuestBook": "Sign the Guest Book",
+			"saving": "Saving...",
+			"submissionSuccess": "You can see your entry on the reception desk",
+			"playAgain": "PLAY AGAIN",
+			"restarting": "RESTARTING...",
+			"nameValidation": {
+				"tooShort": "Name must be at least {{min}} characters",
+				"tooLong": "Name must be at most {{max}} characters",
+				"invalidPattern": "Name can only contain letters, numbers, spaces, and basic punctuation",
+				"submitError": "Failed to submit your entry. Please try again."
+			}
+		},
+		"howItsMade": {
+			"title": "How it's made",
+			"technologies": "TECHNOLOGIES",
+			"people": "PEOPLE",
+			"openSource": "This is an open source project. Check out the",
+			"githubRepository": "GitHub repository",
+			"threejsDescription": "A JavaScript library for creating 3D graphics in the browser",
+			"createdBy": "Created by",
+			"r3fDescription": "A tool that makes it easier to use three.js with React",
+			"threejsJourneyDescription": "An online course to learn 3D for the web",
+			"gameConceptDesignDev": "Game concept, game design & game development",
+			"uiArtDirection": "User interface & Art direction"
+		},
+		"reception": {
+			"guestBook": "Guest Book",
+			"informations": "Informations"
+		}
+	},
+	"game": {
+		"dialogues": {
+			"locked": "It's locked.",
+			"welcomeBack": "Welcome back.",
+			"welcomeHousekeeper": "Welcome. You must be the new housekeeper.",
+			"closeDoors": "Always close doors behind you or they might enter while you clean the room.",
+			"bathroomWarning": "If you hear sounds from the bathroom, do not open the door - leave immediately.",
+			"hideWarning": "If you hear knocking or notice any signs, hide immediately.",
+			"checkRoom": "Check the entire room carefully. They might be hiding anywhere.",
+			"spotWarning": "If you spot one of them, quickly close the door and exit the room.",
+			"wellDone": "Well done! Now clean 8 rooms to call it a day.",
+			"turnBack": "Remember: if you see one of them in a room, turn back immediately.",
+			"infested": "Half of these rooms are randomly infested. Proceed with caution."
+		},
+		"deathReasons": {
+			"underBed": "It was hiding under the bed",
+			"bathroomVent": "It was hiding in the bathroom vent",
+			"roomVent": "It was hiding in the room vent",
+			"bedBasket": "It was hiding in the laundry basket near the bed",
+			"windowBasket": "It was hiding in the TV stand compartment",
+			"hideoutMirror": "If you see it in the mirror, run away immediately",
+			"behindDoor": "It was hiding behind the door",
+			"footWindow": "Its feet were visible under the curtain",
+			"landmineMirror": "It was hiding in the mirror",
+			"nearWindow": "It was hiding next to the couch",
+			"ceilingCornerCouch": "It was on the ceiling above the couch",
+			"behindCouch": "It was hiding behind the couch",
+			"behindDesk": "It was hiding behind the desk",
+			"insideDesk": "It was hiding under the desk",
+			"ceilingCenter": "It was on the ceiling at the entrance",
+			"sonarBathroom": "Do not open the bathroom door if you hear sounds coming from inside",
+			"claymore": "Close the door quickly before it attacks you",
+			"hunter": "If you see it, run away and close the door behind you",
+			"raidKnocking": "If you hear knocking, hide",
+			"raidTV": "If the TV turns on by itself, hide",
+			"raidRadio": "If the radio turns on by itself, hide",
+			"raidInscriptions": "If you see blood inscriptions on the walls, hide"
+		},
+		"status": {
+			"thankYouForPlaying": "Thank you for playing",
+			"playAgain": "Play Again"
+		}
+	}
+}

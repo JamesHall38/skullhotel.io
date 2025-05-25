@@ -1,0 +1,130 @@
+{
+	"ui": {
+		"settings": {
+			"title": "설정",
+			"visuals": "비주얼",
+			"sensitivity": "감도",
+			"controls": "조작",
+			"language": "언어",
+			"fullscreen": "전체화면",
+			"shadows": "그림자",
+			"verticalSensitivity": "수직 감도",
+			"horizontalSensitivity": "수평 감도",
+			"move": "이동",
+			"interact": "상호작용",
+			"listenCarefully": "주의깊게 듣기",
+			"crouch": "웅크리기",
+			"jump": "점프"
+		},
+		"loading": {
+			"loading": "로딩 중",
+			"clickToStart": "클릭하여 시작",
+			"settings": "설정"
+		},
+		"tutorial": {
+			"toMove": "이동하기",
+			"toInteract": "상호작용하기",
+			"toJump": "점프하기",
+			"toCrouch": "웅크리기",
+			"toListenCarefully": "주의깊게 듣기",
+			"objectives": {
+				"enterTutorialRoom": "튜토리얼 방에 들어가기",
+				"closeDoor": "문 닫기",
+				"listenBathroomDoor": "욕실 문에서 듣기",
+				"hideBehindCurtains": "욕실 커튼 뒤에 숨기",
+				"hideInsideDesk": "책상 안에 숨기",
+				"checkNightstand": "침대 옆 탁자 확인하기",
+				"closeNightstandDoor": "침대 옆 탁자 문 닫기"
+			}
+		},
+		"objectives": {
+			"findExit": "출구 찾기",
+			"refillSoapBottles": "비누병 채우기",
+			"makeTheBed": "침대 정리하기",
+			"openTheWindow": "창문 열기"
+		},
+		"deathScreen": {
+			"youDied": "사망했습니다",
+			"hidingSpotsFound": " 개의 은신처를 발견했습니다",
+			"continue": "계속",
+			"restarting": "재시작 중...",
+			"raidWarning": "고객이 문을 두드리는 소리가 들리면 그들이 떠날 때까지 숨어있으세요"
+		},
+		"endGameScreen": {
+			"thankYouForPlaying": "플레이해 주셔서 감사합니다",
+			"yourTime": "당신의 시간:",
+			"enterYourName": "이름을 입력하세요",
+			"signGuestBook": "방명록에 서명하기",
+			"saving": "저장 중...",
+			"submissionSuccess": "리셉션 데스크에서 당신의 기록을 볼 수 있습니다",
+			"playAgain": "다시 플레이",
+			"restarting": "재시작 중...",
+			"nameValidation": {
+				"tooShort": "이름은 최소 {{min}}자 이상이어야 합니다",
+				"tooLong": "이름은 최대 {{max}}자 이하여야 합니다",
+				"invalidPattern": "이름은 문자, 숫자, 공백 및 기본 구두점만 포함할 수 있습니다",
+				"submitError": "기록 제출에 실패했습니다. 다시 시도해 주세요."
+			}
+		},
+		"howItsMade": {
+			"title": "제작 과정",
+			"technologies": "기술",
+			"people": "사람들",
+			"openSource": "이것은 오픈 소스 프로젝트입니다.",
+			"githubRepository": "GitHub 저장소를 확인하세요",
+			"threejsDescription": "브라우저에서 3D 그래픽을 만들기 위한 JavaScript 라이브러리",
+			"createdBy": "제작자",
+			"r3fDescription": "React에서 three.js를 더 쉽게 사용할 수 있게 해주는 도구",
+			"threejsJourneyDescription": "웹용 3D를 배우는 온라인 코스",
+			"gameConceptDesignDev": "게임 컨셉, 게임 디자인 및 게임 개발",
+			"uiArtDirection": "사용자 인터페이스 및 아트 디렉션"
+		},
+		"reception": {
+			"guestBook": "방명록",
+			"informations": "정보"
+		}
+	},
+	"game": {
+		"dialogues": {
+			"locked": "잠겨있습니다.",
+			"welcomeBack": "돌아오신 것을 환영합니다.",
+			"welcomeHousekeeper": "환영합니다. 새로운 하우스키퍼시군요.",
+			"closeDoors": "방을 청소하는 동안 그들이 들어올 수 있으니 항상 뒤에서 문을 닫으세요.",
+			"bathroomWarning": "욕실에서 소리가 들리면 문을 열지 말고 즉시 떠나세요.",
+			"hideWarning": "노크 소리가 들리거나 징후를 발견하면 즉시 숨으세요.",
+			"checkRoom": "방 전체를 주의깊게 확인하세요. 그들은 어디든 숨어있을 수 있습니다.",
+			"spotWarning": "그들 중 하나를 발견하면 빠르게 문을 닫고 방에서 나가세요.",
+			"wellDone": "잘했습니다! 이제 하루를 마치기 위해 8개의 방을 청소하세요.",
+			"turnBack": "기억하세요: 방에서 그들 중 하나를 보면 즉시 돌아가세요.",
+			"infested": "이 방들의 절반은 무작위로 감염되어 있습니다. 조심스럽게 진행하세요."
+		},
+		"deathReasons": {
+			"underBed": "침대 아래에 숨어있었습니다",
+			"bathroomVent": "욕실 환기구에 숨어있었습니다",
+			"roomVent": "방 환기구에 숨어있었습니다",
+			"bedBasket": "침대 근처 세탁 바구니에 숨어있었습니다",
+			"windowBasket": "TV 스탠드 수납공간에 숨어있었습니다",
+			"hideoutMirror": "거울에서 보이면 즉시 도망가세요",
+			"behindDoor": "문 뒤에 숨어있었습니다",
+			"footWindow": "커튼 아래로 발이 보였습니다",
+			"landmineMirror": "거울 안에 숨어있었습니다",
+			"nearWindow": "소파 옆에 숨어있었습니다",
+			"ceilingCornerCouch": "소파 위 천장에 있었습니다",
+			"behindCouch": "소파 뒤에 숨어있었습니다",
+			"behindDesk": "책상 뒤에 숨어있었습니다",
+			"insideDesk": "책상 아래에 숨어있었습니다",
+			"ceilingCenter": "입구 천장에 있었습니다",
+			"sonarBathroom": "안에서 소리가 들리면 욕실 문을 열지 마세요",
+			"claymore": "공격받기 전에 빠르게 문을 닫으세요",
+			"hunter": "보이면 도망가서 뒤에서 문을 닫으세요",
+			"raidKnocking": "노크 소리가 들리면 숨으세요",
+			"raidTV": "TV가 저절로 켜지면 숨으세요",
+			"raidRadio": "라디오가 저절로 켜지면 숨으세요",
+			"raidInscriptions": "벽에 피로 쓴 글씨를 보면 숨으세요"
+		},
+		"status": {
+			"thankYouForPlaying": "플레이해 주셔서 감사합니다",
+			"playAgain": "다시 플레이"
+		}
+	}
+}

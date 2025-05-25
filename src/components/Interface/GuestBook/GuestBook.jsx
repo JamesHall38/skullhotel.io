@@ -4,6 +4,7 @@ import headerSvg from '../header.svg';
 import useGame from '../../../hooks/useGame';
 import useDebounce from '../../../hooks/useDebounce';
 import AnimatedCloseButton from '../AnimatedCloseButton/AnimatedCloseButton';
+import useLocalization from '../../../hooks/useLocalization';
 import {
 	getFirstGuestBookPage,
 	getNextGuestBookPage,
@@ -26,6 +27,7 @@ function GuestBookContent({ onClose }) {
 	const STORAGE_KEY = isDebugMode
 		? 'skullhotel_debug_last_player_name'
 		: 'skullhotel_last_player_name';
+	const { t } = useLocalization();
 
 	const debouncedSearch = useDebounce(searchInput, 300);
 
@@ -194,12 +196,12 @@ function GuestBookContent({ onClose }) {
 
 	return (
 		<div className="guestbook-content" ref={guestBookRef}>
-			<img src={headerSvg} alt="Guest Book" />
+			<img src={headerSvg} alt={t('ui.reception.guestBook')} />
 			<div className="guestbook-header">
 				<AnimatedCloseButton onClick={onClose} size={1} />
 			</div>
 
-			<h2>Guest Book</h2>
+			<h2>{t('ui.reception.guestBook')}</h2>
 
 			<div className="page-indicator">
 				<input

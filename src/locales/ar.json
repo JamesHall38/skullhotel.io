@@ -1,0 +1,130 @@
+{
+	"ui": {
+		"settings": {
+			"title": "الإعدادات",
+			"visuals": "المرئيات",
+			"sensitivity": "الحساسية",
+			"controls": "التحكم",
+			"language": "اللغة",
+			"fullscreen": "ملء الشاشة",
+			"shadows": "الظلال",
+			"verticalSensitivity": "الحساسية العمودية",
+			"horizontalSensitivity": "الحساسية الأفقية",
+			"move": "التحرك",
+			"interact": "التفاعل",
+			"listenCarefully": "الاستماع بعناية",
+			"crouch": "الانحناء",
+			"jump": "القفز"
+		},
+		"loading": {
+			"loading": "جاري التحميل",
+			"clickToStart": "انقر للبدء",
+			"settings": "الإعدادات"
+		},
+		"tutorial": {
+			"toMove": "للتحرك",
+			"toInteract": "للتفاعل",
+			"toJump": "للقفز",
+			"toCrouch": "للانحناء",
+			"toListenCarefully": "للاستماع بعناية",
+			"objectives": {
+				"enterTutorialRoom": "ادخل إلى غرفة التعليم",
+				"closeDoor": "أغلق الباب",
+				"listenBathroomDoor": "استمع عند باب الحمام",
+				"hideBehindCurtains": "اختبئ خلف ستائر الحمام",
+				"hideInsideDesk": "اختبئ داخل المكتب",
+				"checkNightstand": "تحقق من طاولة السرير",
+				"closeNightstandDoor": "أغلق باب طاولة السرير"
+			}
+		},
+		"objectives": {
+			"findExit": "ابحث عن المخرج",
+			"refillSoapBottles": "أعد ملء زجاجات الصابون",
+			"makeTheBed": "رتب السرير",
+			"openTheWindow": "افتح النافذة"
+		},
+		"deathScreen": {
+			"youDied": "لقد مت",
+			"hidingSpotsFound": " أماكن اختباء تم العثور عليها",
+			"continue": "متابعة",
+			"restarting": "إعادة التشغيل...",
+			"raidWarning": "إذا سمعت عميلاً يطرق الباب، اختبئ حتى يغادر"
+		},
+		"endGameScreen": {
+			"thankYouForPlaying": "شكراً لك على اللعب",
+			"yourTime": "وقتك:",
+			"enterYourName": "أدخل اسمك",
+			"signGuestBook": "وقع في دفتر الضيوف",
+			"saving": "جاري الحفظ...",
+			"submissionSuccess": "يمكنك رؤية إدخالك في مكتب الاستقبال",
+			"playAgain": "العب مرة أخرى",
+			"restarting": "إعادة التشغيل...",
+			"nameValidation": {
+				"tooShort": "يجب أن يحتوي الاسم على {{min}} أحرف على الأقل",
+				"tooLong": "يجب أن يحتوي الاسم على {{max}} حرف كحد أقصى",
+				"invalidPattern": "يمكن أن يحتوي الاسم على أحرف وأرقام ومسافات وعلامات ترقيم أساسية فقط",
+				"submitError": "فشل في إرسال إدخالك. حاول مرة أخرى."
+			}
+		},
+		"howItsMade": {
+			"title": "كيف تم صنعه",
+			"technologies": "التقنيات",
+			"people": "الأشخاص",
+			"openSource": "هذا مشروع مفتوح المصدر. تحقق من",
+			"githubRepository": "مستودع GitHub",
+			"threejsDescription": "مكتبة JavaScript لإنشاء رسومات ثلاثية الأبعاد في المتصفح",
+			"createdBy": "تم إنشاؤه بواسطة",
+			"r3fDescription": "أداة تجعل استخدام three.js مع React أسهل",
+			"threejsJourneyDescription": "دورة عبر الإنترنت لتعلم الثلاثي الأبعاد للويب",
+			"gameConceptDesignDev": "مفهوم اللعبة وتصميم اللعبة وتطوير اللعبة",
+			"uiArtDirection": "واجهة المستخدم والتوجيه الفني"
+		},
+		"reception": {
+			"guestBook": "دفتر الضيوف",
+			"informations": "المعلومات"
+		}
+	},
+	"game": {
+		"dialogues": {
+			"locked": "إنه مقفل.",
+			"welcomeBack": "مرحباً بعودتك.",
+			"welcomeHousekeeper": "مرحباً. يجب أن تكوني مدبرة المنزل الجديدة.",
+			"closeDoors": "أغلقي الأبواب خلفك دائماً وإلا قد يدخلون أثناء تنظيف الغرفة.",
+			"bathroomWarning": "إذا سمعت أصواتاً من الحمام، لا تفتحي الباب - اتركي المكان فوراً.",
+			"hideWarning": "إذا سمعت طرقاً أو لاحظت علامات، اختبئي فوراً.",
+			"checkRoom": "تحققي من الغرفة بأكملها بعناية. قد يختبئون في أي مكان.",
+			"spotWarning": "إذا رأيت أحدهم، أغلقي الباب بسرعة واخرجي من الغرفة.",
+			"wellDone": "أحسنت! الآن نظفي 8 غرف لإنهاء اليوم.",
+			"turnBack": "تذكري: إذا رأيت أحدهم في غرفة، ارجعي فوراً.",
+			"infested": "نصف هذه الغرف مصابة عشوائياً. تقدمي بحذر."
+		},
+		"deathReasons": {
+			"underBed": "كان يختبئ تحت السرير",
+			"bathroomVent": "كان يختبئ في تهوية الحمام",
+			"roomVent": "كان يختبئ في تهوية الغرفة",
+			"bedBasket": "كان يختبئ في سلة الغسيل بجانب السرير",
+			"windowBasket": "كان يختبئ في حجرة حامل التلفزيون",
+			"hideoutMirror": "إذا رأيته في المرآة، اهربي فوراً",
+			"behindDoor": "كان يختبئ خلف الباب",
+			"footWindow": "كانت قدماه مرئيتين تحت الستارة",
+			"landmineMirror": "كان يختبئ في المرآة",
+			"nearWindow": "كان يختبئ بجانب الأريكة",
+			"ceilingCornerCouch": "كان على السقف فوق الأريكة",
+			"behindCouch": "كان يختبئ خلف الأريكة",
+			"behindDesk": "كان يختبئ خلف المكتب",
+			"insideDesk": "كان يختبئ تحت المكتب",
+			"ceilingCenter": "كان على السقف عند المدخل",
+			"sonarBathroom": "لا تفتحي باب الحمام إذا سمعت أصواتاً من الداخل",
+			"claymore": "أغلقي الباب بسرعة قبل أن يهاجمك",
+			"hunter": "إذا رأيته، اهربي وأغلقي الباب خلفك",
+			"raidKnocking": "إذا سمعت طرقاً، اختبئي",
+			"raidTV": "إذا انفتح التلفزيون وحده، اختبئي",
+			"raidRadio": "إذا انفتح الراديو وحده، اختبئي",
+			"raidInscriptions": "إذا رأيت كتابات دموية على الجدران، اختبئي"
+		},
+		"status": {
+			"thankYouForPlaying": "شكراً لك على اللعب",
+			"playAgain": "العب مرة أخرى"
+		}
+	}
+}

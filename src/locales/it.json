@@ -1,0 +1,130 @@
+{
+	"ui": {
+		"settings": {
+			"title": "IMPOSTAZIONI",
+			"visuals": "GRAFICA",
+			"sensitivity": "SENSIBILITÀ",
+			"controls": "CONTROLLI",
+			"language": "LINGUA",
+			"fullscreen": "Schermo intero",
+			"shadows": "Ombre",
+			"verticalSensitivity": "Sensibilità verticale",
+			"horizontalSensitivity": "Sensibilità orizzontale",
+			"move": "Muoviti",
+			"interact": "Interagisci",
+			"listenCarefully": "Ascolta attentamente",
+			"crouch": "Accovacciati",
+			"jump": "Salta"
+		},
+		"loading": {
+			"loading": "CARICAMENTO",
+			"clickToStart": "CLICCA PER INIZIARE",
+			"settings": "Impostazioni"
+		},
+		"tutorial": {
+			"toMove": "per muoversi",
+			"toInteract": "per interagire",
+			"toJump": "per saltare",
+			"toCrouch": "per accovacciarsi",
+			"toListenCarefully": "per ascoltare attentamente",
+			"objectives": {
+				"enterTutorialRoom": "Entra nella stanza tutorial",
+				"closeDoor": "Chiudi la porta",
+				"listenBathroomDoor": "Ascolta alla porta del bagno",
+				"hideBehindCurtains": "Nasconditi dietro le tende del bagno",
+				"hideInsideDesk": "Nasconditi dentro la scrivania",
+				"checkNightstand": "Controlla il comodino",
+				"closeNightstandDoor": "Chiudi la porta del comodino"
+			}
+		},
+		"objectives": {
+			"findExit": "Trova l'uscita",
+			"refillSoapBottles": "Riempi le bottiglie di sapone",
+			"makeTheBed": "Rifai il letto",
+			"openTheWindow": "Apri la finestra"
+		},
+		"deathScreen": {
+			"youDied": "SEI MORTO",
+			"hidingSpotsFound": " nascondigli trovati",
+			"continue": "CONTINUA",
+			"restarting": "Riavvio...",
+			"raidWarning": "Se senti un cliente bussare alla porta, nasconditi finché non se ne va"
+		},
+		"endGameScreen": {
+			"thankYouForPlaying": "GRAZIE PER AVER GIOCATO",
+			"yourTime": "Il tuo tempo:",
+			"enterYourName": "Inserisci il tuo nome",
+			"signGuestBook": "Firma il libro degli ospiti",
+			"saving": "Salvataggio...",
+			"submissionSuccess": "Puoi vedere la tua voce alla reception",
+			"playAgain": "GIOCA ANCORA",
+			"restarting": "RIAVVIO...",
+			"nameValidation": {
+				"tooShort": "Il nome deve avere almeno {{min}} caratteri",
+				"tooLong": "Il nome deve avere al massimo {{max}} caratteri",
+				"invalidPattern": "Il nome può contenere solo lettere, numeri, spazi e punteggiatura di base",
+				"submitError": "Errore nell'invio della tua voce. Riprova."
+			}
+		},
+		"howItsMade": {
+			"title": "Come è fatto",
+			"technologies": "TECNOLOGIE",
+			"people": "PERSONE",
+			"openSource": "Questo è un progetto open source. Dai un'occhiata al",
+			"githubRepository": "repository GitHub",
+			"threejsDescription": "Una libreria JavaScript per creare grafica 3D nel browser",
+			"createdBy": "Creato da",
+			"r3fDescription": "Uno strumento che facilita l'uso di three.js con React",
+			"threejsJourneyDescription": "Un corso online per imparare il 3D per il web",
+			"gameConceptDesignDev": "Concept del gioco, game design e sviluppo del gioco",
+			"uiArtDirection": "Interfaccia utente e direzione artistica"
+		},
+		"reception": {
+			"guestBook": "Libro degli ospiti",
+			"informations": "Informazioni"
+		}
+	},
+	"game": {
+		"dialogues": {
+			"locked": "È chiuso a chiave.",
+			"welcomeBack": "Bentornato.",
+			"welcomeHousekeeper": "Benvenuto. Devi essere la nuova governante.",
+			"closeDoors": "Chiudi sempre le porte dietro di te o potrebbero entrare mentre pulisci la stanza.",
+			"bathroomWarning": "Se senti rumori dal bagno, non aprire la porta - vai via immediatamente.",
+			"hideWarning": "Se senti bussare o noti dei segni, nasconditi immediatamente.",
+			"checkRoom": "Controlla tutta la stanza attentamente. Potrebbero nascondersi ovunque.",
+			"spotWarning": "Se ne vedi uno, chiudi rapidamente la porta ed esci dalla stanza.",
+			"wellDone": "Ben fatto! Ora pulisci 8 stanze per finire la giornata.",
+			"turnBack": "Ricorda: se ne vedi uno in una stanza, torna indietro immediatamente.",
+			"infested": "Metà di queste stanze sono infestate casualmente. Procedi con cautela."
+		},
+		"deathReasons": {
+			"underBed": "Si nascondeva sotto il letto",
+			"bathroomVent": "Si nascondeva nella ventilazione del bagno",
+			"roomVent": "Si nascondeva nella ventilazione della stanza",
+			"bedBasket": "Si nascondeva nel cesto della biancheria vicino al letto",
+			"windowBasket": "Si nascondeva nel vano del mobile TV",
+			"hideoutMirror": "Se lo vedi nello specchio, scappa immediatamente",
+			"behindDoor": "Si nascondeva dietro la porta",
+			"footWindow": "I suoi piedi erano visibili sotto la tenda",
+			"landmineMirror": "Si nascondeva nello specchio",
+			"nearWindow": "Si nascondeva accanto al divano",
+			"ceilingCornerCouch": "Era sul soffitto sopra il divano",
+			"behindCouch": "Si nascondeva dietro il divano",
+			"behindDesk": "Si nascondeva dietro la scrivania",
+			"insideDesk": "Si nascondeva sotto la scrivania",
+			"ceilingCenter": "Era sul soffitto all'ingresso",
+			"sonarBathroom": "Non aprire la porta del bagno se senti rumori dall'interno",
+			"claymore": "Chiudi la porta rapidamente prima che ti attacchi",
+			"hunter": "Se lo vedi, scappa e chiudi la porta dietro di te",
+			"raidKnocking": "Se senti bussare, nasconditi",
+			"raidTV": "Se la TV si accende da sola, nasconditi",
+			"raidRadio": "Se la radio si accende da sola, nasconditi",
+			"raidInscriptions": "Se vedi iscrizioni di sangue sui muri, nasconditi"
+		},
+		"status": {
+			"thankYouForPlaying": "Grazie per aver giocato",
+			"playAgain": "Gioca ancora"
+		}
+	}
+}

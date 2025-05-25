@@ -157,6 +157,7 @@
 	padding: 0 1rem;
 	color: #fff;
 	border-radius: 0.5rem;
+	position: relative;
 }
 
 .settings-hover-effect:hover {
@@ -275,4 +276,133 @@ input[type='range'].gamepad-focus::-webkit-slider-thumb {
 
 input[type='range'].gamepad-focus::-moz-range-thumb {
 	background: #ffffff;
+}
+
+/* Language selector dropdown */
+.language-selector {
+	font-family: 'Lincoln Road', serif;
+	font-size: 1rem;
+	color: #fff;
+	background: rgba(8, 8, 7, 0.8);
+	border: 1px solid rgba(255, 255, 255, 0.2);
+	border-radius: 0.5rem;
+	padding: 0.5rem 2.5rem 0.5rem 1rem;
+	min-width: 10rem;
+	cursor: pointer;
+	outline: none;
+	appearance: none;
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	position: relative;
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+	background-repeat: no-repeat;
+	background-position: right 0.75rem center;
+	background-size: 1rem;
+}
+
+.language-selector:hover {
+	background: rgba(255, 255, 255, 0.1);
+	border-color: rgba(255, 255, 255, 0.3);
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+	background-repeat: no-repeat;
+	background-position: right 0.75rem center;
+	background-size: 1rem;
+}
+
+.language-selector:focus {
+	background: rgba(255, 255, 255, 0.1);
+	border-color: #efd89b;
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+	background-repeat: no-repeat;
+	background-position: right 0.75rem center;
+	background-size: 1rem;
+}
+
+.language-selector.gamepad-focus {
+	background: rgba(255, 255, 255, 0.2);
+	border-color: #efd89b;
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+	background-repeat: no-repeat;
+	background-position: right 0.75rem center;
+	background-size: 1rem;
+}
+
+.language-selector option {
+	font-family: 'Lincoln Road', serif;
+	background: rgba(8, 8, 7, 0.95);
+	color: #fff;
+	padding: 0.5rem;
+	border: none;
+}
+
+.language-selector option:hover {
+	background: rgba(255, 255, 255, 0.1);
+}
+
+.language-selector option:checked {
+	background: #efd89b;
+	color: #000;
+}
+
+.language-selector.dropdown-open {
+	border-color: #efd89b;
+}
+
+/* Dropdown options  */
+.dropdown-options {
+	position: absolute;
+	top: calc(100% + 0.5rem);
+	right: 1rem;
+	width: 13.5rem;
+	background: rgb(17, 17, 17);
+	border: 1px solid #efd89b;
+	border-radius: 0.5rem 0.5rem;
+	z-index: 1001;
+	max-height: 20rem;
+	overflow-y: auto;
+	scrollbar-width: thin;
+	scrollbar-color: #efd89b rgba(255, 255, 255, 0.1);
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.dropdown-options::-webkit-scrollbar {
+	width: 6px;
+}
+
+.dropdown-options::-webkit-scrollbar-track {
+	background: rgba(255, 255, 255, 0.1);
+	border-radius: 3px;
+}
+
+.dropdown-options::-webkit-scrollbar-thumb {
+	background: #efd89b;
+	border-radius: 3px;
+}
+
+.dropdown-options::-webkit-scrollbar-thumb:hover {
+	background: #f5e4a6;
+}
+
+.dropdown-option {
+	font-family: 'Lincoln Road', serif;
+	padding: 0.75rem 1rem;
+	color: #fff;
+	cursor: pointer;
+	transition: background-color 0.2s ease;
+	border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.dropdown-option:hover {
+	background: rgba(255, 255, 255, 0.15);
+}
+
+.dropdown-option.selected {
+	background: #efd89b;
+	color: #000;
+	font-weight: bold;
+}
+
+.dropdown-option:last-child {
+	border-radius: 0 0 0.5rem 0.5rem;
+	border-bottom: none;
 }

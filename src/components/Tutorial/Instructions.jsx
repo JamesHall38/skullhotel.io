@@ -3,6 +3,7 @@ import { Text, Svg } from '@react-three/drei';
 import * as THREE from 'three';
 import useInterfaceStore from '../../hooks/useInterface';
 import useDoorStore from '../../hooks/useDoor';
+import useLocalization from '../../hooks/useLocalization';
 import { useFrame } from '@react-three/fiber';
 // import { CgController } from 'react-icons/cg';
 // import { PiMouseLeftClickFill, PiMouseRightClickFill } from 'react-icons/pi';
@@ -42,7 +43,7 @@ const instructions = [
 	{
 		type: 'text',
 		content: 'WASD   / ',
-		position: [111, 5, 13],
+		position: [108.5, 5.5, 13],
 		rotation: [0, Math.PI, 0],
 		scale: 0.1,
 		isTutorial: true,
@@ -52,7 +53,7 @@ const instructions = [
 		type: 'svg',
 		content:
 			'M14.8284 6.34313L16.2426 4.92892L12 0.686279L7.75735 4.92892L9.17156 6.34313L12 3.51471L14.8284 6.34313Z M4.92892 16.2426L6.34313 14.8284L3.51471 12L6.34313 9.17156L4.92892 7.75735L0.686279 12L4.92892 16.2426Z M7.75735 19.0711L12 23.3137L16.2426 19.0711L14.8284 17.6568L12 20.4853L9.17156 17.6568L7.75735 19.0711Z M17.6568 9.17156L20.4853 12L17.6568 14.8284L19.0711 16.2426L23.3137 12L19.0711 7.75735L17.6568 9.17156Z M12 8C14.2091 8 16 9.79086 16 12C16 14.2091 14.2091 16 12 16C9.79086 16 8 14.2091 8 12C8 9.79086 9.79086 8 12 8ZM12 10C13.1046 10 14 10.8954 14 12C14 13.1046 13.1046 14 12 14C10.8954 14 10 13.1046 10 12C10 10.8954 10.8954 10 12 10Z',
-		position: [10.79, 0.55, 1.3],
+		position: [10.58, 0.6, 1.3],
 		rotation: [0, Math.PI, 0],
 		scale: 0.006,
 		isTutorial: true,
@@ -60,12 +61,13 @@ const instructions = [
 	},
 	{
 		type: 'text',
-		content: 'to move',
-		position: [103.5, 5, 13],
+		content: 'ui.tutorial.toMove',
+		position: [107.5, 3.5, 13],
 		rotation: [0, Math.PI, 0],
 		scale: 0.1,
 		isTutorial: true,
 		category: 'movement',
+		isTranslatable: true,
 	},
 
 	// Interact
@@ -73,7 +75,7 @@ const instructions = [
 		type: 'svg',
 		content:
 			'M144,16H112A64.07,64.07,0,0,0,48,80v96a64.07,64.07,0,0,0,64,64h32a64.07,64.07,0,0,0,64-64V80A64.07,64.07,0,0,0,144,16ZM112,32h16v72H64V80A48.05,48.05,0,0,1,112,32Zm32,192H112a48.05,48.05,0,0,1-48-48V120H192v56A48.05,48.05,0,0,1,144,224Z',
-		position: [6.14, 1.456, 3.15],
+		position: [5.99, 1.456, 3.15],
 		rotation: [0, 0, 0],
 		scale: 0.0003,
 		isTutorial: true,
@@ -82,7 +84,7 @@ const instructions = [
 	{
 		type: 'text',
 		content: ' / ',
-		position: [121.8, 28.4, 63],
+		position: [118.7, 28.4, 63],
 		rotation: [0, Math.PI, 0],
 		scale: 0.05,
 		isTutorial: true,
@@ -92,7 +94,7 @@ const instructions = [
 		type: 'svg',
 		content:
 			'M12 2c5.523 0 10 4.477 10 10s-4.477 10 -10 10s-10 -4.477 -10 -10s4.477 -10 10 -10m3.6 5.2a1 1 0 0 0 -1.4 .2l-2.2 2.933l-2.2 -2.933a1 1 0 1 0 -1.6 1.2l2.55 3.4l-2.55 3.4a1 1 0 1 0 1.6 1.2l2.2 -2.933l2.2 2.933a1 1 0 0 0 1.6 -1.2l-2.55 -3.4l2.55 -3.4a1 1 0 0 0 -.2 -1.4',
-		position: [5.95, 1.45, 3.15],
+		position: [5.8, 1.45, 3.15],
 		rotation: [0, 0, 0],
 		scale: 0.003,
 		isTutorial: true,
@@ -100,12 +102,13 @@ const instructions = [
 	}, // xbox x
 	{
 		type: 'text',
-		content: 'to interact',
-		position: [115.5, 28.5, 63],
+		content: 'ui.tutorial.toInteract',
+		position: [118.5, 26.5, 63],
 		rotation: [0, Math.PI, 0],
 		scale: 0.05,
 		isTutorial: true,
 		category: 'interaction',
+		isTranslatable: true,
 	},
 
 	// bathroom hiding
@@ -250,11 +253,12 @@ const instructions = [
 	}, // xbox A
 	{
 		type: 'text',
-		content: 'to jump',
-		position: [26.3, 2.3, 40.5],
+		content: 'ui.tutorial.toJump',
+		position: [27.5, 2.3, 40.5],
 		rotation: [0, 0, 0],
 		scale: 0.1,
 		category: 'jump',
+		isTranslatable: true,
 	},
 
 	// Crouch (desk)
@@ -277,11 +281,12 @@ const instructions = [
 	}, // xbox B
 	{
 		type: 'text',
-		content: 'to crouch',
+		content: 'ui.tutorial.toCrouch',
 		position: [63.5, 0.1, 82.75],
 		rotation: [-Math.PI / 2, 0, -Math.PI / 2],
 		scale: 0.1,
 		category: 'crouch',
+		isTranslatable: true,
 	},
 
 	// Crouch (nightstand)
@@ -304,11 +309,12 @@ const instructions = [
 	}, // xbox B
 	{
 		type: 'text',
-		content: 'to crouch',
+		content: 'ui.tutorial.toCrouch',
 		position: [24.55, 0.1, 66],
 		rotation: [-Math.PI / 2, 0, Math.PI / 2],
 		scale: 0.1,
 		category: 'crouch2',
+		isTranslatable: true,
 	},
 
 	// Listen
@@ -340,11 +346,12 @@ const instructions = [
 	}, // xbox Y
 	{
 		type: 'text',
-		content: 'to listen carefully',
-		position: [46, 10, 40],
+		content: 'ui.tutorial.toListenCarefully',
+		position: [46, 10.6, 40],
 		rotation: [0, Math.PI / 2, 0],
 		scale: 0.1,
 		category: 'listening',
+		isTranslatable: true,
 	},
 
 	// bed arrow
@@ -394,6 +401,7 @@ export default function Instructions({ stageInfo = {} }) {
 	const roomCurtain = useDoorStore((state) => state.roomCurtain);
 	const arrowRefs = useRef([null, null, null]);
 	const shownInstructions = useRef(new Set());
+	const { t } = useLocalization();
 
 	useFrame((state) => {
 		const time = state.clock.elapsedTime;
@@ -446,6 +454,11 @@ export default function Instructions({ stageInfo = {} }) {
 			}
 
 			if (instruction.type === 'text') {
+				// Get the text content - either translated or raw
+				const textContent = instruction.isTranslatable
+					? t(instruction.content)
+					: instruction.content;
+
 				return (
 					<group key={index} scale={instruction.scale}>
 						<Text
@@ -454,7 +467,7 @@ export default function Instructions({ stageInfo = {} }) {
 							rotation={instruction.rotation}
 							material={textMaterial}
 						>
-							{instruction.content}
+							{textContent}
 						</Text>
 					</group>
 				);
@@ -498,6 +511,7 @@ export default function Instructions({ stageInfo = {} }) {
 			arrowRefs,
 			textMaterial,
 			stageInfo,
+			t,
 		]
 	);
 
