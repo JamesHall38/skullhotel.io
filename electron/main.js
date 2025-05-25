@@ -4,7 +4,28 @@ const path = require('path');
 const fs = require('fs');
 const process = require('process');
 
+app.commandLine.appendSwitch('no-sandbox');
+app.commandLine.appendSwitch('disable-web-security');
+app.commandLine.appendSwitch(
+	'disable-features',
+	'VizDisplayCompositor,OutOfBlinkCors'
+);
+app.commandLine.appendSwitch('disable-site-isolation-trials');
+app.commandLine.appendSwitch('allow-running-insecure-content');
+app.commandLine.appendSwitch('disable-background-timer-throttling');
+app.commandLine.appendSwitch('disable-backgrounding-occluded-windows');
+app.commandLine.appendSwitch('disable-renderer-backgrounding');
+
 let mainWindow;
+let steamworks;
+
+try {
+	steamworks = require('steamworks.js');
+	steamworks.electronEnableSteamOverlay(true);
+	steamworks.init(3739730);
+} catch (e) {
+	console.warn('Steamworks initialization failed:', e);
+}
 
 const isPackaged = app.isPackaged;
 
