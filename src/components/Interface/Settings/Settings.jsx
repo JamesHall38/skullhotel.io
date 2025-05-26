@@ -562,7 +562,7 @@ export default function Settings({ loading }) {
 				</button>
 
 				<section className="settings-content">
-					<h2 className="settings-title">{t('ui.settings.language')}</h2>
+					<h2 className="settings-title">{t('ui.settings.visuals')}</h2>
 					<div className="settings-item">
 						<div className="setting-label">{t('ui.settings.language')}</div>
 						<div
@@ -591,8 +591,6 @@ export default function Settings({ loading }) {
 							</div>
 						)}
 					</div>
-
-					<h2 className="settings-title">{t('ui.settings.visuals')}</h2>
 					<button
 						className="settings-item settings-hover-effect"
 						onClick={(e) => {

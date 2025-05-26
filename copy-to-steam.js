@@ -31,10 +31,8 @@ function cleanDirectory(dir) {
 const sourceDir = './dist/win-unpacked';
 const targetDir = './steamcontent/app/3739730';
 
-console.log('Cleaning Steam directory...');
 cleanDirectory(targetDir);
 
-console.log('Copying files to Steam...');
 copyRecursiveSync(sourceDir, targetDir);
 
 const buildInfo = {

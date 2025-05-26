@@ -202,8 +202,10 @@ const DeathScreen = () => {
 				<div className="death-screen-title">{t('ui.deathScreen.youDied')}</div>
 				<div className="death-message">
 					{lastDeathMessage}
-					<br /> <br /> {seenLevels.size}/{totalLevelTypes}{' '}
-					{t('ui.deathScreen.hidingSpotsFound')}
+					<div className="death-message-count">
+						{seenLevels.size}/{totalLevelTypes}{' '}
+						{t('ui.deathScreen.hidingSpotsFound')}
+					</div>
 				</div>
 			</div>
 			<div className="death-screen-start">

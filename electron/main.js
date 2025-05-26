@@ -73,7 +73,6 @@ function fixPaths() {
 		}
 
 		fs.writeFileSync(mainJsPath, content);
-		console.log('Fixed main.js paths');
 	} else {
 		console.error('Could not find main.js at:', mainJsPath);
 	}
@@ -88,7 +87,6 @@ function fixPaths() {
 		content = content.split('src="./').join('src="');
 
 		fs.writeFileSync(indexHtmlPath, content);
-		console.log('Fixed index.html paths');
 	} else {
 		console.error('Could not find index.html at:', indexHtmlPath);
 	}

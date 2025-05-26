@@ -66,7 +66,7 @@
 	flex-direction: column;
 	align-items: center;
 	justify-content: center;
-	gap: 0.5rem;
+	gap: 2rem;
 }
 
 .death-screen-title {
@@ -102,12 +102,23 @@
 }
 
 .death-message {
-	font-size: 1.5rem;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 0.5rem;
+	font-size: 2.25rem;
 	text-align: center;
 	font-family: 'Lincoln Road', serif;
 	color: #fff;
 	opacity: 0;
 	animation: messageAppear 1.5s ease 1s forwards;
+}
+
+.death-message-count {
+	font-size: 1.5rem;
+	text-align: center;
+	font-family: 'Lincoln Road', serif;
 }
 
 .death-screen-start {
