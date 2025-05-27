@@ -119,7 +119,6 @@
 	max-width: 90vw;
 	height: 4rem;
 	margin-top: 0.5rem;
-	transform: translateX(0.5rem);
 }
 
 .loading-page .flex {
@@ -144,7 +143,7 @@
 .loading-page .start {
 	animation: loadingAppear 1s ease var(--animation-delay) forwards,
 		blink 2s ease-in-out calc(1s) infinite;
-	white-space: nowrap;
+	text-align: center;
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -217,4 +216,52 @@
 
 .lincoln-regular {
 	font-family: 'Lincoln Road Regular', sans-serif;
+}
+
+.steam-wishlist-button-container {
+	position: fixed;
+	top: -7.5rem;
+	left: 11.5rem;
+	width: 20rem;
+	overflow: hidden;
+	height: 20rem;
+}
+
+@media (max-width: 750px) {
+	.steam-wishlist-button-container {
+		left: 0;
+		z-index: 10;
+	}
+}
+
+.steam-wishlist-button {
+	padding: 0.5rem 1rem;
+	background: #2a475e;
+	margin-top: 2.8rem;
+	z-index: 10;
+	width: 20rem;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	cursor: pointer;
+	gap: 1.25rem;
+	opacity: 0;
+	animation: loadingAppear 1s ease calc(var(--animation-delay) + 0.2s) forwards;
+	transform: rotate(-45deg) translateX(-10rem);
+}
+
+.steam-wishlist-button svg {
+	width: 2rem;
+	height: 2rem;
+}
+
+.steam-wishlist-button div {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+}
+
+.steam-wishlist-button p {
+	margin: 0;
+	padding: 0;
 }

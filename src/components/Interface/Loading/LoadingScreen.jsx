@@ -8,6 +8,7 @@ import useTextureQueue from '../../../hooks/useTextureQueue';
 import TrianglePattern from './TrianglePattern';
 import useInterface from '../../../hooks/useInterface';
 import useLocalization from '../../../hooks/useLocalization';
+import { FaSteam } from 'react-icons/fa';
 import './LoadingScreen.css';
 
 const LoadingScreen = ({ onStart }) => {
@@ -166,6 +167,14 @@ const LoadingScreen = ({ onStart }) => {
 		setIsAnyPopupOpen(true);
 	};
 
+	const handleSteamWishlistClick = (e) => {
+		e.stopPropagation();
+		window.open(
+			'https://store.steampowered.com/app/3739730/Skull_Hotel/',
+			'_blank'
+		);
+	};
+
 	return (
 		<>
 			<div className="triangle-patterns-container" ref={trianglesContainerRef}>
@@ -218,6 +227,19 @@ const LoadingScreen = ({ onStart }) => {
 						onClick={handleSettingsClick}
 					>
 						{t('ui.loading.settings')}
+					</div>
+				</div>
+			</div>
+
+			<div className="steam-wishlist-button-container">
+				<div
+					className="steam-wishlist-button"
+					onClick={handleSteamWishlistClick}
+				>
+					<FaSteam />
+					<div>
+						<p>WISHLIST</p>
+						<p>NOW!</p>
 					</div>
 				</div>
 			</div>
