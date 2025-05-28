@@ -6,6 +6,7 @@ import useDoor from '../../../hooks/useDoor';
 import useMonster from '../../../hooks/useMonster';
 import useLight from '../../../hooks/useLight';
 import useLocalization from '../../../hooks/useLocalization';
+import { FaSteam } from 'react-icons/fa';
 import { getDeathReasonTranslationKey } from '../../../utils/deathReasonMapper';
 import { regenerateData } from '../../../utils/config';
 import {
@@ -193,6 +194,14 @@ const DeathScreen = () => {
 		}, 500);
 	};
 
+	const handleSteamWishlistClick = (e) => {
+		e.stopPropagation();
+		window.open(
+			'https://store.steampowered.com/app/3739730/Skull_Hotel/',
+			'_blank'
+		);
+	};
+
 	if (!openDeathScreen) return null;
 
 	return (
@@ -208,12 +217,21 @@ const DeathScreen = () => {
 					</div>
 				</div>
 			</div>
-			<div className="death-screen-start">
-				<>
-					{isRestarting
-						? t('ui.deathScreen.restarting')
-						: t('ui.deathScreen.continue')}
-				</>
+			<div className="death-screen-start-container">
+				<div className="death-screen-start">
+					<>
+						{isRestarting
+							? t('ui.deathScreen.restarting')
+							: t('ui.deathScreen.continue')}
+					</>
+				</div>
+				<button
+					className="steam-wishlist-death-screen"
+					onClick={handleSteamWishlistClick}
+				>
+					<FaSteam />
+					<div>WISHLIST NOW</div>
+				</button>
 			</div>
 		</div>
 	);

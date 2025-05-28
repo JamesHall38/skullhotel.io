@@ -121,6 +121,14 @@
 	font-family: 'Lincoln Road', serif;
 }
 
+.death-screen-start-container {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 2rem;
+}
+
 .death-screen-start {
 	font-size: 1.5rem;
 	margin-top: 1rem;
@@ -129,4 +137,34 @@
 	opacity: 0;
 	animation: messageAppear 1s ease 2.5s forwards,
 		blink 2s ease-in-out 5.5s infinite;
+}
+
+.steam-wishlist-death-screen {
+	position: absolute;
+	transform: translateY(5rem);
+
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.5rem;
+
+	font-family: 'Lincoln Road', serif;
+	font-size: 1rem;
+
+	display: inline-flex;
+	padding: 1rem 2rem;
+	justify-content: center;
+	align-items: center;
+
+	border: none;
+	border-radius: 8px;
+	background: #1a9fff;
+	color: #fff;
+	opacity: 0;
+	animation: messageAppear 1s ease 2.5s forwards;
+}
+
+.steam-wishlist-death-screen:hover {
+	background: #007bff;
+	cursor: pointer;
 }
