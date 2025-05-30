@@ -14,6 +14,10 @@ const useGameStore = create(
 		incrementRealDeaths: () =>
 			set((state) => ({ realDeaths: state.realDeaths + 1 })),
 
+		hasShownFirstDeathPopup: false,
+		setHasShownFirstDeathPopup: (value) =>
+			set({ hasShownFirstDeathPopup: value }),
+
 		isGameplayActive: false,
 		setIsGameplayActive: (state) => set(() => ({ isGameplayActive: state })),
 

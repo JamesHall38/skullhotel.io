@@ -50,6 +50,10 @@
 			"restarting": "재시작 중...",
 			"raidWarning": "고객이 문을 두드리는 소리가 들리면 그들이 떠날 때까지 숨어있으세요"
 		},
+		"firstDeathPopup": {
+			"title": "입소문을 퍼뜨리는 데 도움을 주세요!",
+			"message": "게임 업계는 저희 같은 인디 개발자들에게 힘들 수 있습니다.\nSkull Hotel을 Steam 위시리스트에 추가해서 저희가 조금이라도 더 알려지도록 도와주시겠어요? 무료이고 저희에게 엄청난 도움이 됩니다!"
+		},
 		"endGameScreen": {
 			"thankYouForPlaying": "플레이해 주셔서 감사합니다",
 			"yourTime": "당신의 시간:",

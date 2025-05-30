@@ -50,6 +50,10 @@
 			"restarting": "Reiniciando...",
 			"raidWarning": "Si escuchas a un cliente golpeando la puerta, escóndete hasta que se vaya"
 		},
+		"firstDeathPopup": {
+			"title": "¡Ayúdanos a correr la voz!",
+			"message": "La industria de los videojuegos puede ser dura para desarrolladores independientes como nosotros.\n¿Nos ayudarían a obtener un poco de visibilidad agregando Skull Hotel a su lista de deseados de Steam? ¡Es gratis y nos ayuda enormemente!"
+		},
 		"endGameScreen": {
 			"thankYouForPlaying": "GRACIAS POR JUGAR",
 			"yourTime": "Tu tiempo:",

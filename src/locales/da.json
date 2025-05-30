@@ -50,6 +50,10 @@
 			"restarting": "Genstarter...",
 			"raidWarning": "Hvis du hører en klient banke på døren, gem dig indtil de går"
 		},
+		"firstDeathPopup": {
+			"title": "Hjælp os med at sprede ordet!",
+			"message": "Spilindustrien kan være hård ved indie-udviklere som os.\nVil I hjælpe os med at få lidt synlighed ved at tilføje Skull Hotel til jeres Steam ønskeliste? Det er gratis og hjælper os enormt!"
+		},
 		"endGameScreen": {
 			"thankYouForPlaying": "TAK FOR AT SPILLE",
 			"yourTime": "Din tid:",

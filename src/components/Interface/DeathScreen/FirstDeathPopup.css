@@ -1,0 +1,204 @@
+@font-face {
+	font-family: 'Lincoln Road Deco';
+	src: url('/Lincoln-Road-Deco.ttf') format('truetype');
+	font-weight: normal;
+	font-style: normal;
+}
+
+@font-face {
+	font-family: 'Lincoln Road';
+	src: url('/Lincoln-Road-Regular.ttf') format('truetype');
+	font-weight: normal;
+	font-style: normal;
+}
+
+.first-death-popup-backdrop {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100vw;
+	height: 100vh;
+	background: rgba(0, 0, 0, 0.75);
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	z-index: 200000;
+	backdrop-filter: blur(2px);
+}
+
+.first-death-popup {
+	background: rgba(8, 8, 7, 0.95);
+	border-radius: 0.5rem;
+	color: #f8f8f8;
+	font-family: 'Lincoln Road', serif;
+	max-width: 600px;
+	width: calc(100% - 4rem);
+	position: relative;
+	box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8);
+	animation: popupAppear 0.3s ease-out;
+	border: 1px solid rgba(239, 216, 155, 0.2);
+}
+
+@keyframes popupAppear {
+	from {
+		opacity: 0;
+		transform: scale(0.9) translateY(-20px);
+	}
+	to {
+		opacity: 1;
+		transform: scale(1) translateY(0);
+	}
+}
+
+.first-death-popup-close {
+	position: absolute;
+	top: 1rem;
+	right: 1rem;
+	z-index: 1;
+}
+
+.first-death-popup-content {
+	padding: 3rem 4rem 2rem 2rem;
+	text-align: center;
+	display: flex;
+	flex-direction: column;
+	gap: 2rem;
+}
+
+.first-death-popup-title {
+	font-family: 'Lincoln Road Deco', serif;
+	font-size: 2rem;
+	color: #efd89b;
+	margin: 0;
+	font-weight: 400;
+	letter-spacing: 1px;
+	text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.first-death-popup-message {
+	font-size: 1rem;
+	line-height: 1.6;
+	margin: 0;
+	color: #f8f8f8;
+	text-align: left;
+	max-width: 500px;
+	margin: 0 auto;
+}
+
+.first-death-popup-buttons {
+	display: flex;
+	justify-content: center;
+	gap: 1rem;
+	flex-wrap: wrap;
+}
+
+.first-death-popup-wishlist-btn {
+	background: transparent;
+	border: 1px solid #efd89b;
+	color: #efd89b;
+	padding: 1rem 2rem;
+	border-radius: 0.5rem;
+	font-size: 1rem;
+	font-weight: 400;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	transition: all 0.3s ease;
+	text-transform: uppercase;
+	letter-spacing: 1px;
+	font-family: 'Lincoln Road', serif;
+	min-width: 200px;
+	justify-content: center;
+}
+
+.first-death-popup-wishlist-btn:hover {
+	background: rgba(239, 216, 155, 0.1);
+	border-color: #fff;
+	color: #fff;
+	box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+}
+
+.first-death-popup-wishlist-btn:active {
+	transform: translateY(0);
+	box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.first-death-popup-wishlist-btn svg {
+	font-size: 1.25rem;
+	color: #efd89b;
+	transition: color 0.3s ease;
+}
+
+.first-death-popup-wishlist-btn:hover svg {
+	color: #fff;
+}
+
+/* Gamepad focus styles */
+.first-death-popup .gamepad-focus {
+	outline: 2px solid #efd89b !important;
+	outline-offset: 2px;
+	box-shadow: 0 0 10px rgba(239, 216, 155, 0.5) !important;
+}
+
+.first-death-popup-close .gamepad-focus {
+	border-radius: 50%;
+}
+
+.first-death-popup-wishlist-btn.gamepad-focus {
+	background: rgba(239, 216, 155, 0.1) !important;
+	border-color: #fff !important;
+	color: #fff !important;
+}
+
+.first-death-popup-wishlist-btn.gamepad-focus svg {
+	color: #fff !important;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 700px) {
+	.first-death-popup {
+		width: 100%;
+		margin: 1rem;
+		border-radius: 0;
+	}
+
+	.first-death-popup-content {
+		padding: 2.5rem 3rem 1.5rem 1.5rem;
+		gap: 1.5rem;
+	}
+
+	.first-death-popup-title {
+		font-size: 1.75rem;
+	}
+
+	.first-death-popup-message {
+		font-size: 0.9rem;
+	}
+
+	.first-death-popup-wishlist-btn {
+		padding: 0.875rem 1.5rem;
+		font-size: 0.9rem;
+		min-width: 180px;
+	}
+}
+
+@media (max-width: 440px) {
+	.first-death-popup-content {
+		padding: 2rem 2.5rem 1rem 1rem;
+	}
+
+	.first-death-popup-title {
+		font-size: 1.5rem;
+	}
+
+	.first-death-popup-message {
+		font-size: 0.85rem;
+	}
+
+	.first-death-popup-wishlist-btn {
+		padding: 0.75rem 1.25rem;
+		font-size: 0.85rem;
+		min-width: 160px;
+	}
+}

@@ -50,6 +50,10 @@
 			"restarting": "Restartování...",
 			"raidWarning": "Pokud uslyšíte klienta klepat na dveře, schováte se, dokud neodejde"
 		},
+		"firstDeathPopup": {
+			"title": "Pomozte nám šířit povědomí!",
+			"message": "Herní průmysl může být těžký pro nezávislé vývojáře jako jsme my.\nPomohli byste nám získat trochu viditelnosti přidáním Skull Hotel do vašeho Steam seznamu přání? Je to zdarma a pomáhá nám to enormně!"
+		},
 		"endGameScreen": {
 			"thankYouForPlaying": "DĚKUJEME ZA HRANÍ",
 			"yourTime": "Váš čas:",

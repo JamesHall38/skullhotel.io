@@ -50,6 +50,10 @@
 			"restarting": "Repornește...",
 			"raidWarning": "Dacă auzi un client bătând la ușă, ascunde-te până pleacă"
 		},
+		"firstDeathPopup": {
+			"title": "Ajutați-ne să răspândim vestea!",
+			"message": "Industria jocurilor poate fi grea pentru dezvoltatorii indie ca noi.\nNe-ați putea ajuta să obținem puțină vizibilitate adăugând Skull Hotel la lista voastră de dorințe Steam? Este gratuit și ne ajută enorm!"
+		},
 		"endGameScreen": {
 			"thankYouForPlaying": "MULȚUMIM CĂ AI JUCAT",
 			"yourTime": "Timpul tău:",

@@ -50,6 +50,10 @@
 			"restarting": "重新开始...",
 			"raidWarning": "如果听到客人敲门，请躲起来直到他们离开"
 		},
+		"firstDeathPopup": {
+			"title": "帮助我们传播消息！",
+			"message": "游戏行业对像我们这样的独立开发者来说可能很艰难。\n您能通过将 Skull Hotel 添加到您的 Steam 愿望单来帮助我们获得一些曝光度吗？这是免费的，对我们帮助很大！"
+		},
 		"endGameScreen": {
 			"thankYouForPlaying": "感谢您的游戏",
 			"yourTime": "您的时间：",

@@ -50,6 +50,10 @@
 			"restarting": "Újraindítás...",
 			"raidWarning": "Ha hallod, hogy egy vendég kopogtat az ajtón, bújj el, amíg el nem megy"
 		},
+		"firstDeathPopup": {
+			"title": "Segítsetek terjeszteni a hírt!",
+			"message": "A játékipar kemény lehet az indie fejlesztők számára, mint mi.\nSegítenétek nekünk egy kis láthatóságot szerezni azzal, hogy hozzáadjátok a Skull Hotel-t a Steam kívánságlistátokhoz? Ingyenes és rengeteget segít nekünk!"
+		},
 		"endGameScreen": {
 			"thankYouForPlaying": "KÖSZÖNJÜK, HOGY JÁTSZOTTÁL",
 			"yourTime": "Az időd:",

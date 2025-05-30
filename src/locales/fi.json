@@ -50,6 +50,10 @@
 			"restarting": "Käynnistetään uudelleen...",
 			"raidWarning": "Jos kuulet asiakkaan koputtavan ovea, piilossa kunnes he lähtevät"
 		},
+		"firstDeathPopup": {
+			"title": "Auttakaa meitä levittämään sanaa!",
+			"message": "Peliteollisuus voi olla kovaa indie-kehittäjille kuten meille.\nAuttaisitteko meitä saamaan hieman näkyvyyttä lisäämällä Skull Hotelin Steam-toivelistallenne? Se on ilmaista ja auttaa meitä valtavasti!"
+		},
 		"endGameScreen": {
 			"thankYouForPlaying": "KIITOS PELAAMISESTA",
 			"yourTime": "Aikasi:",

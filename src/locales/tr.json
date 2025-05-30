@@ -50,6 +50,10 @@
 			"restarting": "Yeniden başlatılıyor...",
 			"raidWarning": "Bir müşterinin kapıyı çaldığını duyarsan, gidene kadar saklan"
 		},
+		"firstDeathPopup": {
+			"title": "Haberi yaymamıza yardım edin!",
+			"message": "Oyun endüstrisi bizim gibi bağımsız geliştiriciler için zor olabilir.\nSkull Hotel'i Steam istek listenize ekleyerek biraz görünürlük kazanmamıza yardım eder misiniz? Ücretsiz ve bize çok yardımcı oluyor!"
+		},
 		"endGameScreen": {
 			"thankYouForPlaying": "OYNADIĞIN İÇİN TEŞEKKÜRLER",
 			"yourTime": "Süren:",
