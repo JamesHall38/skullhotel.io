@@ -44,6 +44,7 @@ export default function Rotation({
 	isCrouchingRef,
 }) {
 	const monsterState = useMonster((state) => state.monsterState);
+	const monsterPosition = useMonster((state) => state.monsterPosition);
 	const deaths = useGame((state) => state.deaths);
 	const deviceMode = useGame((state) => state.deviceMode);
 	const isMobile = useGame((state) => state.isMobile);
@@ -300,7 +301,11 @@ export default function Rotation({
 		}
 
 		// Only apply automatic camera rotation in keyboard mode if user has moved mouse after intro
-		if (deviceMode === 'keyboard' && hasMovedMouseAfterIntro.current) {
+		if (
+			deviceMode === 'keyboard' &&
+			hasMovedMouseAfterIntro.current &&
+			monsterState !== 'run'
+		) {
 			state.camera.rotation.order = 'YXZ';
 			state.camera.rotation.y = yaw.current;
 			state.camera.rotation.x = pitch.current;

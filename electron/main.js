@@ -22,7 +22,7 @@ let steamworks;
 try {
 	steamworks = require('steamworks.js');
 	steamworks.electronEnableSteamOverlay(true);
-	steamworks.init(3739730);
+	steamworks.init(3799030);
 } catch (e) {
 	console.warn('Steamworks initialization failed:', e);
 }

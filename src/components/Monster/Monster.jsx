@@ -17,7 +17,7 @@ import useGamepadControls, {
 } from '../../hooks/useGamepadControls';
 
 const BASE_SPEED = 5;
-const CHASE_SPEED_BASE = 0.75;
+const CHASE_SPEED_BASE = 1.5;
 const CLAYMORE_CHASE_SPEED = 1.5;
 const NEXT_POINT_THRESHOLD = 0.5;
 const MIN_DISTANCE_FOR_RECALCULATION = 2;
@@ -71,6 +71,7 @@ const Monster = (props) => {
 	const { gl } = useThree();
 	const [directPathFailures, setDirectPathFailures] = useState(0);
 	const lastChaseTimeRef = useRef(0);
+	const lastFrameTimeRef = useRef(performance.now());
 	useGamepadControls();
 	const { nodes, materials, animations } = useGLTF(
 		'/models/monster-opt.glb',
@@ -404,6 +405,22 @@ const Monster = (props) => {
 						Math.pow(lastTargetRef.current.x - targetX, 2) +
 							Math.pow(lastTargetRef.current.z - targetZ, 2)
 					);
+
+					const monsterPos = new THREE.Vector3(
+						group.current.position.x,
+						group.current.position.y + 1,
+						group.current.position.z
+					);
+
+					const currentCameraQuaternion = camera.quaternion.clone();
+
+					camera.lookAt(monsterPos);
+					const targetQuaternion = camera.quaternion.clone();
+
+					camera.quaternion.copy(currentCameraQuaternion);
+
+					const lerpFactor = delta * 2;
+					camera.quaternion.slerp(targetQuaternion, lerpFactor);
 
 					if (directPathFailures >= MAX_DIRECT_PATH_FAILURES) {
 						const direction = new THREE.Vector3(
@@ -756,7 +773,7 @@ const Monster = (props) => {
 		}
 	}, [monsterState, animationName, roomDoors]);
 
-	useFrame(({ camera, clock }) => {
+	useFrame(({ camera }) => {
 		if (monsterState === 'facingCamera') {
 			lookAtCamera(camera);
 			if (
@@ -771,7 +788,12 @@ const Monster = (props) => {
 				clearTimeout(timeoutRef.current);
 				timeoutRef.current = null;
 			}
-			const delta = Math.max(clock.getDelta(), 0.016);
+			const currentTime = performance.now();
+			const delta = Math.min(
+				(currentTime - lastFrameTimeRef.current) / 1000,
+				0.033
+			); // Max 30 FPS delta
+			lastFrameTimeRef.current = currentTime;
 
 			runAtCamera(camera, delta, monsterState);
 

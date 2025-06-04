@@ -86,6 +86,9 @@ export default function Tutorial() {
 	const customTutorialObjectives = useInterfaceStore(
 		(state) => state.customTutorialObjectives
 	);
+	const setIsTutorialCompleted = useInterfaceStore(
+		(state) => state.setIsTutorialCompleted
+	);
 
 	const { t, currentLanguage } = useLocalization();
 
@@ -275,16 +278,26 @@ export default function Tutorial() {
 	// STEP 10: CLEAN_OBJECTIVES - Original cleaning tasks
 	// ===========================
 	useEffect(() => {
-		if (tutorialObjectives.every(Boolean) && !step10CompletedRef.current) {
+		if (
+			tutorialObjectives.every(Boolean) &&
+			!step10CompletedRef.current &&
+			tutorialStage === TUTORIAL_STAGE.CLOSE_NIGHTSTAND
+		) {
 			step10CompletedRef.current = true;
 			setTutorialStage(TUTORIAL_STAGE.CLEAN_OBJECTIVES);
+			setIsTutorialCompleted(true);
 			setCurrentDialogueIndex(WELL_DONE_DIALOGUE);
 
 			setTimeout(() => {
 				setCurrentDialogueIndex(REMEMBER_WARNING_DIALOGUE);
 			}, 9000);
 		}
-	}, [tutorialObjectives, tutorialStage, setCurrentDialogueIndex]);
+	}, [
+		tutorialObjectives,
+		tutorialStage,
+		setCurrentDialogueIndex,
+		setIsTutorialCompleted,
+	]);
 
 	// ===========================
 	// STEP 11: WELL_DONE - Completion of objectives
@@ -382,7 +395,11 @@ export default function Tutorial() {
 	}, [tutorialStage, setCustomTutorialObjectives, getCurrentObjectives]);
 
 	useEffect(() => {
-		if (tutorialStage === TUTORIAL_STAGE.CLOSE_NIGHTSTAND) {
+		if (
+			tutorialStage >= TUTORIAL_STAGE.CLOSE_NIGHTSTAND &&
+			customTutorialObjectives &&
+			customTutorialObjectives.length > 0
+		) {
 			const updatedObjectives = customTutorialObjectives.map(
 				(objective, index) => {
 					if (tutorialObjectives[index] === true) {

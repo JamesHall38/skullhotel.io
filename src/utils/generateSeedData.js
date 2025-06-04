@@ -1,7 +1,11 @@
 import levelData from '../components/Monster/Triggers/levelData';
 import useGameplaySettings from '../hooks/useGameplaySettings';
 
-function getRandomRoomDataByType(type, usedRoomData = []) {
+function getRandomRoomDataByType(
+	type,
+	usedRoomData = [],
+	seenLevels = new Set()
+) {
 	const roomsOfType = Object.entries(levelData)
 		.filter(([, data]) => data.type === type)
 		.filter(([, data]) => !usedRoomData.includes(data));
@@ -18,11 +22,18 @@ function getRandomRoomDataByType(type, usedRoomData = []) {
 		};
 	}
 
-	const randomIndex = Math.floor(Math.random() * roomsOfType.length);
-	return {
-		key: roomsOfType[randomIndex][0],
-		data: roomsOfType[randomIndex][1],
-	};
+	const weightedRooms = [];
+
+	roomsOfType.forEach(([key, data]) => {
+		const weight = seenLevels.has(key) ? 1 : 3;
+
+		for (let i = 0; i < weight; i++) {
+			weightedRooms.push({ key, data });
+		}
+	});
+
+	const randomIndex = Math.floor(Math.random() * weightedRooms.length);
+	return weightedRooms[randomIndex];
 }
 
 export default function generateSeedData() {
@@ -37,6 +48,16 @@ export default function generateSeedData() {
 	const raidPercentage = useGameplaySettings.getState().raidPercentage;
 	const randomRoomPercentage =
 		useGameplaySettings.getState().randomRoomPercentage || 0;
+
+	let seenLevels = new Set();
+	try {
+		const stored = localStorage.getItem('seenLevels');
+		if (stored) {
+			seenLevels = new Set(JSON.parse(stored));
+		}
+	} catch (error) {
+		seenLevels = new Set();
+	}
 
 	const seed = {};
 	const hidingRooms = {};
@@ -120,7 +141,11 @@ export default function generateSeedData() {
 
 	// Add hideout rooms
 	for (let i = 0; i < hideoutRooms; i++) {
-		const roomData = getRandomRoomDataByType('hideout', usedRoomData);
+		const roomData = getRandomRoomDataByType(
+			'hideout',
+			usedRoomData,
+			seenLevels
+		);
 		if (roomData) {
 			usedRoomData.push(roomData.data);
 			const uniqueKey = getUniqueKey(roomData.key);
@@ -136,7 +161,7 @@ export default function generateSeedData() {
 
 	// Add landmine rooms
 	for (let i = 0; i < landmineRooms; i++) {
-		const room = getRandomRoomDataByType('landmine', usedRoomData);
+		const room = getRandomRoomDataByType('landmine', usedRoomData, seenLevels);
 		if (room) {
 			usedRoomData.push(room.data);
 			const uniqueKey = getUniqueKey(room.key);
@@ -152,7 +177,11 @@ export default function generateSeedData() {
 
 	// Add claymore rooms
 	for (let i = 0; i < claymoreRooms; i++) {
-		const roomData = getRandomRoomDataByType('claymore', usedRoomData);
+		const roomData = getRandomRoomDataByType(
+			'claymore',
+			usedRoomData,
+			seenLevels
+		);
 		if (roomData) {
 			usedRoomData.push(roomData.data);
 			const uniqueKey = getUniqueKey(roomData.key);
@@ -168,7 +197,11 @@ export default function generateSeedData() {
 
 	// Add hunter rooms
 	for (let i = 0; i < hunterRooms; i++) {
-		const roomData = getRandomRoomDataByType('hunter', usedRoomData);
+		const roomData = getRandomRoomDataByType(
+			'hunter',
+			usedRoomData,
+			seenLevels
+		);
 		if (roomData) {
 			usedRoomData.push(roomData.data);
 			const uniqueKey = getUniqueKey(roomData.key);
@@ -184,7 +217,7 @@ export default function generateSeedData() {
 
 	// Add sonar rooms
 	for (let i = 0; i < sonarRooms; i++) {
-		const roomData = getRandomRoomDataByType('sonar', usedRoomData);
+		const roomData = getRandomRoomDataByType('sonar', usedRoomData, seenLevels);
 		if (roomData) {
 			usedRoomData.push(roomData.data);
 			const uniqueKey = getUniqueKey(roomData.key);
@@ -198,7 +231,7 @@ export default function generateSeedData() {
 	}
 	currentRoom += sonarRooms;
 
-	// Add random rooms - these will select a random type for each room
+	// Add random rooms- these will select a random type for each room
 	for (let i = 0; i < randomRooms; i++) {
 		// Select a random room type
 		const roomTypes = [
@@ -213,7 +246,11 @@ export default function generateSeedData() {
 		const randomType = roomTypes[randomTypeIndex];
 
 		// Get a random room of the selected type
-		const roomData = getRandomRoomDataByType(randomType, usedRoomData);
+		const roomData = getRandomRoomDataByType(
+			randomType,
+			usedRoomData,
+			seenLevels
+		);
 
 		if (roomData) {
 			usedRoomData.push(roomData.data);
@@ -242,7 +279,7 @@ export default function generateSeedData() {
 
 	// Add raid rooms
 	for (let i = 0; i < raidRooms; i++) {
-		const roomData = getRandomRoomDataByType('raid', usedRoomData);
+		const roomData = getRandomRoomDataByType('raid', usedRoomData, seenLevels);
 
 		if (roomData) {
 			usedRoomData.push(roomData.data);

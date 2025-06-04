@@ -115,7 +115,9 @@ export default function ReceptionDoors() {
 	const setCurrentDialogueIndex = useInterface(
 		(state) => state.setCurrentDialogueIndex
 	);
-	const tutorialObjectives = useInterface((state) => state.tutorialObjectives);
+	const isTutorialCompleted = useInterface(
+		(state) => state.isTutorialCompleted
+	);
 	const objectives = useInterface((state) => state.interfaceObjectives);
 	const doneObjectives = useMemo(() => {
 		return objectives.filter((subArray) =>
@@ -141,7 +143,7 @@ export default function ReceptionDoors() {
 				isOpen={corridorDoor}
 				setHandlePressed={setCorridorHandle}
 				setOpen={(value) => {
-					if (tutorialObjectives.every((value) => value === true)) {
+					if (isTutorialCompleted || window.location.hash === '#debug') {
 						setCorridorDoor(value);
 						setPlayerPositionRoom(initialPosition);
 					} else {

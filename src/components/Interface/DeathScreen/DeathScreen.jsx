@@ -274,13 +274,6 @@ const DeathScreen = () => {
 								: t('ui.deathScreen.continue')}
 						</>
 					</div>
-					<button
-						className="steam-wishlist-death-screen"
-						onClick={handleSteamWishlistClick}
-					>
-						<FaSteam />
-						<div>WISHLIST NOW</div>
-					</button>
 				</div>
 			</div>
 

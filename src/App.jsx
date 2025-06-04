@@ -6,7 +6,7 @@ import {
 	useState,
 	useCallback,
 } from 'react';
-import { KeyboardControls, PointerLockControls } from '@react-three/drei';
+import { KeyboardControls } from '@react-three/drei';
 import { Canvas, useThree, useFrame } from '@react-three/fiber';
 import Interface from './components/Interface/Interface';
 import './style.css';
@@ -20,6 +20,8 @@ import PostProcessing from './components/PostProcessing';
 
 import { Perf } from 'r3f-perf';
 import { Leva, useControls, button } from 'leva';
+
+import CustomPointerLockControls from './components/CustomPointerLockControls';
 
 // Models
 import Reception from './components/Reception/Reception';
@@ -474,7 +476,7 @@ function App() {
 				]}
 			>
 				{deviceMode !== 'gamepad' && !isMobile && !disableControls && (
-					<PointerLockControls ref={controlsRef} />
+					<CustomPointerLockControls ref={controlsRef} />
 				)}
 
 				<Player />

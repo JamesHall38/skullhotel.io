@@ -83,6 +83,10 @@ const useInterfaceStore = create(
 		setCustomTutorialObjectives: (objectives) =>
 			set(() => ({ customTutorialObjectives: objectives })),
 
+		isTutorialCompleted: false,
+		setIsTutorialCompleted: (completed) =>
+			set(() => ({ isTutorialCompleted: completed })),
+
 		setAllObjectivesCompleted: () => {
 			set(() => ({
 				tutorialObjectives: [true, true, true],

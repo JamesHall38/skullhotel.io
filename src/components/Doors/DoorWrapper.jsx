@@ -222,7 +222,8 @@ export default function DoorWrapper({
 			if (
 				isNightstand &&
 				(Math.abs(camera.position.z) < 4.2 ||
-					(camera.position.z < 5.9 && camera.position.x > 1.9))
+					(camera.position.z < 5.9 && camera.position.x > 1.9)) &&
+				!(camera.position.z < -4.7 && camera.position.x > 1.7)
 			) {
 				if (cursorRef.current?.includes('door')) {
 					cursorRef.current = null;

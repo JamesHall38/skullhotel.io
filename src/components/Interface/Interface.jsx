@@ -477,8 +477,8 @@ export default function Interface() {
 	const customTutorialObjectives = useInterface(
 		(state) => state.customTutorialObjectives
 	);
-	const setCustomTutorialObjectives = useInterface(
-		(state) => state.setCustomTutorialObjectives
+	const isTutorialCompleted = useInterface(
+		(state) => state.isTutorialCompleted
 	);
 	const [activeDialogues, setActiveDialogues] = useState([]);
 	const setIsSettingsOpen = useInterface((state) => state.setIsSettingsOpen);
@@ -779,7 +779,7 @@ export default function Interface() {
 						</AnimatedObjectiveText>
 					</div>
 				</div>
-			) : tutorialObjectives.every((objective) => objective === true) ? (
+			) : isTutorialCompleted ? (
 				<div className="objectives">
 					<div className="objectives-flex">
 						<AnimatedObjectives />

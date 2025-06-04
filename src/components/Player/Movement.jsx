@@ -132,12 +132,14 @@ export default function Movement({
 		const handleKeyDown = (event) => {
 			if (event.shiftKey && !isCrouchingRef.current) {
 				setIsRunningState(true);
+				setIsRunning(true);
 			}
 		};
 
 		const handleKeyUp = (event) => {
 			if (event.key === 'Shift') {
 				setIsRunningState(false);
+				setIsRunning(false);
 			}
 		};
 
