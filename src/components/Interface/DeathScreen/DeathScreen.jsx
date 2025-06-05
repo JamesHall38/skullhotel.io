@@ -69,19 +69,22 @@ const DeathScreen = () => {
 	useEffect(() => {
 		if (playerPositionRoom !== null && playerPositionRoom >= 0) {
 			const currentRoom = Object.values(seedData)[playerPositionRoom];
-			let message = customMessage;
+			let message = null;
 
-			if (!message) {
-				if (currentRoom?.isRaid) {
-					message = t('ui.deathScreen.raidWarning');
-				} else if (currentRoom?.deathReason) {
-					const translationKey = getDeathReasonTranslationKey(
-						currentRoom.deathReason
-					);
-					message = translationKey.startsWith('game.deathReasons.')
-						? t(translationKey)
-						: currentRoom.deathReason;
-				}
+			if (customMessage) {
+				// Check if customMessage is a translation key
+				message = customMessage.startsWith('game.deathReasons.')
+					? t(customMessage)
+					: customMessage;
+			} else if (currentRoom?.isRaid) {
+				message = t('ui.deathScreen.raidWarning');
+			} else if (currentRoom?.deathReason) {
+				const translationKey = getDeathReasonTranslationKey(
+					currentRoom.deathReason
+				);
+				message = translationKey.startsWith('game.deathReasons.')
+					? t(translationKey)
+					: currentRoom.deathReason;
 			}
 
 			setLastDeathMessage(message);

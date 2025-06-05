@@ -50,6 +50,7 @@ export default function Rotation({
 	const isMobile = useGame((state) => state.isMobile);
 	const isGameplayActive = useGame((state) => state.isGameplayActive);
 	const isRunning = useGame((state) => state.isRunning);
+	const jumpScare = useGame((state) => state.jumpScare);
 	const temporaryDisableMouseLook = useGame(
 		(state) => state.temporaryDisableMouseLook
 	);
@@ -126,6 +127,7 @@ export default function Rotation({
 				monsterState !== 'run' &&
 				document.pointerLockElement &&
 				!temporaryDisableMouseLook &&
+				!jumpScare &&
 				isGameplayActive
 			) {
 				const movementX = event.movementX || 0;
@@ -157,6 +159,7 @@ export default function Rotation({
 		verticalSensitivity,
 		disableControls,
 		temporaryDisableMouseLook,
+		jumpScare,
 		isGameplayActive,
 	]);
 
@@ -248,7 +251,8 @@ export default function Rotation({
 		if (
 			(isMobile || deviceMode === 'gamepad') &&
 			monsterState !== 'run' &&
-			!disableControls
+			!disableControls &&
+			!jumpScare
 		) {
 			const ROTATION_DEADZONE = 0.15;
 
@@ -304,7 +308,8 @@ export default function Rotation({
 		if (
 			deviceMode === 'keyboard' &&
 			hasMovedMouseAfterIntro.current &&
-			monsterState !== 'run'
+			monsterState !== 'run' &&
+			!jumpScare
 		) {
 			state.camera.rotation.order = 'YXZ';
 			state.camera.rotation.y = yaw.current;

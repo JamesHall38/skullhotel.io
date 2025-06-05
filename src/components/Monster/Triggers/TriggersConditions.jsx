@@ -126,7 +126,7 @@ export default function TriggersConditions({
 				setMonsterState('run');
 				playAnimation('Run');
 				setAnimationSpeed(1);
-				setCustomDeathMessage('Always close the door before cleaning the room');
+				setCustomDeathMessage('game.deathReasons.raidDoor');
 			} else if (!knockedRooms.includes(room)) {
 				addKnockedRoom(room);
 				setMonsterKnocking(true);
@@ -255,11 +255,7 @@ export default function TriggersConditions({
 
 	const checkObjectiveAndAttack = (objectives, objectiveIndex) => {
 		if (objectives[playerPositionRoom]?.[objectiveIndex]) {
-			useGame
-				.getState()
-				.setCustomDeathMessage(
-					'Always check around the objective before doing it'
-				);
+			useGame.getState().setCustomDeathMessage('game.deathReasons.objective');
 			monsterAttack();
 			return true;
 		}

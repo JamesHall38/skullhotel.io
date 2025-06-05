@@ -18,7 +18,7 @@ import useGamepadControls, {
 
 const BASE_SPEED = 5;
 const CHASE_SPEED_BASE = 1.5;
-const CLAYMORE_CHASE_SPEED = 1.5;
+const CLAYMORE_CHASE_SPEED = 3;
 const NEXT_POINT_THRESHOLD = 0.5;
 const MIN_DISTANCE_FOR_RECALCULATION = 2;
 const ATTACK_DISTANCE = 1.8;
@@ -110,6 +110,7 @@ const Monster = (props) => {
 	const deaths = useGame((state) => state.deaths);
 	const setDisableControls = useGame((state) => state.setDisableControls);
 	const isEndAnimationPlaying = useGame((state) => state.isEndAnimationPlaying);
+	const setCustomDeathMessage = useGame((state) => state.setCustomDeathMessage);
 	const roomDoors = useDoor((state) => state.roomDoor);
 	const nightstandDoor = useDoor((state) => state.nightStand);
 	const deskDoor = useDoor((state) => state.desk);
@@ -300,6 +301,17 @@ const Monster = (props) => {
 			if (distanceToCamera <= ATTACK_DISTANCE) {
 				if (!jumpScare) {
 					setJumpScare(true);
+
+					// Check if this is a claymore chase death
+					const roomKey =
+						Object.values(seedData)[playerPositionRoom]?.baseKey ||
+						Object.keys(seedData)[playerPositionRoom];
+					const isClaymoreDeskOrNightstand =
+						roomKey === 'claymoreDesk' || roomKey === 'claymoreNightstand';
+
+					if (mode === 'chase' && isClaymoreDeskOrNightstand) {
+						setCustomDeathMessage('game.deathReasons.claymoreChase');
+					}
 
 					if (!hasTriggeredVibration) {
 						vibrateControllers(1.0, 1500);
