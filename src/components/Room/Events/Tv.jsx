@@ -14,6 +14,7 @@ export default function Tv() {
 	const [isDetected, setIsDetected] = useState(false);
 	const tv = useGame((state) => state.tv);
 	const setTv = useGame((state) => state.setTv);
+	const isMobile = useGame((state) => state.isMobile);
 	const setCursor = useInterface((state) => state.setCursor);
 	const cursor = useInterface((state) => state.cursor);
 	const tvSoundRef = useRef();
@@ -102,6 +103,21 @@ export default function Tv() {
 		cursor,
 	]);
 
+	useEffect(() => {
+		const handleMouseDown = (e) => {
+			if (e.button === 0 && cursor === 'power-tv' && !isMobile && isDetected) {
+				setTv(!tv);
+				setActiveTv(playerPositionRoom);
+			}
+		};
+
+		window.addEventListener('mousedown', handleMouseDown);
+
+		return () => {
+			window.removeEventListener('mousedown', handleMouseDown);
+		};
+	}, [cursor, isDetected, tv, setTv, setActiveTv, playerPositionRoom]);
+
 	return (
 		<group position={[-1.285, 0.9, 3.65]}>
 			<DetectionZone
@@ -120,12 +136,6 @@ export default function Tv() {
 				type="power"
 			/>
 			<mesh
-				onPointerDown={(e) => {
-					if (e.button === 0 && cursor === 'power-tv') {
-						setTv(!tv);
-						setActiveTv(playerPositionRoom);
-					}
-				}}
 				visible={tv}
 				scale={0.087}
 				rotation={[0, Math.PI / 2, 0]}

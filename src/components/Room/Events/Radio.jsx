@@ -13,6 +13,7 @@ const Radio = () => {
 	const [isDetected, setIsDetected] = useState(false);
 	const radio = useGame((state) => state.radio);
 	const setRadio = useGame((state) => state.setRadio);
+	const isMobile = useGame((state) => state.isMobile);
 	const setMobileClick = useGame((state) => state.setMobileClick);
 	const mobileClick = useGame((state) => state.mobileClick);
 	const setCursor = useInterface((state) => state.setCursor);
@@ -101,6 +102,26 @@ const Radio = () => {
 		cursor,
 	]);
 
+	useEffect(() => {
+		const handleMouseDown = (e) => {
+			if (
+				e.button === 0 &&
+				cursor === 'power-radio' &&
+				!isMobile &&
+				isDetected
+			) {
+				setRadio(!radio);
+				setActiveRadio(playerPositionRoom);
+			}
+		};
+
+		window.addEventListener('mousedown', handleMouseDown);
+
+		return () => {
+			window.removeEventListener('mousedown', handleMouseDown);
+		};
+	}, [cursor, isDetected, radio, setRadio, setActiveRadio, playerPositionRoom]);
+
 	return (
 		<group position={[4.12, 0.927, 0.295]}>
 			<DetectionZone
@@ -118,17 +139,7 @@ const Radio = () => {
 				name="radio"
 				type="power"
 			/>
-			<mesh
-				onPointerDown={(e) => {
-					if (e.button === 0 && cursor === 'power-radio') {
-						setRadio(!radio);
-						setActiveRadio(playerPositionRoom);
-					}
-				}}
-				visible={false}
-				position={[0, 0, -0.1]}
-				ref={meshRef}
-			>
+			<mesh visible={false} position={[0, 0, -0.1]} ref={meshRef}>
 				<boxGeometry args={[0.2, 0.2, 0.5]} />
 			</mesh>
 			<mesh scale={0.05} rotation={[Math.PI / 2, -Math.PI / 2, Math.PI]}>
