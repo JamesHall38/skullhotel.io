@@ -84,8 +84,10 @@
 			"uiArtDirection": "Пользовательский интерфейс и арт-направление"
 		},
 		"reception": {
-			"guestBook": "Гостевая книга",
-			"informations": "Информация"
+			"guestBook": "Книга гостей",
+			"informations": "Информация",
+			"guestBookSubtitle": "Завершите игру, чтобы записать свое имя",
+			"searchPlaceholder": "Введите номер страницы или найдите имя"
 		}
 	},
 	"game": {

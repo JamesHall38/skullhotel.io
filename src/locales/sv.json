@@ -85,7 +85,9 @@
 		},
 		"reception": {
 			"guestBook": "Gästbok",
-			"informations": "Information"
+			"informations": "Information",
+			"guestBookSubtitle": "Slutför spelet för att registrera ditt namn",
+			"searchPlaceholder": "Ange ett sidnummer eller sök efter ett namn"
 		}
 	},
 	"game": {

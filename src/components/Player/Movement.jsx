@@ -37,6 +37,7 @@ export default function Movement({
 	const jumpScare = useGame((state) => state.jumpScare);
 	const isPlaying = useGame((state) => state.isPlaying);
 	const setIsRunning = useGame((state) => state.setIsRunning);
+	const isRunning = useGame((state) => state.isRunning);
 	const isGameplayActive = useGame((state) => state.isGameplayActive);
 	const getCell = useGridStore((state) => state.getCell);
 	const getKeys = useKeyboardControls()[1];
@@ -294,15 +295,18 @@ export default function Movement({
 			direction.normalize();
 		}
 
+		const isPlayerRunning = isRunning || isGamepadRunning;
+
+		let baseSpeed = isMobile
+			? MOBILE_SPEED
+			: isCrouchingRef.current
+			? CROUCH_SPEED
+			: isPlayerRunning
+			? RUN_SPEED
+			: WALK_SPEED;
+
 		direction.multiplyScalar(
-			(isMobile
-				? MOBILE_SPEED
-				: isCrouchingRef.current
-				? CROUCH_SPEED
-				: isRunningState || isGamepadRunning
-				? RUN_SPEED
-				: WALK_SPEED) *
-				(1 - listeningProgress * (1 - LISTENING_SPEED_MULTIPLIER))
+			baseSpeed * (1 - listeningProgress * (1 - LISTENING_SPEED_MULTIPLIER))
 		);
 
 		playerVelocity.current.copy(direction);

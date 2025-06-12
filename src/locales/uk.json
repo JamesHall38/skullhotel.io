@@ -85,7 +85,9 @@
 		},
 		"reception": {
 			"guestBook": "Книга гостей",
-			"informations": "Інформація"
+			"informations": "Інформація",
+			"guestBookSubtitle": "Завершіть гру, щоб зареєструвати своє ім'я",
+			"searchPlaceholder": "Введіть номер сторінки або знайдіть ім'я"
 		}
 	},
 	"game": {

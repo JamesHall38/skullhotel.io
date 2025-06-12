@@ -85,7 +85,9 @@
 		},
 		"reception": {
 			"guestBook": "Книга за гости",
-			"informations": "Информация"
+			"informations": "Информация",
+			"guestBookSubtitle": "Завършете играта, за да регистрирате името си",
+			"searchPlaceholder": "Въведете номер на страница или търсете име"
 		}
 	},
 	"game": {

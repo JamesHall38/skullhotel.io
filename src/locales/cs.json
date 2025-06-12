@@ -85,7 +85,9 @@
 		},
 		"reception": {
 			"guestBook": "Kniha hostů",
-			"informations": "Informace"
+			"informations": "Informace",
+			"guestBookSubtitle": "Dokončete hru pro registraci svého jména",
+			"searchPlaceholder": "Zadejte číslo stránky nebo vyhledejte jméno"
 		}
 	},
 	"game": {

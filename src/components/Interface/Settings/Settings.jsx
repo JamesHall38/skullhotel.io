@@ -57,6 +57,10 @@ export default function Settings({ loading }) {
 
 	const { t, currentLanguage, setLanguage } = useLocalization();
 
+	const isCCBVersion =
+		window.location.hash.includes('CCB') ||
+		window.location.pathname.includes('CCB');
+
 	const [focusedElement, setFocusedElement] = useState(0);
 	const [isFullscreen, setIsFullscreen] = useState(
 		!!document.fullscreenElement
@@ -563,34 +567,38 @@ export default function Settings({ loading }) {
 
 				<section className="settings-content">
 					<h2 className="settings-title">{t('ui.settings.visuals')}</h2>
-					<div className="settings-item">
-						<div className="setting-label">{t('ui.settings.language')}</div>
-						<div
-							onClick={handleSelectClick}
-							onMouseEnter={handleMouseEnter}
-							className={`language-selector ${
-								isDropdownOpen ? 'dropdown-open' : ''
-							}`}
-						>
-							{languages.find((lang) => lang.code === currentLanguage)
-								?.nativeName || currentLanguage}
-						</div>
-						{isDropdownOpen && (
-							<div className="dropdown-options">
-								{languages.map((lang, index) => (
-									<div
-										key={lang.code}
-										className={`dropdown-option ${
-											index === dropdownSelectedIndex ? 'selected' : ''
-										}`}
-										onClick={(e) => handleDropdownOptionClick(lang.code, index)}
-									>
-										{lang.nativeName}
-									</div>
-								))}
+					{!isCCBVersion && (
+						<div className="settings-item">
+							<div className="setting-label">{t('ui.settings.language')}</div>
+							<div
+								onClick={handleSelectClick}
+								onMouseEnter={handleMouseEnter}
+								className={`language-selector ${
+									isDropdownOpen ? 'dropdown-open' : ''
+								}`}
+							>
+								{languages.find((lang) => lang.code === currentLanguage)
+									?.nativeName || currentLanguage}
 							</div>
-						)}
-					</div>
+							{isDropdownOpen && (
+								<div className="dropdown-options">
+									{languages.map((lang, index) => (
+										<div
+											key={lang.code}
+											className={`dropdown-option ${
+												index === dropdownSelectedIndex ? 'selected' : ''
+											}`}
+											onClick={(e) =>
+												handleDropdownOptionClick(lang.code, index)
+											}
+										>
+											{lang.nativeName}
+										</div>
+									))}
+								</div>
+							)}
+						</div>
+					)}
 					<button
 						className="settings-item settings-hover-effect"
 						onClick={(e) => {

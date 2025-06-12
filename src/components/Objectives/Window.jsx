@@ -43,6 +43,7 @@ export default function Window() {
 	const deviceMode = useGame((state) => state.deviceMode);
 	const gamepadControlsRef = useGamepadControls();
 	const wasActionPressedRef = useRef(false);
+	const progressConditionsRef = useRef(null);
 
 	const windowSound = usePositionalSound('window');
 	const windowSoundRef = useRef();
@@ -106,12 +107,33 @@ export default function Window() {
 			if (roomCurtain && tutorialObjectives[2] === false) {
 				setCursor('clean-window');
 				setIsDetected(true);
+				progressConditionsRef.current = {
+					isDetected: true,
+					delayedRoomCurtain: roomCurtain,
+					type,
+					number,
+				};
 			}
 		} else if (!objective && roomCurtain) {
 			setCursor('clean-window');
 			setIsDetected(true);
+			progressConditionsRef.current = {
+				isDetected: true,
+				delayedRoomCurtain: roomCurtain,
+				type,
+				number,
+			};
 		}
-	}, [setCursor, camera, roomCurtain, objective, tutorialObjectives]);
+	}, [
+		setCursor,
+		camera,
+		roomCurtain,
+		objective,
+		tutorialObjectives,
+		delayedRoomCurtain,
+		type,
+		number,
+	]);
 
 	const handleDetectionEnd = useCallback(() => {
 		setCursor(null);
@@ -120,48 +142,58 @@ export default function Window() {
 
 	useEffect(() => {
 		const handleProgressComplete = () => {
-			if (isDetected && delayedRoomCurtain && !(type === 3 && number === 0)) {
-				setCursor(null);
+			const savedConditions = progressConditionsRef.current;
+			const currentCursor = useInterface.getState().cursor;
 
-				Object.values(actions).forEach((action) => {
-					if (!action.isRunning()) {
-						if (action && action.time !== action.getClip().duration) {
-							action.clampWhenFinished = true;
-							action.timeScale = 2;
-							action.loop = THREE.LoopOnce;
-							action.repetitions = 1;
+			if (savedConditions && currentCursor === 'clean-window') {
+				if (
+					savedConditions.isDetected &&
+					savedConditions.delayedRoomCurtain &&
+					!(savedConditions.type === 3 && savedConditions.number === 0)
+				) {
+					setCursor(null);
 
-							if (windowSoundRef.current) {
-								windowSoundRef.current.play();
-							}
+					Object.values(actions).forEach((action) => {
+						if (!action.isRunning()) {
+							if (action && action.time !== action.getClip().duration) {
+								action.clampWhenFinished = true;
+								action.timeScale = 2;
+								action.loop = THREE.LoopOnce;
+								action.repetitions = 1;
 
-							action.play();
-							if (
-								tutorialObjectives[2] === false &&
-								!recentlyChangedObjectives[2]
-							) {
-								setTutorialObjectives([
-									tutorialObjectives[0],
-									tutorialObjectives[1],
-									true,
-								]);
-							} else {
-								setInterfaceObjectives(2, roomNumber);
-								const currentRoom = Object.values(useGame.getState().seedData)[
-									roomNumber
-								];
-								if (currentRoom?.hideObjective === 'window') {
-									useGame
-										.getState()
-										.checkObjectiveCompletion('window', roomNumber, camera);
+								if (windowSoundRef.current) {
+									windowSoundRef.current.play();
+								}
+
+								action.play();
+								if (
+									tutorialObjectives[2] === false &&
+									!recentlyChangedObjectives[2]
+								) {
+									setTutorialObjectives([
+										tutorialObjectives[0],
+										tutorialObjectives[1],
+										true,
+									]);
+								} else {
+									setInterfaceObjectives(2, roomNumber);
+									const currentRoom = Object.values(
+										useGame.getState().seedData
+									)[roomNumber];
+									if (currentRoom?.hideObjective === 'window') {
+										useGame
+											.getState()
+											.checkObjectiveCompletion('window', roomNumber, camera);
+									}
 								}
 							}
 						}
-					}
-				});
+					});
 
-				setCursor(null);
-				setIsDetected(false);
+					setCursor(null);
+					setIsDetected(false);
+				}
+				progressConditionsRef.current = null;
 			}
 		};
 

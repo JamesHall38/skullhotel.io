@@ -84,8 +84,10 @@
 			"uiArtDirection": "Interfața utilizatorului și direcția artistică"
 		},
 		"reception": {
-			"guestBook": "Cartea de oaspeți",
-			"informations": "Informații"
+			"guestBook": "Cartea oaspeților",
+			"informations": "Informații",
+			"guestBookSubtitle": "Completează jocul pentru a-ți înregistra numele",
+			"searchPlaceholder": "Introdu un număr de pagină sau caută un nume"
 		}
 	},
 	"game": {

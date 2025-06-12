@@ -12,6 +12,9 @@ const floor = -0.2;
 const WALK_SPEED = 0.75;
 const RUN_SPEED = 1.25;
 
+// Seuil de mouvement identique aux footsteps
+const MOVEMENT_THRESHOLD = 0.00001;
+
 const applySensitivityCurve = (value, sensitivity, isJoystick = false) => {
 	const sign = Math.sign(value);
 	const absValue = Math.abs(value);
@@ -54,7 +57,7 @@ export default function Rotation({
 	const temporaryDisableMouseLook = useGame(
 		(state) => state.temporaryDisableMouseLook
 	);
-	const [subscribeKeys] = useKeyboardControls();
+	const [subscribeKeys, getKeys] = useKeyboardControls();
 	const { camera } = useThree();
 	const getGamepadControls = useGamepadControls();
 	const horizontalSensitivity = useSettings(
@@ -63,6 +66,7 @@ export default function Rotation({
 	const verticalSensitivity = useSettings((state) => state.verticalSensitivity);
 
 	const rightStickRef = useJoysticksStore((state) => state.rightStickRef);
+	const leftStickRef = useJoysticksStore((state) => state.leftStickRef);
 
 	const yaw = useRef(-Math.PI);
 	const pitch = useRef(0);
@@ -70,6 +74,9 @@ export default function Rotation({
 	const bobIntensity = useRef(0);
 	const hasMovedMouseAfterIntro = useRef(false);
 	const introIsPlaying = useGame((state) => state.introIsPlaying);
+
+	// Référence pour suivre la position précédente (comme dans FootSteps)
+	const lastPosition = useRef(new THREE.Vector3());
 
 	const reset = useCallback(() => {
 		playerPosition.current.set(10.77, floor, -3);
@@ -186,8 +193,38 @@ export default function Rotation({
 		const gamepadRunning = isUsingGamepad && gamepadControls.run;
 		const isPlayerRunning = isRunning || gamepadRunning;
 
+		const { forward, backward, left, right } = getKeys();
+
+		let keyForward = forward || gamepadControls.forward;
+		let keyBackward = backward || gamepadControls.backward;
+		let keyLeft = left || gamepadControls.left;
+		let keyRight = right || gamepadControls.right;
+
+		if (isMobile && leftStickRef.current) {
+			if (Math.abs(leftStickRef.current.y) > 0.1) {
+				keyForward = leftStickRef.current.y < 0;
+				keyBackward = leftStickRef.current.y > 0;
+			}
+			if (Math.abs(leftStickRef.current.x) > 0.1) {
+				keyLeft = leftStickRef.current.x < 0;
+				keyRight = leftStickRef.current.x > 0;
+			}
+		}
+
+		const keysPressed = keyForward || keyBackward || keyLeft || keyRight;
+
+		const currentPosition = playerPosition.current;
+		const movement = new THREE.Vector3().subVectors(
+			currentPosition,
+			lastPosition.current
+		);
+		const actuallyMoving = movement.lengthSq() > MOVEMENT_THRESHOLD;
+		lastPosition.current.copy(currentPosition);
+
+		const isActuallyMoving = keysPressed && actuallyMoving;
+
 		if (
-			speed > 0.1 &&
+			isActuallyMoving &&
 			monsterState !== 'run' &&
 			!disableControls &&
 			!isCrouchingRef.current

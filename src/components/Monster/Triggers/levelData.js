@@ -304,7 +304,7 @@ const levelData = {
 		position: [1.9, 0, 0.43],
 		scale: [2.2, 1, 2.5],
 		monsterPosition: [0, 0, 10],
-		monsterInitialPosition: [4.06, 0, 0.368],
+		monsterInitialPosition: [4.06, 0, 0.382],
 		monsterInitialRotation: [0, -Math.PI / 2, 0],
 		animation: 'Stand',
 		headOffset: -Math.PI / 2,

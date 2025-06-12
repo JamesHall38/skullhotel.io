@@ -85,7 +85,9 @@
 		},
 		"reception": {
 			"guestBook": "Livre d'or",
-			"informations": "Informations"
+			"informations": "Informations",
+			"guestBookSubtitle": "Terminez le jeu pour y inscrire votre nom",
+			"searchPlaceholder": "Entrez un numéro de page ou recherchez un nom"
 		}
 	},
 	"game": {

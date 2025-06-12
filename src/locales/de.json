@@ -85,7 +85,9 @@
 		},
 		"reception": {
 			"guestBook": "Gästebuch",
-			"informations": "Informationen"
+			"informations": "Informationen",
+			"guestBookSubtitle": "Beende das Spiel, um deinen Namen einzutragen",
+			"searchPlaceholder": "Gib eine Seitenzahl ein oder suche einen Namen"
 		}
 	},
 	"game": {

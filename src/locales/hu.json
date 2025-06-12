@@ -85,7 +85,9 @@
 		},
 		"reception": {
 			"guestBook": "Vendégkönyv",
-			"informations": "Információk"
+			"informations": "Információk",
+			"guestBookSubtitle": "Fejezd be a játékot, hogy regisztrálhasd a neved",
+			"searchPlaceholder": "Adj meg egy oldalszámot vagy keress egy nevet"
 		}
 	},
 	"game": {

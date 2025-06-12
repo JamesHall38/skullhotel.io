@@ -3,7 +3,9 @@ import { useThree } from '@react-three/fiber';
 import useGame from '../../hooks/useGame';
 import Bathroom from './Bathroom';
 import Bedroom from './Bedroom';
+import Album from './Album';
 import Livingroom from './Livingroom';
+import LivingroomCCB from './LivingroomCCB';
 import CeilingFan from './CeilingFan';
 import Switches from './Switches';
 import Radio from './Events/Radio';
@@ -15,6 +17,7 @@ import DetectionZone from '../DetectionZone';
 import useGameplaySettings from '../../hooks/useGameplaySettings';
 import useDoor from '../../hooks/useDoor';
 import Mannequin from '../Mannequin/Mannequin';
+
 const CORRIDORLENGTH = 5.95;
 const offset = [8.83, 0, 6.2];
 const PROBABILITY_OF_FLICKER = 20;
@@ -30,6 +33,9 @@ export default function Room() {
 	const [randomRoomNumber, setRandomRoomNumber] = useState(
 		Math.floor(Math.random() * PROBABILITY_OF_FLICKER)
 	);
+	const isCCBVersion =
+		window.location.hash.includes('CCB') ||
+		window.location.pathname.includes('CCB');
 
 	const generateRandomRoomNumber = useCallback(
 		() => Math.floor(Math.random() * PROBABILITY_OF_FLICKER),
@@ -86,7 +92,8 @@ export default function Room() {
 		>
 			<Bathroom />
 			<Bedroom />
-			<Livingroom />
+			{isCCBVersion ? <LivingroomCCB /> : <Livingroom />}
+			{isCCBVersion ? <Album /> : null}
 
 			<Mannequin />
 

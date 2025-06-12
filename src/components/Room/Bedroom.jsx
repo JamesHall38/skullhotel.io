@@ -8,6 +8,7 @@ import useProgressiveLoad from '../../hooks/useProgressiveLoad';
 import FloorLightMaterial from '../materials/FloorLightMaterial';
 import WallsLightMaterial from '../materials/WallsLightMaterial';
 import WoodLightMaterial from '../materials/WoodLightMaterial';
+import CCBTrophy from './CCBTrophy';
 
 export default function Bedroom() {
 	const { scene, nodes } = useGLTF('/models/room/bedroom.glb');
@@ -17,6 +18,9 @@ export default function Bedroom() {
 	const materialRef = useRef();
 	const alternateTutorialRoom = useGame((state) => state.alternateTutorialRoom);
 	const isTutorialOpen = useGame((state) => state.isTutorialOpen);
+	const isCCBVersion =
+		window.location.hash.includes('CCB') ||
+		window.location.pathname.includes('CCB');
 
 	const textureParts = [
 		{
@@ -251,7 +255,9 @@ export default function Bedroom() {
 				material={materialRef.current}
 			/>
 
-			{alternateTutorialRoom && isTutorialOpen ? (
+			{isCCBVersion ? (
+				<CCBTrophy position={[-1.61, 1.5, 0]} scale={0.01} />
+			) : alternateTutorialRoom && isTutorialOpen ? (
 				<mesh
 					castShadow
 					receiveShadow

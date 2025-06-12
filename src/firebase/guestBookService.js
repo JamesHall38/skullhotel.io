@@ -16,6 +16,7 @@ import {
 
 const COLLECTION_NAME = 'guestbook';
 const DEBUG_COLLECTION_NAME = 'guestbook_debug';
+const CCB_COLLECTION_NAME = 'guestbook_ccb';
 export const PAGE_SIZE = 10;
 const MIN_VALID_GAME_DURATION = 0;
 const MAX_VALID_GAME_DURATION = 604800;
@@ -52,6 +53,21 @@ const isValidGameTime = (startTime, endTime) => {
 	);
 };
 
+const getCollectionName = () => {
+	const isDebugMode = window.location.hash.includes('#debug');
+	const isCCBMode =
+		window.location.hash.includes('CCB') ||
+		window.location.pathname.includes('CCB');
+
+	if (isDebugMode) {
+		return DEBUG_COLLECTION_NAME;
+	} else if (isCCBMode) {
+		return CCB_COLLECTION_NAME;
+	} else {
+		return COLLECTION_NAME;
+	}
+};
+
 export const addGuestBookEntry = async (
 	playerName,
 	startTime,
@@ -69,10 +85,7 @@ export const addGuestBookEntry = async (
 	}
 
 	try {
-		const isDebugMode = window.location.hash === '#debug';
-		const collectionToUse = isDebugMode
-			? DEBUG_COLLECTION_NAME
-			: COLLECTION_NAME;
+		const collectionToUse = getCollectionName();
 
 		const docRef = await addDoc(collection(db, collectionToUse), {
 			playerName: playerName.trim(),
@@ -92,10 +105,7 @@ export const addGuestBookEntry = async (
 
 export const getTotalEntries = async () => {
 	try {
-		const isDebugMode = window.location.hash === '#debug';
-		const collectionToUse = isDebugMode
-			? DEBUG_COLLECTION_NAME
-			: COLLECTION_NAME;
+		const collectionToUse = getCollectionName();
 
 		const coll = collection(db, collectionToUse);
 		const snapshot = await getCountFromServer(coll);
@@ -108,10 +118,7 @@ export const getTotalEntries = async () => {
 
 export const getTotalPages = async () => {
 	try {
-		const isDebugMode = window.location.hash === '#debug';
-		const collectionToUse = isDebugMode
-			? DEBUG_COLLECTION_NAME
-			: COLLECTION_NAME;
+		const collectionToUse = getCollectionName();
 
 		const coll = collection(db, collectionToUse);
 		const snapshot = await getCountFromServer(coll);
@@ -126,10 +133,7 @@ export const getTotalPages = async () => {
 
 export const getFirstGuestBookPage = async () => {
 	try {
-		const isDebugMode = window.location.hash === '#debug';
-		const collectionToUse = isDebugMode
-			? DEBUG_COLLECTION_NAME
-			: COLLECTION_NAME;
+		const collectionToUse = getCollectionName();
 
 		const q = query(
 			collection(db, collectionToUse),
@@ -170,10 +174,7 @@ export const getNextGuestBookPage = async (lastVisible, currentPage) => {
 	}
 
 	try {
-		const isDebugMode = window.location.hash === '#debug';
-		const collectionToUse = isDebugMode
-			? DEBUG_COLLECTION_NAME
-			: COLLECTION_NAME;
+		const collectionToUse = getCollectionName();
 
 		const q = query(
 			collection(db, collectionToUse),
@@ -208,10 +209,7 @@ export const getSpecificPage = async (pageNumber) => {
 	if (pageNumber < 1) pageNumber = 1;
 
 	try {
-		const isDebugMode = window.location.hash === '#debug';
-		const collectionToUse = isDebugMode
-			? DEBUG_COLLECTION_NAME
-			: COLLECTION_NAME;
+		const collectionToUse = getCollectionName();
 
 		if (pageNumber === 1) {
 			return await getFirstGuestBookPage();
@@ -293,10 +291,7 @@ export const formatTime = (timeInSeconds) => {
 
 export const findPageByPlayerName = async (playerName) => {
 	try {
-		const isDebugMode = window.location.hash === '#debug';
-		const collectionToUse = isDebugMode
-			? DEBUG_COLLECTION_NAME
-			: COLLECTION_NAME;
+		const collectionToUse = getCollectionName();
 
 		const searchTerm = playerName.toLowerCase();
 

@@ -85,7 +85,9 @@
 		},
 		"reception": {
 			"guestBook": "สมุดแขก",
-			"informations": "ข้อมูล"
+			"informations": "ข้อมูล",
+			"guestBookSubtitle": "เล่นเกมให้จบเพื่อลงทะเบียนชื่อของคุณ",
+			"searchPlaceholder": "ใส่หมายเลขหน้าหรือค้นหาชื่อ"
 		}
 	},
 	"game": {

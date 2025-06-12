@@ -85,7 +85,9 @@
 		},
 		"reception": {
 			"guestBook": "Gæstebog",
-			"informations": "Informationer"
+			"informations": "Informationer",
+			"guestBookSubtitle": "Gennemfør spillet for at registrere dit navn",
+			"searchPlaceholder": "Indtast et sidenummer eller søg efter et navn"
 		}
 	},
 	"game": {

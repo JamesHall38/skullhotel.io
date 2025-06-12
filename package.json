@@ -12,7 +12,7 @@
 		"build:itch": "vite build --config vite.config.itch.js && node fix-paths.js",
 		"build:firebase": "vite build",
 		"build:steam": "vite build && electron electron/main.js",
-		"build:steam-dist": "vite build && electron-builder --config.appId=3799030 --win nsis",
+		"build:steam-dist": "vite build && electron-builder --config.appId=3739730 --win nsis",
 		"preview": "vite preview",
 		"fix-paths": "node fix-paths.js",
 		"electron": "electron ."
@@ -47,7 +47,7 @@
 		"vite": "^6.0.11"
 	},
 	"build": {
-		"appId": "3799030",
+		"appId": "3739730",
 		"productName": "Skull Hotel",
 		"files": [
 			"build/**/*",

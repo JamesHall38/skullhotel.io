@@ -84,8 +84,10 @@
 			"uiArtDirection": "用户界面和艺术指导"
 		},
 		"reception": {
-			"guestBook": "客人留言簿",
-			"informations": "信息"
+			"guestBook": "留言簿",
+			"informations": "信息",
+			"guestBookSubtitle": "完成游戏以注册您的姓名",
+			"searchPlaceholder": "输入页码或搜索姓名"
 		}
 	},
 	"game": {

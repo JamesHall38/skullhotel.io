@@ -84,8 +84,10 @@
 			"uiArtDirection": "واجهة المستخدم والتوجيه الفني"
 		},
 		"reception": {
-			"guestBook": "دفتر الضيوف",
-			"informations": "المعلومات"
+			"guestBook": "كتاب الضيوف",
+			"informations": "معلومات",
+			"guestBookSubtitle": "أكمل اللعبة لتسجيل اسمك",
+			"searchPlaceholder": "أدخل رقم الصفحة أو ابحث عن اسم"
 		}
 	},
 	"game": {

@@ -143,7 +143,7 @@ export default function ReceptionDoors() {
 				isOpen={corridorDoor}
 				setHandlePressed={setCorridorHandle}
 				setOpen={(value) => {
-					if (isTutorialCompleted || window.location.hash === '#debug') {
+					if (isTutorialCompleted || window.location.hash.includes('#debug')) {
 						setCorridorDoor(value);
 						setPlayerPositionRoom(initialPosition);
 					} else {

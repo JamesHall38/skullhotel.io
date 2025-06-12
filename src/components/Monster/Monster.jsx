@@ -8,7 +8,12 @@ import useGame from '../../hooks/useGame';
 import { findPath } from './pathfinding';
 import useDoor from '../../hooks/useDoor';
 import useHiding from '../../hooks/useHiding';
-import { getAudioInstance, areSoundsLoaded } from '../../utils/audio';
+import {
+	getAudioInstance,
+	areSoundsLoaded,
+	getWeightedRandomSound,
+	CCB_JUMP_SCARE_SOUNDS,
+} from '../../utils/audio';
 import { KTX2Loader } from 'three/examples/jsm/loaders/KTX2Loader';
 import useProgressiveLoad from '../../hooks/useProgressiveLoad';
 import useGameplaySettings from '../../hooks/useGameplaySettings';
@@ -73,8 +78,11 @@ const Monster = (props) => {
 	const lastChaseTimeRef = useRef(0);
 	const lastFrameTimeRef = useRef(performance.now());
 	useGamepadControls();
+	const isCCBVersion =
+		window.location.hash.includes('CCB') ||
+		window.location.pathname.includes('CCB');
 	const { nodes, materials, animations } = useGLTF(
-		'/models/monster-opt.glb',
+		isCCBVersion ? '/models/jean-opt.glb' : '/models/monster-opt.glb',
 		undefined,
 		undefined,
 		(loader) => {
@@ -85,6 +93,21 @@ const Monster = (props) => {
 			ktxLoader.detectSupport(gl);
 			loader.setKTX2Loader(ktxLoader);
 		}
+	);
+
+	const getMaterial = useCallback(
+		(ccbMaterial, nonCcbMaterial) => {
+			if (isCCBVersion) {
+				return materials[ccbMaterial] || materials[Object.keys(materials)[0]];
+			} else {
+				return (
+					materials[nonCcbMaterial] ||
+					materials[ccbMaterial] ||
+					materials[Object.keys(materials)[0]]
+				);
+			}
+		},
+		[materials, isCCBVersion]
 	);
 
 	const seedData = useGame((state) => state.seedData);
@@ -302,7 +325,6 @@ const Monster = (props) => {
 				if (!jumpScare) {
 					setJumpScare(true);
 
-					// Check if this is a claymore chase death
 					const roomKey =
 						Object.values(seedData)[playerPositionRoom]?.baseKey ||
 						Object.keys(seedData)[playerPositionRoom];
@@ -325,6 +347,19 @@ const Monster = (props) => {
 					jumpScareSoundRef.current.currentTime = 0;
 					jumpScareSoundRef.current.play().catch(() => {});
 					setHasPlayedJumpScare(true);
+
+					if (isCCBVersion) {
+						const randomJumpScareSound = getWeightedRandomSound(
+							CCB_JUMP_SCARE_SOUNDS,
+							'jumpScares'
+						);
+						const ccbJumpScareAudio = getAudioInstance(randomJumpScareSound);
+						if (ccbJumpScareAudio) {
+							ccbJumpScareAudio.currentTime = 0;
+							ccbJumpScareAudio.volume = 0.8;
+							ccbJumpScareAudio.play().catch(() => {});
+						}
+					}
 				}
 
 				const direction = new THREE.Vector3();
@@ -962,8 +997,15 @@ const Monster = (props) => {
 			>
 				{!isLoading && <Animations group={group} animations={animations} />}
 				<group name="Scene">
-					<group name="Armature" scale={0.01}>
-						<group name="Ch30" rotation={[Math.PI / 2, 0, 0]}>
+					<group
+						name="Armature"
+						rotation={isCCBVersion ? [0, 0, 0] : [Math.PI / 2, 0, 0]}
+						scale={0.01}
+					>
+						<group
+							name="Ch30"
+							rotation={isCCBVersion ? [Math.PI / 2, 0, 0] : [0, 0, 0]}
+						>
 							{visibleParts.skeleton && (
 								<primitive object={nodes.mixamorigHips} />
 							)}
@@ -971,7 +1013,7 @@ const Monster = (props) => {
 								<skinnedMesh
 									name="Ch30_primitive0"
 									geometry={nodes.Ch30_primitive0.geometry}
-									material={materials.Ch30_Body1}
+									material={getMaterial('Ch36_Body', 'Ch30_Body1')}
 									skeleton={nodes.Ch30_primitive0.skeleton}
 									castShadow
 									receiveShadow
@@ -982,7 +1024,7 @@ const Monster = (props) => {
 								<skinnedMesh
 									name="Ch30_primitive1"
 									geometry={nodes.Ch30_primitive1.geometry}
-									material={materials.Ch30_Body}
+									material={getMaterial('Material.012', 'Ch30_Body')}
 									skeleton={nodes.Ch30_primitive1.skeleton}
 									castShadow
 									receiveShadow
@@ -993,7 +1035,7 @@ const Monster = (props) => {
 								<skinnedMesh
 									name="Ch30_primitive2"
 									geometry={nodes.Ch30_primitive2.geometry}
-									material={materials['Material.001']}
+									material={getMaterial('Material.017', 'Material.001')}
 									skeleton={nodes.Ch30_primitive2.skeleton}
 									castShadow
 									receiveShadow
@@ -1004,7 +1046,7 @@ const Monster = (props) => {
 								<skinnedMesh
 									name="Ch30_primitive3"
 									geometry={nodes.Ch30_primitive3.geometry}
-									material={materials.Material}
+									material={getMaterial('Bodymat', 'Material')}
 									skeleton={nodes.Ch30_primitive3.skeleton}
 									castShadow
 									receiveShadow
@@ -1016,7 +1058,7 @@ const Monster = (props) => {
 									<skinnedMesh
 										name="Ch30_primitive4"
 										geometry={nodes.Ch30_primitive4.geometry}
-										material={materials['Material.002']}
+										material={getMaterial('Shoesmat', 'Material.002')}
 										skeleton={nodes.Ch30_primitive4.skeleton}
 										castShadow
 										receiveShadow
@@ -1025,7 +1067,7 @@ const Monster = (props) => {
 									<skinnedMesh
 										name="Ch30_primitive5"
 										geometry={nodes.Ch30_primitive5.geometry}
-										material={materials['Material.011']}
+										material={getMaterial('Bottommat', 'Material.011')}
 										skeleton={nodes.Ch30_primitive5.skeleton}
 										castShadow
 										receiveShadow
@@ -1034,7 +1076,7 @@ const Monster = (props) => {
 									<skinnedMesh
 										name="Ch30_primitive6"
 										geometry={nodes.Ch30_primitive6.geometry}
-										material={materials['Material.016']}
+										material={getMaterial('Material.018', 'Material.016')}
 										skeleton={nodes.Ch30_primitive6.skeleton}
 										castShadow
 										receiveShadow

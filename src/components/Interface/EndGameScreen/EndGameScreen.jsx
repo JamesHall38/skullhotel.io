@@ -272,10 +272,29 @@ const EndGameScreen = () => {
 		}
 	}, [introIsPlaying, isRestarting, setIsEndScreen]);
 
-	const resetGame = () => {
+	const resetGame = async () => {
 		if (isRestarting) return;
 
 		setIsRestarting(true);
+
+		if (playerName.trim() && !nameError && !submitted && !isSubmitting) {
+			try {
+				await addGuestBookEntry(
+					playerName.trim(),
+					gameStartTime,
+					gameEndTime,
+					realDeaths
+				);
+				const isDebugMode = window.location.hash.includes('#debug');
+				const storageKey = isDebugMode
+					? 'skullhotel_debug_last_player_name'
+					: 'skullhotel_last_player_name';
+				localStorage.setItem(storageKey, playerName.trim());
+			} catch (error) {
+				console.error('Failed to submit score before restart:', error);
+			}
+		}
+
 		setIsEndAnimationPlaying(false);
 		setEndAnimationPlaying(false);
 		setIsAnyPopupOpen(false);
@@ -368,7 +387,7 @@ const EndGameScreen = () => {
 					gameEndTime,
 					realDeaths
 				);
-				const isDebugMode = window.location.hash === '#debug';
+				const isDebugMode = window.location.hash.includes('#debug');
 				const storageKey = isDebugMode
 					? 'skullhotel_debug_last_player_name'
 					: 'skullhotel_last_player_name';

@@ -294,10 +294,17 @@ export default function DoubleCurtain({
 	]);
 
 	const easeInQuad = (t) => t * t;
-	let time0 = 0;
-	let time1 = 0;
+	const time0Ref = useRef(0);
+	const time1Ref = useRef(0);
+	const lastCurtainStateRef = useRef(isCurtainOpen);
 
-	useFrame(() => {
+	useFrame((_, delta) => {
+		if (lastCurtainStateRef.current !== isCurtainOpen) {
+			time0Ref.current = 0;
+			time1Ref.current = 0;
+			lastCurtainStateRef.current = isCurtainOpen;
+		}
+
 		if (instantChangeRef.current) {
 			mesh0Ref.current.position.x = isCurtainOpen
 				? meshTargets.mesh0.open
@@ -314,9 +321,10 @@ export default function DoubleCurtain({
 			return;
 		}
 
-		time0 += 0.004;
-		if (time0 > 1) time0 = 1;
-		const easedTime = easeInQuad(time0);
+		const animationSpeed = 2.5;
+		time0Ref.current += delta * animationSpeed;
+		if (time0Ref.current > 1) time0Ref.current = 1;
+		const easedTime = easeInQuad(time0Ref.current);
 
 		const targetX = isCurtainOpen
 			? meshTargets.mesh0.open
@@ -330,9 +338,9 @@ export default function DoubleCurtain({
 		mesh0Ref.current.scale.x =
 			currentScaleX + (targetScaleX - currentScaleX) * easedTime;
 
-		time1 += 0.004;
-		if (time1 > 1) time1 = 1;
-		const easedTime1 = easeInQuad(time1);
+		time1Ref.current += delta * animationSpeed;
+		if (time1Ref.current > 1) time1Ref.current = 1;
+		const easedTime1 = easeInQuad(time1Ref.current);
 
 		const targetX1 = isCurtainOpen
 			? meshTargets.mesh1.open

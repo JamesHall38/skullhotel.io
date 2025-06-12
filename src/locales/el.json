@@ -85,7 +85,9 @@
 		},
 		"reception": {
 			"guestBook": "Βιβλίο επισκεπτών",
-			"informations": "Πληροφορίες"
+			"informations": "Πληροφορίες",
+			"guestBookSubtitle": "Ολοκληρώστε το παιχνίδι για να καταχωρήσετε το όνομά σας",
+			"searchPlaceholder": "Εισάγετε αριθμό σελίδας ή αναζητήστε όνομα"
 		}
 	},
 	"game": {

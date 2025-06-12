@@ -71,17 +71,28 @@ export default function Cursor() {
 	const hasEmittedEvent = useRef(false);
 	const isAnimating = useRef(false);
 	const progressRef = useRef(0);
+	const lastFrameTimeRef = useRef(performance.now());
+	const isProgressInProgress = useRef(false);
 
 	const cursorFirstPart = useMemo(() => {
 		return cursor ? cursor.split('-')[0] : null;
 	}, [cursor]);
 
-	const startHolding = useCallback(() => {
+	const startHolding = useCallback((emitEvent = false) => {
+		if (isProgressInProgress.current) return;
+
 		setIsHolding(true);
 		setProgress(0);
 		progressRef.current = 0;
 		hasEmittedEvent.current = false;
 		isAnimating.current = true;
+		lastFrameTimeRef.current = performance.now();
+		isProgressInProgress.current = true;
+
+		if (emitEvent) {
+			const startEvent = new CustomEvent('startProgress');
+			document.dispatchEvent(startEvent);
+		}
 	}, []);
 
 	const stopHolding = useCallback(() => {
@@ -90,12 +101,13 @@ export default function Cursor() {
 		progressRef.current = 0;
 		hasEmittedEvent.current = false;
 		isAnimating.current = false;
+		isProgressInProgress.current = false;
 	}, []);
 
 	useEffect(() => {
 		const handleMouseDown = (e) => {
 			if (e.button === 0 && cursorFirstPart === 'clean') {
-				startHolding();
+				startHolding(true);
 			}
 		};
 
@@ -106,14 +118,14 @@ export default function Cursor() {
 		};
 
 		const handleStartProgress = () => {
-			if (cursorFirstPart === 'clean') {
-				startHolding();
+			if (cursorFirstPart === 'clean' && !isProgressInProgress.current) {
+				startHolding(false);
 
 				setTimeout(() => {
 					const event = new CustomEvent('progressComplete');
 					document.dispatchEvent(event);
 					stopHolding();
-				}, 3000);
+				}, 1500);
 			}
 		};
 
@@ -132,16 +144,23 @@ export default function Cursor() {
 		let animationFrame;
 		const animate = () => {
 			if (isHolding && progressRef.current < 100 && isAnimating.current) {
-				progressRef.current = Math.min(progressRef.current + 0.8, 100);
+				const currentTime = performance.now();
+				const deltaTime = currentTime - lastFrameTimeRef.current;
+				progressRef.current = Math.min(
+					progressRef.current + deltaTime * 0.067,
+					100
+				);
 				setProgress(progressRef.current);
 
-				if (progressRef.current === 100 && !hasEmittedEvent.current) {
+				if (progressRef.current >= 100 && !hasEmittedEvent.current) {
 					hasEmittedEvent.current = true;
 					isAnimating.current = false;
+					isProgressInProgress.current = false;
 					const event = new CustomEvent('progressComplete');
 					document.dispatchEvent(event);
 				}
 
+				lastFrameTimeRef.current = currentTime;
 				animationFrame = requestAnimationFrame(animate);
 			}
 		};

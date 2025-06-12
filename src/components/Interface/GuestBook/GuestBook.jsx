@@ -23,10 +23,21 @@ function GuestBookContent({ onClose }) {
 	const [searchInput, setSearchInput] = useState('');
 	const deviceMode = useGame((state) => state.deviceMode);
 	const guestBookRef = useRef(null);
-	const isDebugMode = window.location.hash === '#debug';
-	const STORAGE_KEY = isDebugMode
-		? 'skullhotel_debug_last_player_name'
-		: 'skullhotel_last_player_name';
+	const isDebugMode = window.location.hash.includes('#debug');
+	const isCCBMode =
+		window.location.hash.includes('CCB') ||
+		window.location.pathname.includes('CCB');
+
+	const STORAGE_KEY = (() => {
+		if (isDebugMode) {
+			return 'skullhotel_debug_last_player_name';
+		} else if (isCCBMode) {
+			return 'skullhotel_ccb_last_player_name';
+		} else {
+			return 'skullhotel_last_player_name';
+		}
+	})();
+
 	const { t } = useLocalization();
 
 	const debouncedSearch = useDebounce(searchInput, 300);
@@ -201,34 +212,47 @@ function GuestBookContent({ onClose }) {
 				<AnimatedCloseButton onClick={onClose} size={1} />
 			</div>
 
-			<h2>{t('ui.reception.guestBook')}</h2>
+			<div className="guestbook-header-section">
+				<div className="guestbook-title-subtitle">
+					<h2>{t('ui.reception.guestBook')}</h2>
+					<p className="guestbook-subtitle">
+						{t('ui.reception.guestBookSubtitle')}
+					</p>
+				</div>
 
-			<div className="page-indicator">
-				<input
-					type="text"
-					value={searchInput}
-					onChange={(e) => setSearchInput(e.target.value)}
-					placeholder="Enter a page number or search a name"
-					className="page-input"
-					data-gamepad-skip="true"
-				/>
+				<div className="page-indicator">
+					<input
+						type="text"
+						value={searchInput}
+						onChange={(e) => setSearchInput(e.target.value)}
+						placeholder={t('ui.reception.searchPlaceholder')}
+						className="page-input"
+						data-gamepad-skip="true"
+					/>
+				</div>
 			</div>
 
 			<>
 				<div className="guestbook-entries">
-					<table className="guestbook-table">
-						<tbody>
-							{entries.map((entry, index) => (
-								<tr key={entry.id} className="guestbook-entry">
-									<td className="guestbook-rank">
-										#{(currentPage - 1) * PAGE_SIZE + index + 1}
-									</td>
-									<td className="guestbook-name">{entry.playerName}</td>
-									<td className="guestbook-time">{entry.formattedTime}</td>
-								</tr>
-							))}
-						</tbody>
-					</table>
+					{loading ? (
+						<div className="guestbook-loading">
+							<div className="loading-spinner"></div>
+						</div>
+					) : (
+						<table className="guestbook-table">
+							<tbody>
+								{entries.map((entry, index) => (
+									<tr key={entry.id} className="guestbook-entry">
+										<td className="guestbook-rank">
+											#{(currentPage - 1) * PAGE_SIZE + index + 1}
+										</td>
+										<td className="guestbook-name">{entry.playerName}</td>
+										<td className="guestbook-time">{entry.formattedTime}</td>
+									</tr>
+								))}
+							</tbody>
+						</table>
+					)}
 				</div>
 
 				<div className="guestbook-pagination">

@@ -47,6 +47,7 @@ export default function Tutorial() {
 	const corridorDoorOpen = useDoor((state) => state.corridor);
 	const tutorialDoorOpen = useDoor((state) => state.tutorial);
 	const nightStandOpen = useDoor((state) => state.nightStand);
+	const setNightStandOpen = useDoor((state) => state.setNightStand);
 	const bathroomCurtain = useDoor((state) => state.bathroomCurtain);
 	const hideSpot = useHiding((state) => state.hideSpot);
 	const isPlayerHidden = useHiding((state) => state.isPlayerHidden);
@@ -54,6 +55,7 @@ export default function Tutorial() {
 	const isListening = useGame((state) => state.isListening);
 	const playIntro = useGame((state) => state.playIntro);
 	const deaths = useGame((state) => state.deaths);
+	const setMannequinHidden = useGame((state) => state.setMannequinHidden);
 
 	const [tutorialStage, setTutorialStage] = useState(0);
 	const [listeningTimer, setListeningTimer] = useState(0);
@@ -248,6 +250,11 @@ export default function Tutorial() {
 			hideSpot === 'desk' &&
 			isPlayerHidden
 		) {
+			setNightStandOpen(false);
+
+			setTimeout(() => {
+				setMannequinHidden(false);
+			}, 1000);
 			setTutorialStage(TUTORIAL_STAGE.FURNITURE_HIDING);
 			setCurrentDialogueIndex(CHECK_FURNITURE_DIALOGUE);
 		}
@@ -290,7 +297,7 @@ export default function Tutorial() {
 
 			setTimeout(() => {
 				setCurrentDialogueIndex(REMEMBER_WARNING_DIALOGUE);
-			}, 9000);
+			}, 11000);
 		}
 	}, [
 		tutorialObjectives,

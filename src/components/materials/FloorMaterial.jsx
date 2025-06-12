@@ -8,14 +8,12 @@ export default function FloorMaterial({ transparent = false } = {}) {
 		useKTX2('/textures/floor/floor_roughness_etc1s.ktx2'),
 	];
 
-	useMemo(() => {
+	const floorMaterial = useMemo(() => {
 		[colorMap, roughnessMap].forEach((texture) => {
 			texture.flipY = false;
 			texture.colorSpace = THREE.SRGBColorSpace;
 		});
-	}, [colorMap, roughnessMap]);
 
-	const floorMaterial = useMemo(() => {
 		const material = new THREE.MeshStandardMaterial({
 			map: colorMap,
 			roughnessMap: roughnessMap,

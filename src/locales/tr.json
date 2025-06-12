@@ -84,8 +84,10 @@
 			"uiArtDirection": "Kullanıcı arayüzü ve sanat yönetimi"
 		},
 		"reception": {
-			"guestBook": "Misafir defteri",
-			"informations": "Bilgiler"
+			"guestBook": "Misafir Defteri",
+			"informations": "Bilgiler",
+			"guestBookSubtitle": "Adınızı kaydetmek için oyunu tamamlayın",
+			"searchPlaceholder": "Sayfa numarası girin veya isim arayın"
 		}
 	},
 	"game": {

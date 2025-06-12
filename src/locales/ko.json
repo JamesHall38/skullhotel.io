@@ -85,7 +85,9 @@
 		},
 		"reception": {
 			"guestBook": "방명록",
-			"informations": "정보"
+			"informations": "정보",
+			"guestBookSubtitle": "게임을 완료하여 이름을 등록하세요",
+			"searchPlaceholder": "페이지 번호를 입력하거나 이름을 검색하세요"
 		}
 	},
 	"game": {

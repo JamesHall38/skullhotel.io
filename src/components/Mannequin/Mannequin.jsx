@@ -20,6 +20,7 @@ export default function Mannequin() {
 	const [animationName, setAnimationName] = useState('wave');
 	const playerPositionRoom = useGame((state) => state.playerPositionRoom);
 	const tutorialDoor = useDoor((state) => state.tutorial);
+	const mannequinHidden = useGame((state) => state.mannequinHidden);
 	const [lastValidConfig, setLastValidConfig] = useState({
 		position: [0, 1, 0],
 		rotation: [0, Math.PI / 2, 0],
@@ -108,12 +109,12 @@ export default function Mannequin() {
 
 	const tutorialConfiguration = useMemo(
 		() => ({
-			position: [-1.35, 0.08, -1.28],
+			position: [-1.35, mannequinHidden ? 10 : 0.08, -1.28],
 			rotation: [0, Math.PI / 2, 0],
 			scale: 5,
 			animation: 'hide',
 		}),
-		[]
+		[mannequinHidden]
 	);
 
 	const { loadedItems, isLoading } = useProgressiveLoad(
@@ -165,6 +166,12 @@ export default function Mannequin() {
 		objectivePoses,
 		tutorialConfiguration,
 	]);
+
+	useEffect(() => {
+		if (mannequinHidden !== undefined) {
+			setLastValidConfig(tutorialConfiguration);
+		}
+	}, [mannequinHidden, tutorialConfiguration]);
 
 	useEffect(() => {
 		if (isLoading || !actions) return;

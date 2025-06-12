@@ -120,6 +120,17 @@
 	color: #efd89b;
 	font-weight: 400;
 	margin-bottom: 1rem;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.guestbook-subtitle {
+	margin: 0 0 1.5rem 0;
+	font-size: 1rem;
+	color: rgba(255, 255, 255, 0.8);
+	text-align: center;
+	font-style: italic;
 }
 
 .guestbook-error {
@@ -162,11 +173,31 @@
 
 .guestbook-loading {
 	position: absolute;
-	text-align: center;
-	padding: 20px;
-	color: rgba(255, 255, 255, 0.7);
-	font-style: italic;
-	margin-top: 8rem;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, calc(-50% - 10px));
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	z-index: 10;
+}
+
+.loading-spinner {
+	width: 40px;
+	height: 40px;
+	border: 3px solid rgba(239, 216, 155, 0.3);
+	border-top: 3px solid #efd89b;
+	border-radius: 50%;
+	animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+	0% {
+		transform: rotate(0deg);
+	}
+	100% {
+		transform: rotate(360deg);
+	}
 }
 
 .guestbook-empty {
@@ -186,6 +217,7 @@
 	width: calc(100% - 4rem);
 	height: calc(100dvh - 25rem);
 	overflow: auto;
+	position: relative;
 }
 
 @media (max-height: 800px) {
@@ -255,9 +287,6 @@
 	transition: color 0.2s ease;
 }
 
-/* .guestbook-name {
-} */
-
 .guestbook-time {
 	text-align: right;
 	width: 5rem;
@@ -271,7 +300,7 @@
 	justify-content: space-between;
 	width: calc(100% - 4rem);
 	gap: 10px;
-	margin: 2rem 0;
+	margin: 1rem 0;
 }
 
 .pagination-button-container {
@@ -324,11 +353,11 @@
 	display: flex;
 	align-items: center;
 	justify-content: center;
+	width: 100%;
 
 	gap: 5px;
 	font-family: 'Lincoln Road', serif;
 	color: #efd89b;
-	width: calc(100% - 4rem);
 
 	margin-bottom: 1rem;
 }
@@ -381,4 +410,61 @@
 
 .invisible-path {
 	opacity: 0;
+}
+
+@media (max-height: 600px) {
+	.guestbook-header-section {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		width: calc(100% - 4rem);
+		gap: 2rem;
+		margin-bottom: 1rem;
+	}
+
+	.guestbook-title-subtitle {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		flex: 1;
+		min-width: 0;
+	}
+
+	.guestbook-content h2 {
+		margin-bottom: 0.5rem;
+		font-size: 1.5rem;
+	}
+
+	.guestbook-subtitle {
+		margin: 0;
+		font-size: 0.9rem;
+		text-align: left;
+	}
+
+	.page-indicator {
+		width: auto;
+		margin-bottom: 0;
+		flex: 1;
+		max-width: 300px;
+	}
+
+	.page-input {
+		width: 100%;
+		min-width: 200px;
+	}
+}
+
+@media (max-height: 500px) {
+	.guestbook-content h2 {
+		font-size: 1.3rem;
+	}
+
+	.guestbook-subtitle {
+		font-size: 0.8rem;
+	}
+
+	.page-input {
+		padding: 6px;
+		font-size: 0.9rem;
+	}
 }

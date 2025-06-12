@@ -9,7 +9,7 @@ import useGameplaySettings from '../../hooks/useGameplaySettings';
 import useGamepadControls from '../../hooks/useGamepadControls';
 
 const CORRIDORLENGTH = 5.95;
-const DOOR_SPEED = 2;
+const DOOR_SPEED = 0.05;
 
 export default function DoorWrapper({
 	children,
@@ -272,17 +272,12 @@ export default function DoorWrapper({
 		if (instantChange) {
 			rotationAngleRef.current = currentTargetAngle;
 		} else {
-			animationProgressRef.current = Math.min(
-				animationProgressRef.current + delta * DOOR_SPEED,
-				1
-			);
-			const easeInOut = (t) => t * t * (3 - 2 * t) * 0.05;
-			const easedProgress = easeInOut(animationProgressRef.current);
+			const lerpFactor = Math.min(delta * 60 * DOOR_SPEED, 1);
 
 			const newAngle = THREE.MathUtils.lerp(
 				rotationAngleRef.current,
 				currentTargetAngle,
-				easedProgress
+				lerpFactor
 			);
 			rotationAngleRef.current = newAngle;
 		}

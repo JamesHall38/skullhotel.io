@@ -85,7 +85,9 @@
 		},
 		"reception": {
 			"guestBook": "Księga gości",
-			"informations": "Informacje"
+			"informations": "Informacje",
+			"guestBookSubtitle": "Ukończ grę, aby zapisać swoje imię",
+			"searchPlaceholder": "Wprowadź numer strony lub wyszukaj imię"
 		}
 	},
 	"game": {

@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState } from 'react';
+import { useRef, useEffect, useState, useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
 import useGame from '../../../hooks/useGame';
 import useInterface from '../../../hooks/useInterface';
@@ -20,11 +20,30 @@ const Radio = () => {
 	const cursor = useInterface((state) => state.cursor);
 	const radioSoundRef = useRef();
 	const hideSoundRef = useRef();
+	const ccbMusicRef = useRef();
 	const radioSound = usePositionalSound('radio');
 	const hideSound = usePositionalSound('hide');
 	const gamepadControls = useGamepadControls();
 	const prevXButtonRef = useRef(false);
 	const setRadioLight = useLight((state) => state.setRadioLight);
+
+	const isCCBVersion =
+		window.location.hash.includes('CCB') ||
+		window.location.pathname.includes('CCB');
+
+	const ccbMusicSound = useMemo(() => {
+		if (isCCBVersion) {
+			return {
+				url: '/music_32k.mp3',
+				loop: true,
+				distance: 0.4,
+				refDistance: 1,
+				rolloffFactor: 1,
+				volume: 0.8,
+			};
+		}
+		return null;
+	}, [isCCBVersion]);
 
 	const textureOn = useKTX2('/textures/bedroom/radio_on_etc1s.ktx2');
 	const textureOff = useKTX2('/textures/bedroom/radio_off_etc1s.ktx2');
@@ -45,6 +64,24 @@ const Radio = () => {
 	}, [playerPositionRoom, activeRadios, setRadio]);
 
 	useEffect(() => {
+		if (radio && isCCBVersion && ccbMusicRef.current) {
+			setTimeout(() => {
+				if (ccbMusicRef.current?.source?.buffer) {
+					const duration = ccbMusicRef.current.source.buffer.duration;
+					const randomStart = Math.random() * duration;
+
+					ccbMusicRef.current.stop();
+					ccbMusicRef.current.offset = randomStart;
+
+					if (!playHideSound) {
+						ccbMusicRef.current.play();
+					}
+				}
+			}, 200);
+		}
+	}, [radio, isCCBVersion, playHideSound]);
+
+	useEffect(() => {
 		if (radio && activeRaids.includes(playerPositionRoom)) {
 			setPlayHideSound(true);
 		} else {
@@ -60,15 +97,24 @@ const Radio = () => {
 
 			if (playHideSound) {
 				hideSoundRef.current.play();
+				if (isCCBVersion && ccbMusicRef.current) {
+					ccbMusicRef.current.stop();
+				}
 			} else {
 				hideSoundRef.current.pause();
+				if (isCCBVersion && ccbMusicRef.current) {
+					ccbMusicRef.current.play();
+				}
 			}
 		} else {
 			radioSoundRef.current.pause();
 			hideSoundRef.current.pause();
+			if (isCCBVersion && ccbMusicRef.current) {
+				ccbMusicRef.current.stop();
+			}
 			setRadioLight('#fff0be', 0);
 		}
-	}, [radio, playHideSound, setRadioLight]);
+	}, [radio, playHideSound, setRadioLight, isCCBVersion]);
 
 	useFrame(() => {
 		const xButtonPressed = gamepadControls().action;
@@ -150,8 +196,17 @@ const Radio = () => {
 					<meshStandardMaterial map={textureOff} />
 				)}
 			</mesh>
-			<PositionalAudio ref={radioSoundRef} {...radioSound} loop={true} />
+			<PositionalAudio
+				ref={radioSoundRef}
+				{...radioSound}
+				distance={2}
+				loop={true}
+			/>
 			<PositionalAudio ref={hideSoundRef} {...hideSound} loop={true} />
+
+			{isCCBVersion && ccbMusicSound && (
+				<PositionalAudio ref={ccbMusicRef} {...ccbMusicSound} />
+			)}
 		</group>
 	);
 };

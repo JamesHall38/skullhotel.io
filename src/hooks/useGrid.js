@@ -729,7 +729,7 @@ const useGridStore = create((set, get) => ({
 		const state = get();
 		state.initializeGrid();
 
-		if (window.location.hash === '#debug') {
+		if (window.location.hash.includes('#debug')) {
 			state.printGridASCII();
 		}
 	},

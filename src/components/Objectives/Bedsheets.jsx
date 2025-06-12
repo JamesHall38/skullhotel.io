@@ -45,6 +45,7 @@ export default function Bedsheets() {
 	const deviceMode = useGame((state) => state.deviceMode);
 	const gamepadControlsRef = useGamepadControls();
 	const wasActionPressedRef = useRef(false);
+	const progressConditionsRef = useRef(null);
 
 	const bedsheetsSoundRef = useRef();
 
@@ -82,39 +83,48 @@ export default function Bedsheets() {
 
 	useEffect(() => {
 		const handleProgressComplete = () => {
-			if (
-				isDetected &&
-				!objective &&
-				visibleMesh === 'Start' &&
-				Math.abs(camera.position.z) > 4.2
-			) {
-				const mixer = new THREE.AnimationMixer(animationMeshClone);
-				animations.forEach((clip) => {
-					if (clip.name === 'Bedsheets') {
-						const action = mixer.clipAction(clip);
-						action.clampWhenFinished = true;
-						action.timeScale = 1;
-						action.loop = THREE.LoopOnce;
-						action.repetitions = 1;
-						action.time = 0;
-						action.play();
+			const savedConditions = progressConditionsRef.current;
+			const currentCursor = useInterface.getState().cursor;
+
+			if (savedConditions && currentCursor === 'clean-bedsheets') {
+				if (
+					savedConditions.isDetected &&
+					!savedConditions.objective &&
+					savedConditions.visibleMesh === 'Start' &&
+					Math.abs(savedConditions.cameraZ) > 4.2
+				) {
+					const mixer = new THREE.AnimationMixer(animationMeshClone);
+					animations.forEach((clip) => {
+						if (clip.name === 'Bedsheets') {
+							const action = mixer.clipAction(clip);
+							action.clampWhenFinished = true;
+							action.timeScale = 1;
+							action.loop = THREE.LoopOnce;
+							action.repetitions = 1;
+							action.time = 0;
+							action.play();
+						}
+					});
+					mixerRef.current = mixer;
+					setVisibleMesh('Animated');
+
+					if (
+						bedsheetsSoundRef.current &&
+						!bedsheetsSoundRef.current.isPlaying
+					) {
+						bedsheetsSoundRef.current.play();
 					}
-				});
-				mixerRef.current = mixer;
-				setVisibleMesh('Animated');
 
-				if (bedsheetsSoundRef.current && !bedsheetsSoundRef.current.isPlaying) {
-					bedsheetsSoundRef.current.play();
+					setTutorialObjectives([
+						tutorialObjectives[0],
+						true,
+						tutorialObjectives[2],
+					]);
+
+					setCursor(null);
+					setIsDetected(false);
 				}
-
-				setTutorialObjectives([
-					tutorialObjectives[0],
-					true,
-					tutorialObjectives[2],
-				]);
-
-				setCursor(null);
-				setIsDetected(false);
+				progressConditionsRef.current = null;
 			}
 		};
 
@@ -194,12 +204,24 @@ export default function Bedsheets() {
 		if (tutorialObjectives[1] === false) {
 			setCursor('clean-bedsheets');
 			setIsDetected(true);
+			progressConditionsRef.current = {
+				isDetected: true,
+				objective,
+				visibleMesh,
+				cameraZ: camera.position.z,
+			};
 			return;
 		}
 
 		if (!objective && visibleMesh === 'Start') {
 			setCursor('clean-bedsheets');
 			setIsDetected(true);
+			progressConditionsRef.current = {
+				isDetected: true,
+				objective,
+				visibleMesh,
+				cameraZ: camera.position.z,
+			};
 		}
 	}, [setCursor, objective, tutorialObjectives, visibleMesh, camera]);
 

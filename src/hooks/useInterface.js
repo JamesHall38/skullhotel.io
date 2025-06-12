@@ -31,10 +31,9 @@ const useInterfaceStore = create(
 		resetAnimationsCount: () => set({ completedAnimations: 0 }),
 		isAllAnimationsComplete: () => get().completedAnimations > 0,
 
-		tutorialObjectives:
-			window.location.hash === '#debug'
-				? [true, true, true]
-				: [false, false, false],
+		tutorialObjectives: window.location.hash.includes('#debug')
+			? [true, true, true]
+			: [false, false, false],
 
 		recentlyChangedObjectives: [false, false, false],
 

@@ -70,7 +70,12 @@ export default function Triggers() {
 	const blueRef = useRef();
 	const yellowRef = useRef();
 
-	const breathingSound = usePositionalSound('breathing');
+	const isCCBMode =
+		window.location.hash.includes('CCB') ||
+		window.location.pathname.includes('CCB');
+	const breathingSound = usePositionalSound(
+		isCCBMode ? 'rrrrr_attention' : 'breathing'
+	);
 
 	const boxRefs = useMemo(
 		() => ({

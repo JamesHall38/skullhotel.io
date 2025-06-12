@@ -85,7 +85,9 @@
 		},
 		"reception": {
 			"guestBook": "Vieraskirja",
-			"informations": "Tiedot"
+			"informations": "Tiedot",
+			"guestBookSubtitle": "Suorita peli loppuun rekisteröidäksesi nimesi",
+			"searchPlaceholder": "Syötä sivunumero tai etsi nimeä"
 		}
 	},
 	"game": {

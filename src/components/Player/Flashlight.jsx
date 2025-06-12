@@ -9,7 +9,7 @@ import useInterface from '../../hooks/useInterface';
 import useGameplaySettings from '../../hooks/useGameplaySettings';
 import useGame from '../../hooks/useGame';
 
-const LERP_FACTOR = 0.05;
+const LERP_FACTOR = 0.15;
 const DEFAULT_INTENSITY = 8;
 const SIZE = 0.85;
 const RING_OPACITY = 0.03;
@@ -294,7 +294,9 @@ export default function Flashlight({ playerRef, crouchProgressRef }) {
 			position.z - anticipatedDirection.z * backwardDistance
 		);
 
-		currentLightPos.current.lerp(desiredPosition, LERP_FACTOR);
+		const adjustedLerpFactor = Math.min(LERP_FACTOR * delta * 60, 1);
+
+		currentLightPos.current.lerp(desiredPosition, adjustedLerpFactor);
 		spotLightRef.current.position.copy(currentLightPos.current);
 
 		const desiredTarget = new THREE.Vector3(
@@ -303,7 +305,7 @@ export default function Flashlight({ playerRef, crouchProgressRef }) {
 			position.z + anticipatedDirection.z * distance
 		);
 
-		targetRef.current.lerp(desiredTarget, LERP_FACTOR);
+		targetRef.current.lerp(desiredTarget, adjustedLerpFactor);
 		spotLightRef.current.target.position.copy(targetRef.current);
 
 		lastCameraQuaternion.current.copy(currentQuaternion);

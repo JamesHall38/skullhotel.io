@@ -45,6 +45,7 @@ export default function Bottles() {
 		useState(bathroomCurtain);
 	const [isDetected, setIsDetected] = useState(false);
 	const setCursor = useInterface((state) => state.setCursor);
+	const progressConditionsRef = useRef(null);
 
 	const bottleSoundRef = useRef();
 
@@ -89,6 +90,10 @@ export default function Bottles() {
 			if (bathroomCurtain && tutorialObjectives[0] === false) {
 				setCursor('clean-bottles');
 				setIsDetected(true);
+				progressConditionsRef.current = {
+					isDetected: true,
+					delayedBathroomCurtain: bathroomCurtain,
+				};
 			}
 		} else if (
 			!objective &&
@@ -97,8 +102,19 @@ export default function Bottles() {
 		) {
 			setCursor('clean-bottles');
 			setIsDetected(true);
+			progressConditionsRef.current = {
+				isDetected: true,
+				delayedBathroomCurtain: bathroomCurtain,
+			};
 		}
-	}, [setCursor, camera, bathroomCurtain, objective, tutorialObjectives]);
+	}, [
+		setCursor,
+		camera,
+		bathroomCurtain,
+		objective,
+		tutorialObjectives,
+		delayedBathroomCurtain,
+	]);
 
 	const handleDetectionEnd = useCallback(() => {
 		setCursor(null);
@@ -107,49 +123,58 @@ export default function Bottles() {
 
 	useEffect(() => {
 		const handleProgressComplete = () => {
-			if (isDetected && delayedBathroomCurtain) {
-				setCursor(null);
+			const savedConditions = progressConditionsRef.current;
+			const currentCursor = useInterface.getState().cursor;
 
-				Object.values(actions).forEach((action) => {
-					if (!action.isRunning()) {
-						if (action && action.time !== action.getClip().duration) {
-							action.clampWhenFinished = true;
-							action.loop = THREE.LoopOnce;
-							action.repetitions = 1;
+			if (savedConditions && currentCursor === 'clean-bottles') {
+				if (
+					savedConditions.isDetected &&
+					savedConditions.delayedBathroomCurtain
+				) {
+					setCursor(null);
 
-							setTimeout(() => {
-								if (bottleSoundRef.current) {
-									bottleSoundRef.current.play();
-								}
-							}, 600);
+					Object.values(actions).forEach((action) => {
+						if (!action.isRunning()) {
+							if (action && action.time !== action.getClip().duration) {
+								action.clampWhenFinished = true;
+								action.loop = THREE.LoopOnce;
+								action.repetitions = 1;
 
-							action.play();
-							if (
-								!tutorialObjectives.every((value) => value === true) &&
-								!recentlyChangedObjectives[0]
-							) {
-								setTutorialObjectives([
-									true,
-									tutorialObjectives[1],
-									tutorialObjectives[2],
-								]);
-							} else {
-								setInterfaceObjectives(0, roomNumber);
-								const currentRoom = Object.values(useGame.getState().seedData)[
-									roomNumber
-								];
-								if (currentRoom?.hideObjective === 'bottles') {
-									useGame
-										.getState()
-										.checkObjectiveCompletion('bottles', roomNumber, camera);
+								setTimeout(() => {
+									if (bottleSoundRef.current) {
+										bottleSoundRef.current.play();
+									}
+								}, 600);
+
+								action.play();
+								if (
+									!tutorialObjectives.every((value) => value === true) &&
+									!recentlyChangedObjectives[0]
+								) {
+									setTutorialObjectives([
+										true,
+										tutorialObjectives[1],
+										tutorialObjectives[2],
+									]);
+								} else {
+									setInterfaceObjectives(0, roomNumber);
+									const currentRoom = Object.values(
+										useGame.getState().seedData
+									)[roomNumber];
+									if (currentRoom?.hideObjective === 'bottles') {
+										useGame
+											.getState()
+											.checkObjectiveCompletion('bottles', roomNumber, camera);
+									}
 								}
 							}
 						}
-					}
-				});
+					});
 
-				setCursor(null);
-				setIsDetected(false);
+					setCursor(null);
+					setIsDetected(false);
+				}
+				progressConditionsRef.current = null;
 			}
 		};
 

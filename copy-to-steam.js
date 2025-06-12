@@ -29,7 +29,7 @@ function cleanDirectory(dir) {
 }
 
 const sourceDir = './dist/win-unpacked';
-const targetDir = './steamcontent/app/3799030';
+const targetDir = './steamcontent/app/3739730';
 
 cleanDirectory(targetDir);
 

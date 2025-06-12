@@ -85,7 +85,9 @@
 		},
 		"reception": {
 			"guestBook": "Guest Book",
-			"informations": "Informations"
+			"informations": "Informations",
+			"guestBookSubtitle": "Complete the game to register your name",
+			"searchPlaceholder": "Enter a page number or search a name"
 		}
 	},
 	"game": {

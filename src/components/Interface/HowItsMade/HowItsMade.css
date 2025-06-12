@@ -114,7 +114,7 @@
 	position: absolute;
 	right: 0;
 	top: 50%;
-	transform: translateY(-50%);
+	transform: translateY(calc(-50% - 0.75rem));
 	color: #efd89b;
 	opacity: 0;
 	transition: opacity 0.2s ease;

@@ -9,6 +9,7 @@ import pt from '../locales/pt.json';
 import de from '../locales/de.json';
 import ja from '../locales/ja.json';
 import fr from '../locales/fr.json';
+import frCcb from '../locales/fr-ccb.json';
 import ko from '../locales/ko.json';
 import tr from '../locales/tr.json';
 import pl from '../locales/pl.json';
@@ -36,6 +37,7 @@ const translations = {
 	de,
 	ja,
 	fr,
+	'fr-ccb': frCcb,
 	ko,
 	tr,
 	pl,
@@ -87,7 +89,19 @@ export const languages = [
 	{ code: 'ar', name: 'Arabic', nativeName: 'العربية' },
 ];
 
+const isCCBMode = () => {
+	return (
+		typeof window !== 'undefined' &&
+		(window.location.hash.includes('CCB') ||
+			window.location.pathname.includes('CCB'))
+	);
+};
+
 const detectBrowserLanguage = () => {
+	if (isCCBMode()) {
+		return 'fr-ccb';
+	}
+
 	const browserLang = navigator.language || navigator.languages[0];
 	const langCode = browserLang.split('-')[0];
 
@@ -104,13 +118,25 @@ const useLocalization = create(
 			currentLanguage: detectBrowserLanguage(),
 
 			setLanguage: (languageCode) => {
+				if (isCCBMode()) {
+					set({ currentLanguage: 'fr-ccb' });
+					return;
+				}
+
 				if (translations[languageCode]) {
 					set({ currentLanguage: languageCode });
 				}
 			},
 
+			getCurrentLanguage: () => {
+				if (isCCBMode()) {
+					return 'fr-ccb';
+				}
+				return get().currentLanguage;
+			},
+
 			t: (key, params = {}) => {
-				const { currentLanguage } = get();
+				const currentLanguage = isCCBMode() ? 'fr-ccb' : get().currentLanguage;
 				const translation = translations[currentLanguage];
 
 				if (!translation) {
@@ -142,8 +168,6 @@ const useLocalization = create(
 
 				return value;
 			},
-
-			getCurrentLanguage: () => get().currentLanguage,
 
 			getLanguageName: (code) => {
 				const lang = languages.find((l) => l.code === code);

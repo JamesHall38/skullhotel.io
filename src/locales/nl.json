@@ -85,7 +85,9 @@
 		},
 		"reception": {
 			"guestBook": "Gastenboek",
-			"informations": "Informatie"
+			"informations": "Informatie",
+			"guestBookSubtitle": "Voltooi het spel om je naam te registreren",
+			"searchPlaceholder": "Voer een paginanummer in of zoek een naam"
 		}
 	},
 	"game": {

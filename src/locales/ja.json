@@ -85,7 +85,9 @@
 		},
 		"reception": {
 			"guestBook": "ゲストブック",
-			"informations": "情報"
+			"informations": "情報",
+			"guestBookSubtitle": "ゲームをクリアして名前を登録してください",
+			"searchPlaceholder": "ページ番号を入力するか名前を検索してください"
 		}
 	},
 	"game": {
