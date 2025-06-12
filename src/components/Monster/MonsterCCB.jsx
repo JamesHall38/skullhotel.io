@@ -1074,8 +1074,6 @@ const Monster = (props) => {
 		}
 	}, [generateMonsterAssignments, roomMonsterAssignments]);
 
-	console.log(nodes);
-
 	return (
 		<group>
 			<group
