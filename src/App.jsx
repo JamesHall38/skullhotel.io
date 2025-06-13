@@ -596,7 +596,7 @@ export default function AppCanvas() {
 						far: 30,
 					}}
 					gl={{
-						powerPreference: 'default',
+						powerPreference: 'high-performance',
 						antialias: false,
 						depth: false,
 						stencil: false,
