@@ -1,10 +1,8 @@
-import useGridStore, { CELL_TYPES } from '../../hooks/useGrid';
-
 const MAX_WALKABLE_WEIGHT = 100;
 const OFFSET_X = 304;
 const OFFSET_Z = 150;
 const MAX_WALL_NEIGHBOR_DISTANCE = 8;
-const MAX_ITERATION = 2000;
+const MAX_ITERATION = 200000;
 const EARLY_EXIT_DISTANCE = 2;
 
 const wallDistanceCache = new Map();
@@ -14,6 +12,35 @@ const pathCache = new Map();
 
 let lastPathfindTime = 0;
 const PATH_THROTTLE_MS = 100;
+
+let gridData = null;
+let debugMode = false;
+const CELL_TYPES = {
+	EMPTY: 'empty',
+	WALL: 'wall',
+	CEILING: 'ceiling',
+	RAISED_AREA_LOW: 'raised_area_low',
+	RAISED_AREA_HIGH: 'raised_area_high',
+	CROUCH_ONLY: 'crouch_only',
+	DOOR: 'door',
+	ROOM_DOOR_CLOSED: 'roomDoorClosed',
+	ROOM_DOOR_OPEN: 'roomDoorOpen',
+	BATHROOM_DOOR_CLOSED: 'bathroomDoorClosed',
+	BATHROOM_DOOR_OPEN: 'bathroomDoorOpen',
+	ROOM_CURTAIN_CLOSED: 'roomCurtainClosed',
+	BATHROOM_CURTAIN_CLOSED: 'bathroomCurtainClosed',
+	DESK_DOOR_CLOSED: 'deskDoorClosed',
+	DESK_DOOR_OPEN: 'deskDoorOpen',
+	NIGHTSTAND_DOOR_CLOSED: 'nightstandDoorClosed',
+	NIGHTSTAND_DOOR_OPEN: 'nightstandDoorOpen',
+	BED: 'bed',
+	TUTORIAL_DOOR_CLOSED: 'tutorialRoomDoorClosed',
+	TUTORIAL_DOOR_OPEN: 'tutorialRoomDoorOpen',
+	EXIT_DOOR_CLOSED: 'exitDoorClosed',
+	CORRIDOR_DOOR_CLOSED: 'corridorRoomDoorClosed',
+	CORRIDOR_DOOR_OPEN: 'corridorRoomDoorOpen',
+	MONSTER_POSITION: 'monsterPosition',
+};
 
 class PriorityQueue {
 	constructor() {
@@ -67,6 +94,12 @@ class PriorityQueue {
 	}
 }
 
+const getCell = (x, z) => {
+	if (!gridData || !gridData.cells) return null;
+	const key = `${x},${z}`;
+	return gridData.cells[key] || null;
+};
+
 const distanceToNearestWall = (
 	x,
 	z,
@@ -79,7 +112,6 @@ const distanceToNearestWall = (
 	}
 
 	let minDistance = maxSearchRadius;
-	const gridState = useGridStore.getState();
 
 	for (let radius = 1; radius <= maxSearchRadius; radius++) {
 		let wallFound = false;
@@ -88,8 +120,20 @@ const distanceToNearestWall = (
 			for (let dz = -radius; dz <= radius; dz++) {
 				if (Math.abs(dx) !== radius && Math.abs(dz) !== radius) continue;
 
-				const cell = gridState.getCell(x + dx, z + dz);
-				if (cell && cell.type === CELL_TYPES.WALL) {
+				const cell = getCell(x + dx, z + dz);
+				if (
+					cell &&
+					(cell.type === CELL_TYPES.WALL ||
+						cell.type === CELL_TYPES.ROOM_DOOR_CLOSED ||
+						cell.type === CELL_TYPES.BATHROOM_DOOR_CLOSED ||
+						cell.type === CELL_TYPES.ROOM_CURTAIN_CLOSED ||
+						cell.type === CELL_TYPES.BATHROOM_CURTAIN_CLOSED ||
+						cell.type === CELL_TYPES.DESK_DOOR_CLOSED ||
+						cell.type === CELL_TYPES.NIGHTSTAND_DOOR_CLOSED ||
+						cell.type === CELL_TYPES.TUTORIAL_DOOR_CLOSED ||
+						cell.type === CELL_TYPES.EXIT_DOOR_CLOSED ||
+						cell.type === CELL_TYPES.CORRIDOR_DOOR_CLOSED)
+				) {
 					const distance = Math.sqrt(dx * dx + dz * dz);
 					minDistance = Math.min(minDistance, distance);
 					wallFound = true;
@@ -134,13 +178,35 @@ const calculateCellWeight = (cell, x, z) => {
 	let weight;
 	if (!cell) {
 		weight = 1000;
-	} else if (cell.type === CELL_TYPES.WALL) {
-		weight = 100;
+	} else if (
+		cell.type === CELL_TYPES.WALL ||
+		cell.type === CELL_TYPES.ROOM_DOOR_CLOSED ||
+		cell.type === CELL_TYPES.BATHROOM_DOOR_CLOSED ||
+		cell.type === CELL_TYPES.ROOM_CURTAIN_CLOSED ||
+		cell.type === CELL_TYPES.BATHROOM_CURTAIN_CLOSED ||
+		cell.type === CELL_TYPES.DESK_DOOR_CLOSED ||
+		cell.type === CELL_TYPES.NIGHTSTAND_DOOR_CLOSED ||
+		cell.type === CELL_TYPES.TUTORIAL_DOOR_CLOSED ||
+		cell.type === CELL_TYPES.EXIT_DOOR_CLOSED ||
+		cell.type === CELL_TYPES.CORRIDOR_DOOR_CLOSED
+	) {
+		weight = 1000; // Unwalkable
 	} else if (
 		cell.type === CELL_TYPES.RAISED_AREA_LOW ||
-		cell.type === CELL_TYPES.RAISED_AREA_HIGH
+		cell.type === CELL_TYPES.RAISED_AREA_HIGH ||
+		cell.type === CELL_TYPES.BED ||
+		cell.type === CELL_TYPES.CROUCH_ONLY
 	) {
 		weight = 20;
+	} else if (
+		cell.type === CELL_TYPES.ROOM_DOOR_OPEN ||
+		cell.type === CELL_TYPES.BATHROOM_DOOR_OPEN ||
+		cell.type === CELL_TYPES.DESK_DOOR_OPEN ||
+		cell.type === CELL_TYPES.NIGHTSTAND_DOOR_OPEN ||
+		cell.type === CELL_TYPES.TUTORIAL_DOOR_OPEN ||
+		cell.type === CELL_TYPES.CORRIDOR_DOOR_OPEN
+	) {
+		weight = 5; // Prefer open doors
 	} else {
 		const distToWall = distanceToNearestWall(x, z);
 
@@ -174,8 +240,6 @@ const getNeighbors = (x, z, target) => {
 		return neighborCache.get(cacheKey);
 	}
 
-	const gridState = useGridStore.getState();
-
 	const directions = [
 		{ x: 1, z: 0, cost: 1 },
 		{ x: -1, z: 0, cost: 1 },
@@ -197,7 +261,7 @@ const getNeighbors = (x, z, target) => {
 		const neighborX = Math.round(x + dir.x);
 		const neighborZ = Math.round(z + dir.z);
 
-		const cell = gridState.getCell(neighborX, neighborZ);
+		const cell = getCell(neighborX, neighborZ);
 		if (!cell) continue;
 
 		if (!isWalkable(cell, neighborX, neighborZ)) continue;
@@ -226,21 +290,15 @@ const getNeighbors = (x, z, target) => {
 };
 
 const heuristic = (a, b) => {
-	const directDistance = Math.sqrt((a.x - b.x) ** 2 + (a.z - b.z) ** 2);
-
-	const p = 1 / 1000;
-	const dx1 = a.x - b.x;
-	const dz1 = a.z - b.z;
-	const tieBreaker = p * (Math.abs(dx1) + Math.abs(dz1));
-
-	return directDistance * (1.0 + tieBreaker);
+	const dx = Math.abs(a.x - b.x);
+	const dz = Math.abs(a.z - b.z);
+	return Math.sqrt(dx * dx + dz * dz);
 };
 
 const findNearestAccessiblePoint = (point) => {
 	const maxSearchRadius = 10;
 	let nearestPoint = null;
 	let minDistance = Infinity;
-	const gridState = useGridStore.getState();
 
 	const spiralDirections = [];
 	for (let radius = 1; radius <= maxSearchRadius; radius++) {
@@ -257,7 +315,7 @@ const findNearestAccessiblePoint = (point) => {
 	for (const dir of spiralDirections) {
 		const x = point.x + dir.dx;
 		const z = point.z + dir.dz;
-		const cell = gridState.getCell(x, z);
+		const cell = getCell(x, z);
 
 		const weight = cell ? calculateCellWeight(cell, x, z) : 1000;
 		if (weight < MAX_WALKABLE_WEIGHT) {
@@ -282,8 +340,6 @@ const findAccessiblePointInDirection = (start, target, maxDistance = 15) => {
 	const dirX = dx / distance;
 	const dirZ = dz / distance;
 
-	const gridState = useGridStore.getState();
-
 	const initialStep = 2;
 	let currentStep = initialStep;
 	let lastValidPoint = null;
@@ -296,7 +352,7 @@ const findAccessiblePointInDirection = (start, target, maxDistance = 15) => {
 			currentStep = 1;
 		}
 
-		const cell = gridState.getCell(x, z);
+		const cell = getCell(x, z);
 		const weight = cell ? calculateCellWeight(cell, x, z) : 1000;
 
 		if (weight < MAX_WALKABLE_WEIGHT) {
@@ -308,7 +364,7 @@ const findAccessiblePointInDirection = (start, target, maxDistance = 15) => {
 
 					const nx = Math.round(x + dx);
 					const nz = Math.round(z + dz);
-					const ncell = gridState.getCell(nx, nz);
+					const ncell = getCell(nx, nz);
 					const nweight = ncell ? calculateCellWeight(ncell, nx, nz) : 1000;
 
 					if (nweight < MAX_WALKABLE_WEIGHT) {
@@ -325,6 +381,47 @@ const findAccessiblePointInDirection = (start, target, maxDistance = 15) => {
 	}
 
 	return findNearestAccessiblePoint(start);
+};
+
+const bresenhamLine = (x0, y0, x1, y1) => {
+	const points = [];
+	const dx = Math.abs(x1 - x0);
+	const dy = Math.abs(y1 - y0);
+	const sx = x0 < x1 ? 1 : -1;
+	const sy = y0 < y1 ? 1 : -1;
+	let err = dx - dy;
+
+	let x = x0;
+	let y = y0;
+
+	while (true) {
+		points.push({ x, z: y });
+
+		if (x === x1 && y === y1) break;
+
+		const e2 = 2 * err;
+		if (e2 > -dy) {
+			err -= dy;
+			x += sx;
+		}
+		if (e2 < dx) {
+			err += dx;
+			y += sy;
+		}
+	}
+
+	return points;
+};
+
+const isDirectPathPossible = (start, end) => {
+	const points = bresenhamLine(start.x, start.z, end.x, end.z);
+
+	return points.every((point) => {
+		const cell = getCell(point.x, point.z);
+		return (
+			cell && calculateCellWeight(cell, point.x, point.z) < MAX_WALKABLE_WEIGHT
+		);
+	});
 };
 
 const smoothPath = (path) => {
@@ -350,7 +447,7 @@ const smoothPath = (path) => {
 			if (distance > 5) {
 				const midX = Math.floor((current.x + target.x) / 2);
 				const midZ = Math.floor((current.z + target.z) / 2);
-				const midCell = useGridStore.getState().getCell(midX, midZ);
+				const midCell = getCell(midX, midZ);
 
 				if (!midCell || calculateCellWeight(midCell, midX, midZ) >= 20) {
 					continue;
@@ -370,111 +467,18 @@ const smoothPath = (path) => {
 	return smoothed;
 };
 
-const isDirectPathPossible = (start, end) => {
-	const points = bresenhamLine(start.x, start.z, end.x, end.z);
-
-	return points.every((point) => {
-		const cell = useGridStore.getState().getCell(point.x, point.z);
-		return (
-			cell && calculateCellWeight(cell, point.x, point.z) < MAX_WALKABLE_WEIGHT
-		);
-	});
-};
-
-const bresenhamLine = (x0, y0, x1, y1) => {
-	const points = [];
-	const dx = Math.abs(x1 - x0);
-	const dy = Math.abs(y1 - y0);
-	const sx = x0 < x1 ? 1 : -1;
-	const sy = y0 < y1 ? 1 : -1;
-	let err = dx - dy;
-
-	while (true) {
-		points.push({ x: x0, z: y0 });
-
-		if (x0 === x1 && y0 === y1) break;
-
-		const e2 = 2 * err;
-		if (e2 > -dy) {
-			err -= dy;
-			x0 += sx;
-		}
-		if (e2 < dx) {
-			err += dx;
-			y0 += sy;
-		}
-	}
-
-	return points;
-};
-
-const interpolatePathForDisplay = (smoothedPath, density = 0.5) => {
-	if (smoothedPath.length <= 1) return smoothedPath;
-
-	const result = [];
-
-	for (let i = 0; i < smoothedPath.length - 1; i++) {
-		const current = smoothedPath[i];
-		const next = smoothedPath[i + 1];
-
-		result.push(current);
-
-		const dx = next.x - current.x;
-		const dz = next.z - current.z;
-		const distance = Math.sqrt(dx * dx + dz * dz);
-
-		const pointsToAdd = Math.max(1, Math.floor(distance * density));
-
-		for (let j = 1; j < pointsToAdd; j++) {
-			const ratio = j / pointsToAdd;
-			const interpolatedX = Math.round(current.x + dx * ratio);
-			const interpolatedZ = Math.round(current.z + dz * ratio);
-
-			const cell = useGridStore
-				.getState()
-				.getCell(interpolatedX, interpolatedZ);
-			const weight = cell
-				? calculateCellWeight(cell, interpolatedX, interpolatedZ)
-				: 1;
-
-			result.push({
-				x: interpolatedX,
-				z: interpolatedZ,
-				weight: weight,
-				isInterpolated: true,
-			});
-		}
-	}
-
-	result.push(smoothedPath[smoothedPath.length - 1]);
-
-	return result;
-};
-
 const arePositionsClose = (a, b, threshold = EARLY_EXIT_DISTANCE) => {
-	const dx = a.x - b.x;
-	const dz = a.z - b.z;
-	return Math.sqrt(dx * dx + dz * dz) <= threshold;
+	const distance = Math.sqrt((a.x - b.x) ** 2 + (a.z - b.z) ** 2);
+	return distance <= threshold;
 };
 
 const resetPathfindingCaches = () => {
 	wallDistanceCache.clear();
 	cellWeightCache.clear();
-	if (neighborCache.size > 500) {
-		const keys = Array.from(neighborCache.keys());
-		for (let i = 0; i < keys.length - 500; i++) {
-			neighborCache.delete(keys[i]);
-		}
-	}
-	if (pathCache.size > 20) {
-		const keys = Array.from(pathCache.keys());
-		for (let i = 0; i < keys.length - 20; i++) {
-			pathCache.delete(keys[i]);
-		}
-	}
+	neighborCache.clear();
 };
 
-export const findPath = (startX, startZ, targetX, targetZ) => {
+const findPath = (startX, startZ, targetX, targetZ) => {
 	const now = Date.now();
 	if (now - lastPathfindTime < PATH_THROTTLE_MS) {
 		const cacheKey = `${Math.round(startX)},${Math.round(startZ)}_${Math.round(
@@ -512,21 +516,11 @@ export const findPath = (startX, startZ, targetX, targetZ) => {
 			{ x: targetX, z: targetZ, cost: 1, weight: 1 },
 		];
 
-		if (window.location.hash.includes('#debug')) {
-			const debugPath = directPath.map((point) => ({
-				...point,
-				isInterpolated: false,
-			}));
-			printPathASCII(debugPath);
-		}
-
 		pathCache.set(cacheKey, directPath);
 		return directPath;
 	}
 
-	const gridState = useGridStore.getState();
-
-	const startCell = gridState.getCell(start.x, start.z);
+	const startCell = getCell(start.x, start.z);
 	const startWeight = startCell
 		? calculateCellWeight(startCell, start.x, start.z)
 		: 1000;
@@ -540,7 +534,7 @@ export const findPath = (startX, startZ, targetX, targetZ) => {
 		Object.assign(start, nearestStart);
 	}
 
-	const targetCell = gridState.getCell(target.x, target.z);
+	const targetCell = getCell(target.x, target.z);
 	const targetWeight = targetCell
 		? calculateCellWeight(targetCell, target.x, target.z)
 		: 1000;
@@ -574,13 +568,16 @@ export const findPath = (startX, startZ, targetX, targetZ) => {
 		const current = openSet.dequeue();
 		const currentKey = `${current.x},${current.z}`;
 
-		if (arePositionsClose(current, target)) {
+		if (
+			arePositionsClose(current, target) ||
+			(current.x === target.x && current.z === target.z)
+		) {
 			const path = [];
 			let curr = current;
 			let currKey = currentKey;
 
 			while (cameFrom.has(currKey)) {
-				const cell = gridState.getCell(curr.x, curr.z);
+				const cell = getCell(curr.x, curr.z);
 				curr.weight = calculateCellWeight(cell, curr.x, curr.z);
 				path.unshift(curr);
 				curr = cameFrom.get(currKey);
@@ -597,8 +594,6 @@ export const findPath = (startX, startZ, targetX, targetZ) => {
 
 			const smoothedPath = smoothPath(rawPath);
 
-			const displayPath = interpolatePathForDisplay(smoothedPath);
-
 			const worldPath = smoothedPath.map((point) => ({
 				x: point.x - OFFSET_X,
 				z: point.z - OFFSET_Z,
@@ -606,67 +601,12 @@ export const findPath = (startX, startZ, targetX, targetZ) => {
 				weight: point.weight || 1,
 			}));
 
-			if (window.location.hash.includes('#debug')) {
-				const worldDisplayPath = displayPath.map((point) => ({
-					x: point.x - OFFSET_X,
-					z: point.z - OFFSET_Z,
-					cost: point.cost || 1,
-					weight: point.weight || 1,
-					isInterpolated: point.isInterpolated || false,
-				}));
-				printPathASCII(worldDisplayPath);
+			// Debug path visualization if requested
+			if (debugMode) {
+				printPathASCII(worldPath);
 			}
 
 			pathCache.set(cacheKey, worldPath);
-
-			return worldPath;
-		}
-
-		if (current.x === target.x && current.z === target.z) {
-			const path = [];
-			let curr = current;
-			let currKey = currentKey;
-
-			while (cameFrom.has(currKey)) {
-				const cell = gridState.getCell(curr.x, curr.z);
-				curr.weight = calculateCellWeight(cell, curr.x, curr.z);
-				path.unshift(curr);
-				curr = cameFrom.get(currKey);
-				currKey = `${curr.x},${curr.z}`;
-			}
-			start.weight = calculateCellWeight(startCell, start.x, start.z);
-			path.unshift(start);
-
-			const rawPath = path.map((point) => ({
-				x: point.x,
-				z: point.z,
-				weight: point.weight || 1,
-			}));
-
-			const smoothedPath = smoothPath(rawPath);
-
-			const displayPath = interpolatePathForDisplay(smoothedPath);
-
-			const worldPath = smoothedPath.map((point) => ({
-				x: point.x - OFFSET_X,
-				z: point.z - OFFSET_Z,
-				cost: point.cost || 1,
-				weight: point.weight || 1,
-			}));
-
-			if (window.location.hash.includes('#debug')) {
-				const worldDisplayPath = displayPath.map((point) => ({
-					x: point.x - OFFSET_X,
-					z: point.z - OFFSET_Z,
-					cost: point.cost || 1,
-					weight: point.weight || 1,
-					isInterpolated: point.isInterpolated || false,
-				}));
-				printPathASCII(worldDisplayPath);
-			}
-
-			pathCache.set(cacheKey, worldPath);
-
 			return worldPath;
 		}
 
@@ -695,17 +635,7 @@ export const findPath = (startX, startZ, targetX, targetZ) => {
 		}
 	}
 
-	const reason =
-		iterations >= MAX_ITERATION
-			? 'maximum iterations reached'
-			: 'no path found';
-	console.error(
-		`Pathfinding failed from world(${startX}, ${startZ}) to world(${targetX}, ${targetZ}): ${reason}`,
-		`Grid coords: (${gridStartX}, ${gridStartZ}) to (${gridTargetX}, ${gridTargetZ})`
-	);
-
-	console.warn('Pathfinding failed. Forcing direct movement towards player.');
-
+	// Fallback to direct path if pathfinding fails
 	const dx = targetX - startX;
 	const dz = targetZ - startZ;
 	const distance = Math.sqrt(dx * dx + dz * dz);
@@ -739,15 +669,12 @@ export const findPath = (startX, startZ, targetX, targetZ) => {
 	});
 
 	pathCache.set(cacheKey, directPath);
-
 	resetPathfindingCaches();
 	return directPath;
 };
 
 const printPathASCII = (path) => {
 	if (!path) return;
-
-	const gridState = useGridStore.getState();
 
 	const gridPath = path.map((point) => ({
 		x: Math.round(point.x) + OFFSET_X,
@@ -803,7 +730,7 @@ const printPathASCII = (path) => {
 		pathCells.set(`${point.x},${point.z}`, point.weight || 1);
 	});
 
-	let asciiGrid = 'PATH VISUALIZATION WITH WEIGHTS\n';
+	let asciiGrid = 'PATH VISUALIZATION WITH WEIGHTS (from Worker)\n';
 	asciiGrid += `World: (${path[0].x}, ${path[0].z}) → (${
 		path[path.length - 1].x
 	}, ${path[path.length - 1].z})\n`;
@@ -853,13 +780,13 @@ const printPathASCII = (path) => {
 					}
 
 					try {
-						const cell = gridState.getCell(realX, realZ);
+						const cell = getCell(realX, realZ);
 						if (cell) {
 							const weight = calculateCellWeight(cell, realX, realZ);
 							cellWeight = Math.max(cellWeight, weight);
 						}
 					} catch (e) {
-						console.error(e);
+						console.error('Error getting cell weight:', e);
 					}
 				}
 			}
@@ -878,5 +805,46 @@ const printPathASCII = (path) => {
 	}
 
 	console.log(asciiGrid);
-	console.groupEnd();
+};
+
+self.onmessage = function (e) {
+	const { type, data, id } = e.data;
+
+	try {
+		switch (type) {
+			case 'UPDATE_GRID':
+				gridData = data;
+				debugMode = data.debugMode || false;
+				resetPathfindingCaches();
+				pathCache.clear();
+
+				self.postMessage({ type: 'GRID_UPDATED', id });
+				break;
+
+			case 'FIND_PATH':
+				const { startX, startZ, targetX, targetZ } = data;
+				const path = findPath(startX, startZ, targetX, targetZ);
+				self.postMessage({
+					type: 'PATH_FOUND',
+					data: path,
+					id,
+				});
+				break;
+
+			case 'CLEAR_CACHE':
+				resetPathfindingCaches();
+				pathCache.clear();
+				self.postMessage({ type: 'CACHE_CLEARED', id });
+				break;
+
+			default:
+				console.warn('Unknown message type:', type);
+		}
+	} catch (error) {
+		self.postMessage({
+			type: 'ERROR',
+			error: error.message,
+			id,
+		});
+	}
 };

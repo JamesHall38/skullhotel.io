@@ -770,6 +770,7 @@ export default function TriggersConditions({
 			case 'claymoreDesk':
 				if (interfaceObjectives[playerPositionRoom]?.[2]) {
 					if (playerIsInsideZone(zoneBox, raycaster, camera)) {
+						setCustomDeathMessage('game.deathReasons.claymoreChase');
 						setMonsterState('chase');
 						playAnimation('Walk');
 						setAnimationSpeed(0.5);
@@ -782,6 +783,7 @@ export default function TriggersConditions({
 			case 'claymoreNightstand':
 				if (interfaceObjectives[playerPositionRoom]?.[2]) {
 					if (playerIsInsideZone(zoneBox, raycaster, camera)) {
+						setCustomDeathMessage('game.deathReasons.claymoreChase');
 						setMonsterState('chase');
 						playAnimation('Walk');
 						setAnimationSpeed(0.5);
