@@ -280,7 +280,8 @@ export default function TriggersConditions({
 				setMonsterState,
 				setMonsterPosition,
 				position,
-				roomCount
+				roomCount,
+				setMonsterRotation
 			);
 			bathroomDoors[playerPositionRoom] = true;
 			monsterIsTriggered = shakeCamera(
@@ -601,7 +602,8 @@ export default function TriggersConditions({
 						setMonsterState,
 						setMonsterPosition,
 						position,
-						roomCount
+						roomCount,
+						setMonsterRotation
 					);
 					bathroomDoors[playerPositionRoom] = true;
 				}

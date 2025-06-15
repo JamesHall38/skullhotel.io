@@ -1,11 +1,11 @@
 import { useRef, useEffect, useCallback, useState } from 'react';
-import { useFrame, useThree } from '@react-three/fiber';
+import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import useMonster from './useMonster';
 import useGame from './useGame';
 import useDoor from './useDoor';
 import useHiding from './useHiding';
-import usePathfindingWorker from './usePathfindingWorker';
+import useSimplePathfinding from './useSimplePathfinding';
 import {
 	getAudioInstance,
 	areSoundsLoaded,
@@ -19,7 +19,6 @@ const BASE_SPEED = 5;
 const CHASE_SPEED_BASE = 1.5;
 const CLAYMORE_CHASE_SPEED = 5;
 const NEXT_POINT_THRESHOLD = 0.5;
-const MIN_DISTANCE_FOR_RECALCULATION = 15;
 const ATTACK_DISTANCE = 1.8;
 const IDEAL_ATTACK_DISTANCE = 0.8;
 const ATTACK_POSITION_LERP_SPEED = 0.15;
@@ -31,14 +30,8 @@ const OFFSET_X = 304;
 const OFFSET_Z = 150;
 const BOTTOM_ROW_OFFSET_X = 77;
 const BOTTOM_ROW_OFFSET_Z = 0;
-
-const MONSTER_HEIGHT = {
-	GROUND: 0,
-	CEILING_LOW: 1.35,
-	CEILING_HIGH: 2,
-	CEILING_MID: 1.2,
-	CEILING_IDLE_LOW: 1.68,
-};
+const CORRIDOR_LENGTH = 5.95;
+const offset = [8.83, 0, 6.2];
 
 function lerpCameraLookAt(camera, targetPosition, lerpFactor) {
 	const targetQuaternion = new THREE.Quaternion();
@@ -57,10 +50,32 @@ function lerpCameraLookAt(camera, targetPosition, lerpFactor) {
 	camera.position.y = 1.5;
 }
 
+const calculateRoomOffsetX = (playerPositionRoom, roomCount) => {
+	const isBottomRow = playerPositionRoom >= roomCount / 2;
+
+	if (isBottomRow) {
+		return (
+			offset[0] -
+			CORRIDOR_LENGTH -
+			(playerPositionRoom - Math.floor(roomCount / 2)) * CORRIDOR_LENGTH -
+			5.84
+		);
+	} else {
+		return -(offset[0] - 5.91) - playerPositionRoom * CORRIDOR_LENGTH;
+	}
+};
+
+const MONSTER_HEIGHT = {
+	GROUND: 0,
+	CEILING_LOW: 1.35,
+	CEILING_HIGH: 2,
+	CEILING_MID: 1.2,
+	CEILING_IDLE_LOW: 1.68,
+};
+
 export default function useMonsterLogic(isCCBVersion = false) {
 	const maxDirectPathFailures = 10;
-	const useWorkerPathfinding = true;
-	const minDistanceForRecalculation = MIN_DISTANCE_FOR_RECALCULATION;
+	const useSimplePathfindingEnabled = true;
 
 	const group = useRef();
 	const jumpScareSoundRef = useRef(null);
@@ -69,7 +84,6 @@ export default function useMonsterLogic(isCCBVersion = false) {
 	const [hasTriggeredDeathVibration, setHasTriggeredDeathVibration] =
 		useState(false);
 	const [soundsReady, setSoundsReady] = useState(false);
-	const { gl } = useThree();
 	const [directPathFailures, setDirectPathFailures] = useState(0);
 	const lastChaseTimeRef = useRef(0);
 	const lastFrameTimeRef = useRef(performance.now());
@@ -79,18 +93,20 @@ export default function useMonsterLogic(isCCBVersion = false) {
 	const [isWaiting, setIsWaiting] = useState(false);
 	const timeoutRef = useRef(null);
 	const [usedForcedPathfinding, setUsedForcedPathfinding] = useState({});
+	const [visitedWaypoints, setVisitedWaypoints] = useState({});
 	const [currentPath, setCurrentPath] = useState(null);
 	const pathfindingRequestRef = useRef(null);
 	const [isPathfindingInProgress, setIsPathfindingInProgress] = useState(false);
+	const lastPathfindingTimeRef = useRef(0);
+	const PATHFINDING_INTERVAL = 500;
 
 	useGamepadControls();
 
-	const pathfindingWorker = useWorkerPathfinding
-		? usePathfindingWorker()
+	const pathfindingSystem = useSimplePathfindingEnabled
+		? useSimplePathfinding()
 		: { findPath: null, isWorkerReady: false };
-	const { findPath: findPathWorker, isWorkerReady } = pathfindingWorker;
+	const { findPath: findPathWorker, isWorkerReady } = pathfindingSystem;
 
-	// Game state
 	const seedData = useGame((state) => state.seedData);
 	const playerPositionRoom = useGame((state) => state.playerPositionRoom);
 	const endAnimationPlaying = useGame((state) => state.endAnimationPlaying);
@@ -103,10 +119,8 @@ export default function useMonsterLogic(isCCBVersion = false) {
 	const isEndAnimationPlaying = useGame((state) => state.isEndAnimationPlaying);
 	const setCustomDeathMessage = useGame((state) => state.setCustomDeathMessage);
 
-	// Monster state
 	const monsterState = useMonster((state) => state.monsterState);
 	const setMonsterState = useMonster((state) => state.setMonsterState);
-	const monsterPosition = useMonster((state) => state.monsterPosition);
 	const setMonsterPosition = useMonster((state) => state.setMonsterPosition);
 	const setMonsterRotation = useMonster((state) => state.setMonsterRotation);
 	const monsterRotation = useMonster((state) => state.monsterRotation);
@@ -117,7 +131,6 @@ export default function useMonsterLogic(isCCBVersion = false) {
 		(state) => state.setAnimationMixSpeed
 	);
 
-	// Door state
 	const roomDoors = useDoor((state) => state.roomDoor);
 	const nightstandDoor = useDoor((state) => state.nightStand);
 	const deskDoor = useDoor((state) => state.desk);
@@ -126,7 +139,6 @@ export default function useMonsterLogic(isCCBVersion = false) {
 	const setRoomDoor = useDoor((state) => state.setRoomDoor);
 	const setBathroomDoors = useDoor((state) => state.setBathroomDoors);
 
-	// Sound setup
 	useEffect(() => {
 		const checkSounds = () => {
 			if (areSoundsLoaded()) {
@@ -156,6 +168,7 @@ export default function useMonsterLogic(isCCBVersion = false) {
 		setHasPlayedJumpScare(false);
 		setHasTriggeredVibration(false);
 		setHasTriggeredDeathVibration(false);
+		setVisitedWaypoints({});
 	}, [deaths]);
 
 	useEffect(() => {
@@ -181,6 +194,7 @@ export default function useMonsterLogic(isCCBVersion = false) {
 		if (monsterState !== 'chase') {
 			lastChaseTimeRef.current = 0;
 		}
+		setVisitedWaypoints({});
 	}, [monsterState]);
 
 	useEffect(() => {
@@ -200,9 +214,122 @@ export default function useMonsterLogic(isCCBVersion = false) {
 		);
 	}, []);
 
+	const lastRealTimeRef = useRef(performance.now());
+
+	const calculateFrameRateIndependentMovement = useCallback((speed, delta) => {
+		const currentTime = performance.now();
+		const realTimeDelta = Math.min(
+			(currentTime - lastRealTimeRef.current) / 1000,
+			0.1
+		);
+		lastRealTimeRef.current = currentTime;
+
+		const moveDistance = speed * realTimeDelta;
+
+		return moveDistance;
+	}, []);
+
+	const checkWallCrossing = useCallback(
+		(
+			currentPlayerX,
+			currentPlayerZ,
+			lastPlayerX,
+			lastPlayerZ,
+			playerPositionRoom,
+			roomCount
+		) => {
+			const currentPlayerZAbs = Math.abs(currentPlayerZ);
+			const lastPlayerZAbs = Math.abs(lastPlayerZ || 0);
+
+			const isBottomRow = playerPositionRoom >= roomCount / 2;
+			let roomIndex = 0;
+			if (isBottomRow) {
+				roomIndex = playerPositionRoom - Math.floor(roomCount / 2);
+			} else {
+				roomIndex = playerPositionRoom;
+			}
+			const roomOffsetX = calculateRoomOffsetX(playerPositionRoom, roomCount);
+
+			const wallZPositions = [8, 4.4, 1.4];
+			for (const wallZ of wallZPositions) {
+				const wasBeforeWall = lastPlayerZAbs < wallZ;
+				const isAfterWall = currentPlayerZAbs > wallZ;
+				const wasBeyondWall = lastPlayerZAbs > wallZ;
+				const isBeforeWall = currentPlayerZAbs < wallZ;
+
+				if ((wasBeforeWall && isAfterWall) || (wasBeyondWall && isBeforeWall)) {
+					return true;
+				}
+			}
+
+			const playerInZone = currentPlayerZAbs < 4.2 || lastPlayerZAbs < 4.2;
+
+			if (playerInZone) {
+				const wallXPosition = -1.35 + roomOffsetX + 2.92;
+				const wasBeforeWallX = (lastPlayerX || 0) < wallXPosition;
+				const isAfterWallX = currentPlayerX > wallXPosition;
+				const wasBeyondWallX = (lastPlayerX || 0) > wallXPosition;
+				const isBeforeWallX = currentPlayerX < wallXPosition;
+
+				if (
+					(wasBeforeWallX && isAfterWallX) ||
+					(wasBeyondWallX && isBeforeWallX)
+				) {
+					return true;
+				}
+			}
+
+			return false;
+		},
+		[]
+	);
+
+	const checkAndHandleXWaypoint = useCallback(
+		(waypoint, playerPositionRoom, roomCount) => {
+			const isBottomRow = playerPositionRoom >= roomCount / 2;
+			let roomIndex = 0;
+			if (isBottomRow) {
+				roomIndex = playerPositionRoom - Math.floor(roomCount / 2);
+			} else {
+				roomIndex = playerPositionRoom;
+			}
+			const roomOffsetX = calculateRoomOffsetX(playerPositionRoom, roomCount);
+
+			const expectedXWaypointX =
+				roomOffsetX + (isBottomRow ? 1.35 : -1.35) + 2.92;
+			let expectedXWaypointZ = 3.7;
+			if (isBottomRow) {
+				expectedXWaypointZ = -expectedXWaypointZ;
+			}
+
+			const tolerance = 0.1;
+			const isXWaypoint =
+				Math.abs(waypoint.x - expectedXWaypointX) < tolerance &&
+				Math.abs(waypoint.z - expectedXWaypointZ) < tolerance;
+
+			if (isXWaypoint) {
+				setBathroomDoors(playerPositionRoom, true);
+
+				const waypointKey = `x_${expectedXWaypointX}_${expectedXWaypointZ}`;
+				setVisitedWaypoints((prev) => ({
+					...prev,
+					[waypointKey]: true,
+				}));
+				return true;
+			}
+
+			return false;
+		},
+		[setBathroomDoors]
+	);
+
 	const requestPathfinding = useCallback(
 		async (monsterX, monsterZ, targetX, targetZ) => {
-			if (!useWorkerPathfinding || !isWorkerReady || isPathfindingInProgress) {
+			if (
+				!useSimplePathfindingEnabled ||
+				!isWorkerReady ||
+				isPathfindingInProgress
+			) {
 				return null;
 			}
 
@@ -215,7 +342,15 @@ export default function useMonsterLogic(isCCBVersion = false) {
 			setIsPathfindingInProgress(true);
 
 			try {
-				const path = await findPathWorker(monsterX, monsterZ, targetX, targetZ);
+				const path = await findPathWorker(
+					monsterX,
+					monsterZ,
+					targetX,
+					targetZ,
+					playerPositionRoom,
+					roomCount,
+					visitedWaypoints
+				);
 
 				if (
 					pathfindingRequestRef.current?.id === requestId &&
@@ -233,10 +368,13 @@ export default function useMonsterLogic(isCCBVersion = false) {
 			}
 		},
 		[
-			useWorkerPathfinding,
+			useSimplePathfindingEnabled,
 			isWorkerReady,
 			isPathfindingInProgress,
 			findPathWorker,
+			playerPositionRoom,
+			roomCount,
+			visitedWaypoints,
 		]
 	);
 
@@ -436,15 +574,14 @@ export default function useMonsterLogic(isCCBVersion = false) {
 				}
 
 				if (mode === 'run') {
-					const monsterX = group.current.position.x * 10;
-					const monsterZ = group.current.position.z * 10;
-					const targetX = camera.position.x * 10;
-					const targetZ = camera.position.z * 10;
+					const monsterX = group.current.position.x;
+					const monsterZ = group.current.position.z;
+					const targetX = camera.position.x;
+					const targetZ = camera.position.z;
 
-					const distanceMoved = Math.sqrt(
-						Math.pow(lastTargetRef.current.x - targetX, 2) +
-							Math.pow(lastTargetRef.current.z - targetZ, 2)
-					);
+					const currentTime = performance.now();
+					const timeSinceLastPathfinding =
+						currentTime - lastPathfindingTimeRef.current;
 
 					const monsterPos = new THREE.Vector3(
 						group.current.position.x,
@@ -467,7 +604,10 @@ export default function useMonsterLogic(isCCBVersion = false) {
 							camera.position.z - group.current.position.z
 						).normalize();
 
-						const moveSpeed = speed * delta;
+						const moveSpeed = calculateFrameRateIndependentMovement(
+							speed,
+							delta
+						);
 						const movement = direction.clone().multiplyScalar(moveSpeed);
 						group.current.position.add(movement);
 
@@ -479,16 +619,23 @@ export default function useMonsterLogic(isCCBVersion = false) {
 						return;
 					}
 
-					// Use pathfinding logic
-					console.log(
-						'distanceMoved',
-						distanceMoved,
-						minDistanceForRecalculation
+					const playerCrossedWall = checkWallCrossing(
+						camera.position.x,
+						camera.position.z,
+						lastTargetRef.current.x,
+						lastTargetRef.current.z,
+						playerPositionRoom,
+						roomCount
 					);
-					if (!currentPath || distanceMoved > minDistanceForRecalculation) {
-						if (useWorkerPathfinding) {
-							// Reset lastTargetRef immediately when pathfinding is triggered
+
+					if (
+						!currentPath ||
+						timeSinceLastPathfinding > PATHFINDING_INTERVAL ||
+						playerCrossedWall
+					) {
+						if (useSimplePathfindingEnabled) {
 							lastTargetRef.current = { x: targetX, z: targetZ };
+							lastPathfindingTimeRef.current = currentTime;
 
 							requestPathfinding(monsterX, monsterZ, targetX, targetZ).then(
 								(newPath) => {
@@ -516,12 +663,15 @@ export default function useMonsterLogic(isCCBVersion = false) {
 						const nextPoint = currentPath[1];
 
 						const direction = new THREE.Vector3(
-							nextPoint.x / 10 - group.current.position.x,
+							nextPoint.x - group.current.position.x,
 							0,
-							nextPoint.z / 10 - group.current.position.z
+							nextPoint.z - group.current.position.z
 						).normalize();
 
-						const moveSpeed = speed * delta;
+						const moveSpeed = calculateFrameRateIndependentMovement(
+							speed,
+							delta
+						);
 						const movement = direction.clone().multiplyScalar(moveSpeed);
 						group.current.position.add(movement);
 
@@ -532,12 +682,91 @@ export default function useMonsterLogic(isCCBVersion = false) {
 						);
 
 						const distanceToNextPoint = Math.sqrt(
-							Math.pow(nextPoint.x / 10 - group.current.position.x, 2) +
-								Math.pow(nextPoint.z / 10 - group.current.position.z, 2)
+							Math.pow(nextPoint.x - group.current.position.x, 2) +
+								Math.pow(nextPoint.z - group.current.position.z, 2)
 						);
 
 						if (distanceToNextPoint < NEXT_POINT_THRESHOLD) {
+							const isXWaypoint = checkAndHandleXWaypoint(
+								nextPoint,
+								playerPositionRoom,
+								roomCount
+							);
+							const waypointType = isXWaypoint ? 'x' : 'z';
+							const waypointKey = `${waypointType}_${nextPoint.x.toFixed(
+								2
+							)}_${nextPoint.z.toFixed(2)}`;
+							setVisitedWaypoints((prev) => ({
+								...prev,
+								[waypointKey]: true,
+							}));
+
+							const isZ44Waypoint = Math.abs(Math.abs(nextPoint.z) - 4.4) < 0.1;
+							const playerZAbs = Math.abs(camera.position.z);
+							const playerInCriticalZone = playerZAbs > 1.4 && playerZAbs < 4.4;
+
+							if (isZ44Waypoint && playerInCriticalZone) {
+								const isBottomRow = playerPositionRoom >= roomCount / 2;
+								let roomIndex = 0;
+								if (isBottomRow) {
+									roomIndex = playerPositionRoom - Math.floor(roomCount / 2);
+								} else {
+									roomIndex = playerPositionRoom;
+								}
+								const roomOffsetX = calculateRoomOffsetX(
+									playerPositionRoom,
+									roomCount
+								);
+
+								const wallX = -1.35 + roomOffsetX + 2.92;
+								const playerInBathroom = isBottomRow
+									? camera.position.x > wallX
+									: camera.position.x < wallX;
+								const monsterInBathroom = isBottomRow
+									? group.current.position.x > wallX
+									: group.current.position.x < wallX;
+								const needsXWaypoint = playerInBathroom;
+
+								if (needsXWaypoint) {
+									let xWaypointX =
+										roomOffsetX + (isBottomRow ? 1.35 : -1.35) + 2.92;
+									let xWaypointZ = 3.7;
+									if (isBottomRow) {
+										xWaypointZ = -xWaypointZ;
+									}
+
+									const xWaypointKey = `x_${xWaypointX.toFixed(
+										2
+									)}_${xWaypointZ.toFixed(2)}`;
+									setVisitedWaypoints((prev) => ({
+										...prev,
+										[xWaypointKey]: true,
+									}));
+									setTimeout(() => {
+										setBathroomDoors(playerPositionRoom, true);
+									}, 50);
+
+									const forcedPath = [
+										{
+											x: group.current.position.x,
+											z: group.current.position.z,
+											cost: 1,
+											weight: 1,
+										},
+										{ x: xWaypointX, z: xWaypointZ, cost: 1, weight: 1 },
+									];
+
+									setCurrentPath(forcedPath);
+									return;
+								}
+							}
+
 							setCurrentPath(currentPath.slice(1));
+
+							const monsterZAbs = Math.abs(group.current.position.z);
+							if (monsterZAbs > 1.4 && monsterZAbs < 4.4) {
+								lastPathfindingTimeRef.current = 0;
+							}
 						}
 					} else {
 						const direction = new THREE.Vector3(
@@ -546,7 +775,10 @@ export default function useMonsterLogic(isCCBVersion = false) {
 							camera.position.z - group.current.position.z
 						).normalize();
 
-						const moveSpeed = speed * delta;
+						const moveSpeed = calculateFrameRateIndependentMovement(
+							speed,
+							delta
+						);
 						const movement = direction.clone().multiplyScalar(moveSpeed);
 						group.current.position.add(movement);
 
@@ -557,17 +789,15 @@ export default function useMonsterLogic(isCCBVersion = false) {
 						);
 					}
 				} else {
-					// Chase mode pathfinding logic
 					const isBottomRow = playerPositionRoom >= roomCount / 2;
-					const monsterX = group.current.position.x * 10;
-					const monsterZ = group.current.position.z * 10;
-					const targetX = camera.position.x * 10;
-					const targetZ = camera.position.z * 10;
+					const monsterX = group.current.position.x;
+					const monsterZ = group.current.position.z;
+					const targetX = camera.position.x;
+					const targetZ = camera.position.z;
 
-					const distanceMoved = Math.sqrt(
-						Math.pow(lastTargetRef.current.x - targetX, 2) +
-							Math.pow(lastTargetRef.current.z - targetZ, 2)
-					);
+					const currentTime = performance.now();
+					const timeSinceLastPathfinding =
+						currentTime - lastPathfindingTimeRef.current;
 
 					if (directPathFailures >= maxDirectPathFailures) {
 						const direction = new THREE.Vector3(
@@ -576,7 +806,10 @@ export default function useMonsterLogic(isCCBVersion = false) {
 							camera.position.z - group.current.position.z
 						).normalize();
 
-						const moveSpeed = speed * delta;
+						const moveSpeed = calculateFrameRateIndependentMovement(
+							speed,
+							delta
+						);
 						const movement = direction.clone().multiplyScalar(moveSpeed);
 						group.current.position.add(movement);
 
@@ -584,7 +817,20 @@ export default function useMonsterLogic(isCCBVersion = false) {
 						return;
 					}
 
-					if (!currentPath || distanceMoved > minDistanceForRecalculation) {
+					const playerCrossedWall = checkWallCrossing(
+						camera.position.x,
+						camera.position.z,
+						lastTargetRef.current.x,
+						lastTargetRef.current.z,
+						playerPositionRoom,
+						roomCount
+					);
+
+					if (
+						!currentPath ||
+						timeSinceLastPathfinding > PATHFINDING_INTERVAL ||
+						playerCrossedWall
+					) {
 						const roomKey = Object.keys(seedData)[playerPositionRoom];
 						const roomData = Object.values(seedData)[playerPositionRoom];
 						const isFirstPathfinding = !usedForcedPathfinding[roomKey];
@@ -595,16 +841,10 @@ export default function useMonsterLogic(isCCBVersion = false) {
 							roomData.forcedGridZ !== undefined &&
 							isFirstPathfinding
 						) {
-							const CORRIDOR_LENGTH = 5.95;
-							let roomIndex = 0;
-
-							if (isBottomRow) {
-								roomIndex = playerPositionRoom - Math.floor(roomCount / 2);
-							} else {
-								roomIndex = playerPositionRoom;
-							}
-
-							const roomOffsetX = -roomIndex * CORRIDOR_LENGTH * 10;
+							const roomOffsetX = calculateRoomOffsetX(
+								playerPositionRoom,
+								roomCount
+							);
 
 							let gridX = roomData.forcedGridX;
 							let gridZ = roomData.forcedGridZ;
@@ -633,8 +873,9 @@ export default function useMonsterLogic(isCCBVersion = false) {
 
 						const monsterZOffset = isBottomRow ? 2 : 0;
 
-						if (useWorkerPathfinding) {
+						if (useSimplePathfindingEnabled) {
 							lastTargetRef.current = { x: targetX, z: targetZ };
+							lastPathfindingTimeRef.current = currentTime;
 
 							requestPathfinding(
 								monsterX,
@@ -663,24 +904,106 @@ export default function useMonsterLogic(isCCBVersion = false) {
 						const nextPoint = currentPath[1];
 
 						const direction = new THREE.Vector3(
-							nextPoint.x / 10 - group.current.position.x,
+							nextPoint.x - group.current.position.x,
 							0,
-							nextPoint.z / 10 - group.current.position.z
+							nextPoint.z - group.current.position.z
 						).normalize();
 
-						const moveSpeed = speed * delta;
+						const moveSpeed = calculateFrameRateIndependentMovement(
+							speed,
+							delta
+						);
 						const movement = direction.clone().multiplyScalar(moveSpeed);
 						group.current.position.add(movement);
 
 						lookAtCamera(camera);
 
 						const distanceToNextPoint = Math.sqrt(
-							Math.pow(nextPoint.x / 10 - group.current.position.x, 2) +
-								Math.pow(nextPoint.z / 10 - group.current.position.z, 2)
+							Math.pow(nextPoint.x - group.current.position.x, 2) +
+								Math.pow(nextPoint.z - group.current.position.z, 2)
 						);
 
 						if (distanceToNextPoint < NEXT_POINT_THRESHOLD) {
+							const isXWaypoint = checkAndHandleXWaypoint(
+								nextPoint,
+								playerPositionRoom,
+								roomCount
+							);
+							const waypointType = isXWaypoint ? 'x' : 'z';
+							const waypointKey = `${waypointType}_${nextPoint.x.toFixed(
+								2
+							)}_${nextPoint.z.toFixed(2)}`;
+							setVisitedWaypoints((prev) => ({
+								...prev,
+								[waypointKey]: true,
+							}));
+
+							const isZ44Waypoint = Math.abs(Math.abs(nextPoint.z) - 4.4) < 0.1;
+							const playerZAbs = Math.abs(camera.position.z);
+							const playerInCriticalZone = playerZAbs > 1.4 && playerZAbs < 4.4;
+
+							if (isZ44Waypoint && playerInCriticalZone) {
+								const isBottomRow = playerPositionRoom >= roomCount / 2;
+								let roomIndex = 0;
+								if (isBottomRow) {
+									roomIndex = playerPositionRoom - Math.floor(roomCount / 2);
+								} else {
+									roomIndex = playerPositionRoom;
+								}
+								const roomOffsetX = calculateRoomOffsetX(
+									playerPositionRoom,
+									roomCount
+								);
+
+								const wallX = -1.35 + roomOffsetX + 2.92;
+								const playerInBathroom = isBottomRow
+									? camera.position.x > wallX
+									: camera.position.x < wallX;
+								const monsterInBathroom = isBottomRow
+									? group.current.position.x > wallX
+									: group.current.position.x < wallX;
+								const needsXWaypoint = playerInBathroom;
+
+								if (needsXWaypoint) {
+									let xWaypointX =
+										roomOffsetX + (isBottomRow ? 1.35 : -1.35) + 2.92;
+									let xWaypointZ = 3.7;
+									if (isBottomRow) {
+										xWaypointZ = -xWaypointZ;
+									}
+
+									const xWaypointKey = `x_${xWaypointX.toFixed(
+										2
+									)}_${xWaypointZ.toFixed(2)}`;
+									setVisitedWaypoints((prev) => ({
+										...prev,
+										[xWaypointKey]: true,
+									}));
+									setTimeout(() => {
+										setBathroomDoors(playerPositionRoom, true);
+									}, 50);
+
+									const forcedPath = [
+										{
+											x: group.current.position.x,
+											z: group.current.position.z,
+											cost: 1,
+											weight: 1,
+										},
+										{ x: xWaypointX, z: xWaypointZ, cost: 1, weight: 1 },
+									];
+
+									setCurrentPath(forcedPath);
+									return;
+								}
+							}
+
 							setCurrentPath(currentPath.slice(1));
+
+							const monsterZAbs = Math.abs(group.current.position.z);
+							if (monsterZAbs > 1.4 && monsterZAbs < 4.4) {
+								lastPathfindingTimeRef.current = 0;
+							}
 						}
 					} else {
 						const direction = new THREE.Vector3(
@@ -689,11 +1012,18 @@ export default function useMonsterLogic(isCCBVersion = false) {
 							camera.position.z - group.current.position.z
 						).normalize();
 
-						const moveSpeed = speed * delta;
+						const moveSpeed = calculateFrameRateIndependentMovement(
+							speed,
+							delta
+						);
 						const movement = direction.clone().multiplyScalar(moveSpeed);
 						group.current.position.add(movement);
 
-						lookAtCamera(camera);
+						group.current.lookAt(
+							camera.position.x,
+							group.current.position.y,
+							camera.position.z
+						);
 					}
 				}
 			}
@@ -726,12 +1056,14 @@ export default function useMonsterLogic(isCCBVersion = false) {
 			requestPathfinding,
 			isCCBVersion,
 			maxDirectPathFailures,
-			useWorkerPathfinding,
-			minDistanceForRecalculation,
+			useSimplePathfindingEnabled,
+			calculateFrameRateIndependentMovement,
+			checkWallCrossing,
+			checkAndHandleXWaypoint,
+			setVisitedWaypoints,
 		]
 	);
 
-	// Performance delta calculation
 	useFrame(() => {
 		const currentTime = performance.now();
 		const delta = Math.min(
@@ -742,7 +1074,6 @@ export default function useMonsterLogic(isCCBVersion = false) {
 		performanceDeltaRef.current = delta;
 	});
 
-	// Head tracking logic
 	const setupHeadTracking = useCallback((nodes) => {
 		if (!nodes || !nodes.mixamorigHips) return;
 
@@ -753,7 +1084,6 @@ export default function useMonsterLogic(isCCBVersion = false) {
 		});
 	}, []);
 
-	// Head look at camera frame logic
 	const useHeadTracking = useCallback(() => {
 		useFrame(({ camera }) => {
 			if (
@@ -808,7 +1138,6 @@ export default function useMonsterLogic(isCCBVersion = false) {
 		playerPositionRoom,
 	]);
 
-	// Monster rotation sync
 	useEffect(() => {
 		if (group.current) {
 			group.current.rotation.set(
@@ -819,7 +1148,6 @@ export default function useMonsterLogic(isCCBVersion = false) {
 		}
 	}, [monsterRotation]);
 
-	// Reset head rotation for certain states
 	useEffect(() => {
 		if (
 			(isEndAnimationPlaying || monsterState === 'endAnimation') &&
@@ -835,7 +1163,6 @@ export default function useMonsterLogic(isCCBVersion = false) {
 		}
 	}, [monsterState]);
 
-	// End animation look at camera
 	const useEndAnimationLookAt = useCallback(() => {
 		useFrame(({ camera }) => {
 			if (monsterState === 'endAnimation' || isEndAnimationPlaying) {
@@ -851,7 +1178,6 @@ export default function useMonsterLogic(isCCBVersion = false) {
 		});
 	}, [monsterState, isEndAnimationPlaying]);
 
-	// Ceiling position logic
 	useEffect(() => {
 		if (
 			(monsterState === 'hidden' && animationName === 'CeilingCrawlIdle') ||
@@ -869,7 +1195,6 @@ export default function useMonsterLogic(isCCBVersion = false) {
 		}
 	}, [monsterState, animationName, roomDoors]);
 
-	// Main monster behavior frame logic
 	const useMonsterBehavior = useCallback(() => {
 		useFrame(({ camera }) => {
 			if (monsterState === 'facingCamera') {
@@ -933,14 +1258,11 @@ export default function useMonsterLogic(isCCBVersion = false) {
 					return;
 				}
 
-				const CORRIDOR_LENGTH = 5.95;
-				let roomX;
-				if (playerPositionRoom >= roomCount / 2) {
-					roomX = -(playerPositionRoom - roomCount / 2) * CORRIDOR_LENGTH;
-				} else {
-					roomX = -playerPositionRoom * CORRIDOR_LENGTH;
-				}
-				const roomPosition = new THREE.Vector3(roomX, 0, 0);
+				const roomPosition = new THREE.Vector3(
+					calculateRoomOffsetX(playerPositionRoom, roomCount),
+					0,
+					0
+				);
 				targetPosition.add(roomPosition);
 
 				group.current.position.copy(targetPosition);
@@ -1014,7 +1336,6 @@ export default function useMonsterLogic(isCCBVersion = false) {
 		endAnimationPlaying,
 	]);
 
-	// Cleanup timeouts
 	useEffect(() => {
 		return () => {
 			if (timeoutRef.current) {
@@ -1027,7 +1348,6 @@ export default function useMonsterLogic(isCCBVersion = false) {
 		};
 	}, []);
 
-	// Clear timeout when not leaving
 	useEffect(() => {
 		if (monsterState !== 'leaving' && timeoutRef.current) {
 			clearTimeout(timeoutRef.current);
@@ -1036,14 +1356,12 @@ export default function useMonsterLogic(isCCBVersion = false) {
 		}
 	}, [monsterState]);
 
-	// Reset head rotation for punch animation
 	useEffect(() => {
 		if (animationName === 'Punch' && headBoneRef.current) {
 			headBoneRef.current.rotation.set(0, 0, 0);
 		}
 	}, [animationName]);
 
-	// Death vibration trigger
 	const useDeathVibration = useCallback(() => {
 		useFrame(() => {
 			if (
@@ -1066,11 +1384,9 @@ export default function useMonsterLogic(isCCBVersion = false) {
 	}, [jumpScare, animationName, hasTriggeredDeathVibration]);
 
 	return {
-		// Refs
 		group,
 		headBoneRef,
 
-		// State
 		hasPlayedJumpScare,
 		hasTriggeredVibration,
 		hasTriggeredDeathVibration,
@@ -1079,15 +1395,12 @@ export default function useMonsterLogic(isCCBVersion = false) {
 		currentPath,
 		isWaiting,
 
-		// Constants
 		MONSTER_HEIGHT,
 
-		// Functions
 		lookAtCamera,
 		runAtCamera,
 		setupHeadTracking,
 
-		// Hooks to use in components
 		useHeadTracking,
 		useEndAnimationLookAt,
 		useMonsterBehavior,

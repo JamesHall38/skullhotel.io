@@ -396,7 +396,7 @@ const levelData = {
 		position: [2.5, 0, -0.6],
 		scale: [2.5, 0.5, 2],
 		monsterPosition: [1.5, 0, 6],
-		monsterInitialPosition: [1.52, 0, 5.7],
+		monsterInitialPosition: [1.52, 0, 5.85],
 		monsterInitialRotation: [0, Math.PI, 0],
 		animation: 'BehindWindow',
 		lookAtPoint: [1.52, 0, 5.7],

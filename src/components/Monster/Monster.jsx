@@ -13,13 +13,10 @@ const Monster = (props) => {
 		window.location.hash.includes('CCB') ||
 		window.location.pathname.includes('CCB');
 
-	// Use shared monster logic
 	const monsterLogic = useMonsterLogic(isCCBVersion);
 
 	const {
 		group,
-		headBoneRef,
-		MONSTER_HEIGHT,
 		setupHeadTracking,
 		useHeadTracking,
 		useEndAnimationLookAt,
@@ -55,7 +52,6 @@ const Monster = (props) => {
 		};
 	}, [materials, isCCBVersion]);
 
-	// Monster parts for progressive loading
 	const monsterParts = useMemo(
 		() => [
 			{ name: 'skeleton', label: 'Base structure' },
@@ -83,10 +79,8 @@ const Monster = (props) => {
 	const monsterPosition = useMonster((state) => state.monsterPosition);
 	const monsterRotation = useMonster((state) => state.monsterRotation);
 
-	// Initialize head tracking when nodes are loaded
 	setupHeadTracking(nodes);
 
-	// Use the hooks from monsterLogic
 	useHeadTracking();
 	useEndAnimationLookAt();
 	useMonsterBehavior();

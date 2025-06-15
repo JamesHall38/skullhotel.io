@@ -24,12 +24,7 @@ export const getMonsterInitialPosition = (
 		position[2] + (controlsPosition[2] || 0),
 	];
 
-	return getAdjustedPosition(
-		initialPosition,
-		isFacingRoom,
-		playerPositionRoom,
-		roomCount
-	);
+	return getAdjustedPosition(initialPosition, isFacingRoom);
 };
 
 export const getAdjustedPosition = (initialPosition, isFacingRoom) => {
@@ -100,25 +95,23 @@ export const placeMonsterAtSecondPosition = (
 		Object.values(seedData)[playerPositionRoom]?.monsterInitialRotation;
 
 	if (monsterInitialPosition) {
-		let roomX;
-		if (playerPositionRoom >= roomCount / 2) {
-			roomX = -(playerPositionRoom - roomCount / 2) * 5.95;
-		} else {
-			roomX = -playerPositionRoom * 5.95;
-		}
+		const newPosition = getMonsterInitialPosition(
+			playerPositionRoom,
+			roomCount,
+			position,
+			monsterInitialPosition
+		);
 
-		setMonsterPosition([
-			monsterInitialPosition[0] + roomX + position[0],
-			monsterInitialPosition[1] || 0,
-			monsterInitialPosition[2] + position[2],
-		]);
+		setMonsterPosition([newPosition[0], newPosition[1], newPosition[2]]);
 
 		if (monsterInitialRotation && setMonsterRotation) {
-			const isFacingRoom = playerPositionRoom >= roomCount / 2;
 			setMonsterRotation([
-				monsterInitialRotation[0] * (isFacingRoom ? -1 : 1),
-				monsterInitialRotation[1] + (isFacingRoom ? Math.PI : 0),
-				monsterInitialRotation[2],
+				monsterInitialRotation[0] *
+					(playerPositionRoom >= roomCount / 2 ? -1 : 1),
+				monsterInitialRotation[1] +
+					(playerPositionRoom >= roomCount / 2 ? Math.PI : 0),
+				monsterInitialRotation[2] +
+					(playerPositionRoom >= roomCount / 2 ? 0 : 0),
 			]);
 		}
 	}
@@ -136,14 +129,9 @@ export const shakeCamera = (
 
 	if (shouldShake) {
 		if (delayed) {
-			// if (shakeIntensity === 0) {
 			if (shakeStartTime === 0) {
 				shakeStartTime = currentTime;
 			}
-
-			// setShakeIntensity(
-			// 	Math.min(10, shakeIntensity + SHAKE_INCREASE_RATE * deltaTime * 60)
-			// );
 
 			const timeElapsed = currentTime - shakeStartTime;
 			if (timeElapsed > SHAKE_DURATION_MS) {

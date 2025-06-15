@@ -39,14 +39,6 @@ The console displays your current game seed with each enemy type represented by 
   <img src="./assets/grid-visualization.png" alt="Room Grid Visualization">
 </div>
 
-#### Pathfinding Visualization
-
-Blue cells are weights for an A\* pathfinding algorithm. Monsters will always choose the path with the lowest total weight to reach their target, creating fluid movement patterns that avoid unnatural wall-hugging behaviors.
-
-<div align="center">
-  <img src="./assets/pathfinding-visualization.png" alt="Pathfinding Visualization">
-</div>
-
 ## Resources 📚
 
 - **Mixamo**: Character model and animations
