@@ -47,8 +47,7 @@
 			"youDied": "ÖLDÜN",
 			"hidingSpotsFound": " saklanma yeri bulundu",
 			"continue": "DEVAM ET",
-			"restarting": "Yeniden başlatılıyor...",
-			"raidWarning": "Bir müşterinin kapıyı çaldığını duyarsan, gidene kadar saklan"
+			"restarting": "Yeniden başlatılıyor..."
 		},
 		"firstDeathPopup": {
 			"title": "Haberi yaymamıza yardım edin!",
@@ -97,7 +96,6 @@
 			"welcomeHousekeeper": "Hoş geldin. Yeni temizlik görevlisi olmalısın.",
 			"closeDoors": "Odayı temizlerken onlar girebilir, bu yüzden arkandan kapıları her zaman kapat.",
 			"bathroomWarning": "Banyodan ses duyarsan kapıyı açma - hemen git.",
-			"hideWarning": "Kapı çalma sesi duyarsan veya işaretler fark edersen hemen saklan.",
 			"checkRoom": "Tüm odayı dikkatli kontrol et. Her yerde saklanıyor olabilirler.",
 			"spotWarning": "Onlardan birini görürsen hızlıca kapıyı kapat ve odadan çık.",
 			"wellDone": "Aferin! Şimdi günü bitirmek için 8 oda temizle.",

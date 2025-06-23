@@ -47,8 +47,7 @@
 			"youDied": "VOUS ÊTES MORT",
 			"hidingSpotsFound": " cachettes trouvées",
 			"continue": "CONTINUER",
-			"restarting": "Redémarrage...",
-			"raidWarning": "Si vous entendez un client frapper à la porte, cachez-vous jusqu'à ce qu'il parte"
+			"restarting": "Redémarrage..."
 		},
 		"firstDeathPopup": {
 			"title": "Aidez-nous à faire connaître le jeu !",
@@ -97,7 +96,6 @@
 			"welcomeHousekeeper": "Bienvenue. Vous devez être la nouvelle femme de ménage.",
 			"closeDoors": "Fermez toujours les portes derrière vous ou ils pourraient entrer pendant que vous nettoyez la chambre.",
 			"bathroomWarning": "Si vous entendez des bruits venant de la salle de bain, n'ouvrez pas la porte - partez immédiatement.",
-			"hideWarning": "Si vous entendez des coups ou remarquez des signes, cachez-vous immédiatement.",
 			"checkRoom": "Vérifiez toute la chambre attentivement. Ils pourraient se cacher n'importe où.",
 			"spotWarning": "Si vous en apercevez un, fermez rapidement la porte et sortez de la chambre.",
 			"wellDone": "Bien joué ! Maintenant nettoyez 8 chambres pour finir la journée.",

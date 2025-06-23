@@ -47,8 +47,7 @@
 			"youDied": "ZGINĄŁEŚ",
 			"hidingSpotsFound": " kryjówek znalezionych",
 			"continue": "KONTYNUUJ",
-			"restarting": "Restartowanie...",
-			"raidWarning": "Jeśli usłyszysz klienta pukającego do drzwi, schowaj się dopóki nie odejdzie"
+			"restarting": "Restartowanie..."
 		},
 		"firstDeathPopup": {
 			"title": "Pomóżcie nam rozprzestrzenić wieść!",
@@ -97,7 +96,6 @@
 			"welcomeHousekeeper": "Witaj. Musisz być nową pokojówką.",
 			"closeDoors": "Zawsze zamykaj drzwi za sobą, bo mogą wejść podczas sprzątania pokoju.",
 			"bathroomWarning": "Jeśli usłyszysz dźwięki z łazienki, nie otwieraj drzwi - natychmiast odejdź.",
-			"hideWarning": "Jeśli usłyszysz pukanie lub zauważysz znaki, natychmiast się schowaj.",
 			"checkRoom": "Sprawdź cały pokój uważnie. Mogą się ukrywać wszędzie.",
 			"spotWarning": "Jeśli zobaczysz jednego z nich, szybko zamknij drzwi i wyjdź z pokoju.",
 			"wellDone": "Dobrze zrobione! Teraz posprzątaj 8 pokoi, aby skończyć dzień.",

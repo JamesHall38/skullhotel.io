@@ -104,7 +104,7 @@ const DeathScreen = () => {
 					? t(customMessage)
 					: customMessage;
 			} else if (currentRoom?.isRaid) {
-				message = t('ui.deathScreen.raidWarning');
+				message = t('game.deathReasons.raidKnocking');
 			} else if (currentRoom?.deathReason) {
 				const translationKey = getDeathReasonTranslationKey(
 					currentRoom.deathReason

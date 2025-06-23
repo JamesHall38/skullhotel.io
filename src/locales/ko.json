@@ -47,8 +47,7 @@
 			"youDied": "사망했습니다",
 			"hidingSpotsFound": " 개의 은신처를 발견했습니다",
 			"continue": "계속",
-			"restarting": "재시작 중...",
-			"raidWarning": "고객이 문을 두드리는 소리가 들리면 그들이 떠날 때까지 숨어있으세요"
+			"restarting": "재시작 중..."
 		},
 		"firstDeathPopup": {
 			"title": "입소문을 퍼뜨리는 데 도움을 주세요!",
@@ -97,7 +96,6 @@
 			"welcomeHousekeeper": "환영합니다. 새로운 하우스키퍼시군요.",
 			"closeDoors": "방을 청소하는 동안 그들이 들어올 수 있으니 항상 뒤에서 문을 닫으세요.",
 			"bathroomWarning": "욕실에서 소리가 들리면 문을 열지 말고 즉시 떠나세요.",
-			"hideWarning": "노크 소리가 들리거나 징후를 발견하면 즉시 숨으세요.",
 			"checkRoom": "방 전체를 주의깊게 확인하세요. 그들은 어디든 숨어있을 수 있습니다.",
 			"spotWarning": "그들 중 하나를 발견하면 빠르게 문을 닫고 방에서 나가세요.",
 			"wellDone": "잘했습니다! 이제 하루를 마치기 위해 8개의 방을 청소하세요.",

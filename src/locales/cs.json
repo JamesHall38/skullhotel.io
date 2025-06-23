@@ -47,8 +47,7 @@
 			"youDied": "ZEMŘELI JSTE",
 			"hidingSpotsFound": " úkrytů nalezeno",
 			"continue": "POKRAČOVAT",
-			"restarting": "Restartování...",
-			"raidWarning": "Pokud uslyšíte klienta klepat na dveře, schováte se, dokud neodejde"
+			"restarting": "Restartování..."
 		},
 		"firstDeathPopup": {
 			"title": "Pomozte nám šířit povědomí!",
@@ -97,7 +96,6 @@
 			"welcomeHousekeeper": "Vítejte. Musíte být nová pokojská.",
 			"closeDoors": "Vždy za sebou zavírejte dveře, jinak by mohli vstoupit, zatímco uklízíte pokoj.",
 			"bathroomWarning": "Pokud uslyšíte zvuky z koupelny, neotvírejte dveře - okamžitě odejděte.",
-			"hideWarning": "Pokud uslyšíte klepání nebo zpozorujete známky, okamžitě se schováte.",
 			"checkRoom": "Pečlivě zkontrolujte celý pokoj. Mohou se skrývat kdekoli.",
 			"spotWarning": "Pokud jednoho z nich uvidíte, rychle zavřete dveře a opusťte pokoj.",
 			"wellDone": "Výborně! Nyní ukliďte 8 pokojů, abyste ukončili den.",

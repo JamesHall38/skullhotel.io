@@ -47,8 +47,7 @@
 			"youDied": "DU BIST GESTORBEN",
 			"hidingSpotsFound": " Verstecke gefunden",
 			"continue": "WEITER",
-			"restarting": "Neustart...",
-			"raidWarning": "Wenn du einen Gast an der Tür klopfen hörst, verstecke dich bis er geht"
+			"restarting": "Neustart..."
 		},
 		"firstDeathPopup": {
 			"title": "Helft uns, das Wort zu verbreiten!",
@@ -97,7 +96,6 @@
 			"welcomeHousekeeper": "Willkommen. Du musst die neue Haushälterin sein.",
 			"closeDoors": "Schließe immer die Türen hinter dir oder sie könnten hereinkommen, während du das Zimmer putzt.",
 			"bathroomWarning": "Wenn du Geräusche aus dem Badezimmer hörst, öffne nicht die Tür - geh sofort weg.",
-			"hideWarning": "Wenn du Klopfen hörst oder Zeichen bemerkst, verstecke dich sofort.",
 			"checkRoom": "Überprüfe das ganze Zimmer sorgfältig. Sie könnten sich überall verstecken.",
 			"spotWarning": "Wenn du einen von ihnen siehst, schließe schnell die Tür und verlasse das Zimmer.",
 			"wellDone": "Gut gemacht! Jetzt putze 8 Zimmer, um den Tag zu beenden.",

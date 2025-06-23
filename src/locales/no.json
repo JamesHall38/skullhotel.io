@@ -47,8 +47,7 @@
 			"youDied": "DU DØDE",
 			"hidingSpotsFound": " gjemmesteder funnet",
 			"continue": "FORTSETT",
-			"restarting": "Starter på nytt...",
-			"raidWarning": "Hvis du hører en klient banke på døren, gjem deg til de går"
+			"restarting": "Starter på nytt..."
 		},
 		"firstDeathPopup": {
 			"title": "Hjelp oss å spre ordet!",
@@ -97,7 +96,6 @@
 			"welcomeHousekeeper": "Velkommen. Du må være den nye hushjelpen.",
 			"closeDoors": "Lukk alltid dører bak deg ellers kan de komme inn mens du rengjør rommet.",
 			"bathroomWarning": "Hvis du hører lyder fra badet, ikke åpne døren - gå bort med en gang.",
-			"hideWarning": "Hvis du hører banking eller legger merke til tegn, gjem deg med en gang.",
 			"checkRoom": "Sjekk hele rommet nøye. De kan gjemme seg hvor som helst.",
 			"spotWarning": "Hvis du ser en av dem, lukk døren raskt og forlat rommet.",
 			"wellDone": "Godt gjort! Nå rengjør 8 rom for å avslutte dagen.",

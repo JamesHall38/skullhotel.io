@@ -47,8 +47,7 @@
 			"youDied": "SEI MORTO",
 			"hidingSpotsFound": " nascondigli trovati",
 			"continue": "CONTINUA",
-			"restarting": "Riavvio...",
-			"raidWarning": "Se senti un cliente bussare alla porta, nasconditi finché non se ne va"
+			"restarting": "Riavvio..."
 		},
 		"firstDeathPopup": {
 			"title": "Aiutateci a spargere la voce!",
@@ -97,7 +96,6 @@
 			"welcomeHousekeeper": "Benvenuto. Devi essere la nuova governante.",
 			"closeDoors": "Chiudi sempre le porte dietro di te o potrebbero entrare mentre pulisci la stanza.",
 			"bathroomWarning": "Se senti rumori dal bagno, non aprire la porta - vai via immediatamente.",
-			"hideWarning": "Se senti bussare o noti dei segni, nasconditi immediatamente.",
 			"checkRoom": "Controlla tutta la stanza attentamente. Potrebbero nascondersi ovunque.",
 			"spotWarning": "Se ne vedi uno, chiudi rapidamente la porta ed esci dalla stanza.",
 			"wellDone": "Ben fatto! Ora pulisci 8 stanze per finire la giornata.",

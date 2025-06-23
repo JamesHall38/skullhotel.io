@@ -47,8 +47,7 @@
 			"youDied": "HAS MUERTO",
 			"hidingSpotsFound": " escondites encontrados",
 			"continue": "CONTINUAR",
-			"restarting": "Reiniciando...",
-			"raidWarning": "Si escuchas a un cliente golpeando la puerta, escóndete hasta que se vaya"
+			"restarting": "Reiniciando..."
 		},
 		"firstDeathPopup": {
 			"title": "¡Ayúdanos a correr la voz!",
@@ -97,7 +96,6 @@
 			"welcomeHousekeeper": "Bienvenido. Debes ser la nueva ama de llaves.",
 			"closeDoors": "Siempre cierra las puertas detrás de ti o podrían entrar mientras limpias la habitación.",
 			"bathroomWarning": "Si escuchas ruidos del baño, no abras la puerta - vete inmediatamente.",
-			"hideWarning": "Si escuchas golpes o notas alguna señal, escóndete inmediatamente.",
 			"checkRoom": "Revisa toda la habitación cuidadosamente. Podrían estar escondidos en cualquier lugar.",
 			"spotWarning": "Si ves a uno de ellos, cierra rápidamente la puerta y sal de la habitación.",
 			"wellDone": "¡Bien hecho! Ahora limpia 8 habitaciones para terminar el día.",

@@ -47,8 +47,7 @@
 			"youDied": "VOCÊ MORREU",
 			"hidingSpotsFound": " esconderijos encontrados",
 			"continue": "CONTINUAR",
-			"restarting": "Reiniciando...",
-			"raidWarning": "Se ouvir um cliente batendo na porta, se esconda até eles irem embora"
+			"restarting": "Reiniciando..."
 		},
 		"firstDeathPopup": {
 			"title": "Ajudem-nos a espalhar a palavra!",
@@ -97,7 +96,6 @@
 			"welcomeHousekeeper": "Bem-vindo. Você deve ser a nova governanta.",
 			"closeDoors": "Sempre feche as portas atrás de você ou eles podem entrar enquanto você limpa o quarto.",
 			"bathroomWarning": "Se ouvir sons do banheiro, não abra a porta - saia imediatamente.",
-			"hideWarning": "Se ouvir batidas ou notar sinais, se esconda imediatamente.",
 			"checkRoom": "Verifique todo o quarto cuidadosamente. Eles podem estar se escondendo em qualquer lugar.",
 			"spotWarning": "Se avistar um deles, feche rapidamente a porta e saia do quarto.",
 			"wellDone": "Muito bem! Agora limpe 8 quartos para terminar o dia.",

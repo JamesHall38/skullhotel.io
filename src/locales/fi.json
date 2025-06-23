@@ -47,8 +47,7 @@
 			"youDied": "KUOLIT",
 			"hidingSpotsFound": " piilopaikkaa löydetty",
 			"continue": "JATKA",
-			"restarting": "Käynnistetään uudelleen...",
-			"raidWarning": "Jos kuulet asiakkaan koputtavan ovea, piilossa kunnes he lähtevät"
+			"restarting": "Käynnistetään uudelleen..."
 		},
 		"firstDeathPopup": {
 			"title": "Auttakaa meitä levittämään sanaa!",
@@ -97,7 +96,6 @@
 			"welcomeHousekeeper": "Tervetuloa. Sinun täytyy olla uusi siivooja.",
 			"closeDoors": "Sulje aina ovet takanasi tai ne voivat tulla sisään kun siivoat huonetta.",
 			"bathroomWarning": "Jos kuulet ääniä kylpyhuoneesta, älä avaa ovea - lähde heti.",
-			"hideWarning": "Jos kuulet koputtamista tai huomaat merkkejä, piilossa heti.",
 			"checkRoom": "Tarkista koko huone huolellisesti. Ne voivat piilossa missä tahansa.",
 			"spotWarning": "Jos näet yhden niistä, sulje nopeasti ovi ja poistu huoneesta.",
 			"wellDone": "Hyvin tehty! Nyt siivoa 8 huonetta päättääksesi päivän.",

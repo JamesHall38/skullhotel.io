@@ -4,7 +4,7 @@ const dialogues = [
 	'game.dialogues.welcomeHousekeeper',
 	'game.dialogues.closeDoors',
 	'game.dialogues.bathroomWarning',
-	'game.dialogues.hideWarning',
+	'game.deathReasons.raidKnocking',
 	'game.dialogues.checkRoom',
 	'game.dialogues.spotWarning',
 	'game.dialogues.wellDone',

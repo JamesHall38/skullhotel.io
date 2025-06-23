@@ -47,8 +47,7 @@
 			"youDied": "AI MURIT",
 			"hidingSpotsFound": " locuri de ascuns găsite",
 			"continue": "CONTINUĂ",
-			"restarting": "Repornește...",
-			"raidWarning": "Dacă auzi un client bătând la ușă, ascunde-te până pleacă"
+			"restarting": "Repornește..."
 		},
 		"firstDeathPopup": {
 			"title": "Ajutați-ne să răspândim vestea!",
@@ -97,7 +96,6 @@
 			"welcomeHousekeeper": "Bine ai venit. Trebuie să fii noua menajeră.",
 			"closeDoors": "Închide întotdeauna ușile în urma ta sau ar putea intra în timp ce curăți camera.",
 			"bathroomWarning": "Dacă auzi sunete din baie, nu deschide ușa - pleacă imediat.",
-			"hideWarning": "Dacă auzi bătăi sau observi semne, ascunde-te imediat.",
 			"checkRoom": "Verifică întreaga cameră cu atenție. S-ar putea să se ascundă oriunde.",
 			"spotWarning": "Dacă vezi unul dintre ei, închide rapid ușa și ieși din cameră.",
 			"wellDone": "Bine făcut! Acum curăță 8 camere pentru a termina ziua.",

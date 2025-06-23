@@ -47,8 +47,7 @@
 			"youDied": "MEGHALTÁL",
 			"hidingSpotsFound": " rejtekhelyet találtál",
 			"continue": "FOLYTATÁS",
-			"restarting": "Újraindítás...",
-			"raidWarning": "Ha hallod, hogy egy vendég kopogtat az ajtón, bújj el, amíg el nem megy"
+			"restarting": "Újraindítás..."
 		},
 		"firstDeathPopup": {
 			"title": "Segítsetek terjeszteni a hírt!",
@@ -97,7 +96,6 @@
 			"welcomeHousekeeper": "Üdvözlünk. Te vagy az új takarítónő.",
 			"closeDoors": "Mindig zárd be magad mögött az ajtókat, különben bejöhetnek, amíg takarítod a szobát.",
 			"bathroomWarning": "Ha hangokat hallasz a fürdőszobából, ne nyisd ki az ajtót - menj el azonnal.",
-			"hideWarning": "Ha kopogást hallasz vagy jeleket veszel észre, azonnal bújj el.",
 			"checkRoom": "Ellenőrizd az egész szobát gondosan. Bárhol elbújhatnak.",
 			"spotWarning": "Ha meglátod egyiküket, gyorsan zárd be az ajtót és menj ki a szobából.",
 			"wellDone": "Szuper! Most takarítsd ki 8 szobát, hogy befejezd a napot.",

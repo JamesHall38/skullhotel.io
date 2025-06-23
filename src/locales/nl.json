@@ -47,8 +47,7 @@
 			"youDied": "JE BENT DOOD",
 			"hidingSpotsFound": " verstopplekken gevonden",
 			"continue": "DOORGAAN",
-			"restarting": "Herstarten...",
-			"raidWarning": "Als je een klant hoort kloppen, verstop je tot ze weggaan"
+			"restarting": "Herstarten..."
 		},
 		"firstDeathPopup": {
 			"title": "Help ons het woord te verspreiden!",
@@ -97,7 +96,6 @@
 			"welcomeHousekeeper": "Welkom. Je moet de nieuwe huishoudster zijn.",
 			"closeDoors": "Sluit altijd deuren achter je of ze kunnen binnenkomen terwijl je de kamer schoonmaakt.",
 			"bathroomWarning": "Als je geluiden uit de badkamer hoort, open de deur niet - ga meteen weg.",
-			"hideWarning": "Als je geklop hoort of tekenen opmerkt, verstop je meteen.",
 			"checkRoom": "Controleer de hele kamer zorgvuldig. Ze kunnen zich overal verstoppen.",
 			"spotWarning": "Als je een van hen ziet, sluit snel de deur en verlaat de kamer.",
 			"wellDone": "Goed gedaan! Maak nu 8 kamers schoon om de dag af te sluiten.",
