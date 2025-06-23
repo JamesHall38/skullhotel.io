@@ -342,6 +342,12 @@ export default function useMonsterLogic(isCCBVersion = false) {
 			setIsPathfindingInProgress(true);
 
 			try {
+				const currentRoomData = Object.values(seedData)[playerPositionRoom];
+				const isRaidMode =
+					currentRoomData?.isRaid === true ||
+					currentRoomData?.type === 'raid' ||
+					(monsterState === 'run' && Math.abs(monsterZ) < 1.4);
+
 				const path = await findPathWorker(
 					monsterX,
 					monsterZ,
@@ -349,7 +355,8 @@ export default function useMonsterLogic(isCCBVersion = false) {
 					targetZ,
 					playerPositionRoom,
 					roomCount,
-					visitedWaypoints
+					visitedWaypoints,
+					isRaidMode
 				);
 
 				if (
@@ -375,6 +382,8 @@ export default function useMonsterLogic(isCCBVersion = false) {
 			playerPositionRoom,
 			roomCount,
 			visitedWaypoints,
+			seedData,
+			monsterState,
 		]
 	);
 
@@ -1363,6 +1372,12 @@ export default function useMonsterLogic(isCCBVersion = false) {
 			headBoneRef.current.rotation.set(0, 0, 0);
 		}
 	}, [animationName]);
+
+	useEffect(() => {
+		if (monsterState === 'run') {
+			setBathroomDoors(playerPositionRoom, true);
+		}
+	}, [monsterState, playerPositionRoom, setBathroomDoors]);
 
 	const useDeathVibration = useCallback(() => {
 		useFrame(() => {

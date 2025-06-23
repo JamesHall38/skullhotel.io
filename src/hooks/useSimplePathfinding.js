@@ -48,7 +48,8 @@ const useSimplePathfinding = () => {
 			targetZ,
 			playerPositionRoom,
 			roomCount,
-			visitedWaypoints = {}
+			visitedWaypoints = {},
+			isRaidMode = false
 		) => {
 			const isBottomRow = playerPositionRoom >= roomCount / 2;
 
@@ -79,6 +80,81 @@ const useSimplePathfinding = () => {
 				const key = getWaypointKey(x, z, type);
 				return visitedWaypoints[key] === true;
 			};
+
+			if (isRaidMode) {
+				if (monsterZ < 1.4 && playerZ > 1.4) {
+					const corridorWall = WALL_OPENINGS.find(
+						(wall) => wall.zPosition === 1.4
+					);
+					const corridorWaypointX = corridorWall.getOpeningX(
+						roomOffsetX,
+						isBottomRow
+					);
+					let corridorWaypointZ = 1.4;
+
+					if (isBottomRow) {
+						corridorWaypointZ = -corridorWaypointZ;
+					}
+
+					if (!isWaypointVisited(corridorWaypointX, corridorWaypointZ, 'z')) {
+						path.push({
+							x: corridorWaypointX,
+							z: corridorWaypointZ,
+							cost: 1,
+							weight: 1,
+						});
+					}
+
+					for (const wall of WALL_OPENINGS) {
+						if (wall.type === 'z' && wall.zPosition > 1.4) {
+							const wallZ = wall.zPosition;
+
+							if (playerZ > wallZ) {
+								let waypointX = wall.getOpeningX(roomOffsetX, isBottomRow);
+								let waypointZ = wallZ;
+
+								if (isBottomRow) {
+									waypointZ = -waypointZ;
+								}
+
+								if (!isWaypointVisited(waypointX, waypointZ, 'z')) {
+									path.push({ x: waypointX, z: waypointZ, cost: 1, weight: 1 });
+								}
+							}
+						}
+					}
+
+					const playerInZone = Math.abs(targetZ) < 4.2;
+					if (playerInZone) {
+						const wallX = -1.35 + roomOffsetX + 2.92;
+						const playerInBathroom = isBottomRow
+							? playerX > wallX
+							: playerX < wallX;
+
+						if (playerInBathroom) {
+							const xWall = WALL_OPENINGS.find((wall) => wall.type === 'x');
+							if (xWall) {
+								let xWaypointX = xWall.getWaypointX(roomOffsetX, isBottomRow);
+								let xWaypointZ = xWall.getWaypointZ();
+								if (isBottomRow) {
+									xWaypointZ = -xWaypointZ;
+								}
+
+								if (!isWaypointVisited(xWaypointX, xWaypointZ, 'x')) {
+									path.push({
+										x: xWaypointX,
+										z: xWaypointZ,
+										cost: 1,
+										weight: 1,
+									});
+								}
+							}
+						}
+					}
+
+					return path;
+				}
+			}
 
 			if (Math.abs(targetZ) < 1.4) {
 				if (monsterZ > 1.4) {
