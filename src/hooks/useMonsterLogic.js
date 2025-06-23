@@ -1258,11 +1258,13 @@ export default function useMonsterLogic(isCCBVersion = false) {
 					return;
 				}
 
-				const roomPosition = new THREE.Vector3(
-					calculateRoomOffsetX(playerPositionRoom, roomCount),
-					0,
-					0
-				);
+				let roomX;
+				if (playerPositionRoom >= roomCount / 2) {
+					roomX = -(playerPositionRoom - roomCount / 2) * CORRIDOR_LENGTH;
+				} else {
+					roomX = -playerPositionRoom * CORRIDOR_LENGTH;
+				}
+				const roomPosition = new THREE.Vector3(roomX, 0, 0);
 				targetPosition.add(roomPosition);
 
 				group.current.position.copy(targetPosition);

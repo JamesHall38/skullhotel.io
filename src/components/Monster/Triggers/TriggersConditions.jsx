@@ -102,6 +102,7 @@ export default function TriggersConditions({
 	const attackTimeoutRef = useRef(null);
 	const quickTimeoutRef = useRef(null);
 	const raidRoomRef = useRef(null);
+	const raidAttackStartedRef = useRef(false);
 	const sonarBathroomRef = useRef({ stateSet: false, attackTriggered: false });
 	const hunterTriggeredRoomsRef = useRef({});
 	const hunterDoorClosedFromOutsideRef = useRef({});
@@ -161,7 +162,9 @@ export default function TriggersConditions({
 								playAnimation('Run');
 								setAnimationSpeed(1);
 								setSilentKnocking(false);
-							} else {
+
+								raidAttackStartedRef.current = true;
+							} else if (!raidAttackStartedRef.current) {
 								setMonsterKnocking(false);
 								setAnimationMixSpeed(2);
 								setAnimationSpeed(0.5);
@@ -540,6 +543,10 @@ export default function TriggersConditions({
 				) {
 					raidRoomRef.current = null;
 				}
+
+				if (monsterState === 'hidden' || monsterState === 'hiding') {
+					raidAttackStartedRef.current = false;
+				}
 			}
 		);
 
@@ -548,6 +555,7 @@ export default function TriggersConditions({
 
 	useEffect(() => {
 		sonarBathroomRef.current = { stateSet: false, attackTriggered: false };
+		raidAttackStartedRef.current = false;
 
 		claymoreDoorsRef.current = {};
 	}, [playerPositionRoom]);
