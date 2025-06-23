@@ -24,8 +24,6 @@ export default function Switches(props) {
 	const doneObjectives = useInterface((state) => state.interfaceObjectives);
 	const doneObjectivesNumberRef = useRef(doneObjectives);
 	const { nodes, materials } = useGLTF('/models/room/switchs.glb');
-	const [switch1Clickable, setSwitch2Clickable] = useState(false);
-	const [switch2Clickable, setSwitch1Clickable] = useState(false);
 	const [soundsReady, setSoundsReady] = useState(false);
 	const [bulbBurned, setBulbBurned] = useState(false);
 	const switch1Ref = useRef();
@@ -104,7 +102,7 @@ export default function Switches(props) {
 		if (!soundsReady) return;
 
 		if (mobileClick) {
-			if (switch1Clickable) {
+			if (cursor && cursor.includes('switch2')) {
 				const newBathroomLight = !bathroomLightRef.current;
 				setBathroomLight(newBathroomLight);
 				if (newBathroomLight) {
@@ -119,7 +117,7 @@ export default function Switches(props) {
 					neonSoundRef.current.currentTime = 0;
 				}
 			}
-			if (switch2Clickable) {
+			if (cursor && cursor.includes('switch1')) {
 				const newRoomLight = !roomLightRef.current;
 				setRoomLight(newRoomLight);
 				if (newRoomLight) {
@@ -131,14 +129,7 @@ export default function Switches(props) {
 				}
 			}
 		}
-	}, [
-		mobileClick,
-		switch1Clickable,
-		switch2Clickable,
-		setBathroomLight,
-		setRoomLight,
-		soundsReady,
-	]);
+	}, [mobileClick, cursor, setBathroomLight, setRoomLight, soundsReady]);
 
 	useEffect(() => {
 		if (!soundsReady) return;
@@ -150,7 +141,7 @@ export default function Switches(props) {
 				return;
 			}
 
-			if (switch1Clickable && cursor.includes('light')) {
+			if (cursor && cursor.includes('switch2')) {
 				wasClickProcessedRef.current = true;
 
 				setTimeout(() => {
@@ -179,7 +170,7 @@ export default function Switches(props) {
 				return;
 			}
 
-			if (switch2Clickable) {
+			if (cursor && cursor.includes('switch1')) {
 				wasClickProcessedRef.current = true;
 
 				setTimeout(() => {
@@ -228,8 +219,6 @@ export default function Switches(props) {
 		roomLight,
 		setBathroomLight,
 		setRoomLight,
-		switch1Clickable,
-		switch2Clickable,
 		soundsReady,
 		cursor,
 		doneObjectivesNumber,
@@ -239,23 +228,19 @@ export default function Switches(props) {
 
 	const handleDetectionSwitch1 = useCallback(() => {
 		setCursor('light-switch1');
-		setSwitch1Clickable(true);
-	}, [setCursor, setSwitch1Clickable]);
+	}, [setCursor]);
 
 	const handleDetectionSwitch2 = useCallback(() => {
 		setCursor('light-switch2');
-		setSwitch2Clickable(true);
-	}, [setCursor, setSwitch2Clickable]);
+	}, [setCursor]);
 
 	const handleDetectionEnd1 = useCallback(() => {
 		setCursor(null);
-		setSwitch1Clickable(false);
-	}, [setCursor, setSwitch1Clickable]);
+	}, [setCursor]);
 
 	const handleDetectionEnd2 = useCallback(() => {
 		setCursor(null);
-		setSwitch2Clickable(false);
-	}, [setCursor, setSwitch2Clickable]);
+	}, [setCursor]);
 
 	return (
 		<group {...props} dispose={null}>
