@@ -7,7 +7,7 @@ export default defineConfig({
 			'@': '/src',
 		},
 	},
-	base: './',
+	base: '/',
 	build: {
 		outDir: 'build',
 		rollupOptions: {
