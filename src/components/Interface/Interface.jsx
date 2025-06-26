@@ -58,7 +58,10 @@ const Dialogue = memo(({ id, text, index, onRemove }) => {
 	const { t } = useLocalization();
 
 	// Translate text if it's a translation key
-	const finalText = text.startsWith('game.dialogues.') ? t(text) : text;
+	const finalText =
+		text.startsWith('game.dialogues.') || text.startsWith('game.deathReasons.')
+			? t(text)
+			: text;
 
 	useEffect(() => {
 		const checkSounds = () => {
