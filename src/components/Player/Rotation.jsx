@@ -12,8 +12,8 @@ const floor = -0.2;
 const WALK_SPEED = 0.75;
 const RUN_SPEED = 1.25;
 
-// Seuil de mouvement identique aux footsteps
 const MOVEMENT_THRESHOLD = 0.00001;
+const MAX_MOUSE_MOVEMENT = 100;
 
 const applySensitivityCurve = (value, sensitivity, isJoystick = false) => {
 	const sign = Math.sign(value);
@@ -137,8 +137,17 @@ export default function Rotation({
 				!jumpScare &&
 				isGameplayActive
 			) {
-				const movementX = event.movementX || 0;
-				const movementY = event.movementY || 0;
+				let movementX = event.movementX || 0;
+				let movementY = event.movementY || 0;
+
+				movementX = Math.max(
+					-MAX_MOUSE_MOVEMENT,
+					Math.min(MAX_MOUSE_MOVEMENT, movementX)
+				);
+				movementY = Math.max(
+					-MAX_MOUSE_MOVEMENT,
+					Math.min(MAX_MOUSE_MOVEMENT, movementY)
+				);
 
 				hasMovedMouseAfterIntro.current = true;
 
