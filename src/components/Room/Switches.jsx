@@ -22,6 +22,7 @@ export default function Switches(props) {
 	const cursor = useInterface((state) => state.cursor);
 	const roomCount = useGameplaySettings((state) => state.roomCount);
 	const doneObjectives = useInterface((state) => state.interfaceObjectives);
+	const deaths = useGame((state) => state.deaths);
 	const doneObjectivesNumberRef = useRef(doneObjectives);
 	const { nodes, materials } = useGLTF('/models/room/switchs.glb');
 	const [soundsReady, setSoundsReady] = useState(false);
@@ -51,6 +52,10 @@ export default function Switches(props) {
 	useEffect(() => {
 		doneObjectivesNumberRef.current = doneObjectivesNumber || 0;
 	}, [doneObjectivesNumber]);
+
+	useEffect(() => {
+		setBulbBurned(false);
+	}, [deaths]);
 
 	useEffect(() => {
 		const checkSounds = () => {
