@@ -252,14 +252,14 @@ export default function LivingroomCCB() {
 				</meshStandardMaterial>
 			</mesh>
 
-			<mesh position={[3.4, 1.4, 4.775]} rotation={[0, -Math.PI / 2, 0]}>
+			<mesh position={[3.4, 1.7, 4.775]} rotation={[0, -Math.PI / 2, 0]}>
 				<planeGeometry args={[0.5, 0.5]} />
 				<meshStandardMaterial>
 					<primitive object={useTexture('/images/members.webp')} attach="map" />
 				</meshStandardMaterial>
 			</mesh>
 
-			<mesh position={[-0.6, 1.4, 5.25]} rotation={[0, Math.PI, 0]}>
+			<mesh position={[3.4, 1, 4.775]} rotation={[0, -Math.PI / 2, 0]}>
 				<planeGeometry args={[0.6, 0.8]} />
 				<meshStandardMaterial>
 					<primitive object={useTexture('/images/tibro.webp')} attach="map" />
