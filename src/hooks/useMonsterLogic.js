@@ -848,7 +848,8 @@ export default function useMonsterLogic(isCCBVersion = false) {
 							roomData &&
 							roomData.forcedGridX !== undefined &&
 							roomData.forcedGridZ !== undefined &&
-							isFirstPathfinding
+							isFirstPathfinding &&
+							roomData.type !== 'hunter'
 						) {
 							const roomOffsetX = calculateRoomOffsetX(
 								playerPositionRoom,

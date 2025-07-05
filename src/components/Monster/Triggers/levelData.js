@@ -329,6 +329,7 @@ const levelData = {
 		deathReason: 'Close the door quickly before it attacks you',
 		monsterPosition: [0, 0, 10],
 		monsterInitialPosition: [0.3, 0, -2.6],
+		monsterInitialRotation: [0, 0, 0],
 		animation: 'Crouch',
 		lookAtPoint: [0.3, 0, -2.6],
 	},
@@ -359,8 +360,8 @@ const levelData = {
 		ceiling: true,
 		headOffset: Math.PI / 1.5,
 		lookAtPoint: [-1, 0, 2.6],
-		forcedGridX: 265,
-		forcedGridZ: 233,
+		// forcedGridX: 265,
+		// forcedGridZ: 233,
 	},
 
 	// hunterCeilingCouch: {

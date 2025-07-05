@@ -9,10 +9,11 @@
 	"scripts": {
 		"dev": "vite",
 		"build": "vite build",
+		"build:electron": "vite build --config vite.config.electron.js",
 		"build:itch": "vite build --config vite.config.itch.js && node fix-paths.js",
 		"build:firebase": "vite build",
-		"build:steam": "vite build && electron electron/main.js",
-		"build:steam-dist": "vite build && electron-builder --config.appId=3739730 --win nsis",
+		"build:steam": "npm run build:electron && electron electron/main.js",
+		"build:steam-dist": "npm run build:electron && electron-builder --config.appId=3739730 --win nsis",
 		"preview": "vite preview",
 		"fix-paths": "node fix-paths.js",
 		"electron": "electron ."
