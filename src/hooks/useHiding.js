@@ -85,7 +85,7 @@ const checkIfPlayerIsHidden = (camera) => {
 };
 
 const useHiding = create(
-	subscribeWithSelector((set) => ({
+	subscribeWithSelector((set, get) => ({
 		isMonsterKnocking: false,
 		setMonsterKnocking: (state) => set(() => ({ isMonsterKnocking: state })),
 
@@ -117,6 +117,49 @@ const useHiding = create(
 		setIsHiddenBehindNightstand: (state) =>
 			set(() => ({ isHiddenBehindNightstand: state })),
 
+		hidingStartTime: null,
+		setHidingStartTime: (time) => set(() => ({ hidingStartTime: time })),
+
+		unnecessaryFearTriggered: false,
+		setUnnecessaryFearTriggered: (state) =>
+			set(() => ({ unnecessaryFearTriggered: state })),
+
+		checkUnnecessaryFear: (playerRoom, seedData) => {
+			const state = get();
+
+			if (state.isPlayerHidden && !state.unnecessaryFearTriggered) {
+				const currentTime = Date.now();
+
+				if (!state.hidingStartTime) {
+					set({ hidingStartTime: currentTime });
+					return;
+				}
+
+				const hidingDuration = currentTime - state.hidingStartTime;
+
+				if (hidingDuration >= 3000) {
+					if (
+						playerRoom !== null &&
+						playerRoom >= 0 &&
+						Number.isInteger(playerRoom)
+					) {
+						const currentRoom = Object.values(seedData)[playerRoom];
+						const isRaidRoom =
+							currentRoom?.type === 'raid' || currentRoom?.isRaid;
+
+						if (!isRaidRoom) {
+							if (window.steamAPI && window.steamAPI.unnecessaryFear) {
+								window.steamAPI.unnecessaryFear();
+								set({ unnecessaryFearTriggered: true });
+							}
+						}
+					}
+				}
+			} else if (!state.isPlayerHidden) {
+				set({ hidingStartTime: null });
+			}
+		},
+
 		restart: () => {
 			set(() => ({
 				isMonsterKnocking: false,
@@ -128,6 +171,8 @@ const useHiding = create(
 				isHiddenBehindDesk: false,
 				isHiddenBehindNightstand: false,
 				silentKnocking: false,
+				hidingStartTime: null,
+				unnecessaryFearTriggered: false,
 			}));
 		},
 	}))

@@ -1,5 +1,5 @@
 /* eslint-disable no-undef */
-const { app, BrowserWindow, protocol, Menu } = require('electron');
+const { app, BrowserWindow, protocol, Menu, ipcMain } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const process = require('process');
@@ -18,11 +18,12 @@ app.commandLine.appendSwitch('disable-renderer-backgrounding');
 
 let mainWindow;
 let steamworks;
+let steamClient;
 
 try {
 	steamworks = require('steamworks.js');
 	steamworks.electronEnableSteamOverlay(true);
-	steamworks.init(3739730);
+	steamClient = steamworks.init(3739730);
 } catch (e) {
 	console.warn('Steamworks initialization failed:', e);
 }
@@ -119,6 +120,7 @@ function createWindow() {
 			nodeIntegration: false,
 			contextIsolation: true,
 			webSecurity: false,
+			preload: path.join(__dirname, 'preload.js'),
 		},
 		autoHideMenuBar: true,
 	});
@@ -184,6 +186,61 @@ function createWindow() {
 		mainWindow = null;
 	});
 }
+
+const unlockAchievement = (achievementId) => {
+	if (
+		steamClient &&
+		steamClient.achievement &&
+		steamClient.achievement.activate
+	) {
+		try {
+			steamClient.achievement.activate(achievementId);
+			return true;
+		} catch (error) {
+			console.error('Failed to unlock achievement:', error);
+			return false;
+		}
+	}
+	console.warn('❌ Steam client not available');
+	return false;
+};
+
+ipcMain.handle('steam-game-completed', () => {
+	return unlockAchievement('GAME_COMPLETED');
+});
+
+ipcMain.handle('steam-all-hideouts-found', () => {
+	return unlockAchievement('ALL_HIDEOUTS_FOUND');
+});
+
+ipcMain.handle('steam-guestbook-signed', () => {
+	return unlockAchievement('GUESTBOOK_SIGNED');
+});
+
+ipcMain.handle('steam-unnecessary-fear', () => {
+	return unlockAchievement('UNNECESSARY_FEAR');
+});
+
+ipcMain.handle('steam-reset-achievement', (event, achievementId) => {
+	if (steamClient) {
+		try {
+			if (steamClient.achievement && steamClient.achievement.clear) {
+				steamClient.achievement.clear(achievementId);
+				return true;
+			} else if (steamClient.clearAchievement) {
+				steamClient.clearAchievement(achievementId);
+				return true;
+			} else {
+				console.warn('No reset methods found in steam client');
+				return false;
+			}
+		} catch (error) {
+			console.error('Failed to reset achievement:', error);
+			return false;
+		}
+	}
+	return false;
+});
 
 app.whenReady().then(() => {
 	createWindow();

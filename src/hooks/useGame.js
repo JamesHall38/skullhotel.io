@@ -345,6 +345,12 @@ const useGameStore = create(
 
 				const newSeenLevels = new Set(state.seenLevels);
 				newSeenLevels.add(levelKey);
+
+				localStorage.setItem(
+					'seenLevels',
+					JSON.stringify(Array.from(newSeenLevels))
+				);
+
 				return { seenLevels: newSeenLevels };
 			}),
 

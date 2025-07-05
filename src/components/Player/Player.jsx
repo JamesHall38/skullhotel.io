@@ -14,6 +14,8 @@ export default function Player() {
 	const isRunning = useGameStore((state) => state.isRunning);
 	const setIsRunning = useGameStore((state) => state.setIsRunning);
 	const disableControls = useGameStore((state) => state.disableControls);
+	const playerPositionRoom = useGameStore((state) => state.playerPositionRoom);
+	const seedData = useGameStore((state) => state.seedData);
 
 	const playerPosition = useRef(new THREE.Vector3());
 	const playerVelocity = useRef(new THREE.Vector3());
@@ -25,6 +27,7 @@ export default function Player() {
 	);
 	const playerHidden = useHiding((state) => state.isPlayerHidden);
 	const setPlayerHidden = useHiding((state) => state.setPlayerHidden);
+	const checkUnnecessaryFear = useHiding((state) => state.checkUnnecessaryFear);
 
 	useFrame(({ camera }) => {
 		if (
@@ -35,6 +38,8 @@ export default function Player() {
 			if (isHidden !== playerHidden) {
 				setPlayerHidden(isHidden);
 			}
+
+			checkUnnecessaryFear(playerPositionRoom, seedData);
 		}
 	});
 

@@ -392,6 +392,11 @@ const EndGameScreen = () => {
 					? 'skullhotel_debug_last_player_name'
 					: 'skullhotel_last_player_name';
 				localStorage.setItem(storageKey, playerName.trim());
+
+				if (window.steamAPI && window.steamAPI.guestbookSigned) {
+					window.steamAPI.guestbookSigned();
+				}
+
 				setSubmitted(true);
 			} catch (error) {
 				console.error('Failed to submit score:', error);

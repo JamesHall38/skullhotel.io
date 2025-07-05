@@ -6,9 +6,13 @@ function getRandomRoomDataByType(
 	usedRoomData = [],
 	seenLevels = new Set()
 ) {
-	const roomsOfType = Object.entries(levelData)
-		.filter(([, data]) => data.type === type)
-		.filter(([, data]) => !usedRoomData.includes(data));
+	const allRoomsOfType = Object.entries(levelData).filter(
+		([, data]) => data.type === type
+	);
+
+	const roomsOfType = allRoomsOfType.filter(
+		([, data]) => !usedRoomData.includes(data)
+	);
 
 	if (roomsOfType.length === 0) {
 		const anyRoomOfType = Object.entries(levelData).filter(
@@ -16,24 +20,35 @@ function getRandomRoomDataByType(
 		);
 		if (anyRoomOfType.length === 0) return null;
 		const randomIndex = Math.floor(Math.random() * anyRoomOfType.length);
-		return {
+		const selected = {
 			key: anyRoomOfType[randomIndex][0],
 			data: anyRoomOfType[randomIndex][1],
 		};
+		return selected;
 	}
+
+	const unseenRooms = roomsOfType.filter(([key]) => !seenLevels.has(key));
+	const seenRooms = roomsOfType.filter(([key]) => seenLevels.has(key));
 
 	const weightedRooms = [];
 
-	roomsOfType.forEach(([key, data]) => {
-		const weight = seenLevels.has(key) ? 1 : 3;
+	unseenRooms.forEach(([key, data]) => {
+		const weight = 100;
+		for (let i = 0; i < weight; i++) {
+			weightedRooms.push({ key, data });
+		}
+	});
 
+	seenRooms.forEach(([key, data]) => {
+		const weight = 1;
 		for (let i = 0; i < weight; i++) {
 			weightedRooms.push({ key, data });
 		}
 	});
 
 	const randomIndex = Math.floor(Math.random() * weightedRooms.length);
-	return weightedRooms[randomIndex];
+	const selected = weightedRooms[randomIndex];
+	return selected;
 }
 
 export default function generateSeedData() {
@@ -58,6 +73,12 @@ export default function generateSeedData() {
 	} catch (error) {
 		seenLevels = new Set();
 	}
+
+	const totalRoomsByType = {};
+	Object.entries(levelData).forEach(([key, data]) => {
+		if (!totalRoomsByType[data.type]) totalRoomsByType[data.type] = [];
+		totalRoomsByType[data.type].push(key);
+	});
 
 	const seed = {};
 	const hidingRooms = {};

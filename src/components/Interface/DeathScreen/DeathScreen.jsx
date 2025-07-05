@@ -123,6 +123,14 @@ const DeathScreen = () => {
 	}, [playerPositionRoom, seedData, customMessage, addSeenLevel, t]);
 
 	useEffect(() => {
+		if (seenLevels.size === 28 && totalLevelTypes === 28) {
+			if (window.steamAPI && window.steamAPI.allHideoutsFound) {
+				window.steamAPI.allHideoutsFound();
+			}
+		}
+	}, [seenLevels.size, totalLevelTypes]);
+
+	useEffect(() => {
 		if (openDeathScreen) {
 			if (isPointerLocked()) {
 				exitPointerLock();
