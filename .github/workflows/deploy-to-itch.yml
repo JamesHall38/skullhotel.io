@@ -41,4 +41,4 @@ jobs:
       - name: Deploy to itch.io
         env:
           BUTLER_API_KEY: ${{ secrets.BUTLER_API_KEY }}
-        run: butler push build james-hall38/skullhotel:html
+        run: butler push build james-hall38/skull-hotel:html
