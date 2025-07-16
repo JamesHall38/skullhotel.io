@@ -5,6 +5,7 @@
 			"visuals": "GRAFIK",
 			"sensitivity": "FØLSOMHED",
 			"controls": "KONTROLLER",
+			"progress": "FREMGANG",
 			"language": "SPROG",
 			"fullscreen": "Fuld skærm",
 			"shadows": "Skygger",
@@ -14,7 +15,8 @@
 			"interact": "Interager",
 			"listenCarefully": "Lyt omhyggeligt",
 			"crouch": "Kryb",
-			"jump": "Hop"
+			"jump": "Hop",
+			"resetProgress": "Nulstil fremgang"
 		},
 		"loading": {
 			"loading": "INDLÆSER",
@@ -48,10 +50,6 @@
 			"hidingSpotsFound": " gemmesteder fundet",
 			"continue": "FORTSÆT",
 			"restarting": "Genstarter..."
-		},
-		"firstDeathPopup": {
-			"title": "Hjælp os med at sprede ordet!",
-			"message": "Spilindustrien kan være hård ved indie-udviklere som os.\nVil I hjælpe os med at få lidt synlighed ved at tilføje Skull Hotel til jeres Steam ønskeliste? Det er gratis og hjælper os enormt!"
 		},
 		"endGameScreen": {
 			"thankYouForPlaying": "TAK FOR AT SPILLE",

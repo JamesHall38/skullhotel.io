@@ -5,6 +5,7 @@
 			"visuals": "GRAFIK",
 			"sensitivity": "EMPFINDLICHKEIT",
 			"controls": "STEUERUNG",
+			"progress": "FORTSCHRITT",
 			"language": "SPRACHE",
 			"fullscreen": "Vollbild",
 			"shadows": "Schatten",
@@ -14,7 +15,8 @@
 			"interact": "Interagieren",
 			"listenCarefully": "Aufmerksam zuhören",
 			"crouch": "Ducken",
-			"jump": "Springen"
+			"jump": "Springen",
+			"resetProgress": "Fortschritt zurücksetzen"
 		},
 		"loading": {
 			"loading": "LADEN",
@@ -48,10 +50,6 @@
 			"hidingSpotsFound": " Verstecke gefunden",
 			"continue": "WEITER",
 			"restarting": "Neustart..."
-		},
-		"firstDeathPopup": {
-			"title": "Helft uns, das Wort zu verbreiten!",
-			"message": "Die Spieleindustrie kann hart für Indie-Entwickler wie uns sein.\nWürdet ihr uns helfen, etwas Sichtbarkeit zu bekommen, indem ihr Skull Hotel zu eurer Steam-Wunschliste hinzufügt? Es ist kostenlos und hilft uns enorm!"
 		},
 		"endGameScreen": {
 			"thankYouForPlaying": "DANKE FÜRS SPIELEN",

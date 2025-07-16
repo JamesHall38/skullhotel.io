@@ -406,3 +406,22 @@ input[type='range'].gamepad-focus::-moz-range-thumb {
 	border-radius: 0 0 0.5rem 0.5rem;
 	border-bottom: none;
 }
+
+.settings-reset-button {
+	background: rgba(255, 0, 0, 0.2);
+	border: 1px solid #ff4444;
+	color: #ff6666;
+	font-family: 'Lincoln Road', serif;
+	font-size: 0.9rem;
+	padding: 0.5rem 1rem;
+	border-radius: 0.3rem;
+	cursor: pointer;
+	transition: all 0.2s ease;
+	margin-left: 1rem;
+}
+
+.settings-reset-button:hover {
+	background: rgba(255, 0, 0, 0.4);
+	border-color: #ff6666;
+	color: #ff8888;
+}

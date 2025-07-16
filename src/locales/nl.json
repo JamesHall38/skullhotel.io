@@ -5,6 +5,7 @@
 			"visuals": "VISUEEL",
 			"sensitivity": "GEVOELIGHEID",
 			"controls": "BESTURING",
+			"progress": "VOORTGANG",
 			"language": "TAAL",
 			"fullscreen": "Volledig scherm",
 			"shadows": "Schaduwen",
@@ -14,7 +15,8 @@
 			"interact": "Interactie",
 			"listenCarefully": "Luister aandachtig",
 			"crouch": "Hurken",
-			"jump": "Springen"
+			"jump": "Springen",
+			"resetProgress": "Voortgang resetten"
 		},
 		"loading": {
 			"loading": "LADEN",
@@ -48,10 +50,6 @@
 			"hidingSpotsFound": " verstopplekken gevonden",
 			"continue": "DOORGAAN",
 			"restarting": "Herstarten..."
-		},
-		"firstDeathPopup": {
-			"title": "Help ons het woord te verspreiden!",
-			"message": "De game-industrie kan zwaar zijn voor indie-ontwikkelaars zoals wij.\nZouden jullie ons kunnen helpen wat zichtbaarheid te krijgen door Skull Hotel toe te voegen aan jullie Steam verlanglijst? Het is gratis en helpt ons enorm!"
 		},
 		"endGameScreen": {
 			"thankYouForPlaying": "BEDANKT VOOR HET SPELEN",

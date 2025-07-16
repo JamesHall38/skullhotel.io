@@ -54,6 +54,9 @@ export default function Settings({ loading }) {
 	const isEndScreen = useGame((state) => state.isEndScreen);
 	const end = useGame((state) => state.end);
 	const setIsGameplayActive = useGame((state) => state.setIsGameplayActive);
+	const seenLevels = useGame((state) => state.seenLevels);
+	const totalLevelTypes = useGame((state) => state.totalLevelTypes);
+	const resetSeenLevels = useGame((state) => state.resetSeenLevels);
 
 	const { t, currentLanguage, setLanguage } = useLocalization();
 
@@ -749,6 +752,28 @@ export default function Settings({ loading }) {
 							<img src={gamepadA} alt="Gamepad A" />
 						</div>
 					</div>
+
+					{seenLevels.size === totalLevelTypes && (
+						<>
+							<h2 className="settings-title">{t('ui.settings.progress')}</h2>
+							<div className="settings-item">
+								<div className="setting-label">
+									{t('ui.deathScreen.hidingSpotsFound')}: {seenLevels.size}/
+									{totalLevelTypes}
+								</div>
+								<button
+									className="settings-reset-button settings-hover-effect"
+									onClick={() => {
+										resetSeenLevels();
+										playMenuSound();
+									}}
+									onMouseEnter={handleMouseEnter}
+								>
+									{t('ui.settings.resetProgress')}
+								</button>
+							</div>
+						</>
+					)}
 				</section>
 			</div>
 		</div>

@@ -5,6 +5,7 @@
 			"visuals": "GRAFIKA",
 			"sensitivity": "CITLIVOST",
 			"controls": "OVLÁDÁNÍ",
+			"progress": "PRŮBĚH",
 			"language": "JAZYK",
 			"fullscreen": "Celá obrazovka",
 			"shadows": "Stíny",
@@ -14,7 +15,8 @@
 			"interact": "Interakce",
 			"listenCarefully": "Pozorně poslouchat",
 			"crouch": "Přikrčit se",
-			"jump": "Skočit"
+			"jump": "Skočit",
+			"resetProgress": "Resetovat průběh"
 		},
 		"loading": {
 			"loading": "NAČÍTÁNÍ",
@@ -48,10 +50,6 @@
 			"hidingSpotsFound": " úkrytů nalezeno",
 			"continue": "POKRAČOVAT",
 			"restarting": "Restartování..."
-		},
-		"firstDeathPopup": {
-			"title": "Pomozte nám šířit povědomí!",
-			"message": "Herní průmysl může být těžký pro nezávislé vývojáře jako jsme my.\nPomohli byste nám získat trochu viditelnosti přidáním Skull Hotel do vašeho Steam seznamu přání? Je to zdarma a pomáhá nám to enormně!"
 		},
 		"endGameScreen": {
 			"thankYouForPlaying": "DĚKUJEME ZA HRANÍ",

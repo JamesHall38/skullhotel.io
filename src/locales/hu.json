@@ -5,6 +5,7 @@
 			"visuals": "GRAFIKA",
 			"sensitivity": "ÉRZÉKENYSÉG",
 			"controls": "IRÁNYÍTÁS",
+			"progress": "FOLYAMAT",
 			"language": "NYELV",
 			"fullscreen": "Teljes képernyő",
 			"shadows": "Árnyékok",
@@ -14,7 +15,8 @@
 			"interact": "Interakció",
 			"listenCarefully": "Figyelmesen hallgatni",
 			"crouch": "Guggolás",
-			"jump": "Ugrás"
+			"jump": "Ugrás",
+			"resetProgress": "Folyamat visszaállítása"
 		},
 		"loading": {
 			"loading": "BETÖLTÉS",
@@ -48,10 +50,6 @@
 			"hidingSpotsFound": " rejtekhelyet találtál",
 			"continue": "FOLYTATÁS",
 			"restarting": "Újraindítás..."
-		},
-		"firstDeathPopup": {
-			"title": "Segítsetek terjeszteni a hírt!",
-			"message": "A játékipar kemény lehet az indie fejlesztők számára, mint mi.\nSegítenétek nekünk egy kis láthatóságot szerezni azzal, hogy hozzáadjátok a Skull Hotel-t a Steam kívánságlistátokhoz? Ingyenes és rengeteget segít nekünk!"
 		},
 		"endGameScreen": {
 			"thankYouForPlaying": "KÖSZÖNJÜK, HOGY JÁTSZOTTÁL",

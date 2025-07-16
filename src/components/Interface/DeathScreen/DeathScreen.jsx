@@ -20,7 +20,7 @@ import {
 	requestPointerLock,
 } from '../../../utils/pointerLock';
 import AnimatedDeathLogo from './AnimatedDeathLogo';
-import FirstDeathPopup from './FirstDeathPopup';
+
 import './DeathScreen.css';
 
 function resetGame() {
@@ -38,8 +38,6 @@ const DeathScreen = () => {
 	const [isRestarting, setIsRestarting] = useState(false);
 	const [lastDeathMessage, setLastDeathMessage] = useState(null);
 	const [animationsComplete, setAnimationsComplete] = useState(false);
-	const [showFirstDeathPopup, setShowFirstDeathPopup] = useState(false);
-
 	const { t } = useLocalization();
 	const deviceMode = useGame((state) => state.deviceMode);
 	const openDeathScreen = useGame((state) => state.openDeathScreen);
@@ -53,12 +51,6 @@ const DeathScreen = () => {
 	const totalLevelTypes = useGame((state) => state.totalLevelTypes);
 	const addSeenLevel = useGame((state) => state.addSeenLevel);
 	const realDeaths = useGame((state) => state.realDeaths);
-	const hasShownFirstDeathPopup = useGame(
-		(state) => state.hasShownFirstDeathPopup
-	);
-	const setHasShownFirstDeathPopup = useGame(
-		(state) => state.setHasShownFirstDeathPopup
-	);
 
 	useEffect(() => {
 		if (openDeathScreen) {
@@ -137,7 +129,7 @@ const DeathScreen = () => {
 			}
 
 			const preventPointerLock = (e) => {
-				if (!animationsComplete || showFirstDeathPopup) {
+				if (!animationsComplete) {
 					e.preventDefault();
 					exitPointerLock();
 				}
@@ -174,17 +166,7 @@ const DeathScreen = () => {
 						leftTriggerPressed ||
 						rightTriggerPressed;
 
-					if (
-						actionPressed &&
-						!isRestarting &&
-						animationsComplete &&
-						!showFirstDeathPopup
-					) {
-						if (realDeaths === 0 && !hasShownFirstDeathPopup) {
-							setShowFirstDeathPopup(true);
-							return;
-						}
-
+					if (actionPressed && !isRestarting && animationsComplete) {
 						setIsRestarting(true);
 						setTimeout(() => {
 							resetGame();
@@ -217,13 +199,10 @@ const DeathScreen = () => {
 		isRestarting,
 		setIsGameplayActive,
 		animationsComplete,
-		showFirstDeathPopup,
-		realDeaths,
-		hasShownFirstDeathPopup,
 	]);
 
 	const handleRestart = () => {
-		if (isRestarting || !animationsComplete || showFirstDeathPopup) return;
+		if (isRestarting || !animationsComplete) return;
 
 		setIsRestarting(true);
 		incrementRealDeaths();
@@ -254,35 +233,7 @@ const DeathScreen = () => {
 		}, 500);
 	};
 
-	const handleSteamWishlistClick = (e) => {
-		e.stopPropagation();
-		window.open(
-			'https://store.steampowered.com/app/3739730/Skull_Hotel/',
-			'_blank'
-		);
-	};
-
-	const handleFirstDeathPopupClose = () => {
-		setShowFirstDeathPopup(false);
-		setHasShownFirstDeathPopup(true);
-	};
-
-	const handleFirstDeathPopupWishlist = () => {
-		handleSteamWishlistClick({ stopPropagation: () => {} });
-		setShowFirstDeathPopup(false);
-		setHasShownFirstDeathPopup(true);
-	};
-
 	const handleDeathScreenClick = (e) => {
-		if (realDeaths === 0 && !hasShownFirstDeathPopup && animationsComplete) {
-			setShowFirstDeathPopup(true);
-			return;
-		}
-
-		if (showFirstDeathPopup) {
-			return;
-		}
-
 		handleRestart();
 	};
 
@@ -314,12 +265,6 @@ const DeathScreen = () => {
 					</div>
 				</div>
 			</div>
-
-			<FirstDeathPopup
-				isVisible={showFirstDeathPopup}
-				onClose={handleFirstDeathPopupClose}
-				onWishlist={handleFirstDeathPopupWishlist}
-			/>
 		</>
 	);
 };

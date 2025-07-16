@@ -5,6 +5,7 @@
 			"visuals": "VISUELS",
 			"sensitivity": "SENSIBILITÉ",
 			"controls": "CONTRÔLES",
+			"progress": "PROGRESSION",
 			"language": "LANGUE",
 			"fullscreen": "Plein écran",
 			"shadows": "Ombres",
@@ -14,7 +15,8 @@
 			"interact": "Interagir",
 			"listenCarefully": "Écouter attentivement",
 			"crouch": "S'accroupir",
-			"jump": "Sauter"
+			"jump": "Sauter",
+			"resetProgress": "Réinitialiser la progression"
 		},
 		"loading": {
 			"loading": "CHARGEMENT",
@@ -48,10 +50,6 @@
 			"hidingSpotsFound": " cachettes trouvées",
 			"continue": "CONTINUER",
 			"restarting": "Redémarrage..."
-		},
-		"firstDeathPopup": {
-			"title": "A manger pour le bébé...",
-			"message": "Chaque jour, 40 jeux wankil sortent sur Steam. Aidez-nous à sortir du lot en ajoutant le jeu à votre liste de souhaits sur Steam"
 		},
 		"endGameScreen": {
 			"thankYouForPlaying": "MERCI D'AVOIR JOUÉ",

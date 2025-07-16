@@ -5,6 +5,7 @@
 			"visuals": "المرئيات",
 			"sensitivity": "الحساسية",
 			"controls": "التحكم",
+			"progress": "التقدم",
 			"language": "اللغة",
 			"fullscreen": "ملء الشاشة",
 			"shadows": "الظلال",
@@ -14,7 +15,8 @@
 			"interact": "التفاعل",
 			"listenCarefully": "الاستماع بعناية",
 			"crouch": "الانحناء",
-			"jump": "القفز"
+			"jump": "القفز",
+			"resetProgress": "إعادة تعيين التقدم"
 		},
 		"loading": {
 			"loading": "جاري التحميل",
@@ -48,10 +50,6 @@
 			"hidingSpotsFound": " أماكن اختباء تم العثور عليها",
 			"continue": "متابعة",
 			"restarting": "إعادة التشغيل..."
-		},
-		"firstDeathPopup": {
-			"title": "ساعدنا في نشر الكلمة!",
-			"message": "صناعة الألعاب قد تكون صعبة على المطورين المستقلين مثلنا.\nهل يمكنكم مساعدتنا في الحصول على بعض الرؤية من خلال إضافة Skull Hotel إلى قائمة أمنياتكم على Steam؟ إنه مجاني ويساعدنا كثيراً!"
 		},
 		"endGameScreen": {
 			"thankYouForPlaying": "شكراً لك على اللعب",

@@ -5,6 +5,7 @@
 			"visuals": "GRAFIIKAT",
 			"sensitivity": "HERKKYYS",
 			"controls": "OHJAIMET",
+			"progress": "EDISTYMINEN",
 			"language": "KIELI",
 			"fullscreen": "Koko näyttö",
 			"shadows": "Varjot",
@@ -14,7 +15,8 @@
 			"interact": "Vuorovaikuta",
 			"listenCarefully": "Kuuntele tarkasti",
 			"crouch": "Kyykisty",
-			"jump": "Hyppää"
+			"jump": "Hyppää",
+			"resetProgress": "Nollaa edistyminen"
 		},
 		"loading": {
 			"loading": "LADATAAN",
@@ -48,10 +50,6 @@
 			"hidingSpotsFound": " piilopaikkaa löydetty",
 			"continue": "JATKA",
 			"restarting": "Käynnistetään uudelleen..."
-		},
-		"firstDeathPopup": {
-			"title": "Auttakaa meitä levittämään sanaa!",
-			"message": "Peliteollisuus voi olla kovaa indie-kehittäjille kuten meille.\nAuttaisitteko meitä saamaan hieman näkyvyyttä lisäämällä Skull Hotelin Steam-toivelistallenne? Se on ilmaista ja auttaa meitä valtavasti!"
 		},
 		"endGameScreen": {
 			"thankYouForPlaying": "KIITOS PELAAMISESTA",

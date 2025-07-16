@@ -14,10 +14,6 @@ const useGameStore = create(
 		incrementRealDeaths: () =>
 			set((state) => ({ realDeaths: state.realDeaths + 1 })),
 
-		hasShownFirstDeathPopup: false,
-		setHasShownFirstDeathPopup: (value) =>
-			set({ hasShownFirstDeathPopup: value }),
-
 		isGameplayActive: false,
 		setIsGameplayActive: (state) => set(() => ({ isGameplayActive: state })),
 
@@ -334,7 +330,18 @@ const useGameStore = create(
 		setTemporaryDisableMouseLook: (value) =>
 			set({ temporaryDisableMouseLook: value }),
 
-		seenLevels: new Set(),
+		// Initialize seenLevels from localStorage
+		seenLevels: (() => {
+			try {
+				const stored = localStorage.getItem('seenLevels');
+				if (stored) {
+					return new Set(JSON.parse(stored));
+				}
+			} catch (error) {
+				console.warn('Failed to load seenLevels from localStorage:', error);
+			}
+			return new Set();
+		})(),
 
 		addSeenLevel: (levelKey) =>
 			set((state) => {
@@ -353,6 +360,11 @@ const useGameStore = create(
 
 				return { seenLevels: newSeenLevels };
 			}),
+
+		resetSeenLevels: () => {
+			localStorage.removeItem('seenLevels');
+			set({ seenLevels: new Set() });
+		},
 
 		totalLevelTypes: Object.keys(levelData).length,
 	}))

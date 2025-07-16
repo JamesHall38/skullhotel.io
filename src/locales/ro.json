@@ -5,6 +5,7 @@
 			"visuals": "GRAFICĂ",
 			"sensitivity": "SENSIBILITATE",
 			"controls": "CONTROALE",
+			"progress": "PROGRES",
 			"language": "LIMBĂ",
 			"fullscreen": "Ecran complet",
 			"shadows": "Umbre",
@@ -14,7 +15,8 @@
 			"interact": "Interacțiune",
 			"listenCarefully": "Ascultă cu atenție",
 			"crouch": "Ghemuiește-te",
-			"jump": "Sari"
+			"jump": "Sari",
+			"resetProgress": "Resetează progresul"
 		},
 		"loading": {
 			"loading": "SE ÎNCARCĂ",
@@ -48,10 +50,6 @@
 			"hidingSpotsFound": " locuri de ascuns găsite",
 			"continue": "CONTINUĂ",
 			"restarting": "Repornește..."
-		},
-		"firstDeathPopup": {
-			"title": "Ajutați-ne să răspândim vestea!",
-			"message": "Industria jocurilor poate fi grea pentru dezvoltatorii indie ca noi.\nNe-ați putea ajuta să obținem puțină vizibilitate adăugând Skull Hotel la lista voastră de dorințe Steam? Este gratuit și ne ajută enorm!"
 		},
 		"endGameScreen": {
 			"thankYouForPlaying": "MULȚUMIM CĂ AI JUCAT",

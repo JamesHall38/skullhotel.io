@@ -5,6 +5,7 @@
 			"visuals": "ビジュアル",
 			"sensitivity": "感度",
 			"controls": "操作",
+			"progress": "進捗",
 			"language": "言語",
 			"fullscreen": "フルスクリーン",
 			"shadows": "影",
@@ -14,7 +15,8 @@
 			"interact": "相互作用",
 			"listenCarefully": "注意深く聞く",
 			"crouch": "しゃがむ",
-			"jump": "ジャンプ"
+			"jump": "ジャンプ",
+			"resetProgress": "進捗をリセット"
 		},
 		"loading": {
 			"loading": "読み込み中",
@@ -48,10 +50,6 @@
 			"hidingSpotsFound": " 隠れ場所が見つかりました",
 			"continue": "続行",
 			"restarting": "再起動中..."
-		},
-		"firstDeathPopup": {
-			"title": "口コミを広めるのを手伝ってください！",
-			"message": "ゲーム業界は私たちのようなインディー開発者には厳しいものです。\nSkull HotelをSteamのウィッシュリストに追加して、少し知名度を上げるのを手伝っていただけませんか？無料で、私たちにとって大きな助けになります！"
 		},
 		"endGameScreen": {
 			"thankYouForPlaying": "プレイしていただきありがとうございます",

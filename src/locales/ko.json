@@ -5,6 +5,7 @@
 			"visuals": "비주얼",
 			"sensitivity": "감도",
 			"controls": "조작",
+			"progress": "진행률",
 			"language": "언어",
 			"fullscreen": "전체화면",
 			"shadows": "그림자",
@@ -14,7 +15,8 @@
 			"interact": "상호작용",
 			"listenCarefully": "주의깊게 듣기",
 			"crouch": "웅크리기",
-			"jump": "점프"
+			"jump": "점프",
+			"resetProgress": "진행률 재설정"
 		},
 		"loading": {
 			"loading": "로딩 중",
@@ -48,10 +50,6 @@
 			"hidingSpotsFound": " 개의 은신처를 발견했습니다",
 			"continue": "계속",
 			"restarting": "재시작 중..."
-		},
-		"firstDeathPopup": {
-			"title": "입소문을 퍼뜨리는 데 도움을 주세요!",
-			"message": "게임 업계는 저희 같은 인디 개발자들에게 힘들 수 있습니다.\nSkull Hotel을 Steam 위시리스트에 추가해서 저희가 조금이라도 더 알려지도록 도와주시겠어요? 무료이고 저희에게 엄청난 도움이 됩니다!"
 		},
 		"endGameScreen": {
 			"thankYouForPlaying": "플레이해 주셔서 감사합니다",

@@ -5,6 +5,7 @@
 			"visuals": "VISUELS",
 			"sensitivity": "SENSIBILITÉ",
 			"controls": "CONTRÔLES",
+			"progress": "PROGRESSION",
 			"language": "LANGUE",
 			"fullscreen": "Plein écran",
 			"shadows": "Ombres",
@@ -14,7 +15,8 @@
 			"interact": "Interagir",
 			"listenCarefully": "Écouter attentivement",
 			"crouch": "S'accroupir",
-			"jump": "Sauter"
+			"jump": "Sauter",
+			"resetProgress": "Réinitialiser la progression"
 		},
 		"loading": {
 			"loading": "CHARGEMENT",
@@ -49,10 +51,7 @@
 			"continue": "CONTINUER",
 			"restarting": "Redémarrage..."
 		},
-		"firstDeathPopup": {
-			"title": "Aidez-nous à faire connaître le jeu !",
-			"message": "L'industrie du jeu vidéo peut être difficile pour les développeurs indépendants comme nous.\nPourriez-vous nous aider à gagner en visibilité en ajoutant Skull Hotel à votre liste de souhaits Steam ? C'est gratuit et cela nous aide énormément !"
-		},
+
 		"endGameScreen": {
 			"thankYouForPlaying": "MERCI D'AVOIR JOUÉ",
 			"yourTime": "Votre temps :",
