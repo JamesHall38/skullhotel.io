@@ -335,7 +335,9 @@ const useGameStore = create(
 			try {
 				const stored = localStorage.getItem('seenLevels');
 				if (stored) {
-					return new Set(JSON.parse(stored));
+					const parsed = JSON.parse(stored);
+					const seenLevelsSet = new Set(parsed);
+					return seenLevelsSet;
 				}
 			} catch (error) {
 				console.warn('Failed to load seenLevels from localStorage:', error);
@@ -345,10 +347,14 @@ const useGameStore = create(
 
 		addSeenLevel: (levelKey) =>
 			set((state) => {
-				if (levelKey.includes('_empty')) return state;
+				if (levelKey.includes('_empty')) {
+					return state;
+				}
 
 				const validLevelKeys = Object.keys(levelData);
-				if (!validLevelKeys.includes(levelKey)) return state;
+				if (!validLevelKeys.includes(levelKey)) {
+					return state;
+				}
 
 				const newSeenLevels = new Set(state.seenLevels);
 				newSeenLevels.add(levelKey);

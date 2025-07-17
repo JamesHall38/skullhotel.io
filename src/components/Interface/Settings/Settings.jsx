@@ -754,25 +754,16 @@ export default function Settings({ loading }) {
 					</div>
 
 					{seenLevels.size === totalLevelTypes && (
-						<>
-							<h2 className="settings-title">{t('ui.settings.progress')}</h2>
-							<div className="settings-item">
-								<div className="setting-label">
-									{t('ui.deathScreen.hidingSpotsFound')}: {seenLevels.size}/
-									{totalLevelTypes}
-								</div>
-								<button
-									className="settings-reset-button settings-hover-effect"
-									onClick={() => {
-										resetSeenLevels();
-										playMenuSound();
-									}}
-									onMouseEnter={handleMouseEnter}
-								>
-									{t('ui.settings.resetProgress')}
-								</button>
-							</div>
-						</>
+						<button
+							className="settings-reset-button settings-hover-effect"
+							onClick={() => {
+								resetSeenLevels();
+								playMenuSound();
+							}}
+							onMouseEnter={handleMouseEnter}
+						>
+							{t('ui.settings.resetProgress')}
+						</button>
 					)}
 				</section>
 			</div>

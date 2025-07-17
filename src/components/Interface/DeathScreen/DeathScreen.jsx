@@ -6,7 +6,6 @@ import useDoor from '../../../hooks/useDoor';
 import useMonster from '../../../hooks/useMonster';
 import useLight from '../../../hooks/useLight';
 import useLocalization from '../../../hooks/useLocalization';
-import { FaSteam } from 'react-icons/fa';
 import { getDeathReasonTranslationKey } from '../../../utils/deathReasonMapper';
 import { regenerateData } from '../../../utils/config';
 import {
@@ -141,7 +140,7 @@ const DeathScreen = () => {
 				document.removeEventListener('pointerlockchange', preventPointerLock);
 			};
 		}
-	}, [openDeathScreen, animationsComplete, showFirstDeathPopup]);
+	}, [openDeathScreen, animationsComplete]);
 
 	useEffect(() => {
 		if (openDeathScreen) {
