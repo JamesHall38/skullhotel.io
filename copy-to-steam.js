@@ -44,4 +44,4 @@ fs.writeFileSync(
 	JSON.stringify(buildInfo, null, 2)
 );
 
-console.log('✅ Files copied to Steam!');
+console.log('✅ Files copied!');
