@@ -5,7 +5,7 @@
 			"visuals": "GRAFIKA",
 			"sensitivity": "ÉRZÉKENYSÉG",
 			"controls": "IRÁNYÍTÁS",
-			"progress": "FOLYAMAT",
+			"progress": "HALADÁS",
 			"language": "NYELV",
 			"fullscreen": "Teljes képernyő",
 			"shadows": "Árnyékok",
@@ -13,10 +13,21 @@
 			"horizontalSensitivity": "Vízszintes érzékenység",
 			"move": "Mozgás",
 			"interact": "Interakció",
-			"listenCarefully": "Figyelmesen hallgatni",
+			"listenCarefully": "Figyelmes hallgatás",
 			"crouch": "Guggolás",
 			"jump": "Ugrás",
-			"resetProgress": "Folyamat visszaállítása"
+			"resetProgress": "Haladás visszaállítása",
+			"reportBug": "Hiba jelentése"
+		},
+		"bugReport": {
+			"title": "HIBA JELENTÉSE",
+			"description": "Kérjük, írd le a tapasztalt hibát",
+			"placeholder": "Mi történt? Mit csináltál, amikor a hiba előfordult? Van más részlet, ami segíthet nekünk a javításban?",
+			"submit": "Jelentés küldése",
+			"submitting": "Küldés...",
+			"cancel": "Mégse",
+			"success": "Köszönjük a jelentést! Kivizsgáljuk az ügyet.",
+			"submitError": "Nem sikerült elküldeni a jelentést. Kérjük, próbáld újra."
 		},
 		"loading": {
 			"loading": "BETÖLTÉS",

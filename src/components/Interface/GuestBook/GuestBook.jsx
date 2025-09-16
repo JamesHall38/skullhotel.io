@@ -24,15 +24,10 @@ function GuestBookContent({ onClose }) {
 	const deviceMode = useGame((state) => state.deviceMode);
 	const guestBookRef = useRef(null);
 	const isDebugMode = window.location.hash.includes('#debug');
-	const isCCBMode =
-		window.location.hash.includes('CCB') ||
-		window.location.pathname.includes('CCB');
 
 	const STORAGE_KEY = (() => {
 		if (isDebugMode) {
 			return 'skullhotel_debug_last_player_name';
-		} else if (isCCBMode) {
-			return 'skullhotel_ccb_last_player_name';
 		} else {
 			return 'skullhotel_last_player_name';
 		}

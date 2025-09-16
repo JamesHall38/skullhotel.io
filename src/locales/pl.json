@@ -13,10 +13,21 @@
 			"horizontalSensitivity": "Czułość pozioma",
 			"move": "Ruch",
 			"interact": "Interakcja",
-			"listenCarefully": "Słuchaj uważnie",
+			"listenCarefully": "Nasłuchuj uważnie",
 			"crouch": "Kucnij",
-			"jump": "Skocz",
-			"resetProgress": "Resetuj postęp"
+			"jump": "Skok",
+			"resetProgress": "Resetuj postęp",
+			"reportBug": "Zgłoś błąd"
+		},
+		"bugReport": {
+			"title": "ZGŁOŚ BŁĄD",
+			"description": "Opisz napotkany błąd",
+			"placeholder": "Co się stało? Co robiłeś/aś gdy wystąpił błąd? Czy są jakieś dodatkowe szczegóły, które mogłyby nam pomóc w naprawie?",
+			"submit": "Wyślij zgłoszenie",
+			"submitting": "Wysyłanie...",
+			"cancel": "Anuluj",
+			"success": "Dziękujemy za zgłoszenie! Zajmiemy się tym.",
+			"submitError": "Nie udało się wysłać zgłoszenia. Spróbuj ponownie."
 		},
 		"loading": {
 			"loading": "ŁADOWANIE",

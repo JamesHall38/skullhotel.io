@@ -85,46 +85,19 @@ export default function Inscriptions({ endTitle }) {
 		return new THREE.MeshStandardMaterial({ color: '#8A0303' });
 	}, []);
 
-	const isCCBVersion =
-		window.location.hash.includes('CCB') ||
-		window.location.pathname.includes('CCB');
-
 	return (
 		<group>
 			{endTitle ? (
 				<>
-					{isCCBVersion ? (
-						<>
-							<Text
-								font={'/Redrum.otf'}
-								position={[1.4, 2.02, 7.85]}
-								rotation={[0, Math.PI / 2, 0]}
-								scale={0.3}
-								material={textMaterial}
-							>
-								Skull Hotel
-							</Text>
-							<Text
-								font={'/Redrum.otf'}
-								position={[1.4, 1.05, 7.9]}
-								rotation={[0, Math.PI / 2, 0]}
-								scale={0.3}
-								material={textMaterial}
-							>
-								CCB
-							</Text>
-						</>
-					) : (
-						<Text
-							font={'/Redrum.otf'}
-							position={[1.4, 1.9, 7.85]}
-							rotation={[0, Math.PI / 2, 0]}
-							scale={0.3}
-							material={textMaterial}
-						>
-							Skull Hotel
-						</Text>
-					)}
+					<Text
+						font={'/Redrum.otf'}
+						position={[1.4, 1.9, 7.85]}
+						rotation={[0, Math.PI / 2, 0]}
+						scale={0.3}
+						material={textMaterial}
+					>
+						Skull Hotel
+					</Text>
 				</>
 			) : (
 				inscriptions.map((inscription, index) => (

@@ -8,7 +8,6 @@ import useTextureQueue from '../../../hooks/useTextureQueue';
 import TrianglePattern from './TrianglePattern';
 import useInterface from '../../../hooks/useInterface';
 import useLocalization from '../../../hooks/useLocalization';
-import { FaPoop } from 'react-icons/fa';
 import './LoadingScreen.css';
 
 const LoadingScreen = ({ onStart }) => {
@@ -46,10 +45,6 @@ const LoadingScreen = ({ onStart }) => {
 	const isAllAnimationsComplete = useInterface(
 		(state) => state.isAllAnimationsComplete
 	);
-
-	const isCCBVersion =
-		window.location.hash.includes('CCB') ||
-		window.location.pathname.includes('CCB');
 
 	useEffect(() => {
 		resetAnimationsCount();
@@ -202,28 +197,14 @@ const LoadingScreen = ({ onStart }) => {
 				onClick={handleStartClick}
 				ref={containerRef}
 			>
-				{isCCBVersion ? (
-					<>
-						<div className="ccb-logo-container">
-							<FaPoop className="ccb-poop-icon" />
-						</div>
-						<div className="title-container ccb-title-container">
+				<>
+					<SkullHotelLogo />
+					<div className="flex">
+						<div className="title-container">
 							<AnimatedTitle onComplete={incrementCompletedAnimations} />
-							<div className="ccb-text-container">
-								<span className="ccb-text">CCB EDITION</span>
-							</div>
 						</div>
-					</>
-				) : (
-					<>
-						<SkullHotelLogo />
-						<div className="flex">
-							<div className="title-container">
-								<AnimatedTitle onComplete={incrementCompletedAnimations} />
-							</div>
-						</div>
-					</>
-				)}
+					</div>
+				</>
 				<div className="buttons-container">
 					<div
 						className={`${

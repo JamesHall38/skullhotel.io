@@ -2,6 +2,23 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
+    match /bug_reports/{document=**} {
+      allow read: if false;
+      allow create: if 
+        request.resource.data.description is string &&
+        request.resource.data.description.size() > 0 &&
+        request.resource.data.description.size() <= 5000 &&
+        
+        request.resource.data.consoleLogs is list &&
+        
+        request.resource.data.deviceInfo is map &&
+        request.resource.data.deviceInfo.type in ['Desktop', 'Browser'] &&
+        
+        request.resource.data.createdAt == request.time;
+        
+      allow update, delete: if false;
+    }
+    
     match /guestbook/{entry} {
       allow read: if true;
       
@@ -48,27 +65,5 @@ service cloud.firestore {
       allow delete: if false;
     }
     
-    match /guestbook_ccb/{entry} {
-      allow read: if true;
-      
-      allow create: if 
-        request.resource.data.playerName is string &&
-        request.resource.data.playerName.size() >= 2 &&
-        request.resource.data.playerName.size() <= 30 &&
-        
-        request.resource.data.playerName.matches('^[a-zA-Z0-9\\s._-]+$') &&
-        
-        request.resource.data.startTime is number &&
-        request.resource.data.endTime is number &&
-        request.resource.data.endTime > request.resource.data.startTime &&
-        
-        (request.resource.data.endTime - request.resource.data.startTime) >= 0 &&
-        (request.resource.data.endTime - request.resource.data.startTime) <= 604800000 &&
-        
-        request.resource.data.createdAt == request.time;
-        
-      allow update: if false;
-      allow delete: if false;
-    }
   }
 }

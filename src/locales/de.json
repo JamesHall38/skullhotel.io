@@ -13,10 +13,21 @@
 			"horizontalSensitivity": "Horizontale Empfindlichkeit",
 			"move": "Bewegen",
 			"interact": "Interagieren",
-			"listenCarefully": "Aufmerksam zuhören",
+			"listenCarefully": "Genau hinhören",
 			"crouch": "Ducken",
 			"jump": "Springen",
-			"resetProgress": "Fortschritt zurücksetzen"
+			"resetProgress": "Fortschritt zurücksetzen",
+			"reportBug": "Fehler melden"
+		},
+		"bugReport": {
+			"title": "FEHLER MELDEN",
+			"description": "Bitte beschreibe den Fehler, den du gefunden hast",
+			"placeholder": "Was ist passiert? Was hast du gemacht, als der Fehler auftrat? Gibt es weitere Details, die uns helfen könnten, das Problem zu beheben?",
+			"submit": "Bericht senden",
+			"submitting": "Wird gesendet...",
+			"cancel": "Abbrechen",
+			"success": "Danke für deinen Bericht! Wir werden uns darum kümmern.",
+			"submitError": "Fehler beim Senden des Berichts. Bitte versuche es erneut."
 		},
 		"loading": {
 			"loading": "LADEN",

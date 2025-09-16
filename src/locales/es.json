@@ -1,7 +1,7 @@
 {
 	"ui": {
 		"settings": {
-			"title": "CONFIGURACIÓN",
+			"title": "AJUSTES",
 			"visuals": "VISUALES",
 			"sensitivity": "SENSIBILIDAD",
 			"controls": "CONTROLES",
@@ -11,12 +11,23 @@
 			"shadows": "Sombras",
 			"verticalSensitivity": "Sensibilidad vertical",
 			"horizontalSensitivity": "Sensibilidad horizontal",
-			"move": "Mover",
+			"move": "Moverse",
 			"interact": "Interactuar",
 			"listenCarefully": "Escuchar atentamente",
 			"crouch": "Agacharse",
 			"jump": "Saltar",
-			"resetProgress": "Reiniciar progreso"
+			"resetProgress": "Reiniciar progreso",
+			"reportBug": "Reportar un error"
+		},
+		"bugReport": {
+			"title": "REPORTAR UN ERROR",
+			"description": "Por favor, describe el error que encontraste",
+			"placeholder": "¿Qué sucedió? ¿Qué estabas haciendo cuando ocurrió el error? ¿Hay otros detalles que puedan ayudarnos a solucionarlo?",
+			"submit": "Enviar reporte",
+			"submitting": "Enviando...",
+			"cancel": "Cancelar",
+			"success": "¡Gracias por tu reporte! Lo investigaremos.",
+			"submitError": "Error al enviar el reporte. Por favor, inténtalo de nuevo."
 		},
 		"loading": {
 			"loading": "CARGANDO",

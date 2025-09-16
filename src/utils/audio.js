@@ -19,44 +19,13 @@ export const SOUND_SETTINGS = {
 	},
 };
 
-export const CCB_DEATH_SOUNDS = [
-	'qui_a_chie_dans_mon_jv',
-	'oui_jaime_trop',
-	'cest_chiant_ca_pue',
-	'olalalala_cest_pitoyable',
-	'jaime_trop_ca',
-	'enculer_les_devs',
-	'tout_vas_bien_et_pire_truc_de_ma_vie',
-	'catastophe',
-	'on_est_bien_sur_le_pire_jeu',
-	'mais_qui_a_fait_ca',
-	'nul_a_chier_sa_mere',
-	'ils_peuvent_pas_sempecher',
-	'jen_etait_sur',
-	'ridicule',
-	'cest_quoi_linteret',
-	'cest_quoi_cette_merde',
-	'juste_chiant',
-	'bravo',
-	'peter_les_couilles',
-];
-
-export const CCB_JUMP_SCARE_SOUNDS = [
-	'MAAJIUU',
-	'OUAOOO',
-	'AAA_scared',
-	'AAAA',
-	'AAOO',
-	'AAA_AAA',
-];
-
 const soundDecks = {
 	deaths: {
-		available: [...CCB_DEATH_SOUNDS],
+		available: [],
 		used: [],
 	},
 	jumpScares: {
-		available: [...CCB_JUMP_SCARE_SOUNDS],
+		available: [],
 		used: [],
 	},
 };
@@ -262,126 +231,7 @@ const BASE_SOUNDS = {
 	},
 };
 
-const CCB_SOUNDS = {
-	rrrrr_attention: {
-		mp3: '/sounds/jean/rrrrrr_attention.mp3',
-		settings: 'ambient',
-	},
-	exeptionnel: {
-		mp3: '/sounds/jean/exeptionnel.mp3',
-		settings: 'special',
-	},
-	qui_a_chie_dans_mon_jv: {
-		mp3: '/sounds/jean/deaths/qui_a_chie_dans_mon_jv.mp3',
-		settings: 'special',
-	},
-	oui_jaime_trop: {
-		mp3: '/sounds/jean/deaths/oui_jaime_trop.mp3',
-		settings: 'special',
-	},
-	cest_chiant_ca_pue: {
-		mp3: '/sounds/jean/deaths/cest_chiant_ca_pue.mp3',
-		settings: 'special',
-	},
-	olalalala_cest_pitoyable: {
-		mp3: '/sounds/jean/deaths/olalalala_cest_pitoyable.mp3',
-		settings: 'special',
-	},
-	jaime_trop_ca: {
-		mp3: '/sounds/jean/deaths/jaime_trop_ca.mp3',
-		settings: 'special',
-	},
-	enculer_les_devs: {
-		mp3: '/sounds/jean/deaths/enculer_les_devs.mp3',
-		settings: 'special',
-	},
-	tout_vas_bien_et_pire_truc_de_ma_vie: {
-		mp3: '/sounds/jean/deaths/tout_vas_bien_et_pire_truc_de_ma_vie.mp3',
-		settings: 'special',
-	},
-	catastophe: {
-		mp3: '/sounds/jean/deaths/catastophe.mp3',
-		settings: 'special',
-	},
-	on_est_bien_sur_le_pire_jeu: {
-		mp3: '/sounds/jean/deaths/on_est_bien_sur_le_pire_jeu.mp3',
-		settings: 'special',
-	},
-	mais_qui_a_fait_ca: {
-		mp3: '/sounds/jean/deaths/mais_qui_a_fait_ca.mp3',
-		settings: 'special',
-	},
-	nul_a_chier_sa_mere: {
-		mp3: '/sounds/jean/deaths/nul_a_chier_sa_mere.mp3',
-		settings: 'special',
-	},
-	ils_peuvent_pas_sempecher: {
-		mp3: '/sounds/jean/deaths/ils_peuvent_pas_sempecher.mp3',
-		settings: 'special',
-	},
-	jen_etait_sur: {
-		mp3: '/sounds/jean/deaths/jen_etait_sur.mp3',
-		settings: 'special',
-	},
-	ridicule: {
-		mp3: '/sounds/jean/deaths/ridicule.mp3',
-		settings: 'special',
-	},
-	cest_quoi_linteret: {
-		mp3: '/sounds/jean/deaths/cest_quoi_linteret.mp3',
-		settings: 'special',
-	},
-	cest_quoi_cette_merde: {
-		mp3: '/sounds/jean/deaths/cest_quoi_cette_merde.mp3',
-		settings: 'special',
-	},
-	juste_chiant: {
-		mp3: '/sounds/jean/deaths/juste_chiant.mp3',
-		settings: 'special',
-	},
-	bravo: {
-		mp3: '/sounds/jean/deaths/bravo.mp3',
-		settings: 'special',
-	},
-	peter_les_couilles: {
-		mp3: '/sounds/jean/deaths/peter_les_couilles.mp3',
-		settings: 'special',
-	},
-	// CCB Jump scare sounds
-	MAAJIUU: {
-		mp3: '/sounds/jean/jump_scares/MAAJIUU.mp3',
-		settings: 'special',
-	},
-	OUAOOO: {
-		mp3: '/sounds/jean/jump_scares/OUAOOO.mp3',
-		settings: 'special',
-	},
-	AAA_scared: {
-		mp3: '/sounds/jean/jump_scares/AAA_scared.mp3',
-		settings: 'special',
-	},
-	AAAA: {
-		mp3: '/sounds/jean/jump_scares/AAAA.mp3',
-		settings: 'special',
-	},
-	AAOO: {
-		mp3: '/sounds/jean/jump_scares/AAOO .mp3',
-		settings: 'special',
-	},
-	AAA_AAA: {
-		mp3: '/sounds/jean/jump_scares/AAA_AAA .mp3',
-		settings: 'special',
-	},
-};
-
-const isCCBMode =
-	typeof window !== 'undefined' &&
-	(window.location.hash.includes('CCB') ||
-		window.location.pathname.includes('CCB'));
-
 export const SOUNDS = BASE_SOUNDS;
-
-export const CCB_SOUNDS_TO_LOAD = isCCBMode ? CCB_SOUNDS : {};
 
 const audioInstances = {};
 let soundsLoaded = false;
@@ -461,49 +311,6 @@ export async function preloadSounds(onSoundLoaded) {
 
 	await Promise.all(loadPromises);
 	soundsLoaded = true;
-
-	if (Object.keys(CCB_SOUNDS_TO_LOAD).length > 0) {
-		loadCCBSoundsInBackground();
-	}
-}
-
-async function loadCCBSoundsInBackground() {
-	const ccbLoadPromises = Object.entries(CCB_SOUNDS_TO_LOAD).map(
-		async ([key, sound]) => {
-			if (sound.mp3) {
-				try {
-					const blobUrl = await loadAudioFile(sound.mp3);
-					const audio = new Audio();
-					audio.src = blobUrl;
-					audio.preload = 'auto';
-
-					const settings =
-						SOUND_SETTINGS[sound.settings] || SOUND_SETTINGS.default;
-					audio.volume =
-						sound.volume !== undefined ? sound.volume : settings.volume || 0.5;
-
-					audioInstances[key] = audio;
-
-					return new Promise((resolve) => {
-						audio.addEventListener(
-							'canplaythrough',
-							() => {
-								resolve();
-							},
-							{ once: true }
-						);
-						audio.load();
-					});
-				} catch (error) {
-					console.error(`Failed to load CCB sound ${key}:`, error);
-					return Promise.resolve();
-				}
-			}
-			return Promise.resolve();
-		}
-	);
-
-	await Promise.all(ccbLoadPromises);
 }
 
 export function areSoundsLoaded() {
@@ -544,7 +351,7 @@ export function getKeyAudioPool() {
 }
 
 export const getSoundUrl = (soundName) => {
-	const sound = SOUNDS[soundName] || CCB_SOUNDS_TO_LOAD[soundName];
+	const sound = SOUNDS[soundName];
 	if (!sound) {
 		console.warn(`Sound ${soundName} not found`);
 		return null;
@@ -553,7 +360,7 @@ export const getSoundUrl = (soundName) => {
 };
 
 export const usePositionalSound = (soundName) => {
-	const sound = SOUNDS[soundName] || CCB_SOUNDS_TO_LOAD[soundName];
+	const sound = SOUNDS[soundName];
 	if (!sound) {
 		console.warn(`Sound ${soundName} not found`);
 		return {};

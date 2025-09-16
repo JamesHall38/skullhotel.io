@@ -2,21 +2,32 @@
 	"ui": {
 		"settings": {
 			"title": "AYARLAR",
-			"visuals": "GÖRSELLER",
-			"sensitivity": "DUYARLILIK",
+			"visuals": "GÖRSEL",
+			"sensitivity": "HASSASLIK",
 			"controls": "KONTROLLER",
 			"progress": "İLERLEME",
 			"language": "DİL",
 			"fullscreen": "Tam ekran",
 			"shadows": "Gölgeler",
-			"verticalSensitivity": "Dikey duyarlılık",
-			"horizontalSensitivity": "Yatay duyarlılık",
+			"verticalSensitivity": "Dikey hassaslık",
+			"horizontalSensitivity": "Yatay hassaslık",
 			"move": "Hareket",
 			"interact": "Etkileşim",
-			"listenCarefully": "Dikkatli dinle",
+			"listenCarefully": "Dikkatlice dinle",
 			"crouch": "Çömel",
 			"jump": "Zıpla",
-			"resetProgress": "İlerlemeyi sıfırla"
+			"resetProgress": "İlerlemeyi sıfırla",
+			"reportBug": "Hata bildir"
+		},
+		"bugReport": {
+			"title": "HATA BİLDİR",
+			"description": "Lütfen karşılaştığınız hatayı açıklayın",
+			"placeholder": "Ne oldu? Hata oluştuğunda ne yapıyordunuz? Düzeltmemize yardımcı olabilecek başka detaylar var mı?",
+			"submit": "Rapor gönder",
+			"submitting": "Gönderiliyor...",
+			"cancel": "İptal",
+			"success": "Raporunuz için teşekkürler! İnceleyeceğiz.",
+			"submitError": "Rapor gönderilemedi. Lütfen tekrar deneyin."
 		},
 		"loading": {
 			"loading": "YÜKLENİYOR",

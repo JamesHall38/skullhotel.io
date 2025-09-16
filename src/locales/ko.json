@@ -16,7 +16,18 @@
 			"listenCarefully": "주의깊게 듣기",
 			"crouch": "웅크리기",
 			"jump": "점프",
-			"resetProgress": "진행률 재설정"
+			"resetProgress": "진행률 재설정",
+			"reportBug": "버그 신고"
+		},
+		"bugReport": {
+			"title": "버그 신고",
+			"description": "발견하신 버그를 설명해 주세요",
+			"placeholder": "무슨 일이 있었나요? 버그가 발생했을 때 무엇을 하고 계셨나요? 문제 해결에 도움이 될 만한 다른 세부 사항이 있나요?",
+			"submit": "신고 제출",
+			"submitting": "제출 중...",
+			"cancel": "취소",
+			"success": "신고해 주셔서 감사합니다! 조사하도록 하겠습니다.",
+			"submitError": "신고 제출에 실패했습니다. 다시 시도해 주세요."
 		},
 		"loading": {
 			"loading": "로딩 중",

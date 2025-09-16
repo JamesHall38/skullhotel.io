@@ -16,7 +16,6 @@ import {
 
 const COLLECTION_NAME = 'guestbook';
 const DEBUG_COLLECTION_NAME = 'guestbook_debug';
-const CCB_COLLECTION_NAME = 'guestbook_ccb';
 export const PAGE_SIZE = 10;
 const MIN_VALID_GAME_DURATION = 0;
 const MAX_VALID_GAME_DURATION = 604800;
@@ -55,14 +54,9 @@ const isValidGameTime = (startTime, endTime) => {
 
 const getCollectionName = () => {
 	const isDebugMode = window.location.hash.includes('#debug');
-	const isCCBMode =
-		window.location.hash.includes('CCB') ||
-		window.location.pathname.includes('CCB');
 
 	if (isDebugMode) {
 		return DEBUG_COLLECTION_NAME;
-	} else if (isCCBMode) {
-		return CCB_COLLECTION_NAME;
 	} else {
 		return COLLECTION_NAME;
 	}

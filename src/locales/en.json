@@ -16,7 +16,18 @@
 			"listenCarefully": "Listen carefully",
 			"crouch": "Crouch",
 			"jump": "Jump",
-			"resetProgress": "Reset progress"
+			"resetProgress": "Reset progress",
+			"reportBug": "Report a bug"
+		},
+		"bugReport": {
+			"title": "REPORT A BUG",
+			"description": "Please describe the bug you encountered",
+			"placeholder": "What happened? What were you doing when the bug occurred? Any other details that might help us fix it?",
+			"submit": "Submit Report",
+			"submitting": "Submitting...",
+			"cancel": "Cancel",
+			"success": "Thank you for your report! We'll look into it.",
+			"submitError": "Failed to submit bug report. Please try again."
 		},
 		"loading": {
 			"loading": "LOADING",

@@ -29,6 +29,7 @@ import {
 	requestPointerLock,
 } from '../../../utils/pointerLock';
 import { getAudioInstance } from '../../../utils/audio';
+import BugReport from '../BugReport/BugReport';
 import './Settings.css';
 
 export default function Settings({ loading }) {
@@ -60,16 +61,13 @@ export default function Settings({ loading }) {
 
 	const { t, currentLanguage, setLanguage } = useLocalization();
 
-	const isCCBVersion =
-		window.location.hash.includes('CCB') ||
-		window.location.pathname.includes('CCB');
-
 	const [focusedElement, setFocusedElement] = useState(0);
 	const [isFullscreen, setIsFullscreen] = useState(
 		!!document.fullscreenElement
 	);
 	const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 	const [dropdownSelectedIndex, setDropdownSelectedIndex] = useState(0);
+	const [showBugReport, setShowBugReport] = useState(false);
 	const interactiveElements = useRef([]);
 	const lastInputTime = useRef(Date.now());
 	const horizontalSensitivitySliderRef = useRef(null);
@@ -104,7 +102,11 @@ export default function Settings({ loading }) {
 			if (isPointerLocked()) {
 				exitPointerLock();
 			}
-		} else if (!isSettingsOpen && deviceMode === 'keyboard' && !loading) {
+		}
+	}, [isSettingsOpen, deviceMode]);
+
+	useEffect(() => {
+		if (!isSettingsOpen && deviceMode === 'keyboard' && !loading) {
 			if (!isAnyPopupOpen && !openDeathScreen && !isEndScreen && !end) {
 				const canvas = document.querySelector('canvas');
 				if (canvas && !isPointerLocked()) {
@@ -523,6 +525,20 @@ export default function Settings({ loading }) {
 		playMenuSound();
 	};
 
+	const handleSettingsClose = () => {
+		setIsSettingsOpen(false);
+		if (!openDeathScreen && !isEndScreen && !end && !loading) {
+			setIsGameplayActive(true);
+			if (deviceMode === 'keyboard') {
+				const canvas = document.querySelector('canvas');
+				if (canvas && !isPointerLocked()) {
+					requestPointerLock(canvas);
+				}
+			}
+		}
+		playMenuSound();
+	};
+
 	if (!isSettingsOpen) {
 		if (loading || openDeathScreen || isEndScreen || end) {
 			return null;
@@ -546,6 +562,14 @@ export default function Settings({ loading }) {
 		);
 	}
 
+	if (showBugReport) {
+		return (
+			<div className="settings-overlay">
+				<BugReport onClose={() => setShowBugReport(false)} />
+			</div>
+		);
+	}
+
 	return (
 		<div
 			className="settings-overlay"
@@ -555,13 +579,7 @@ export default function Settings({ loading }) {
 			<div className="settings-layout">
 				<button
 					className="settings-close"
-					onClick={() => {
-						setIsSettingsOpen(false);
-						if (!openDeathScreen && !isEndScreen && !end) {
-							setIsGameplayActive(true);
-						}
-						playMenuSound();
-					}}
+					onClick={handleSettingsClose}
 					onMouseEnter={handleMouseEnter}
 				>
 					{t('ui.settings.title')}
@@ -570,38 +588,34 @@ export default function Settings({ loading }) {
 
 				<section className="settings-content">
 					<h2 className="settings-title">{t('ui.settings.visuals')}</h2>
-					{!isCCBVersion && (
-						<div className="settings-item">
-							<div className="setting-label">{t('ui.settings.language')}</div>
-							<div
-								onClick={handleSelectClick}
-								onMouseEnter={handleMouseEnter}
-								className={`language-selector ${
-									isDropdownOpen ? 'dropdown-open' : ''
-								}`}
-							>
-								{languages.find((lang) => lang.code === currentLanguage)
-									?.nativeName || currentLanguage}
-							</div>
-							{isDropdownOpen && (
-								<div className="dropdown-options">
-									{languages.map((lang, index) => (
-										<div
-											key={lang.code}
-											className={`dropdown-option ${
-												index === dropdownSelectedIndex ? 'selected' : ''
-											}`}
-											onClick={(e) =>
-												handleDropdownOptionClick(lang.code, index)
-											}
-										>
-											{lang.nativeName}
-										</div>
-									))}
-								</div>
-							)}
+					<div className="settings-item">
+						<div className="setting-label">{t('ui.settings.language')}</div>
+						<div
+							onClick={handleSelectClick}
+							onMouseEnter={handleMouseEnter}
+							className={`language-selector ${
+								isDropdownOpen ? 'dropdown-open' : ''
+							}`}
+						>
+							{languages.find((lang) => lang.code === currentLanguage)
+								?.nativeName || currentLanguage}
 						</div>
-					)}
+						{isDropdownOpen && (
+							<div className="dropdown-options">
+								{languages.map((lang, index) => (
+									<div
+										key={lang.code}
+										className={`dropdown-option ${
+											index === dropdownSelectedIndex ? 'selected' : ''
+										}`}
+										onClick={(e) => handleDropdownOptionClick(lang.code, index)}
+									>
+										{lang.nativeName}
+									</div>
+								))}
+							</div>
+						)}
+					</div>
 					<button
 						className="settings-item settings-hover-effect"
 						onClick={(e) => {
@@ -753,18 +767,31 @@ export default function Settings({ loading }) {
 						</div>
 					</div>
 
-					{seenLevels.size === totalLevelTypes && (
+					<div>
+						{seenLevels.size === totalLevelTypes && (
+							<button
+								className="settings-reset-button settings-hover-effect"
+								onClick={() => {
+									resetSeenLevels();
+									playMenuSound();
+								}}
+								onMouseEnter={handleMouseEnter}
+							>
+								{t('ui.settings.resetProgress')}
+							</button>
+						)}
+
 						<button
-							className="settings-reset-button settings-hover-effect"
+							className="settings-bug-report-button settings-hover-effect"
 							onClick={() => {
-								resetSeenLevels();
+								setShowBugReport(true);
 								playMenuSound();
 							}}
 							onMouseEnter={handleMouseEnter}
 						>
-							{t('ui.settings.resetProgress')}
+							{t('ui.settings.reportBug')}
 						</button>
-					)}
+					</div>
 				</section>
 			</div>
 		</div>

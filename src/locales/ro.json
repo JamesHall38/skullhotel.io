@@ -14,9 +14,20 @@
 			"move": "Mișcare",
 			"interact": "Interacțiune",
 			"listenCarefully": "Ascultă cu atenție",
-			"crouch": "Ghemuiește-te",
-			"jump": "Sari",
-			"resetProgress": "Resetează progresul"
+			"crouch": "Ghemuire",
+			"jump": "Salt",
+			"resetProgress": "Resetare progres",
+			"reportBug": "Raportează o eroare"
+		},
+		"bugReport": {
+			"title": "RAPORTEAZĂ O EROARE",
+			"description": "Te rugăm să descrii eroarea întâlnită",
+			"placeholder": "Ce s-a întâmplat? Ce făceai când a apărut eroarea? Există alte detalii care ne-ar putea ajuta să o reparăm?",
+			"submit": "Trimite raportul",
+			"submitting": "Se trimite...",
+			"cancel": "Anulează",
+			"success": "Mulțumim pentru raport! Îl vom analiza.",
+			"submitError": "Nu s-a putut trimite raportul. Te rugăm să încerci din nou."
 		},
 		"loading": {
 			"loading": "SE ÎNCARCĂ",

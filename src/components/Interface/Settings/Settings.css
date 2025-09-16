@@ -425,3 +425,21 @@ input[type='range'].gamepad-focus::-moz-range-thumb {
 	border-color: #ff6666;
 	color: #ff8888;
 }
+
+.settings-reset-button,
+.settings-bug-report-button {
+	width: 100%;
+	padding: 1rem;
+	margin-top: 1rem;
+	background-color: transparent;
+	border: 1px solid #666;
+	color: white;
+	font-size: 1rem;
+	cursor: pointer;
+	transition: background-color 0.2s;
+}
+
+.settings-reset-button:hover,
+.settings-bug-report-button:hover {
+	background-color: rgba(255, 255, 255, 0.1);
+}

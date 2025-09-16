@@ -1,10 +1,10 @@
 import React, { useMemo } from 'react';
 import * as THREE from 'three';
-import { useGLTF, Text } from '@react-three/drei';
+import { useGLTF } from '@react-three/drei';
 import useLight from '../../hooks/useLight';
 import useProgressiveLoad from '../../hooks/useProgressiveLoad';
 
-export default function Metal({ isCCBVersion = false }) {
+export default function Metal() {
 	const { nodes, materials } = useGLTF('/models/reception/reception_metal.glb');
 	const receptionLight1 = useLight((state) => state.receptionLight1);
 
@@ -35,15 +35,6 @@ export default function Metal({ isCCBVersion = false }) {
 		const opacity = receptionLight1.intensity > 0 ? 1 : 0;
 		return new THREE.MeshBasicMaterial({
 			color: '#ff0000',
-			transparent: true,
-			opacity: opacity,
-		});
-	}, [receptionLight1.intensity]);
-
-	const ccbMaterial = useMemo(() => {
-		const opacity = receptionLight1.intensity > 0 ? 1 : 0;
-		return new THREE.MeshBasicMaterial({
-			color: '#ffffff',
 			transparent: true,
 			opacity: opacity,
 		});
@@ -88,17 +79,6 @@ export default function Metal({ isCCBVersion = false }) {
 						geometry={nodes.Text.geometry}
 						material={textMaterial}
 					/>
-					{isCCBVersion && (
-						<Text
-							font={'/Futura.ttf'}
-							position={[-3.695, 2.45, -0.2]}
-							scale={0.2}
-							rotation={[0, Math.PI / 2, 0]}
-							material={ccbMaterial}
-						>
-							CCB EDITION
-						</Text>
-					)}
 				</>
 			)}
 			{visibleParts.exit && (

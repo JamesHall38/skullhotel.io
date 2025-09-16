@@ -11,12 +11,23 @@
 			"shadows": "Ombre",
 			"verticalSensitivity": "Sensibilità verticale",
 			"horizontalSensitivity": "Sensibilità orizzontale",
-			"move": "Muoviti",
-			"interact": "Interagisci",
-			"listenCarefully": "Ascolta attentamente",
-			"crouch": "Accovacciati",
-			"jump": "Salta",
-			"resetProgress": "Ripristina progresso"
+			"move": "Muoversi",
+			"interact": "Interagire",
+			"listenCarefully": "Ascoltare attentamente",
+			"crouch": "Accovacciarsi",
+			"jump": "Saltare",
+			"resetProgress": "Resettare i progressi",
+			"reportBug": "Segnala un bug"
+		},
+		"bugReport": {
+			"title": "SEGNALA UN BUG",
+			"description": "Per favore, descrivi il bug che hai incontrato",
+			"placeholder": "Cosa è successo? Cosa stavi facendo quando si è verificato il bug? Ci sono altri dettagli che potrebbero aiutarci a risolverlo?",
+			"submit": "Invia segnalazione",
+			"submitting": "Invio in corso...",
+			"cancel": "Annulla",
+			"success": "Grazie per la tua segnalazione! La esamineremo.",
+			"submitError": "Errore nell'invio della segnalazione. Per favore riprova."
 		},
 		"loading": {
 			"loading": "CARICAMENTO",

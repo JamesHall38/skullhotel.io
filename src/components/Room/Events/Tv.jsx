@@ -11,8 +11,6 @@ import * as THREE from 'three';
 
 export default function Tv() {
 	const meshRef = useRef();
-	const videoRef = useRef();
-	const videoMeshRef = useRef();
 	const [isDetected, setIsDetected] = useState(false);
 	const tv = useGame((state) => state.tv);
 	const setTv = useGame((state) => state.setTv);
@@ -33,12 +31,6 @@ export default function Tv() {
 	const knockedRooms = useGame((state) => state.knockedRooms);
 	const setTvLight = useLight((state) => state.setTvLight);
 
-	const isCCBVersion =
-		window.location.hash.includes('CCB') ||
-		window.location.pathname.includes('CCB');
-
-	const videoUrl = '/tv_compilation.mp4';
-
 	const uniforms = useMemo(
 		() => ({
 			uTime: { value: 0 },
@@ -50,43 +42,10 @@ export default function Tv() {
 		return new THREE.MeshBasicMaterial({ color: '#000' });
 	}, []);
 
-	const videoTexture = useMemo(() => {
-		if (typeof window !== 'undefined') {
-			const video = document.createElement('video');
-			video.src = videoUrl;
-			video.crossOrigin = 'anonymous';
-			video.loop = true;
-			video.muted = true;
-			video.playsInline = true;
-			video.autoplay = true;
-
-			video.addEventListener('loadedmetadata', () => {
-				if (video.duration) {
-					const randomStart = Math.random() * video.duration;
-					video.currentTime = randomStart;
-				}
-			});
-
-			const texture = new THREE.VideoTexture(video);
-			texture.minFilter = THREE.LinearFilter;
-			texture.magFilter = THREE.LinearFilter;
-			texture.format = THREE.RGBFormat;
-
-			videoRef.current = video;
-
-			return texture;
-		}
-		return null;
-	}, [videoUrl]);
-
 	useFrame((state) => {
 		const { clock } = state;
 		if (meshRef.current) {
 			meshRef.current.material.uniforms.uTime.value = clock.getElapsedTime();
-		}
-
-		if (videoTexture && tv) {
-			videoTexture.needsUpdate = true;
 		}
 	});
 
@@ -94,19 +53,9 @@ export default function Tv() {
 		if (tv) {
 			tvSoundRef.current.play();
 			setTvLight('#ffffff', 0.2);
-			if (videoRef.current && videoRef.current.play) {
-				if (videoRef.current.duration) {
-					const randomStart = Math.random() * videoRef.current.duration;
-					videoRef.current.currentTime = randomStart;
-				}
-				videoRef.current.play().catch(console.error);
-			}
 		} else {
 			tvSoundRef.current.pause();
 			setTvLight('#ffffff', 0);
-			if (videoRef.current && videoRef.current.pause) {
-				videoRef.current.pause();
-			}
 		}
 	}, [tv, setTvLight]);
 
@@ -219,19 +168,6 @@ export default function Tv() {
 				`}
 				/>
 			</mesh>
-
-			{tv && videoTexture && isCCBVersion && !showHide && (
-				<mesh
-					visible={tv}
-					scale={0.05}
-					rotation={[0, Math.PI / 2, 0]}
-					position={[0.001, 0, 0]}
-					ref={videoMeshRef}
-				>
-					<planeGeometry args={[9, 16]} />
-					<meshBasicMaterial map={videoTexture} />
-				</mesh>
-			)}
 
 			{showHide && (
 				<group scale={0.1} position={[0.01, 0, 0]}>

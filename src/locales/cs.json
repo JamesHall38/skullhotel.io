@@ -5,7 +5,7 @@
 			"visuals": "GRAFIKA",
 			"sensitivity": "CITLIVOST",
 			"controls": "OVLÁDÁNÍ",
-			"progress": "PRŮBĚH",
+			"progress": "POSTUP",
 			"language": "JAZYK",
 			"fullscreen": "Celá obrazovka",
 			"shadows": "Stíny",
@@ -16,7 +16,18 @@
 			"listenCarefully": "Pozorně poslouchat",
 			"crouch": "Přikrčit se",
 			"jump": "Skočit",
-			"resetProgress": "Resetovat průběh"
+			"resetProgress": "Resetovat postup",
+			"reportBug": "Nahlásit chybu"
+		},
+		"bugReport": {
+			"title": "NAHLÁSIT CHYBU",
+			"description": "Popište prosím chybu, kterou jste zaznamenali",
+			"placeholder": "Co se stalo? Co jste dělali, když se chyba objevila? Jsou nějaké další detaily, které by nám mohly pomoci ji opravit?",
+			"submit": "Odeslat hlášení",
+			"submitting": "Odesílání...",
+			"cancel": "Zrušit",
+			"success": "Děkujeme za hlášení! Prošetříme to.",
+			"submitError": "Nepodařilo se odeslat hlášení. Zkuste to prosím znovu."
 		},
 		"loading": {
 			"loading": "NAČÍTÁNÍ",

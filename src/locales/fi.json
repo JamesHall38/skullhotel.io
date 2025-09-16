@@ -2,21 +2,32 @@
 	"ui": {
 		"settings": {
 			"title": "ASETUKSET",
-			"visuals": "GRAFIIKAT",
+			"visuals": "GRAFIIKKA",
 			"sensitivity": "HERKKYYS",
-			"controls": "OHJAIMET",
+			"controls": "OHJAUS",
 			"progress": "EDISTYMINEN",
 			"language": "KIELI",
 			"fullscreen": "Koko näyttö",
 			"shadows": "Varjot",
-			"verticalSensitivity": "Pystysuuntainen herkkyys",
-			"horizontalSensitivity": "Vaakasuuntainen herkkyys",
-			"move": "Liiku",
-			"interact": "Vuorovaikuta",
+			"verticalSensitivity": "Pystyherkkyys",
+			"horizontalSensitivity": "Vaakaherkkyys",
+			"move": "Liikkuminen",
+			"interact": "Vuorovaikutus",
 			"listenCarefully": "Kuuntele tarkasti",
 			"crouch": "Kyykisty",
 			"jump": "Hyppää",
-			"resetProgress": "Nollaa edistyminen"
+			"resetProgress": "Nollaa edistyminen",
+			"reportBug": "Ilmoita virheestä"
+		},
+		"bugReport": {
+			"title": "ILMOITA VIRHEESTÄ",
+			"description": "Kuvaile kohtaamasi virhe",
+			"placeholder": "Mitä tapahtui? Mitä teit kun virhe ilmeni? Onko muita yksityiskohtia, jotka voisivat auttaa meitä korjaamaan sen?",
+			"submit": "Lähetä raportti",
+			"submitting": "Lähetetään...",
+			"cancel": "Peruuta",
+			"success": "Kiitos raportistasi! Tutkimme asian.",
+			"submitError": "Raportin lähetys epäonnistui. Yritä uudelleen."
 		},
 		"loading": {
 			"loading": "LADATAAN",

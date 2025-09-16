@@ -11,12 +11,23 @@
 			"shadows": "Skygger",
 			"verticalSensitivity": "Vertikal følsomhet",
 			"horizontalSensitivity": "Horisontal følsomhet",
-			"move": "Beveg",
+			"move": "Bevegelse",
 			"interact": "Interager",
 			"listenCarefully": "Lytt nøye",
-			"crouch": "Kryp",
-			"jump": "Hopp",
-			"resetProgress": "Tilbakestill fremgang"
+			"crouch": "Krype",
+			"jump": "Hoppe",
+			"resetProgress": "Nullstill fremgang",
+			"reportBug": "Rapporter feil"
+		},
+		"bugReport": {
+			"title": "RAPPORTER FEIL",
+			"description": "Beskriv feilen du opplevde",
+			"placeholder": "Hva skjedde? Hva gjorde du da feilen oppstod? Er det andre detaljer som kan hjelpe oss å fikse det?",
+			"submit": "Send rapport",
+			"submitting": "Sender...",
+			"cancel": "Avbryt",
+			"success": "Takk for rapporten! Vi skal undersøke det.",
+			"submitError": "Kunne ikke sende rapporten. Vennligst prøv igjen."
 		},
 		"loading": {
 			"loading": "LASTER",

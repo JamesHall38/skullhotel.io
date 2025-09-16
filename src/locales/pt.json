@@ -13,10 +13,21 @@
 			"horizontalSensitivity": "Sensibilidade horizontal",
 			"move": "Mover",
 			"interact": "Interagir",
-			"listenCarefully": "Escutar atentamente",
+			"listenCarefully": "Ouvir atentamente",
 			"crouch": "Agachar",
 			"jump": "Pular",
-			"resetProgress": "Redefinir progresso"
+			"resetProgress": "Reiniciar progresso",
+			"reportBug": "Reportar bug"
+		},
+		"bugReport": {
+			"title": "REPORTAR BUG",
+			"description": "Por favor, descreva o bug encontrado",
+			"placeholder": "O que aconteceu? O que você estava fazendo quando o bug ocorreu? Há outros detalhes que possam nos ajudar a corrigi-lo?",
+			"submit": "Enviar relatório",
+			"submitting": "Enviando...",
+			"cancel": "Cancelar",
+			"success": "Obrigado pelo seu relatório! Vamos investigar.",
+			"submitError": "Falha ao enviar relatório. Por favor, tente novamente."
 		},
 		"loading": {
 			"loading": "CARREGANDO",

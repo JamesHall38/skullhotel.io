@@ -43,74 +43,6 @@ const useGameStore = create(
 			set({ seedData: newSeedData });
 		},
 
-		// Monster assignment system
-		roomMonsterAssignments: {},
-		setRoomMonsterAssignments: (assignments) =>
-			set({ roomMonsterAssignments: assignments }),
-
-		generateMonsterAssignments: () => {
-			const state = get();
-			const availableMonsters = [
-				'terra',
-				'jean',
-				'hugo',
-				'grim',
-				'theo',
-				'pota',
-			];
-			const roomKeys = Object.keys(state.seedData);
-			const assignments = {};
-
-			// Filter out empty rooms
-			const validRooms = roomKeys.filter((roomKey) => {
-				const roomData = state.seedData[roomKey];
-				return roomData && roomData.type !== 'empty';
-			});
-
-			if (validRooms.length === 0) {
-				set({ roomMonsterAssignments: assignments });
-				return assignments;
-			}
-
-			// Create a pool of monsters, ensuring each monster appears at least once
-			let monsterPool = [...availableMonsters];
-
-			// If we have more rooms than monsters, duplicate monsters randomly
-			while (monsterPool.length < validRooms.length) {
-				const randomMonster =
-					availableMonsters[
-						Math.floor(Math.random() * availableMonsters.length)
-					];
-				monsterPool.push(randomMonster);
-			}
-
-			// Shuffle the monster pool
-			for (let i = monsterPool.length - 1; i > 0; i--) {
-				const j = Math.floor(Math.random() * (i + 1));
-				[monsterPool[i], monsterPool[j]] = [monsterPool[j], monsterPool[i]];
-			}
-
-			// Assign monsters to rooms
-			validRooms.forEach((roomKey, index) => {
-				assignments[roomKey] = monsterPool[index % monsterPool.length];
-			});
-
-			set({ roomMonsterAssignments: assignments });
-			return assignments;
-		},
-
-		getMonsterForRoom: (roomIndex) => {
-			const state = get();
-			const roomKeys = Object.keys(state.seedData);
-			const roomKey = roomKeys[roomIndex];
-
-			if (!roomKey || !state.roomMonsterAssignments[roomKey]) {
-				return 'hugo';
-			}
-
-			return state.roomMonsterAssignments[roomKey];
-		},
-
 		isTutorialOpen: false,
 		setIsTutorialOpen: (state) => set(() => ({ isTutorialOpen: state })),
 
@@ -303,10 +235,6 @@ const useGameStore = create(
 				endAnimationPlaying: false,
 				gameEndTime: null,
 			}));
-
-			// Regenerate monster assignments on restart
-			const newState = get();
-			newState.generateMonsterAssignments();
 
 			useHiding.getState().restart();
 		},

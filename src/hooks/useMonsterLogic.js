@@ -6,12 +6,7 @@ import useGame from './useGame';
 import useDoor from './useDoor';
 import useHiding from './useHiding';
 import useSimplePathfinding from './useSimplePathfinding';
-import {
-	getAudioInstance,
-	areSoundsLoaded,
-	getWeightedRandomSound,
-	CCB_JUMP_SCARE_SOUNDS,
-} from '../utils/audio';
+import { getAudioInstance, areSoundsLoaded } from '../utils/audio';
 import useGameplaySettings from './useGameplaySettings';
 import useGamepadControls, { vibrateControllers } from './useGamepadControls';
 
@@ -73,7 +68,7 @@ const MONSTER_HEIGHT = {
 	CEILING_IDLE_LOW: 1.68,
 };
 
-export default function useMonsterLogic(isCCBVersion = false) {
+export default function useMonsterLogic() {
 	const maxDirectPathFailures = 10;
 	const useSimplePathfindingEnabled = true;
 
@@ -84,6 +79,7 @@ export default function useMonsterLogic(isCCBVersion = false) {
 	const [hasTriggeredDeathVibration, setHasTriggeredDeathVibration] =
 		useState(false);
 	const [soundsReady, setSoundsReady] = useState(false);
+	const lastJumpScareTimeRef = useRef(0);
 	const [directPathFailures, setDirectPathFailures] = useState(0);
 	const lastChaseTimeRef = useRef(0);
 	const lastFrameTimeRef = useRef(performance.now());
@@ -169,6 +165,7 @@ export default function useMonsterLogic(isCCBVersion = false) {
 		setHasTriggeredVibration(false);
 		setHasTriggeredDeathVibration(false);
 		setVisitedWaypoints({});
+		lastJumpScareTimeRef.current = 0;
 	}, [deaths]);
 
 	useEffect(() => {
@@ -287,7 +284,7 @@ export default function useMonsterLogic(isCCBVersion = false) {
 	const checkAndHandleXWaypoint = useCallback(
 		(waypoint, playerPositionRoom, roomCount) => {
 			const isBottomRow = playerPositionRoom >= roomCount / 2;
-			let roomIndex = 0;
+
 			if (isBottomRow) {
 				roomIndex = playerPositionRoom - Math.floor(roomCount / 2);
 			} else {
@@ -462,8 +459,14 @@ export default function useMonsterLogic(isCCBVersion = false) {
 			}
 
 			if (distanceToCamera <= ATTACK_DISTANCE) {
-				if (!jumpScare) {
+				const currentTime = Date.now();
+				const timeSinceLastJumpScare =
+					currentTime - lastJumpScareTimeRef.current;
+
+				if (!jumpScare && timeSinceLastJumpScare >= 10000) {
+					// 10 seconds cooldown
 					setJumpScare(true);
+					lastJumpScareTimeRef.current = currentTime;
 
 					const roomKey =
 						Object.values(seedData)[playerPositionRoom]?.baseKey ||
@@ -483,23 +486,15 @@ export default function useMonsterLogic(isCCBVersion = false) {
 				playAnimation('Attack');
 				setAnimationSpeed(1);
 
-				if (!hasPlayedJumpScare && soundsReady && jumpScareSoundRef.current) {
+				if (
+					!hasPlayedJumpScare &&
+					soundsReady &&
+					jumpScareSoundRef.current &&
+					timeSinceLastJumpScare >= 10000
+				) {
 					jumpScareSoundRef.current.currentTime = 0;
 					jumpScareSoundRef.current.play().catch(() => {});
 					setHasPlayedJumpScare(true);
-
-					if (isCCBVersion) {
-						const randomJumpScareSound = getWeightedRandomSound(
-							CCB_JUMP_SCARE_SOUNDS,
-							'jumpScares'
-						);
-						const ccbJumpScareAudio = getAudioInstance(randomJumpScareSound);
-						if (ccbJumpScareAudio) {
-							ccbJumpScareAudio.currentTime = 0;
-							ccbJumpScareAudio.volume = 0.8;
-							ccbJumpScareAudio.play().catch(() => {});
-						}
-					}
 				}
 
 				const direction = new THREE.Vector3();
@@ -1064,7 +1059,6 @@ export default function useMonsterLogic(isCCBVersion = false) {
 			roomCount,
 			hasTriggeredVibration,
 			requestPathfinding,
-			isCCBVersion,
 			maxDirectPathFailures,
 			useSimplePathfindingEnabled,
 			calculateFrameRateIndependentMovement,

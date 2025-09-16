@@ -24,10 +24,6 @@ export default function Reception(props) {
 	const [showHowItsMade, setShowHowItsMade] = useState(false);
 	const { t } = useLocalization();
 
-	const isCCBVersion =
-		window.location.hash.includes('CCB') ||
-		window.location.pathname.includes('CCB');
-
 	const guestBookBoxRef = useRef();
 	const howItsMadeBoxRef = useRef();
 	const guestBookArrowRef = useRef();
@@ -363,7 +359,7 @@ export default function Reception(props) {
 			{...props}
 			dispose={null}
 		>
-			<Metal isCCBVersion={isCCBVersion} />
+			<Metal />
 			<mesh
 				castShadow
 				receiveShadow

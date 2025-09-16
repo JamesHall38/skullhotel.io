@@ -9,11 +9,8 @@ import { KTX2Loader } from 'three/examples/jsm/loaders/KTX2Loader';
 
 const Monster = (props) => {
 	const { gl } = useThree();
-	const isCCBVersion =
-		window.location.hash.includes('CCB') ||
-		window.location.pathname.includes('CCB');
 
-	const monsterLogic = useMonsterLogic(isCCBVersion);
+	const monsterLogic = useMonsterLogic();
 
 	const {
 		group,
@@ -25,7 +22,7 @@ const Monster = (props) => {
 	} = monsterLogic;
 
 	const { nodes, materials, animations } = useGLTF(
-		isCCBVersion ? '/models/jean-opt.glb' : '/models/monster-opt.glb',
+		'/models/monster-opt.glb',
 		undefined,
 		undefined,
 		(loader) => {
@@ -39,18 +36,10 @@ const Monster = (props) => {
 	);
 
 	const getMaterial = useMemo(() => {
-		return (ccbMaterial, nonCcbMaterial) => {
-			if (isCCBVersion) {
-				return materials[ccbMaterial] || materials[Object.keys(materials)[0]];
-			} else {
-				return (
-					materials[nonCcbMaterial] ||
-					materials[ccbMaterial] ||
-					materials[Object.keys(materials)[0]]
-				);
-			}
+		return (_, material) => {
+			return materials[material] || materials[Object.keys(materials)[0]];
 		};
-	}, [materials, isCCBVersion]);
+	}, [materials]);
 
 	const monsterParts = useMemo(
 		() => [
@@ -98,15 +87,8 @@ const Monster = (props) => {
 			>
 				{!isLoading && <Animations group={group} animations={animations} />}
 				<group name="Scene">
-					<group
-						name="Armature"
-						rotation={isCCBVersion ? [0, 0, 0] : [Math.PI / 2, 0, 0]}
-						scale={0.01}
-					>
-						<group
-							name="Ch30"
-							rotation={isCCBVersion ? [Math.PI / 2, 0, 0] : [0, 0, 0]}
-						>
+					<group name="Armature" rotation={[Math.PI / 2, 0, 0]} scale={0.01}>
+						<group name="Ch30" rotation={[0, 0, 0]}>
 							{visibleParts.skeleton && (
 								<primitive object={nodes.mixamorigHips} />
 							)}

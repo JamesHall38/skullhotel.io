@@ -5,18 +5,29 @@
 			"visuals": "GRAFIK",
 			"sensitivity": "FØLSOMHED",
 			"controls": "KONTROLLER",
-			"progress": "FREMGANG",
+			"progress": "FREMSKRIDT",
 			"language": "SPROG",
 			"fullscreen": "Fuld skærm",
 			"shadows": "Skygger",
 			"verticalSensitivity": "Vertikal følsomhed",
 			"horizontalSensitivity": "Horisontal følsomhed",
-			"move": "Bevæg",
+			"move": "Bevægelse",
 			"interact": "Interager",
 			"listenCarefully": "Lyt omhyggeligt",
-			"crouch": "Kryb",
+			"crouch": "Duk",
 			"jump": "Hop",
-			"resetProgress": "Nulstil fremgang"
+			"resetProgress": "Nulstil fremskridt",
+			"reportBug": "Rapporter fejl"
+		},
+		"bugReport": {
+			"title": "RAPPORTER FEJL",
+			"description": "Beskriv venligst den fejl, du stødte på",
+			"placeholder": "Hvad skete der? Hvad lavede du, da fejlen opstod? Er der andre detaljer, der kan hjælpe os med at løse det?",
+			"submit": "Send rapport",
+			"submitting": "Sender...",
+			"cancel": "Annuller",
+			"success": "Tak for din rapport! Vi vil undersøge det.",
+			"submitError": "Kunne ikke sende rapporten. Prøv venligst igen."
 		},
 		"loading": {
 			"loading": "INDLÆSER",

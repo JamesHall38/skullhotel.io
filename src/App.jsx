@@ -46,7 +46,6 @@ import RoomCurtain from './components/Curtains/RoomCurtain';
 // Game
 import Player from './components/Player/Player';
 import Monster from './components/Monster/Monster';
-import MonsterCCB from './components/Monster/MonsterCCB';
 
 import Triggers from './components/Monster/Triggers/Triggers';
 import Grid from './components/Grid';
@@ -62,6 +61,7 @@ import useSettings from './hooks/useSettings';
 import ShadowManager from './components/ShadowManager';
 import EndGameAnimation from './components/EndGameAnimation';
 import { isPointerLocked, exitPointerLock } from './utils/pointerLock';
+import { isElectron } from './utils/platform';
 
 const generateLevelOptions = () => {
 	const options = {
@@ -85,10 +85,6 @@ function resetGame() {
 	useMonster.getState().restart();
 	useGame.getState().setPlayIntro(true);
 	useLight.getState().restart();
-
-	setTimeout(() => {
-		useGame.getState().generateMonsterAssignments();
-	}, 100);
 }
 
 const CORRIDORLENGTH = 5.95;
@@ -106,9 +102,6 @@ function App() {
 	);
 	const setRealPlayerPositionRoom = useGame(
 		(state) => state.setRealPlayerPositionRoom
-	);
-	const generateMonsterAssignments = useGame(
-		(state) => state.generateMonsterAssignments
 	);
 	const { camera } = useThree();
 	const initializeIfNeeded = useGridStore((state) => state.initializeIfNeeded);
@@ -138,10 +131,6 @@ function App() {
 	} = useGameplaySettings();
 	const introIsPlaying = useGame((state) => state.introIsPlaying);
 	const hasIntroBeenPlayedRef = useRef(false);
-
-	const isCCBVersion =
-		window.location.hash.includes('CCB') ||
-		window.location.pathname.includes('CCB');
 
 	useEffect(() => {
 		const audioContext = new (window.AudioContext ||
@@ -207,10 +196,6 @@ function App() {
 
 		setSeedData(newSeedData);
 		initializeIfNeeded();
-
-		setTimeout(() => {
-			generateMonsterAssignments();
-		}, 100);
 	}, [
 		initializeIfNeeded,
 		roomCount,
@@ -223,7 +208,6 @@ function App() {
 		raidPercentage,
 		selectedRoom,
 		setSeedData,
-		generateMonsterAssignments,
 	]);
 
 	useEffect(() => {
@@ -516,7 +500,7 @@ function App() {
 						</group>
 
 						<Room />
-						{isCCBVersion ? <MonsterCCB /> : <Monster />}
+						<Monster />
 
 						<ReceptionDoors />
 						<Reception />
@@ -551,7 +535,11 @@ export default function AppCanvas() {
 	const playAnimation = useMonster((state) => state.playAnimation);
 
 	useEffect(() => {
-		setShadows(performanceMode && !isMobile);
+		if (isElectron()) {
+			setShadows(true);
+		} else {
+			setShadows(performanceMode && !isMobile);
+		}
 	}, [performanceMode, isMobile, setShadows]);
 
 	const triggerMonsterAttack = useCallback(() => {

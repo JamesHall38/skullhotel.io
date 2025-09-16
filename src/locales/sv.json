@@ -7,16 +7,27 @@
 			"controls": "KONTROLLER",
 			"progress": "FRAMSTEG",
 			"language": "SPRÅK",
-			"fullscreen": "Helskärm",
+			"fullscreen": "Fullskärm",
 			"shadows": "Skuggor",
 			"verticalSensitivity": "Vertikal känslighet",
 			"horizontalSensitivity": "Horisontell känslighet",
-			"move": "Rörelse",
+			"move": "Förflyttning",
 			"interact": "Interagera",
 			"listenCarefully": "Lyssna noga",
-			"crouch": "Krypa",
+			"crouch": "Huka",
 			"jump": "Hoppa",
-			"resetProgress": "Återställ framsteg"
+			"resetProgress": "Återställ framsteg",
+			"reportBug": "Rapportera fel"
+		},
+		"bugReport": {
+			"title": "RAPPORTERA FEL",
+			"description": "Beskriv felet du stötte på",
+			"placeholder": "Vad hände? Vad gjorde du när felet uppstod? Finns det andra detaljer som kan hjälpa oss att åtgärda det?",
+			"submit": "Skicka rapport",
+			"submitting": "Skickar...",
+			"cancel": "Avbryt",
+			"success": "Tack för din rapport! Vi ska undersöka det.",
+			"submitError": "Kunde inte skicka rapporten. Försök igen."
 		},
 		"loading": {
 			"loading": "LADDAR",

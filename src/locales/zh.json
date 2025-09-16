@@ -16,7 +16,18 @@
 			"listenCarefully": "仔细聆听",
 			"crouch": "蹲下",
 			"jump": "跳跃",
-			"resetProgress": "重置进度"
+			"resetProgress": "重置进度",
+			"reportBug": "报告问题"
+		},
+		"bugReport": {
+			"title": "报告问题",
+			"description": "请描述您遇到的问题",
+			"placeholder": "发生了什么？问题出现时您在做什么？还有其他可能帮助我们修复的细节吗？",
+			"submit": "提交报告",
+			"submitting": "提交中...",
+			"cancel": "取消",
+			"success": "感谢您的报告！我们会进行调查。",
+			"submitError": "提交报告失败。请重试。"
 		},
 		"loading": {
 			"loading": "加载中",

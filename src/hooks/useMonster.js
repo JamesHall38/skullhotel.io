@@ -26,10 +26,6 @@ const useMonsterStore = create(
 		isAttacking: false,
 		setIsAttacking: (isAttacking) => set(() => ({ isAttacking })),
 
-		// CCB
-		selectedMonster: 'hugo',
-		setSelectedMonster: (monster) => set(() => ({ selectedMonster: monster })),
-
 		restart: () => {
 			set(() => ({
 				monsterState: 'hidden',

@@ -9,11 +9,6 @@ import useLocalization from '../../../hooks/useLocalization';
 import { getDeathReasonTranslationKey } from '../../../utils/deathReasonMapper';
 import { regenerateData } from '../../../utils/config';
 import {
-	getWeightedRandomSound,
-	CCB_DEATH_SOUNDS,
-	getAudioInstance,
-} from '../../../utils/audio';
-import {
 	isPointerLocked,
 	exitPointerLock,
 	requestPointerLock,
@@ -57,29 +52,6 @@ const DeathScreen = () => {
 			const timer = setTimeout(() => {
 				setAnimationsComplete(true);
 			}, 3500);
-
-			const isCCBMode =
-				window.location.hash.includes('CCB') ||
-				window.location.pathname.includes('CCB');
-			if (isCCBMode) {
-				const ccbDeathSoundTimer = setTimeout(() => {
-					const randomDeathSound = getWeightedRandomSound(
-						CCB_DEATH_SOUNDS,
-						'deaths'
-					);
-					const ccbDeathAudio = getAudioInstance(randomDeathSound);
-					if (ccbDeathAudio) {
-						ccbDeathAudio.currentTime = 0;
-						ccbDeathAudio.volume = 0.7;
-						ccbDeathAudio.play().catch(() => {});
-					}
-				}, 2000);
-
-				return () => {
-					clearTimeout(timer);
-					clearTimeout(ccbDeathSoundTimer);
-				};
-			}
 
 			return () => clearTimeout(timer);
 		}

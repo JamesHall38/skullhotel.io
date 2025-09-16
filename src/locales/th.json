@@ -1,22 +1,33 @@
 {
 	"ui": {
 		"settings": {
-			"title": "การตั้งค่า",
-			"visuals": "ภาพ",
+			"title": "ตั้งค่า",
+			"visuals": "กราฟิก",
 			"sensitivity": "ความไว",
 			"controls": "การควบคุม",
 			"progress": "ความคืบหน้า",
 			"language": "ภาษา",
-			"fullscreen": "เต็มหน้าจอ",
+			"fullscreen": "เต็มจอ",
 			"shadows": "เงา",
 			"verticalSensitivity": "ความไวแนวตั้ง",
 			"horizontalSensitivity": "ความไวแนวนอน",
 			"move": "เคลื่อนที่",
 			"interact": "โต้ตอบ",
-			"listenCarefully": "ฟังอย่างระมัดระวัง",
-			"crouch": "หมอบ",
+			"listenCarefully": "ฟังอย่างตั้งใจ",
+			"crouch": "ย่อตัว",
 			"jump": "กระโดด",
-			"resetProgress": "รีเซ็ตความคืบหน้า"
+			"resetProgress": "รีเซ็ตความคืบหน้า",
+			"reportBug": "รายงานข้อผิดพลาด"
+		},
+		"bugReport": {
+			"title": "รายงานข้อผิดพลาด",
+			"description": "กรุณาอธิบายข้อผิดพลาดที่คุณพบ",
+			"placeholder": "เกิดอะไรขึ้น? คุณกำลังทำอะไรตอนที่พบข้อผิดพลาด? มีรายละเอียดอื่นๆ ที่อาจช่วยให้เราแก้ไขได้หรือไม่?",
+			"submit": "ส่งรายงาน",
+			"submitting": "กำลังส่ง...",
+			"cancel": "ยกเลิก",
+			"success": "ขอบคุณสำหรับรายงาน! เราจะตรวจสอบให้",
+			"submitError": "ไม่สามารถส่งรายงานได้ กรุณาลองใหม่อีกครั้ง"
 		},
 		"loading": {
 			"loading": "กำลังโหลด",

@@ -229,23 +229,6 @@ const EndGameAnimation = () => {
 				}
 			}
 
-			const isCCBMode =
-				window.location.hash.includes('CCB') ||
-				window.location.pathname.includes('CCB');
-
-			if (isCCBMode) {
-				setTimeout(() => {
-					const exceptionalAudio = getAudioInstance('exeptionnel');
-					if (exceptionalAudio) {
-						exceptionalAudio.currentTime = 0;
-						exceptionalAudio.volume = 0.8;
-						exceptionalAudio.play().catch((err) => {
-							console.warn('Could not play exceptional sound:', err);
-						});
-					}
-				}, 5000);
-			}
-
 			startAnimation(
 				camera.position.clone(),
 				new THREE.Euler().setFromQuaternion(camera.quaternion)

@@ -16,7 +16,18 @@
 			"listenCarefully": "Luister aandachtig",
 			"crouch": "Hurken",
 			"jump": "Springen",
-			"resetProgress": "Voortgang resetten"
+			"resetProgress": "Voortgang resetten",
+			"reportBug": "Bug melden"
+		},
+		"bugReport": {
+			"title": "BUG MELDEN",
+			"description": "Beschrijf de bug die je bent tegengekomen",
+			"placeholder": "Wat is er gebeurd? Wat deed je toen de bug optrad? Zijn er andere details die ons kunnen helpen dit op te lossen?",
+			"submit": "Rapport versturen",
+			"submitting": "Versturen...",
+			"cancel": "Annuleren",
+			"success": "Bedankt voor je melding! We gaan ernaar kijken.",
+			"submitError": "Kon het rapport niet versturen. Probeer het opnieuw."
 		},
 		"loading": {
 			"loading": "LADEN",

@@ -2,21 +2,32 @@
 	"ui": {
 		"settings": {
 			"title": "設定",
-			"visuals": "ビジュアル",
+			"visuals": "グラフィック",
 			"sensitivity": "感度",
 			"controls": "操作",
-			"progress": "進捗",
+			"progress": "進行状況",
 			"language": "言語",
 			"fullscreen": "フルスクリーン",
 			"shadows": "影",
 			"verticalSensitivity": "垂直感度",
 			"horizontalSensitivity": "水平感度",
 			"move": "移動",
-			"interact": "相互作用",
-			"listenCarefully": "注意深く聞く",
+			"interact": "アクション",
+			"listenCarefully": "注意して聞く",
 			"crouch": "しゃがむ",
 			"jump": "ジャンプ",
-			"resetProgress": "進捗をリセット"
+			"resetProgress": "進行状況をリセット",
+			"reportBug": "バグを報告"
+		},
+		"bugReport": {
+			"title": "バグ報告",
+			"description": "発生したバグについて説明してください",
+			"placeholder": "何が起きましたか？バグが発生した時、何をしていましたか？修正に役立つ他の詳細はありますか？",
+			"submit": "報告を送信",
+			"submitting": "送信中...",
+			"cancel": "キャンセル",
+			"success": "報告ありがとうございます！調査いたします。",
+			"submitError": "報告の送信に失敗しました。もう一度お試しください。"
 		},
 		"loading": {
 			"loading": "読み込み中",
