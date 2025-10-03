@@ -284,6 +284,7 @@ export default function useMonsterLogic() {
 	const checkAndHandleXWaypoint = useCallback(
 		(waypoint, playerPositionRoom, roomCount) => {
 			const isBottomRow = playerPositionRoom >= roomCount / 2;
+			let roomIndex = 0;
 
 			if (isBottomRow) {
 				roomIndex = playerPositionRoom - Math.floor(roomCount / 2);
