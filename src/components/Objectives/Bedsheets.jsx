@@ -195,8 +195,10 @@ export default function Bedsheets() {
 
 	const handleDetection = useCallback(() => {
 		if (
-			Math.abs(camera.position.z) < 4.2 ||
-			(camera.position.z < 5.9 && camera.position.x > 1.9)
+			Math.abs(camera.position.z) < 4.2 || // To prevent detection through bathroom wall
+			(camera.position.z < 5.9 &&
+				camera.position.x > 1.9 &&
+				camera.position.z > 0) // this condition is for the tutorial room
 		) {
 			return;
 		}
