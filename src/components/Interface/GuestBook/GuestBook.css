@@ -283,7 +283,9 @@
 
 .guestbook-rank {
 	text-align: center;
-	width: 90px;
+	width: 50px;
+	white-space: nowrap;
+	word-break: normal;
 	transition: color 0.2s ease;
 }
 
