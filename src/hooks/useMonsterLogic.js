@@ -1202,6 +1202,28 @@ export default function useMonsterLogic() {
 
 	const useMonsterBehavior = useCallback(() => {
 		useFrame(({ camera }) => {
+			const currentRoomValue = Object.values(seedData)[playerPositionRoom];
+			if (currentRoomValue?.type === 'empty') {
+				if (group.current) {
+					group.current.position.y = 10;
+				}
+				if (
+					monsterState !== 'hidden' ||
+					(group.current && group.current.position.y < 10)
+				) {
+					setMonsterState('hidden');
+					if (group.current) {
+						setMonsterPosition([
+							group.current.position.x,
+							10,
+							group.current.position.z,
+						]);
+					} else {
+						setMonsterPosition([0, 10, 0]);
+					}
+				}
+				return;
+			}
 			if (monsterState === 'facingCamera') {
 				lookAtCamera(camera);
 				if (
