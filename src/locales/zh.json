@@ -54,7 +54,9 @@
 			"findExit": "找到出口",
 			"refillSoapBottles": "补充肥皂瓶",
 			"makeTheBed": "整理床铺",
-			"openTheWindow": "打开窗户"
+			"openTheWindow": "打开窗户",
+			"clearLeftovers": "清理剩菜",
+			"cleanBathroom": "清洁浴室"
 		},
 		"deathScreen": {
 			"youDied": "你死了",

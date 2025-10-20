@@ -54,7 +54,9 @@
 			"findExit": "出口を見つける",
 			"refillSoapBottles": "石鹸ボトルを補充する",
 			"makeTheBed": "ベッドを整える",
-			"openTheWindow": "窓を開ける"
+			"openTheWindow": "窓を開ける",
+			"clearLeftovers": "残り物を片付ける",
+			"cleanBathroom": "バスルームを掃除する"
 		},
 		"deathScreen": {
 			"youDied": "死亡しました",

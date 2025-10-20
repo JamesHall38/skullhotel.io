@@ -54,7 +54,9 @@
 			"findExit": "Знайти вихід",
 			"refillSoapBottles": "Поповнити пляшки з милом",
 			"makeTheBed": "Заправити ліжко",
-			"openTheWindow": "Відкрити вікно"
+			"openTheWindow": "Відкрити вікно",
+			"clearLeftovers": "Прибрати залишки",
+			"cleanBathroom": "Прибрати ванну кімнату"
 		},
 		"deathScreen": {
 			"youDied": "ВИ ПОМЕРЛИ",

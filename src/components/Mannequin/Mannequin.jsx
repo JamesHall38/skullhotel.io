@@ -18,6 +18,7 @@ export default function Mannequin() {
 	const { nodes, animations } = useGLTF('/models/wooden_mannequin.glb');
 	const { actions } = useAnimations(animations, group);
 	const [animationName, setAnimationName] = useState('wave');
+	const [overrideConfig, setOverrideConfig] = useState(null);
 	const playerPositionRoom = useGame((state) => state.playerPositionRoom);
 	const tutorialDoor = useDoor((state) => state.tutorial);
 	const mannequinHidden = useGame((state) => state.mannequinHidden);
@@ -117,6 +118,47 @@ export default function Mannequin() {
 		[mannequinHidden]
 	);
 
+	const mannequinTaskPanic = useMemo(
+		() => ({
+			position: [-1.3, 0.7, -2.9],
+			rotation: [0, Math.PI / 2, 0],
+			scale: 1,
+			animation: 'panic',
+		}),
+		[]
+	);
+
+	const mannequinTaskAngry = useMemo(
+		() => ({
+			position: [-1.3, 0.7, -2.9],
+			rotation: [0, Math.PI / 2, 0],
+			scale: 1,
+			animation: 'angry',
+		}),
+		[]
+	);
+
+	// Hangman poses
+	const mannequinTaskHangman = useMemo(
+		() => ({
+			position: [-0.64, 1.2, -3.9],
+			rotation: [0, 0, 0],
+			scale: 1,
+			animation: 'hangman',
+		}),
+		[]
+	);
+
+	const mannequinTaskDeadman = useMemo(
+		() => ({
+			position: [4, 0.84, -0.95],
+			rotation: [0, -Math.PI / 2, 0],
+			scale: 1,
+			animation: 'deadman',
+		}),
+		[]
+	);
+
 	const { loadedItems, isLoading } = useProgressiveLoad(
 		mannequinParts,
 		'Mannequin'
@@ -145,10 +187,33 @@ export default function Mannequin() {
 		openedTutorialDoor.current = false;
 	}, [playerPositionRoom]);
 
+	const mannequinTaskStatus = useGame((state) => state.mannequinTaskStatus);
+	useEffect(() => {
+		if (mannequinTaskStatus === 'skull_selected') {
+			setOverrideConfig(mannequinTaskPanic);
+		} else if (mannequinTaskStatus === 'skull_cleaned') {
+			setOverrideConfig(mannequinTaskAngry);
+		} else if (mannequinTaskStatus === 'hangman_selected') {
+			setOverrideConfig(mannequinTaskHangman);
+		} else if (mannequinTaskStatus === 'hangman_cleaned') {
+			setOverrideConfig(mannequinTaskDeadman);
+		} else if (mannequinTaskStatus === null) {
+			setOverrideConfig(null);
+		}
+	}, [
+		mannequinTaskStatus,
+		mannequinTaskPanic,
+		mannequinTaskAngry,
+		mannequinTaskHangman,
+		mannequinTaskDeadman,
+	]);
+
 	useEffect(() => {
 		let newConfig;
 
-		if (tutorialDoor && !openedTutorialDoor.current) {
+		if (overrideConfig) {
+			newConfig = overrideConfig;
+		} else if (tutorialDoor && !openedTutorialDoor.current) {
 			openedTutorialDoor.current = true;
 			newConfig = tutorialConfiguration;
 		} else if (!openedTutorialDoor.current) {
@@ -161,6 +226,7 @@ export default function Mannequin() {
 		}
 	}, [
 		playerPositionRoom,
+		overrideConfig,
 		tutorialDoor,
 		doneObjectives,
 		objectivePoses,
@@ -194,9 +260,9 @@ export default function Mannequin() {
 	return (
 		<group
 			ref={group}
-			position={lastValidConfig.position}
-			rotation={lastValidConfig.rotation}
-			scale={lastValidConfig.scale}
+			position={(overrideConfig || lastValidConfig).position}
+			rotation={(overrideConfig || lastValidConfig).rotation}
+			scale={(overrideConfig || lastValidConfig).scale}
 			dispose={null}
 		>
 			{!isLoading && animations && (

@@ -54,7 +54,9 @@
 			"findExit": "Finn utgangen",
 			"refillSoapBottles": "Fyll opp såpeflasker",
 			"makeTheBed": "Red sengen",
-			"openTheWindow": "Åpne vinduet"
+			"openTheWindow": "Åpne vinduet",
+			"clearLeftovers": "Rydd opp restene",
+			"cleanBathroom": "Rengjør badet"
 		},
 		"deathScreen": {
 			"youDied": "DU DØDE",

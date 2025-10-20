@@ -54,7 +54,9 @@
 			"findExit": "Hitta utgången",
 			"refillSoapBottles": "Fyll på tvålflaskorna",
 			"makeTheBed": "Bädda sängen",
-			"openTheWindow": "Öppna fönstret"
+			"openTheWindow": "Öppna fönstret",
+			"clearLeftovers": "Rensa bort rester",
+			"cleanBathroom": "Städa badrummet"
 		},
 		"deathScreen": {
 			"youDied": "DU DOG",

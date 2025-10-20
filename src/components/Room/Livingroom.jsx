@@ -18,21 +18,21 @@ export default function Livingroom() {
 		{
 			name: 'baked',
 			label: 'Base Textures',
-			texture: useKTX2('/textures/baked_color_etc1s.ktx2'),
+			texture: useKTX2('/textures/livingroom/baked_livingroom_etc1s.ktx2'),
 			type: 'map',
 			uvChannel: 0,
 		},
 		{
 			name: 'roughness',
 			label: 'Material Properties',
-			texture: useKTX2('/textures/baked_roughness_etc1s.ktx2'),
+			texture: useKTX2('/textures/livingroom/roughness_livingroom_etc1s.ktx2'),
 			type: ['roughnessMap', 'bumpMap'],
 			uvChannel: 0,
 		},
 		{
 			name: 'light',
 			label: 'Lighting',
-			texture: useKTX2('/textures/livingroom_light_uastc.ktx2'),
+			texture: useKTX2('/textures/livingroom/light_livingroom_uastc.ktx2'),
 			type: 'lightMap',
 			uvChannel: 2,
 		},
@@ -236,7 +236,7 @@ export default function Livingroom() {
 			/>
 
 			<WoodLightMaterial
-				lightMapPath="/textures/livingroom_light_uastc.ktx2"
+				lightMapPath="/textures/livingroom/light_livingroom_uastc.ktx2"
 				geometry={nodes.LivingroomWood.geometry}
 				redLightColor={couchLight.color}
 				redLightIntensity={couchLight.intensity}
@@ -248,7 +248,7 @@ export default function Livingroom() {
 			/>
 
 			<FloorLightMaterial
-				lightMapPath="/textures/livingroom_light_uastc.ktx2"
+				lightMapPath="/textures/livingroom/light_livingroom_uastc.ktx2"
 				geometry={nodes.LivingroomFloor.geometry}
 				redLightColor={couchLight.color}
 				redLightIntensity={couchLight.intensity}
@@ -259,7 +259,7 @@ export default function Livingroom() {
 			/>
 
 			<WallsLightMaterial
-				lightMapPath="/textures/livingroom_light_uastc.ktx2"
+				lightMapPath="/textures/livingroom/light_livingroom_uastc.ktx2"
 				geometry={nodes.LivingroomWalls.geometry}
 				redLightColor={couchLight.color}
 				redLightIntensity={couchLight.intensity}

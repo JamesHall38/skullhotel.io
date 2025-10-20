@@ -54,7 +54,9 @@
 			"findExit": "หาทางออก",
 			"refillSoapBottles": "เติมขวดสบู่",
 			"makeTheBed": "จัดเตียง",
-			"openTheWindow": "เปิดหน้าต่าง"
+			"openTheWindow": "เปิดหน้าต่าง",
+			"clearLeftovers": "เก็บกวาดเศษอาหาร",
+			"cleanBathroom": "ทำความสะอาดห้องน้ำ"
 		},
 		"deathScreen": {
 			"youDied": "คุณตาย",

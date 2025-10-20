@@ -54,7 +54,9 @@
 			"findExit": "Találd meg a kijáratot",
 			"refillSoapBottles": "Töltsd fel a szappan üvegeket",
 			"makeTheBed": "Vesd meg az ágyat",
-			"openTheWindow": "Nyisd ki az ablakot"
+			"openTheWindow": "Nyisd ki az ablakot",
+			"clearLeftovers": "Takarítsd el a maradékot",
+			"cleanBathroom": "Tisztítsd ki a fürdőszobát"
 		},
 		"deathScreen": {
 			"youDied": "MEGHALTÁL",

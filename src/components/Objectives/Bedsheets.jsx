@@ -119,6 +119,8 @@ export default function Bedsheets() {
 						tutorialObjectives[0],
 						true,
 						tutorialObjectives[2],
+						tutorialObjectives[3],
+						tutorialObjectives[4],
 					]);
 
 					setCursor(null);

@@ -89,6 +89,11 @@ const BASE_SOUNDS = {
 		settings: 'effect',
 		volume: 0.3,
 	},
+	pop: {
+		mp3: '/sounds/pop.mp3',
+		settings: 'effect',
+		volume: 0.25,
+	},
 	step1: {
 		mp3: '/sounds/step1.mp3',
 		settings: 'steps',
@@ -228,6 +233,23 @@ const BASE_SOUNDS = {
 	knocking: {
 		mp3: '/sounds/knocking.mp3',
 		settings: 'special',
+	},
+	// Tasks-related SFX
+	cleaning: {
+		mp3: '/sounds/cleaning.mp3',
+		settings: 'effect',
+	},
+	faucet: {
+		mp3: '/sounds/faucet.mp3',
+		settings: 'ambient',
+	},
+	closingFaucet: {
+		mp3: '/sounds/closing_faucet.mp3',
+		settings: 'effect',
+	},
+	flies: {
+		mp3: '/sounds/flies.mp3',
+		settings: 'ambient',
 	},
 };
 

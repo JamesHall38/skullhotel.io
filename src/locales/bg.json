@@ -54,7 +54,9 @@
 			"findExit": "Намери изхода",
 			"refillSoapBottles": "Напълни бутилките със сапун",
 			"makeTheBed": "Оправи леглото",
-			"openTheWindow": "Отвори прозореца"
+			"openTheWindow": "Отвори прозореца",
+			"clearLeftovers": "Премахни остатъците",
+			"cleanBathroom": "Почисти банята"
 		},
 		"deathScreen": {
 			"youDied": "УМРЯ",

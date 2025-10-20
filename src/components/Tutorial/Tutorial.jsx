@@ -381,6 +381,8 @@ export default function Tutorial() {
 					t('ui.objectives.refillSoapBottles'),
 					t('ui.objectives.makeTheBed'),
 					t('ui.objectives.openTheWindow'),
+					t('ui.objectives.clearLeftovers'),
+					t('ui.objectives.cleanBathroom'),
 				];
 			case TUTORIAL_STAGE.CLEAN_OBJECTIVES:
 				return [];

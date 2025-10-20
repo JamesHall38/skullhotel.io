@@ -99,6 +99,12 @@ export default function DoubleCurtain({
 
 	const curtainSound = usePositionalSound('curtain');
 
+	const audioPosition = useMemo(() => {
+		const l = primitivePositions.left;
+		const r = primitivePositions.right;
+		return [(l[0] + r[0]) / 2, (l[1] + r[1]) / 2, (l[2] + r[2]) / 2];
+	}, [primitivePositions]);
+
 	useEffect(() => {
 		roomNumberRef.current = roomNumber;
 	}, [roomNumber]);
@@ -409,7 +415,12 @@ export default function DoubleCurtain({
 					}}
 				/>
 			</group>
-			<PositionalAudio ref={curtainSoundRef} {...curtainSound} loop={false} />
+			<PositionalAudio
+				ref={curtainSoundRef}
+				{...curtainSound}
+				loop={false}
+				position={audioPosition}
+			/>
 			<group position={[-2.86, 0, 0]}>
 				<mesh ref={mesh0Ref} position={meshPositions.mesh0}>
 					<boxGeometry args={[1.2, 1.8, 0.2]} />

@@ -54,7 +54,9 @@
 			"findExit": "Löydä uloskäynti",
 			"refillSoapBottles": "Täytä saippuapullot",
 			"makeTheBed": "Petaa sänky",
-			"openTheWindow": "Avaa ikkuna"
+			"openTheWindow": "Avaa ikkuna",
+			"clearLeftovers": "Siivoa tähteet",
+			"cleanBathroom": "Siivoa kylpyhuone"
 		},
 		"deathScreen": {
 			"youDied": "KUOLIT",

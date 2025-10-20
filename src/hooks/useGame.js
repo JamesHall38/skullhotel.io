@@ -189,17 +189,43 @@ const useGameStore = create(
 		mannequinHidden: true,
 		setMannequinHidden: (value) => set({ mannequinHidden: value }),
 
+		mannequinTaskStatus: null,
+		setMannequinTaskStatus: (status) => set({ mannequinTaskStatus: status }),
+
 		performanceMode: false,
 		setPerformanceMode: (mode) => set({ performanceMode: mode }),
+
+		shuffleVersion: 0,
+		bumpShuffleVersion: () =>
+			set((state) => ({ shuffleVersion: (state.shuffleVersion || 0) + 1 })),
+
+		cleanedFoodRooms: {},
+		setCleanedFoodRoom: (room, value = true) =>
+			set((state) => ({
+				cleanedFoodRooms: { ...state.cleanedFoodRooms, [room]: value },
+			})),
+		cleanedTaskRooms: {},
+		setCleanedTaskRoom: (room, value = true) =>
+			set((state) => ({
+				cleanedTaskRooms: { ...state.cleanedTaskRooms, [room]: value },
+			})),
+
+		seenFoods: {},
+		addSeenFood: (name) =>
+			set((state) => ({ seenFoods: { ...state.seenFoods, [name]: true } })),
+		seenTasks: {},
+		addSeenTask: (name) =>
+			set((state) => ({ seenTasks: { ...state.seenTasks, [name]: true } })),
 
 		completedObjective: null,
 		completedRoom: null,
 
 		checkObjectiveCompletion: (objective, room) => {
-			set({
+			set((state) => ({
 				completedObjective: objective,
 				completedRoom: room,
-			});
+				shuffleVersion: (state.shuffleVersion || 0) + 1,
+			}));
 		},
 
 		resetCompletedObjective: () => {
@@ -234,6 +260,11 @@ const useGameStore = create(
 				completedRoom: null,
 				endAnimationPlaying: false,
 				gameEndTime: null,
+				shuffleVersion: 0,
+				cleanedFoodRooms: {},
+				cleanedTaskRooms: {},
+				seenFoods: {},
+				seenTasks: {},
 			}));
 
 			useHiding.getState().restart();

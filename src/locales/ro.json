@@ -54,7 +54,9 @@
 			"findExit": "Găsește ieșirea",
 			"refillSoapBottles": "Umple sticlele cu săpun",
 			"makeTheBed": "Fă patul",
-			"openTheWindow": "Deschide fereastra"
+			"openTheWindow": "Deschide fereastra",
+			"clearLeftovers": "Curăță resturile",
+			"cleanBathroom": "Curăță baia"
 		},
 		"deathScreen": {
 			"youDied": "AI MURIT",

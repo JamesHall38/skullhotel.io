@@ -174,6 +174,8 @@ export default function Window() {
 										tutorialObjectives[0],
 										tutorialObjectives[1],
 										true,
+										tutorialObjectives[3] ?? false,
+										tutorialObjectives[4] ?? false,
 									]);
 								} else {
 									setInterfaceObjectives(2, roomNumber);

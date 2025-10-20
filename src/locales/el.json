@@ -54,7 +54,9 @@
 			"findExit": "Βρες την έξοδο",
 			"refillSoapBottles": "Γέμισε τα μπουκάλια σαπουνιού",
 			"makeTheBed": "Στρώσε το κρεβάτι",
-			"openTheWindow": "Άνοιξε το παράθυρο"
+			"openTheWindow": "Άνοιξε το παράθυρο",
+			"clearLeftovers": "Καθάρισε τα απομεινάρια",
+			"cleanBathroom": "Καθάρισε το μπάνιο"
 		},
 		"deathScreen": {
 			"youDied": "ΠΕΘΑΝΕΣ",

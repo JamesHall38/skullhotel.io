@@ -54,7 +54,9 @@
 			"findExit": "Najděte východ",
 			"refillSoapBottles": "Doplňte láhve s mýdlem",
 			"makeTheBed": "Ustelte postel",
-			"openTheWindow": "Otevřete okno"
+			"openTheWindow": "Otevřete okno",
+			"clearLeftovers": "Ukliďte zbytky",
+			"cleanBathroom": "Ukliďte koupelnu"
 		},
 		"deathScreen": {
 			"youDied": "ZEMŘELI JSTE",

@@ -12,6 +12,8 @@ import Tv from './Events/Tv';
 import Inscriptions from './Events/Inscriptions';
 import Lights from './Lights';
 import DetectionZone from '../DetectionZone';
+import Food from '../Objectives/Food';
+import Task from '../Objectives/Task';
 import useGameplaySettings from '../../hooks/useGameplaySettings';
 import useDoor from '../../hooks/useDoor';
 import Mannequin from '../Mannequin/Mannequin';
@@ -96,6 +98,8 @@ export default function Room() {
 			<Switches />
 			<Radio />
 			<Metal />
+			<Food />
+			<Task />
 			<Tv />
 			<Inscriptions />
 

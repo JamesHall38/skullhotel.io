@@ -86,6 +86,13 @@ export default function Bottles() {
 	}, [playerPositionRoom, roomCount, camera, isTutorialOpen]);
 
 	const handleDetection = useCallback(() => {
+		try {
+			const currentCursor = useInterface.getState().cursor;
+			if (currentCursor === 'clean-task' || currentCursor === 'clean-spider') {
+				return;
+			}
+		} catch (e) {}
+
 		if (camera.position.x > 1.8 && camera.position.z > 3) {
 			if (bathroomCurtain && tutorialObjectives[0] === false) {
 				setCursor('clean-bottles');
@@ -117,7 +124,11 @@ export default function Bottles() {
 	]);
 
 	const handleDetectionEnd = useCallback(() => {
-		setCursor(null);
+		try {
+			if (useInterface.getState().cursor === 'clean-bottles') {
+				setCursor(null);
+			}
+		} catch (e) {}
 		setIsDetected(false);
 	}, [setCursor]);
 
@@ -155,6 +166,8 @@ export default function Bottles() {
 										true,
 										tutorialObjectives[1],
 										tutorialObjectives[2],
+										tutorialObjectives[3],
+										tutorialObjectives[4],
 									]);
 								} else {
 									setInterfaceObjectives(0, roomNumber);

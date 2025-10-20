@@ -54,7 +54,9 @@
 			"findExit": "Найти выход",
 			"refillSoapBottles": "Пополнить бутылки с мылом",
 			"makeTheBed": "Заправить кровать",
-			"openTheWindow": "Открыть окно"
+			"openTheWindow": "Открыть окно",
+			"clearLeftovers": "Убрать остатки еды",
+			"cleanBathroom": "Убрать ванную"
 		},
 		"deathScreen": {
 			"youDied": "ВЫ УМЕРЛИ",

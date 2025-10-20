@@ -54,7 +54,9 @@
 			"findExit": "Vind de uitgang",
 			"refillSoapBottles": "Vul zeepflesjes bij",
 			"makeTheBed": "Maak het bed op",
-			"openTheWindow": "Open het raam"
+			"openTheWindow": "Open het raam",
+			"clearLeftovers": "Ruim de restjes op",
+			"cleanBathroom": "Maak de badkamer schoon"
 		},
 		"deathScreen": {
 			"youDied": "JE BENT DOOD",

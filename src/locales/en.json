@@ -54,7 +54,9 @@
 			"findExit": "Find the exit",
 			"refillSoapBottles": "Refill soap bottles",
 			"makeTheBed": "Make the bed",
-			"openTheWindow": "Open the window"
+			"openTheWindow": "Open the window",
+			"clearLeftovers": "Clear leftovers",
+			"cleanBathroom": "Clean the bathroom"
 		},
 		"deathScreen": {
 			"youDied": "YOU DIED",

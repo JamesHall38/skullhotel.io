@@ -22,21 +22,21 @@ export default function Bedroom() {
 		{
 			name: 'baked',
 			label: 'Base Textures',
-			texture: useKTX2('/textures/baked_color_etc1s.ktx2'),
+			texture: useKTX2('/textures/bedroom/baked_bedroom_etc1s.ktx2'),
 			type: 'map',
 			uvChannel: 0,
 		},
 		{
 			name: 'roughness',
 			label: 'Material Properties',
-			texture: useKTX2('/textures/baked_roughness_etc1s.ktx2'),
+			texture: useKTX2('/textures/bedroom/roughness_bedroom_etc1s.ktx2'),
 			type: ['roughnessMap', 'bumpMap'],
 			uvChannel: 0,
 		},
 		{
 			name: 'light',
 			label: 'Lighting',
-			texture: useKTX2('/textures/bedroom_light_uastc.ktx2'),
+			texture: useKTX2('/textures/bedroom/light_bedroom_uastc.ktx2'),
 			type: 'lightMap',
 			uvChannel: 2,
 		},
@@ -270,7 +270,7 @@ export default function Bedroom() {
 			)}
 
 			<WoodLightMaterial
-				lightMapPath="/textures/bedroom_light_uastc.ktx2"
+				lightMapPath="/textures/bedroom/light_bedroom_uastc.ktx2"
 				geometry={nodes.BedroomWood.geometry}
 				redLightColor={leftLight.color}
 				redLightIntensity={leftLight.intensity}
@@ -282,7 +282,7 @@ export default function Bedroom() {
 			/>
 
 			<FloorLightMaterial
-				lightMapPath="/textures/bedroom_light_uastc.ktx2"
+				lightMapPath="/textures/bedroom/light_bedroom_uastc.ktx2"
 				geometry={nodes.BedroomFloor.geometry}
 				redLightColor={leftLight.color}
 				redLightIntensity={leftLight.intensity}
@@ -293,7 +293,7 @@ export default function Bedroom() {
 			/>
 
 			<WallsLightMaterial
-				lightMapPath="/textures/bedroom_light_uastc.ktx2"
+				lightMapPath="/textures/bedroom/light_bedroom_uastc.ktx2"
 				geometry={nodes.BedRoomWalls.geometry}
 				redLightColor={leftLight.color}
 				redLightIntensity={leftLight.intensity}

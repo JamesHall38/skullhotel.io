@@ -54,7 +54,9 @@
 			"findExit": "Çıkışı bul",
 			"refillSoapBottles": "Sabun şişelerini doldur",
 			"makeTheBed": "Yatağı topla",
-			"openTheWindow": "Pencereyi aç"
+			"openTheWindow": "Pencereyi aç",
+			"clearLeftovers": "Artıkları temizle",
+			"cleanBathroom": "Banyoyu temizle"
 		},
 		"deathScreen": {
 			"youDied": "ÖLDÜN",

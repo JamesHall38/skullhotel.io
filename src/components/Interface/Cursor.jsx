@@ -78,6 +78,8 @@ export default function Cursor() {
 		return cursor ? cursor.split('-')[0] : null;
 	}, [cursor]);
 
+	const isSpiderClean = useMemo(() => cursor === 'clean-spider', [cursor]);
+
 	const startHolding = useCallback((emitEvent = false) => {
 		if (isProgressInProgress.current) return;
 
@@ -121,11 +123,12 @@ export default function Cursor() {
 			if (cursorFirstPart === 'clean' && !isProgressInProgress.current) {
 				startHolding(false);
 
+				const duration = isSpiderClean ? 15 : 1500; // 100x faster for spider
 				setTimeout(() => {
 					const event = new CustomEvent('progressComplete');
 					document.dispatchEvent(event);
 					stopHolding();
-				}, 1500);
+				}, duration);
 			}
 		};
 
@@ -146,8 +149,9 @@ export default function Cursor() {
 			if (isHolding && progressRef.current < 100 && isAnimating.current) {
 				const currentTime = performance.now();
 				const deltaTime = currentTime - lastFrameTimeRef.current;
+				const speed = isSpiderClean ? 6.7 : 0.067; // 100x faster for spider
 				progressRef.current = Math.min(
-					progressRef.current + deltaTime * 0.067,
+					progressRef.current + deltaTime * speed,
 					100
 				);
 				setProgress(progressRef.current);

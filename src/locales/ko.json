@@ -54,7 +54,9 @@
 			"findExit": "출구 찾기",
 			"refillSoapBottles": "비누병 채우기",
 			"makeTheBed": "침대 정리하기",
-			"openTheWindow": "창문 열기"
+			"openTheWindow": "창문 열기",
+			"clearLeftovers": "남은 음식 치우기",
+			"cleanBathroom": "욕실 청소하기"
 		},
 		"deathScreen": {
 			"youDied": "사망했습니다",

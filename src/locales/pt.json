@@ -54,7 +54,9 @@
 			"findExit": "Encontrar a saída",
 			"refillSoapBottles": "Reabastecer as garrafas de sabão",
 			"makeTheBed": "Arrumar a cama",
-			"openTheWindow": "Abrir a janela"
+			"openTheWindow": "Abrir a janela",
+			"clearLeftovers": "Limpar as sobras",
+			"cleanBathroom": "Limpar o banheiro"
 		},
 		"deathScreen": {
 			"youDied": "VOCÊ MORREU",

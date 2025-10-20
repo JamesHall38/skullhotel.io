@@ -32,10 +32,10 @@ const useInterfaceStore = create(
 		isAllAnimationsComplete: () => get().completedAnimations > 0,
 
 		tutorialObjectives: window.location.hash.includes('#debug')
-			? [true, true, true]
-			: [false, false, false],
+			? [true, true, true, true, true]
+			: [false, false, false, false, false],
 
-		recentlyChangedObjectives: [false, false, false],
+		recentlyChangedObjectives: [false, false, false, false, false],
 
 		setTutorialObjectives: (objective) => {
 			const current = get().tutorialObjectives;
@@ -47,7 +47,7 @@ const useInterfaceStore = create(
 					}
 				}
 
-				const newRecentlyChanged = [false, false, false];
+				const newRecentlyChanged = [false, false, false, false, false];
 				changedIndices.forEach((index) => {
 					newRecentlyChanged[index] = true;
 				});
@@ -58,12 +58,16 @@ const useInterfaceStore = create(
 				}));
 
 				setTimeout(() => {
-					set(() => ({ recentlyChangedObjectives: [false, false, false] }));
+					set(() => ({
+						recentlyChangedObjectives: [false, false, false, false, false],
+					}));
 				}, 1000);
 			}
 		},
 
 		interfaceObjectives: [...Array(roomNumber)].map(() => [
+			false,
+			false,
 			false,
 			false,
 			false,
@@ -88,8 +92,10 @@ const useInterfaceStore = create(
 
 		setAllObjectivesCompleted: () => {
 			set(() => ({
-				tutorialObjectives: [true, true, true],
+				tutorialObjectives: [true, true, true, true, true],
 				interfaceObjectives: [...Array(roomNumber)].map(() => [
+					true,
+					true,
 					true,
 					true,
 					true,
@@ -112,9 +118,11 @@ const useInterfaceStore = create(
 					false,
 					false,
 					false,
+					false,
+					false,
 				]),
-				tutorialObjectives: [true, true, true],
-				recentlyChangedObjectives: [false, false, false],
+				tutorialObjectives: [true, true, true, true, true],
+				recentlyChangedObjectives: [false, false, false, false, false],
 				cursor: null,
 				fadeToBlack: 0,
 				customTutorialObjectives: null,

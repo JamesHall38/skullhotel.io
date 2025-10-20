@@ -54,7 +54,9 @@
 			"findExit": "ابحث عن المخرج",
 			"refillSoapBottles": "أعد ملء زجاجات الصابون",
 			"makeTheBed": "رتب السرير",
-			"openTheWindow": "افتح النافذة"
+			"openTheWindow": "افتح النافذة",
+			"clearLeftovers": "إزالة بقايا الطعام",
+			"cleanBathroom": "تنظيف الحمام"
 		},
 		"deathScreen": {
 			"youDied": "لقد مت",
