@@ -32,6 +32,7 @@ const useDoorStore = create(
 		bathroomDoors: [...Array(roomNumber)].map(() => false),
 		desk: false,
 		desks: [...Array(roomNumber)].map(() => false),
+		deskPartiallyOpen: [...Array(roomNumber)].map(() => false),
 		nightStand: false,
 		nightStands: [...Array(roomNumber)].map(() => false),
 
@@ -65,6 +66,13 @@ const useDoorStore = create(
 		setDesks: (number, state) => {
 			set((current) => ({
 				desks: current.desks.map((desk, index) =>
+					index === number ? state : desk
+				),
+			}));
+		},
+		setDeskPartiallyOpen: (number, state) => {
+			set((current) => ({
+				deskPartiallyOpen: current.deskPartiallyOpen.map((desk, index) =>
 					index === number ? state : desk
 				),
 			}));
@@ -163,6 +171,7 @@ const useDoorStore = create(
 				bathroomDoors: [...Array(numRooms)].map(() => false),
 				desk: false,
 				desks: [...Array(numRooms)].map(() => false),
+				deskPartiallyOpen: [...Array(numRooms)].map(() => false),
 				nightStand: false,
 				nightStands: [...Array(numRooms)].map(() => false),
 				roomCurtain: false,

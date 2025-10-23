@@ -1099,7 +1099,10 @@ export default function useMonsterLogic() {
 				monsterState === 'facingCamera' ||
 				monsterState === 'endAnimation' ||
 				animationName === 'Ceiling' ||
-				isEndAnimationPlaying
+				isEndAnimationPlaying ||
+				animationName === 'Cart' ||
+				animationName === 'Desk' ||
+				animationName === 'Tv'
 			)
 				return;
 

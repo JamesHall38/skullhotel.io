@@ -13,7 +13,19 @@ const levelData = {
 		cameraShakingPosition: [0.5, 0, 0.25],
 		headOffset: 1.5,
 	},
-
+	underBedsheets: {
+		type: 'hideout',
+		deathReason: 'It was hiding under the bedsheets',
+		position: [1.9, 0, 1.8],
+		scale: [2, 1, 1],
+		monsterPosition: [1.5, 0, -0.5],
+		monsterInitialPosition: [-0.1, 0, -0.35],
+		monsterInitialRotation: [0, Math.PI / 2, 0],
+		animation: 'UnderBed',
+		cameraShakingScale: [4, 1, 2.5],
+		cameraShakingPosition: [0.5, 0, 0.25],
+		headOffset: 1.5,
+	},
 	bathroomVent: {
 		type: 'hideout',
 		deathReason: 'It was hiding in the bathroom vent',
@@ -100,6 +112,49 @@ const levelData = {
 		monsterInitialRotation: [0, Math.PI, 0],
 		animation: 'BehindWindow',
 		headOffset: Math.PI,
+	},
+
+	bathCeiling: {
+		type: 'hideout',
+		deathReason: 'It was hiding on the ceiling',
+		monsterPosition: [-0.59, 4, -4.18],
+		monsterInitialPosition: [-0.59, 0, -4.18],
+		monsterInitialRotation: [0, Math.PI / 2, 0],
+		animation: 'Bath',
+		instantTriggerPosition: [-0.62, 0, -4.4],
+		instantTriggerScale: [1.66, 1, 1],
+		cameraShakingPosition: [-0.09, 0, -2.88],
+		cameraShakingScale: [3, 1, 2.2],
+		lookAtPoint: [-0.59, 2, -4.18],
+	},
+
+	servingCart: {
+		type: 'hideout',
+		deathReason: 'It was hiding in the serving cart',
+		monsterPosition: [2.24, 0, 3.1],
+		monsterInitialPosition: [2.24, 0, 3.1],
+		monsterInitialRotation: [0, Math.PI, 0],
+		animation: 'Cart',
+		instantTriggerPosition: [2, 0, 3],
+		position: [1.9, 0, 1.8],
+		scale: [2, 1, 1],
+		monsterPosition: [1.5, 0, 1],
+		cameraShakingScale: [2, 1, 3.4],
+		cameraShakingPosition: [3.6, 0, 3.5],
+	},
+
+	belowTV: {
+		type: 'hideout',
+		deathReason: 'It was hiding below the TV ( an opening was visible )',
+		position: [-1.19, 0, 3.85],
+		scale: [1, 1, 1],
+		monsterPosition: [-1.19, 0, 3.85],
+		instantTriggerPosition: [-1.19, 0, 3.85],
+		monsterInitialPosition: [-1.19, 0, 3.24],
+		monsterInitialRotation: [0, Math.PI / 2, 0],
+		animation: 'Tv',
+		cameraShakingPosition: [-0.62, 0, 4.1],
+		cameraShakingScale: [1.1, 1, 0.75],
 	},
 
 	// LANDMINE
@@ -206,6 +261,50 @@ const levelData = {
 		animation: 'Ceiling',
 		lookAtPoint: [3.8, 4.02, -1.21],
 	},
+	openedDesk: {
+		type: 'landmine',
+		deathReason: 'It was hiding inside the desk (an opening was visible)',
+		position: [2.85, 0, -1.08],
+		scale: [3, 1, 4],
+		monsterPosition: [0, 0, 10],
+		monsterInitialPosition: [4.11, 0, 0.382],
+		monsterInitialRotation: [0, -Math.PI / 2, 0],
+		instantTriggerPosition: [1.9, 0, -1.28],
+		instantTriggerScale: [4, 1, 0.8],
+		cameraShakingPosition: [1.5, 0, 0.25],
+		cameraShakingScale: [4, 1, 4.5],
+		animation: 'Stand',
+		lookAtPoint: [4.2, -0.1, 0.24],
+	},
+
+	behindServingCart: {
+		type: 'landmine',
+		deathReason: 'It was hiding behind the serving cart',
+		monsterPosition: [3, 0, 4],
+		monsterInitialPosition: [2.3, -0.2, 4.08],
+		monsterInitialRotation: [0, -Math.PI / 2, 0],
+		instantTriggerPosition: [1.9, 0, 2.2],
+		instantTriggerScale: [4, 1, 0.8],
+		cameraShakingPosition: [1.9, 0, 3],
+		cameraShakingScale: [2, 1, 4],
+		animation: 'Stand',
+		headOffset: -Math.PI / 2,
+		lookAtPoint: [2.2, 0.5, 4.08],
+	},
+
+	bathroomCorner: {
+		type: 'landmine',
+		deathReason: 'It was hiding in the corner',
+		position: [1.9, 0, 0],
+		scale: [2, 1, 4],
+		monsterPosition: [1.14, 10, -3.7],
+		instantTriggerPosition: [1, 0, -3],
+		instantTriggerScale: [1, 1, 1.8],
+		monsterInitialPosition: [1.14, 0, -3.7],
+		monsterInitialRotation: [0, 0, 0],
+		animation: 'Stand',
+		lookAtPoint: [1.14, 0, -3.7],
+	},
 
 	// bedCorner: {
 	// 	type: 'landmine',
@@ -280,15 +379,6 @@ const levelData = {
 	// },
 
 	// CLAYMORE
-
-	// claymoreWindow: {
-	// 	type: 'claymore',
-	// 	deathReason: 'Close quickly before the client attacks you',
-	// 	monsterPosition: [0, 0, 10],
-	// 	monsterInitialPosition: [1.52, 0, 6.3],
-	// 	animation: 'Crouch',
-	// },
-
 	claymoreBath: {
 		type: 'claymore',
 		deathReason: 'Close the door quickly before it attacks you',
@@ -324,15 +414,44 @@ const levelData = {
 		lookAtPoint: [-1.45, 0, -1.28],
 	},
 
-	claymoreBathroom: {
+	claymoreWindow: {
 		type: 'claymore',
 		deathReason: 'Close the door quickly before it attacks you',
 		monsterPosition: [0, 0, 10],
-		monsterInitialPosition: [0.3, 0, -2.6],
-		monsterInitialRotation: [0, 0, 0],
+		monsterInitialPosition: [1.52, 0, 6.3],
 		animation: 'Crouch',
-		lookAtPoint: [0.3, 0, -2.6],
+		lookAtPoint: [1.52, 0, 6.3],
 	},
+
+	// claymoreBathroom: {
+	// 	type: 'claymore',
+	// 	deathReason: 'Close the door quickly before it attacks you',
+	// 	monsterPosition: [0, 0, 10],
+	// 	monsterInitialPosition: [0.3, 0, -2.6],
+	// 	monsterInitialRotation: [0, 0, 0],
+	// 	animation: 'Crouch',
+	// 	lookAtPoint: [0.3, 0, -2.6],
+	// },
+
+	// claymoreMainDoor: {
+	// 	type: 'claymore',
+	// 	deathReason: 'Close the door quickly before it attacks you',
+	// 	monsterPosition: [0, 0, 10],
+	// 	monsterInitialPosition: [0.3, 0, -2.6],
+	// 	monsterInitialRotation: [0, 0, 0],
+	// 	animation: 'Crouch',
+	// 	lookAtPoint: [0.3, 0, -2.6],
+	// },
+
+	// claymoreBathroomDoor: {
+	// 	type: 'claymore',
+	// 	deathReason: 'Close the door quickly before it attacks you',
+	// 	monsterPosition: [0, 0, 10],
+	// 	monsterInitialPosition: [0.3, 0, -2.6],
+	// 	monsterInitialRotation: [0, 0, 0],
+	// 	animation: 'Crouch',
+	// 	lookAtPoint: [0.3, 0, -2.6],
+	// },
 
 	// HUNTER
 	hunterLivingRoom: {
@@ -344,7 +463,6 @@ const levelData = {
 		monsterInitialPosition: [-0.5, 0, 1.91],
 		monsterInitialRotation: [0, 0, 0],
 		animation: 'Wall',
-		lookAtPoint: [-0.5, 0, 2.3],
 	},
 
 	hunterCeilingLivingRoom: {
@@ -359,24 +477,9 @@ const levelData = {
 		animation: 'CeilingCrawlIdle',
 		ceiling: true,
 		headOffset: Math.PI / 1.5,
-		lookAtPoint: [-1, 0, 2.6],
 		// forcedGridX: 265,
 		// forcedGridZ: 233,
 	},
-
-	// hunterCeilingCouch: {
-	// 	type: 'hunter',
-	// 	deathReason: 'If you see it, run away and close the door behind you',
-	// 	position: [2.5, 0, -0.6],
-	// 	scale: [2.5, 0.5, 2],
-	// 	monsterPosition: [1.5, 0, 4],
-	// 	monsterInitialPosition: [3.8, 0, 2.6],
-	// 	monsterInitialRotation: [0, Math.PI, 0],
-	// 	animation: 'CeilingCrawlIdle',
-	// 	ceiling: true,
-	// 	headOffset: Math.PI,
-	// 	lookAtPoint: [3.8, 0, 2.6],
-	// },
 
 	hunterNightstand: {
 		type: 'hunter',
@@ -388,7 +491,6 @@ const levelData = {
 		monsterInitialRotation: [0, Math.PI / 2, 0],
 		animation: 'Stand',
 		headOffset: Math.PI / 2,
-		lookAtPoint: [-1.45, 0, -1.28],
 	},
 
 	hunterWindow: {
@@ -400,8 +502,29 @@ const levelData = {
 		monsterInitialPosition: [1.52, 0, 5.85],
 		monsterInitialRotation: [0, Math.PI, 0],
 		animation: 'BehindWindow',
-		lookAtPoint: [1.52, 0, 5.7],
 	},
+
+	firstHunter: {
+		type: 'hunter',
+		deathReason: 'If you see it, run away and close the door behind you',
+		position: [2.85, 0, -1.08],
+		scale: [3, 1, 4],
+		monsterPosition: [1.5, 0, 4],
+		monsterInitialPosition: [-0.75, 0, 4],
+		monsterInitialRotation: [0, Math.PI, 0],
+		animation: 'Wall',
+	},
+
+	// servingCartHunter: {
+	// 	type: 'hunter',
+	// 	deathReason: 'If you see it, run away and close the door behind you',
+	// 	position: [2.85, 0, -1.08],
+	// 	scale: [3, 1, 4],
+	// 	monsterPosition: [2.24, 0, 3.1],
+	// 	monsterInitialPosition: [2.24, 0, 3.1],
+	// 	monsterInitialRotation: [0, Math.PI, 0],
+	// 	animation: 'Cart',
+	// },
 
 	// RAID
 	// raidWindow: {
@@ -454,6 +577,20 @@ const levelData = {
 		scale: [2.5, 0.5, 2],
 		lookAtPoint: [2, 0, 1.5],
 	},
+
+	raidFood: {
+		type: 'raid',
+		deathReason: 'If you hear knocking, hide',
+		hideObjective: 'food',
+		lookAtPoint: [0, 0, 0],
+	},
+
+	// raidMirror: {
+	// 	type: 'raid',
+	// 	deathReason: 'If you see blood inscriptions on the mirror, hide',
+	// 	hideObjective: 'mirror',
+	// 	hideSpot: 'mirror',
+	// },
 };
 
 export default levelData;

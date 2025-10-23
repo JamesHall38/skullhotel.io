@@ -77,6 +77,10 @@ export default function TriggersConditions({
 	const setAnimationMixSpeed = useMonster(
 		(state) => state.setAnimationMixSpeed
 	);
+	const animationName = useMonster((state) => state.animationName);
+	const setUseSmoothDeskTransition = useMonster(
+		(state) => state.setUseSmoothDeskTransition
+	);
 
 	// Doors
 	const roomDoors = useDoor((state) => state.roomDoor);
@@ -89,6 +93,7 @@ export default function TriggersConditions({
 	const setRoomCurtains = useDoor((state) => state.setRoomCurtains);
 	const setRoomCurtain = useDoor((state) => state.setRoomCurtain);
 	const setRoomDoor = useDoor((state) => state.setRoomDoor);
+	const setDeskPartiallyOpen = useDoor((state) => state.setDeskPartiallyOpen);
 
 	// Hiding
 	const setMonsterKnocking = useHiding((state) => state.setMonsterKnocking);
@@ -106,6 +111,7 @@ export default function TriggersConditions({
 	const sonarBathroomRef = useRef({ stateSet: false, attackTriggered: false });
 	const hunterTriggeredRoomsRef = useRef({});
 	const hunterDoorClosedFromOutsideRef = useRef({});
+	const openedDeskTriggeredRef = useRef({});
 
 	const claymoreDoorsRef = useRef({});
 
@@ -139,7 +145,8 @@ export default function TriggersConditions({
 				if (
 					roomType === 'raidTV' ||
 					roomType === 'raidRadio' ||
-					roomType === 'raidInscriptions'
+					roomType === 'raidInscriptions' ||
+					roomType === 'raidFood'
 				) {
 					setSilentKnocking(true);
 				} else {
@@ -303,18 +310,25 @@ export default function TriggersConditions({
 				}, 4000);
 			}
 		} else if (useInstantBox) {
-			monsterIsTriggered = shakeCamera(
-				clock,
-				playerIsInsideZone(cameraShakingBox, raycaster, camera) &&
-					playerIsLookingAtBox(
-						instantBox,
-						camera,
-						useInstantBox === 'underBed'
-					),
-				setShakeIntensity,
-				shakeIntensity,
-				delayed
-			);
+			if (
+				useInstantBox === 'underBedsheets' &&
+				!interfaceObjectives[playerPositionRoom]?.[1]
+			) {
+				monsterIsTriggered = false;
+			} else {
+				monsterIsTriggered = shakeCamera(
+					clock,
+					playerIsInsideZone(cameraShakingBox, raycaster, camera) &&
+						playerIsLookingAtBox(
+							instantBox,
+							camera,
+							useInstantBox === 'underBed' || useInstantBox === 'underBedsheets'
+						),
+					setShakeIntensity,
+					shakeIntensity,
+					delayed
+				);
+			}
 		}
 
 		if (
@@ -564,6 +578,7 @@ export default function TriggersConditions({
 		hunterTriggeredRoomsRef.current = {};
 		hunterDoorClosedFromOutsideRef.current = {};
 		claymoreDoorsRef.current = {};
+		openedDeskTriggeredRef.current = {};
 	}, [seedData]);
 
 	useFrame(({ camera, raycaster, clock }) => {
@@ -589,7 +604,10 @@ export default function TriggersConditions({
 
 		switch (roomKey) {
 			case 'underBed':
-				basicHiding(clock, camera, raycaster, 'underBed');
+				basicHiding(clock, camera, raycaster, 'underBed', 1);
+				break;
+			case 'underBedsheets':
+				basicHiding(clock, camera, raycaster, 'underBedsheets', 2);
 				break;
 			case 'bathroomVent':
 			case 'hideoutMirror':
@@ -599,6 +617,29 @@ export default function TriggersConditions({
 				break;
 			case 'roomVent':
 				basicHiding(clock, camera, raycaster, false, 2);
+				break;
+			case 'belowTV':
+				basicHiding(clock, camera, raycaster, 'underBed', 2);
+				break;
+			case 'bathCeiling': {
+				if (interfaceObjectives[playerPositionRoom]?.[0]) {
+					monsterLandmineAttack();
+					break;
+				}
+				if (bathroomCurtains[playerPositionRoom]) {
+					doNotGetAnyCloser(
+						'hidden',
+						raycaster,
+						camera,
+						clock,
+						shakeIntensity,
+						true
+					);
+				}
+				break;
+			}
+			case 'servingCart':
+				basicHiding(clock, camera, raycaster, 'underBed', 2);
 				break;
 			case 'bedBasket': {
 				setMonsterState('hidden');
@@ -721,6 +762,8 @@ export default function TriggersConditions({
 			case 'behindCouch':
 			case 'behindDesk':
 			case 'insideDesk':
+			case 'behindServingCart':
+			case 'bathroomCorner':
 				doNotGetAnyCloser(
 					'hidden',
 					raycaster,
@@ -730,6 +773,45 @@ export default function TriggersConditions({
 					true
 				);
 				break;
+
+			case 'openedDesk': {
+				if (monsterState !== 'hidden') {
+					setMonsterState('hidden');
+				}
+				if (
+					animationName !== 'Stand' &&
+					!openedDeskTriggeredRef.current[playerPositionRoom]
+				) {
+					playAnimation('Stand');
+				}
+
+				if (
+					playerIsInsideZone(zoneBox, raycaster, camera) &&
+					!openedDeskTriggeredRef.current[playerPositionRoom]
+				) {
+					openedDeskTriggeredRef.current[playerPositionRoom] = true;
+
+					setUseSmoothDeskTransition(true);
+					setAnimationMixSpeed(1.25);
+					playAnimation('Desk');
+
+					setDeskPartiallyOpen(playerPositionRoom, true);
+					setTimeout(() => {
+						setUseSmoothDeskTransition(false);
+						setAnimationMixSpeed(5);
+					}, 3000);
+				}
+
+				doNotGetAnyCloser(
+					'hidden',
+					raycaster,
+					camera,
+					clock,
+					shakeIntensity,
+					true
+				);
+				break;
+			}
 			case 'landmineMirror':
 				doNotGetAnyCloser(
 					'facingCamera',
@@ -757,12 +839,12 @@ export default function TriggersConditions({
 					}, 500);
 				}
 				break;
-			// case 'claymoreWindow':
-			// 	if (monsterState !== 'facingCamera') {
-			// 		setMonsterState('facingCamera');
-			// 	}
-			// 	closeTheDoorQuickly(roomCurtains[playerPositionRoom], clock);
-			// 	break;
+			case 'claymoreWindow':
+				if (monsterState !== 'facingCamera') {
+					setMonsterState('facingCamera');
+				}
+				closeTheDoorQuickly(roomCurtains[playerPositionRoom], clock);
+				break;
 			case 'claymoreBath':
 				closeTheDoorQuickly(
 					bathroomCurtains[playerPositionRoom],
@@ -814,6 +896,8 @@ export default function TriggersConditions({
 				closeTheDoorQuickly(bathroomDoors[playerPositionRoom], clock, roomKey);
 				break;
 			case 'hunterLivingRoom':
+			case 'firstHunter':
+			case 'servingCartHunter':
 			case 'hunterCeilingLivingRoom':
 			case 'hunterNightstand':
 			case 'hunterWindow': {
@@ -950,24 +1034,22 @@ export default function TriggersConditions({
 				}
 				break;
 			}
-
-			case 'raidWindow': {
-				if (completedObjective && completedRoom !== null) {
-					triggerRAID(completedRoom);
-					resetCompletedObjective();
-					return;
-				}
-				break;
-			}
-
-			case 'raidBedsheets': {
-				if (completedObjective && completedRoom !== null) {
-					triggerRAID(completedRoom);
-					resetCompletedObjective();
-					return;
-				}
-				break;
-			}
+			// case 'raidWindow': {
+			// 	if (completedObjective && completedRoom !== null) {
+			// 		triggerRAID(completedRoom);
+			// 		resetCompletedObjective();
+			// 		return;
+			// 	}
+			// 	break;
+			// }
+			// case 'raidBedsheets': {
+			// 	if (completedObjective && completedRoom !== null) {
+			// 		triggerRAID(completedRoom);
+			// 		resetCompletedObjective();
+			// 		return;
+			// 	}
+			// 	break;
+			// }
 
 			case 'raidBottles': {
 				if (completedObjective && completedRoom !== null) {
@@ -979,6 +1061,15 @@ export default function TriggersConditions({
 				break;
 			}
 
+			case 'raidFood': {
+				if (completedObjective && completedRoom !== null) {
+					triggerRAID(completedRoom);
+					resetCompletedObjective();
+					return;
+				}
+
+				break;
+			}
 			default:
 				break;
 		}

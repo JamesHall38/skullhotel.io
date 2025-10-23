@@ -55,6 +55,9 @@ export default function Animations({ group, animations }) {
 	const animationName = useMonster((state) => state.animationName);
 	const animationSpeed = useMonster((state) => state.animationSpeed);
 	const playAnimation = useMonster((state) => state.playAnimation);
+	const useSmoothDeskTransition = useMonster(
+		(state) => state.useSmoothDeskTransition
+	);
 
 	const isTposeRef = useRef(false);
 	const lastAnimationTimeRef = useRef(0);
@@ -278,7 +281,7 @@ export default function Animations({ group, animations }) {
 				fadeInAction.setEffectiveWeight(fadeInWeight);
 				fadeOutAction.setEffectiveWeight(fadeOutWeight);
 
-				if (monsterState === 'hidden') {
+				if (monsterState === 'hidden' && !useSmoothDeskTransition) {
 					fadeInAction.setEffectiveWeight(1);
 					fadeOutAction.setEffectiveWeight(0);
 				}
@@ -297,7 +300,13 @@ export default function Animations({ group, animations }) {
 				}
 			}
 		},
-		[actions, animationName, animationMixSpeed, monsterState]
+		[
+			actions,
+			animationName,
+			animationMixSpeed,
+			monsterState,
+			useSmoothDeskTransition,
+		]
 	);
 
 	useEffect(() => {

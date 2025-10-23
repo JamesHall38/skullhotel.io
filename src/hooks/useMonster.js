@@ -22,6 +22,9 @@ const useMonsterStore = create(
 		animationMixSpeed: 5,
 		setAnimationMixSpeed: (mixSpeed) =>
 			set(() => ({ animationMixSpeed: mixSpeed })),
+		useSmoothDeskTransition: false,
+		setUseSmoothDeskTransition: (value) =>
+			set(() => ({ useSmoothDeskTransition: value })),
 
 		isAttacking: false,
 		setIsAttacking: (isAttacking) => set(() => ({ isAttacking })),
@@ -35,6 +38,7 @@ const useMonsterStore = create(
 				animationName: 'Idle',
 				animationSpeed: 1,
 				animationMixSpeed: 5,
+				useSmoothDeskTransition: false,
 			}));
 		},
 

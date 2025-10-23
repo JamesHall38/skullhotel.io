@@ -20,6 +20,7 @@ export default function DeskDoor() {
 	const roomCount = useGameplaySettings((state) => state.roomCount);
 	const deskDoors = useDoor((state) => state.desks);
 	const setDeskDoors = useDoor((state) => state.setDesks);
+	const deskPartiallyOpen = useDoor((state) => state.deskPartiallyOpen);
 	const { nodes } = useGLTF('/models/doors/desk_door.glb');
 	const isOpen = useDoor((state) => state.desk);
 	const setOpen = useDoor((state) => state.setDesk);
@@ -32,6 +33,10 @@ export default function DeskDoor() {
 		(state) => state.isPlayerHidden && state.hideSpot === 'desk'
 	);
 	const [gridOffsetX, setGridOffsetX] = useState(0);
+
+	const partialOpenAngle = deskPartiallyOpen[playerPositionRoom]
+		? Math.PI / 8
+		: 0; // ~22.5 degrees
 
 	const { opacity } = useSpring({
 		opacity: isHidden ? 0.05 : 1,
@@ -87,6 +92,14 @@ export default function DeskDoor() {
 		doorMaterial.current.transparent = true;
 	}, [doorMaterial]);
 
+	useEffect(() => {
+		setInstantChange(true);
+		const timer = setTimeout(() => {
+			setInstantChange(false);
+		}, 50);
+		return () => clearTimeout(timer);
+	}, [playerPositionRoom]);
+
 	return (
 		<DoorWrapper
 			roomNumber={playerPositionRoom}
@@ -101,6 +114,7 @@ export default function DeskDoor() {
 			setInstantChange={setInstantChange}
 			closet
 			tutorialRoomOffset={tutorialRoomCenter}
+			partialOpenAngle={partialOpenAngle}
 		>
 			<group dispose={null}>
 				<a.mesh

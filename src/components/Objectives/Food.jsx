@@ -6,6 +6,7 @@ import React, {
 	useCallback,
 } from 'react';
 import { useGLTF, useKTX2 } from '@react-three/drei';
+import { useThree } from '@react-three/fiber';
 import { useControls } from 'leva';
 import * as THREE from 'three';
 import useProgressiveLoad from '../../hooks/useProgressiveLoad';
@@ -14,13 +15,13 @@ import useInterface from '../../hooks/useInterface';
 import DetectionZone from '../DetectionZone';
 import useGamepadControls from '../../hooks/useGamepadControls';
 import useInterfaceStore from '../../hooks/useInterface';
-import { getAudioInstance, areSoundsLoaded } from '../../utils/audio';
 
 export default function Food(props) {
 	const group = useRef();
 	const { nodes } = useGLTF('/models/objectives/food.glb');
 	const bakedTexture = useKTX2('/textures/food/baked_food_etc1s.ktx2');
 	const materialRef = useRef(null);
+	const { camera } = useThree();
 	const roomNumber = useGame((state) => state.playerPositionRoom);
 	const cleanedFoodRooms = useGame((state) => state.cleanedFoodRooms);
 	const setCleanedFoodRoom = useGame((state) => state.setCleanedFoodRoom);
@@ -255,6 +256,14 @@ export default function Food(props) {
 					]);
 				} else {
 					setInterfaceObjectives(3, roomNumber);
+					const currentRoom = Object.values(useGame.getState().seedData)[
+						roomNumber
+					];
+					if (currentRoom?.hideObjective === 'food') {
+						useGame
+							.getState()
+							.checkObjectiveCompletion('food', roomNumber, camera);
+					}
 				}
 
 				try {
@@ -274,6 +283,8 @@ export default function Food(props) {
 		setTutorialObjectives,
 		setInterfaceObjectives,
 		roomNumber,
+		camera,
+		selectedFood,
 	]);
 
 	useEffect(() => {

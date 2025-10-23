@@ -968,6 +968,14 @@ export default function Task(props) {
 					]);
 				} else {
 					setInterfaceObjectives(4, roomNumber);
+					const currentRoom = Object.values(useGame.getState().seedData)[
+						roomNumber
+					];
+					if (currentRoom?.hideObjective === 'task') {
+						useGame
+							.getState()
+							.checkObjectiveCompletion('task', roomNumber, camera);
+					}
 				}
 
 				try {
@@ -988,6 +996,7 @@ export default function Task(props) {
 		setInterfaceObjectives,
 		roomNumber,
 		selectedTask,
+		camera,
 	]);
 
 	useEffect(() => {

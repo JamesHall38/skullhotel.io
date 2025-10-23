@@ -25,6 +25,7 @@ export default function DoorWrapper({
 	closet = false,
 	doubleRotate = false,
 	isNightstand = false,
+	partialOpenAngle = 0,
 }) {
 	const doorRef = useRef();
 	const group = useRef();
@@ -267,7 +268,9 @@ export default function DoorWrapper({
 		}
 
 		const directionMultiplier = reverse ? -1 : 1;
-		const currentTargetAngle = !isOpen ? 0 : targetAngle * directionMultiplier;
+		const currentTargetAngle = !isOpen
+			? partialOpenAngle * directionMultiplier
+			: targetAngle * directionMultiplier;
 
 		if (instantChange) {
 			rotationAngleRef.current = currentTargetAngle;
