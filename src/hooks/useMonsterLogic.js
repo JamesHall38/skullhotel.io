@@ -114,6 +114,7 @@ export default function useMonsterLogic() {
 	const setDisableControls = useGame((state) => state.setDisableControls);
 	const isEndAnimationPlaying = useGame((state) => state.isEndAnimationPlaying);
 	const setCustomDeathMessage = useGame((state) => state.setCustomDeathMessage);
+	const openDeathScreen = useGame((state) => state.openDeathScreen);
 
 	const monsterState = useMonster((state) => state.monsterState);
 	const setMonsterState = useMonster((state) => state.setMonsterState);
@@ -167,6 +168,15 @@ export default function useMonsterLogic() {
 		setVisitedWaypoints({});
 		lastJumpScareTimeRef.current = 0;
 	}, [deaths]);
+
+	useEffect(() => {
+		setTimeout(() => {
+			if (openDeathScreen && jumpScareSoundRef.current) {
+				jumpScareSoundRef.current.pause();
+				jumpScareSoundRef.current.currentTime = 0;
+			}
+		}, 4000);
+	}, [openDeathScreen]);
 
 	useEffect(() => {
 		if (group.current && headBoneRef.current) {
@@ -1092,6 +1102,7 @@ export default function useMonsterLogic() {
 	const useHeadTracking = useCallback(() => {
 		useFrame(({ camera }) => {
 			if (
+				openDeathScreen ||
 				!headBoneRef.current ||
 				monsterState === 'run' ||
 				monsterState === 'chase' ||
@@ -1139,6 +1150,7 @@ export default function useMonsterLogic() {
 			);
 		});
 	}, [
+		openDeathScreen,
 		monsterState,
 		animationName,
 		isEndAnimationPlaying,
@@ -1173,6 +1185,9 @@ export default function useMonsterLogic() {
 
 	const useEndAnimationLookAt = useCallback(() => {
 		useFrame(({ camera }) => {
+			if (openDeathScreen) {
+				return;
+			}
 			if (monsterState === 'endAnimation' || isEndAnimationPlaying) {
 				if (group.current) {
 					const targetPosition = new THREE.Vector3(
@@ -1184,7 +1199,7 @@ export default function useMonsterLogic() {
 				}
 			}
 		});
-	}, [monsterState, isEndAnimationPlaying]);
+	}, [openDeathScreen, monsterState, isEndAnimationPlaying]);
 
 	useEffect(() => {
 		if (
@@ -1205,6 +1220,10 @@ export default function useMonsterLogic() {
 
 	const useMonsterBehavior = useCallback(() => {
 		useFrame(({ camera }) => {
+			if (openDeathScreen) {
+				return;
+			}
+
 			const currentRoomValue = Object.values(seedData)[playerPositionRoom];
 			if (currentRoomValue?.type === 'empty') {
 				if (group.current) {
@@ -1345,6 +1364,7 @@ export default function useMonsterLogic() {
 			}
 		});
 	}, [
+		openDeathScreen,
 		monsterState,
 		lookAtCamera,
 		seedData,
@@ -1402,6 +1422,9 @@ export default function useMonsterLogic() {
 
 	const useDeathVibration = useCallback(() => {
 		useFrame(() => {
+			if (openDeathScreen) {
+				return;
+			}
 			if (
 				jumpScare &&
 				animationName === 'Attack' &&
@@ -1419,7 +1442,7 @@ export default function useMonsterLogic() {
 				}
 			}
 		});
-	}, [jumpScare, animationName, hasTriggeredDeathVibration]);
+	}, [openDeathScreen, jumpScare, animationName, hasTriggeredDeathVibration]);
 
 	return {
 		group,

@@ -50,7 +50,7 @@ export const TASK_TRANSFORMS = {
 	},
 	BathWater: {
 		detectionPosition: [-1, 0, -4.7],
-		detectionScale: [2, 1, 1.5],
+		detectionScale: [2, 1.5, 1.5],
 	},
 	ToiletCloged: {
 		detectionPosition: [-1.2, 0, -2.7],

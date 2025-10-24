@@ -140,6 +140,7 @@ const DeathScreen = () => {
 	useEffect(() => {
 		if (openDeathScreen) {
 			setIsGameplayActive(false);
+			useMonster.getState().restart();
 		}
 	}, [openDeathScreen, setIsGameplayActive]);
 

@@ -154,7 +154,12 @@ export default function DoubleCurtain({
 	);
 
 	const openCurtain = useCallback(() => {
-		if (!instantChangeRef.current && !isJustAfterDoorChangeRef.current) {
+		const isInCurrentRoom = Math.abs(camera.position.z) > 1.8;
+		if (
+			!instantChangeRef.current &&
+			!isJustAfterDoorChangeRef.current &&
+			isInCurrentRoom
+		) {
 			setTimeout(() => {
 				curtainSoundRef.current.play();
 			}, 500);
@@ -162,10 +167,15 @@ export default function DoubleCurtain({
 
 		setCurtains(roomNumberRef.current, true);
 		handleCurtainAnimation(1, 1);
-	}, [handleCurtainAnimation, setCurtains]);
+	}, [handleCurtainAnimation, setCurtains, camera]);
 
 	const closeCurtain = useCallback(() => {
-		if (!instantChangeRef.current && !isJustAfterDoorChangeRef.current) {
+		const isInCurrentRoom = Math.abs(camera.position.z) > 1.8;
+		if (
+			!instantChangeRef.current &&
+			!isJustAfterDoorChangeRef.current &&
+			isInCurrentRoom
+		) {
 			setTimeout(() => {
 				curtainSoundRef.current.currentTime = 0;
 				curtainSoundRef.current.play();
@@ -174,7 +184,7 @@ export default function DoubleCurtain({
 
 		setCurtains(roomNumberRef.current, false);
 		handleCurtainAnimation(-1);
-	}, [handleCurtainAnimation, setCurtains]);
+	}, [handleCurtainAnimation, setCurtains, camera]);
 
 	useEffect(() => {
 		if (isCurtainOpen) {

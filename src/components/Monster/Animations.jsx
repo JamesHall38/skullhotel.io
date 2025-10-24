@@ -43,6 +43,7 @@ export default function Animations({ group, animations }) {
 	const { actions } = useAnimations(animations, group);
 	const previousAnimationRef = useRef('Idle');
 	const setOpenDeathScreen = useGame((state) => state.setOpenDeathScreen);
+	const openDeathScreen = useGame((state) => state.openDeathScreen);
 	// const footstepIndexRef = useRef(0);
 	const creepingStateRef = useRef('playing'); // 'playing', 'paused', 'reversing', 'done'
 	const creepingPauseTimeRef = useRef(0);
@@ -315,6 +316,7 @@ export default function Animations({ group, animations }) {
 		if (
 			soundsReady &&
 			monsterStepSounds.length > 0 &&
+			!openDeathScreen &&
 			(animationName === 'Walk' ||
 				animationName === 'Run' ||
 				animationName === 'CeilingCrawl')
@@ -349,7 +351,24 @@ export default function Animations({ group, animations }) {
 				clearInterval(intervalId);
 			}
 		};
-	}, [animationName, animations, monsterStepSounds, soundsReady]);
+	}, [
+		animationName,
+		animations,
+		monsterStepSounds,
+		soundsReady,
+		openDeathScreen,
+	]);
+
+	useEffect(() => {
+		if (openDeathScreen && monsterStepSounds.length > 0) {
+			monsterStepSounds.forEach((sound) => {
+				if (sound && !sound.paused) {
+					sound.pause();
+					sound.currentTime = 0;
+				}
+			});
+		}
+	}, [openDeathScreen, monsterStepSounds]);
 
 	useEffect(() => {
 		if (animationName === 'Attack' && actions && actions['Attack']) {

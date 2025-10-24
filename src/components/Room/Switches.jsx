@@ -182,12 +182,12 @@ export default function Switches(props) {
 					wasClickProcessedRef.current = false;
 				}, 300);
 
-				const totalSteps = 6;
+				const totalSteps = 8;
 				const currentStep = Math.floor(
 					(doneObjectivesNumberRef.current / (roomCount / 2)) * totalSteps
 				);
 
-				if (currentStep > totalSteps / 2 && !roomLight && !bulbBurned) {
+				if (currentStep > 3 && !roomLight && !bulbBurned) {
 					setRoomLight(true);
 					switchOnSoundRef.current.currentTime = 0;
 					switchOnSoundRef.current.play().catch(() => {});

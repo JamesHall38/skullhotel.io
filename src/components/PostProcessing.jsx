@@ -250,6 +250,7 @@ const PostProcessing = () => {
 	const jumpScare = useGame((state) => state.jumpScare);
 	const shakeIntensity = useGame((state) => state.shakeIntensity);
 	const isListening = useGame((state) => state.isListening);
+	const openDeathScreen = useGame((state) => state.openDeathScreen);
 	const setIntroIsPlaying = useGame.getState().setIntroIsPlaying;
 	const lerpTimeRef = useRef(0);
 
@@ -295,8 +296,16 @@ const PostProcessing = () => {
 		};
 	}, []);
 
+	useEffect(() => {
+		if (openDeathScreen && jumpScareAmbianceRef.current) {
+			jumpScareAmbianceRef.current.pause();
+			jumpScareAmbianceRef.current.currentTime = 0;
+			currentVolumeRef.current = 0;
+		}
+	}, [openDeathScreen]);
+
 	useFrame((_, delta) => {
-		if (!soundsReady) return;
+		if (!soundsReady || openDeathScreen) return;
 
 		const LERP_FACTOR = 2;
 		const targetVolume =

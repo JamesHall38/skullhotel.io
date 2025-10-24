@@ -428,7 +428,7 @@ const levelData = {
 	// HUNTER
 	hunterLivingRoom: {
 		type: 'hunter',
-		position: [2.2, 0, 2.8],
+		position: [2.2, 0, 3],
 		scale: [2.5, 0.5, 2],
 		monsterPosition: [1.5, 0, 4],
 		monsterInitialPosition: [-0.5, 0, 1.91],

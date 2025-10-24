@@ -145,8 +145,7 @@ export default function TriggersConditions({
 				if (
 					roomType === 'raidTV' ||
 					roomType === 'raidRadio' ||
-					roomType === 'raidInscriptions' ||
-					roomType === 'raidFood'
+					roomType === 'raidInscriptions'
 				) {
 					setSilentKnocking(true);
 				} else {
