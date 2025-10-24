@@ -41,6 +41,7 @@ const NIGHTSTAND_WARNING_DIALOGUE = 7; // 'If you see one of them, be quick to c
 const WELL_DONE_DIALOGUE = 8; // 'Well done! Now clean 8 rooms to call it a day.',
 const REMEMBER_WARNING_DIALOGUE = 9; // 'Remember: if you see one of them in a room, turn back immediately.'
 const OCCUPIED_ROOMS_DIALOGUE = 10; // 'Half of these rooms are randomly occupied. Proceed with caution.',
+const BATHROOM_TASKS_DIALOGUE = 11; // 'In the bathroom, the task varies: clean a stain, throw away trash, remove spiders...'
 
 export default function Tutorial() {
 	const isDead = useInterfaceStore((state) => state.isDead);
@@ -56,6 +57,7 @@ export default function Tutorial() {
 	const playIntro = useGame((state) => state.playIntro);
 	const deaths = useGame((state) => state.deaths);
 	const setMannequinHidden = useGame((state) => state.setMannequinHidden);
+	const isTutorialOpen = useGame((state) => state.isTutorialOpen);
 
 	const [tutorialStage, setTutorialStage] = useState(0);
 	const [listeningTimer, setListeningTimer] = useState(0);
@@ -66,6 +68,7 @@ export default function Tutorial() {
 	const doorClosedRef = useRef(false);
 	const step10CompletedRef = useRef(false);
 	const step11CompletedRef = useRef(false);
+	const bathroomTasksDialogueShownRef = useRef(false);
 	const [hasOpenedBathroomCurtain, setHasOpenedBathroomCurtain] =
 		useState(false);
 	const [doorClosed, setDoorClosed] = useState(false);
@@ -91,11 +94,46 @@ export default function Tutorial() {
 	const setIsTutorialCompleted = useInterfaceStore(
 		(state) => state.setIsTutorialCompleted
 	);
+	const tutorialResetTrigger = useInterfaceStore(
+		(state) => state.tutorialResetTrigger
+	);
+	const hasEverCompletedTutorial = useInterfaceStore(
+		(state) => state.hasEverCompletedTutorial
+	);
+	const setHasEverCompletedTutorial = useInterfaceStore(
+		(state) => state.setHasEverCompletedTutorial
+	);
 
 	const { t, currentLanguage } = useLocalization();
 
+	useEffect(() => {
+		if (tutorialResetTrigger > 0) {
+			setTutorialStage(TUTORIAL_STAGE.INTRO);
+			setListeningTimer(0);
+			setHasListenedEnough(false);
+			setHasOpenedBathroomCurtain(false);
+			setDoorClosed(false);
+			setTriggerStep2(false);
+			setTriggerStep3(false);
+			setListeningProgress(0);
+
+			hasTriggered.current = false;
+			hasStarted.current = false;
+			doorClosedRef.current = false;
+			step10CompletedRef.current = false;
+			step11CompletedRef.current = false;
+			bathroomTasksDialogueShownRef.current = false;
+
+			if (timeoutRef.current) {
+				clearTimeout(timeoutRef.current);
+				timeoutRef.current = null;
+			}
+		}
+	}, [tutorialResetTrigger]);
+
 	// Welcome back on death
 	useEffect(() => {
+		if (!isTutorialOpen) return;
 		if (
 			isDead &&
 			(tutorialStage === TUTORIAL_STAGE.FINAL_WARNING ||
@@ -103,7 +141,7 @@ export default function Tutorial() {
 		) {
 			setCurrentDialogueIndex(WELCOME_BACK_DIALOGUE);
 		}
-	}, [isDead, tutorialStage, setCurrentDialogueIndex]);
+	}, [isDead, tutorialStage, setCurrentDialogueIndex, isTutorialOpen]);
 
 	// ===========================
 	// STEP 1: INTRO - Welcome and movement controls
@@ -129,6 +167,7 @@ export default function Tutorial() {
 	// ===========================
 	const TRIGGER_X_POSITION = 7.5;
 	useFrame(({ camera }) => {
+		if (!isTutorialOpen) return;
 		if (hasTriggered.current || tutorialStage !== TUTORIAL_STAGE.INTRO) {
 			return;
 		}
@@ -140,16 +179,18 @@ export default function Tutorial() {
 	});
 
 	useEffect(() => {
+		if (!isTutorialOpen) return;
 		if (triggerStep2 && tutorialStage === TUTORIAL_STAGE.INTRO) {
 			setTutorialStage(TUTORIAL_STAGE.INTERACT);
 		}
-	}, [triggerStep2, tutorialStage]);
+	}, [triggerStep2, tutorialStage, isTutorialOpen]);
 
 	// ===========================
 	// STEP 3: CLOSE_DOOR - Close the door behind you
 	// ===========================
 	const TRIGGER_Z_POSITION = 3;
 	useFrame(({ camera }) => {
+		if (!isTutorialOpen) return;
 		if (
 			tutorialStage === TUTORIAL_STAGE.INTERACT &&
 			camera.position.z > TRIGGER_Z_POSITION
@@ -159,15 +200,17 @@ export default function Tutorial() {
 	});
 
 	useEffect(() => {
+		if (!isTutorialOpen) return;
 		if (triggerStep3 && tutorialStage === TUTORIAL_STAGE.INTERACT) {
 			setTutorialStage(TUTORIAL_STAGE.CLOSE_DOOR);
 		}
-	}, [triggerStep3, tutorialStage]);
+	}, [triggerStep3, tutorialStage, isTutorialOpen]);
 
 	// ===========================
 	// STEP 4: DOOR_CLOSED - Confirmation after door is closed
 	// ===========================
 	useFrame(({ camera }) => {
+		if (!isTutorialOpen) return;
 		if (
 			tutorialStage === TUTORIAL_STAGE.CLOSE_DOOR &&
 			!tutorialDoorOpen &&
@@ -180,17 +223,19 @@ export default function Tutorial() {
 	});
 
 	useEffect(() => {
+		if (!isTutorialOpen) return;
 		if (doorClosed && tutorialStage === TUTORIAL_STAGE.CLOSE_DOOR) {
 			setTutorialStage(TUTORIAL_STAGE.DOOR_CLOSED);
 			setCurrentDialogueIndex(DOOR_CLOSED_DIALOGUE);
 		}
-	}, [doorClosed, tutorialStage, setCurrentDialogueIndex]);
+	}, [doorClosed, tutorialStage, setCurrentDialogueIndex, isTutorialOpen]);
 
 	// ===========================
 	// STEP 5: LISTEN - Y to listen for sounds
 	// ===========================
 	const LISTENING_TIME_REQUIRED = 2; // seconds
 	useFrame((state, delta) => {
+		if (!isTutorialOpen) return;
 		if (tutorialStage === TUTORIAL_STAGE.DOOR_CLOSED && isListening) {
 			const newTime = listeningTimer + delta;
 			setListeningProgress(newTime);
@@ -203,6 +248,7 @@ export default function Tutorial() {
 	});
 
 	useEffect(() => {
+		if (!isTutorialOpen) return;
 		setListeningTimer(listeningProgress);
 
 		if (
@@ -219,18 +265,21 @@ export default function Tutorial() {
 		hasListenedEnough,
 		tutorialStage,
 		setCurrentDialogueIndex,
+		isTutorialOpen,
 	]);
 
 	// ===========================
 	// STEP 6: BATHROOM_WARNING - Hide in bathroom
 	// ===========================
 	useEffect(() => {
+		if (!isTutorialOpen) return;
 		if (bathroomCurtain) {
 			setHasOpenedBathroomCurtain(true);
 		}
-	}, [bathroomCurtain]);
+	}, [bathroomCurtain, isTutorialOpen]);
 
 	useEffect(() => {
+		if (!isTutorialOpen) return;
 		if (
 			tutorialStage === TUTORIAL_STAGE.LISTEN &&
 			hideSpot === 'bathroomCurtain' &&
@@ -239,12 +288,19 @@ export default function Tutorial() {
 			setTutorialStage(TUTORIAL_STAGE.BATHROOM_WARNING);
 			setCurrentDialogueIndex(UNUSUAL_WARNING_DIALOGUE);
 		}
-	}, [hideSpot, isPlayerHidden, tutorialStage, setCurrentDialogueIndex]);
+	}, [
+		hideSpot,
+		isPlayerHidden,
+		tutorialStage,
+		setCurrentDialogueIndex,
+		isTutorialOpen,
+	]);
 
 	// ===========================
 	// STEP 7: FURNITURE_HIDING - Hide in desk
 	// ===========================
 	useEffect(() => {
+		if (!isTutorialOpen) return;
 		if (
 			tutorialStage === TUTORIAL_STAGE.BATHROOM_WARNING &&
 			hideSpot === 'desk' &&
@@ -258,33 +314,42 @@ export default function Tutorial() {
 			setTutorialStage(TUTORIAL_STAGE.FURNITURE_HIDING);
 			setCurrentDialogueIndex(CHECK_FURNITURE_DIALOGUE);
 		}
-	}, [hideSpot, isPlayerHidden, tutorialStage, setCurrentDialogueIndex]);
+	}, [
+		hideSpot,
+		isPlayerHidden,
+		tutorialStage,
+		setCurrentDialogueIndex,
+		isTutorialOpen,
+	]);
 
 	// ===========================
 	// STEP 8: CHECK_NIGHTSTAND - Open nightstand
 	// ===========================
 	useEffect(() => {
+		if (!isTutorialOpen) return;
 		if (tutorialStage === TUTORIAL_STAGE.FURNITURE_HIDING && nightStandOpen) {
 			setTutorialStage(TUTORIAL_STAGE.CHECK_NIGHTSTAND);
 			setCurrentDialogueIndex(NIGHTSTAND_WARNING_DIALOGUE);
 		}
-	}, [nightStandOpen, tutorialStage, setCurrentDialogueIndex]);
+	}, [nightStandOpen, tutorialStage, setCurrentDialogueIndex, isTutorialOpen]);
 
 	// ===========================
 	// STEP 9: CLOSE_NIGHTSTAND - Close nightstand with warning
 	// ===========================
 	useEffect(() => {
+		if (!isTutorialOpen) return;
 		if (tutorialStage === TUTORIAL_STAGE.CHECK_NIGHTSTAND && !nightStandOpen) {
 			setTimeout(() => {
 				setTutorialStage(TUTORIAL_STAGE.CLOSE_NIGHTSTAND);
 			}, 200);
 		}
-	}, [nightStandOpen, tutorialStage, setCurrentDialogueIndex]);
+	}, [nightStandOpen, tutorialStage, setCurrentDialogueIndex, isTutorialOpen]);
 
 	// ===========================
 	// STEP 10: CLEAN_OBJECTIVES - Original cleaning tasks
 	// ===========================
 	useEffect(() => {
+		if (!isTutorialOpen) return;
 		if (
 			tutorialObjectives.every(Boolean) &&
 			!step10CompletedRef.current &&
@@ -304,12 +369,34 @@ export default function Tutorial() {
 		tutorialStage,
 		setCurrentDialogueIndex,
 		setIsTutorialCompleted,
+		isTutorialOpen,
+	]);
+
+	// ===========================
+	// BATHROOM TASKS DIALOGUE - When Task objective is completed
+	// ===========================
+	useEffect(() => {
+		if (!isTutorialOpen) return;
+		if (
+			tutorialObjectives[4] === true &&
+			!bathroomTasksDialogueShownRef.current &&
+			tutorialStage === TUTORIAL_STAGE.CLOSE_NIGHTSTAND
+		) {
+			bathroomTasksDialogueShownRef.current = true;
+			setCurrentDialogueIndex(BATHROOM_TASKS_DIALOGUE);
+		}
+	}, [
+		tutorialObjectives,
+		tutorialStage,
+		setCurrentDialogueIndex,
+		isTutorialOpen,
 	]);
 
 	// ===========================
 	// STEP 11: WELL_DONE - Completion of objectives
 	// ===========================
 	useEffect(() => {
+		if (!isTutorialOpen) return;
 		if (
 			corridorDoorOpen &&
 			tutorialStage === TUTORIAL_STAGE.CLEAN_OBJECTIVES &&
@@ -318,8 +405,19 @@ export default function Tutorial() {
 			step11CompletedRef.current = true;
 			setTutorialStage(TUTORIAL_STAGE.WELL_DONE);
 			setCurrentDialogueIndex(OCCUPIED_ROOMS_DIALOGUE);
+
+			if (!hasEverCompletedTutorial) {
+				setHasEverCompletedTutorial(true);
+			}
 		}
-	}, [corridorDoorOpen, tutorialStage, setCurrentDialogueIndex]);
+	}, [
+		corridorDoorOpen,
+		tutorialStage,
+		setCurrentDialogueIndex,
+		hasEverCompletedTutorial,
+		setHasEverCompletedTutorial,
+		isTutorialOpen,
+	]);
 
 	// ===========================
 	// INSTRUCTIONS
@@ -392,6 +490,7 @@ export default function Tutorial() {
 	}, [tutorialStage, t]);
 
 	useEffect(() => {
+		if (!isTutorialOpen) return;
 		if (tutorialStage >= TUTORIAL_STAGE.INTRO) {
 			const objectives = getCurrentObjectives().map((text) => ({
 				text,
@@ -401,9 +500,15 @@ export default function Tutorial() {
 				setCustomTutorialObjectives(objectives);
 			}, 50);
 		}
-	}, [tutorialStage, setCustomTutorialObjectives, getCurrentObjectives]);
+	}, [
+		tutorialStage,
+		setCustomTutorialObjectives,
+		getCurrentObjectives,
+		isTutorialOpen,
+	]);
 
 	useEffect(() => {
+		if (!isTutorialOpen) return;
 		if (
 			tutorialStage >= TUTORIAL_STAGE.CLOSE_NIGHTSTAND &&
 			customTutorialObjectives &&
@@ -430,9 +535,11 @@ export default function Tutorial() {
 		tutorialObjectives,
 		customTutorialObjectives,
 		setCustomTutorialObjectives,
+		isTutorialOpen,
 	]);
 
 	useEffect(() => {
+		if (!isTutorialOpen) return;
 		if (customTutorialObjectives && customTutorialObjectives.length > 0) {
 			const updatedObjectives = getCurrentObjectives().map((text, index) => ({
 				text,
@@ -452,6 +559,7 @@ export default function Tutorial() {
 		customTutorialObjectives,
 		getCurrentObjectives,
 		setCustomTutorialObjectives,
+		isTutorialOpen,
 	]);
 
 	return (

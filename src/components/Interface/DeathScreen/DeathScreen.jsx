@@ -6,7 +6,6 @@ import useDoor from '../../../hooks/useDoor';
 import useMonster from '../../../hooks/useMonster';
 import useLight from '../../../hooks/useLight';
 import useLocalization from '../../../hooks/useLocalization';
-import { getDeathReasonTranslationKey } from '../../../utils/deathReasonMapper';
 import { regenerateData } from '../../../utils/config';
 import {
 	isPointerLocked,
@@ -32,6 +31,7 @@ const DeathScreen = () => {
 	const [isRestarting, setIsRestarting] = useState(false);
 	const [lastDeathMessage, setLastDeathMessage] = useState(null);
 	const [animationsComplete, setAnimationsComplete] = useState(false);
+	const [capturedDeathData, setCapturedDeathData] = useState(null);
 	const { t } = useLocalization();
 	const deviceMode = useGame((state) => state.deviceMode);
 	const openDeathScreen = useGame((state) => state.openDeathScreen);
@@ -58,32 +58,55 @@ const DeathScreen = () => {
 	}, [openDeathScreen]);
 
 	useEffect(() => {
-		if (playerPositionRoom !== null && playerPositionRoom >= 0) {
-			const currentRoom = Object.values(seedData)[playerPositionRoom];
+		if (
+			openDeathScreen &&
+			!capturedDeathData &&
+			playerPositionRoom !== null &&
+			playerPositionRoom >= 0
+		) {
+			setCapturedDeathData({
+				playerPositionRoom,
+				seedData,
+				customMessage,
+			});
+		} else if (!openDeathScreen && capturedDeathData) {
+			setCapturedDeathData(null);
+		}
+	}, [
+		openDeathScreen,
+		playerPositionRoom,
+		seedData,
+		customMessage,
+		capturedDeathData,
+	]);
+
+	useEffect(() => {
+		if (capturedDeathData) {
+			const seedDataEntries = Object.entries(capturedDeathData.seedData);
+			const [roomKey, currentRoom] =
+				seedDataEntries[capturedDeathData.playerPositionRoom] || [];
+
 			let message = null;
 
-			if (customMessage) {
-				message = customMessage.startsWith('game.deathReasons.')
-					? t(customMessage)
-					: customMessage;
-			} else if (currentRoom?.isRaid) {
-				message = t('game.deathReasons.raidKnocking');
-			} else if (currentRoom?.deathReason) {
-				const translationKey = getDeathReasonTranslationKey(
-					currentRoom.deathReason
-				);
-				message = translationKey.startsWith('game.deathReasons.')
-					? t(translationKey)
-					: currentRoom.deathReason;
+			if (capturedDeathData.customMessage) {
+				message = capturedDeathData.customMessage.startsWith(
+					'game.deathReasons.'
+				)
+					? t(capturedDeathData.customMessage)
+					: capturedDeathData.customMessage;
+			} else {
+				const baseKey = currentRoom?.baseKey || roomKey;
+
+				if (baseKey) {
+					const translationKey = `game.deathReasons.${baseKey}`;
+					message = t(translationKey);
+					addSeenLevel(baseKey);
+				}
 			}
 
 			setLastDeathMessage(message);
-
-			if (currentRoom?.baseKey) {
-				addSeenLevel(currentRoom.baseKey);
-			}
 		}
-	}, [playerPositionRoom, seedData, customMessage, addSeenLevel, t]);
+	}, [capturedDeathData, addSeenLevel, t]);
 
 	useEffect(() => {
 		if (seenLevels.size === 28 && totalLevelTypes === 28) {

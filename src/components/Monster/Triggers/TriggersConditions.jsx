@@ -265,7 +265,6 @@ export default function TriggersConditions({
 
 	const checkObjectiveAndAttack = (objectives, objectiveIndex) => {
 		if (objectives[playerPositionRoom]?.[objectiveIndex]) {
-			useGame.getState().setCustomDeathMessage('game.deathReasons.objective');
 			monsterAttack();
 			return true;
 		}

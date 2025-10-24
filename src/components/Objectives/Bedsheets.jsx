@@ -153,6 +153,20 @@ export default function Bedsheets() {
 	const isInit = useRef(false);
 
 	useEffect(() => {
+		if (isTutorialOpen) {
+			const tutorialCompleted = tutorialObjectives[1] === true;
+			if (!tutorialCompleted) {
+				setVisibleMesh('Start');
+				if (mixerRef.current) {
+					mixerRef.current.stopAllAction();
+					mixerRef.current.setTime(0);
+				}
+			} else {
+				setVisibleMesh('End');
+			}
+			return;
+		}
+
 		if (objective === false && isInit.current === true) {
 			setVisibleMesh('Start');
 			if (mixerRef.current) {
@@ -165,7 +179,7 @@ export default function Bedsheets() {
 				setVisibleMesh('End');
 			}
 		}
-	}, [objective, roomNumber]);
+	}, [objective, roomNumber, isTutorialOpen, tutorialObjectives]);
 
 	useEffect(() => {
 		if (mobileClick && isDetected && visibleMesh === 'Start') {
@@ -265,6 +279,16 @@ export default function Bedsheets() {
 		const interval = setInterval(checkGamepad, 16);
 		return () => clearInterval(interval);
 	}, [deviceMode, gamepadControlsRef, isDetected]);
+
+	useEffect(() => {
+		if (tutorialObjectives[1] === false && isTutorialOpen) {
+			setVisibleMesh('Start');
+			if (mixerRef.current) {
+				mixerRef.current.stopAllAction();
+				mixerRef.current.setTime(0);
+			}
+		}
+	}, [tutorialObjectives, isTutorialOpen]);
 
 	return (
 		<group

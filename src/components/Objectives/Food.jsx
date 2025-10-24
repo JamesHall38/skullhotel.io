@@ -43,6 +43,7 @@ export default function Food(props) {
 	const deviceMode = useGame((state) => state.deviceMode);
 	const gamepadControlsRef = useGamepadControls();
 	const wasActionPressedRef = useRef(false);
+	const isTutorialOpen = useGame((state) => state.isTutorialOpen);
 
 	const foodGroups = useMemo(
 		() => [
@@ -180,7 +181,11 @@ export default function Food(props) {
 	}, []);
 
 	useEffect(() => {
-		if (cleanedFoodRooms?.[roomNumber]) {
+		const shouldBeHidden =
+			(cleanedFoodRooms?.[roomNumber] && !isTutorialOpen) ||
+			(isTutorialOpen && tutorialObjectives[3] === true);
+
+		if (shouldBeHidden) {
 			setIsHidden(true);
 		} else {
 			setIsHidden(false);
@@ -190,7 +195,7 @@ export default function Food(props) {
 				materialRef.current.needsUpdate = true;
 			}
 		}
-	}, [cleanedFoodRooms, roomNumber]);
+	}, [cleanedFoodRooms, roomNumber, isTutorialOpen, tutorialObjectives]);
 
 	loadedItems.forEach((item) => {
 		const texture = item.texture;
@@ -339,6 +344,17 @@ export default function Food(props) {
 		raf = requestAnimationFrame(step);
 		return () => raf && cancelAnimationFrame(raf);
 	}, [isFading, roomNumber, setCleanedFoodRoom]);
+
+	useEffect(() => {
+		if (tutorialObjectives[3] === false && isTutorialOpen) {
+			setIsHidden(false);
+			setIsFading(false);
+			if (materialRef.current) {
+				materialRef.current.opacity = 1;
+				materialRef.current.needsUpdate = true;
+			}
+		}
+	}, [tutorialObjectives, isTutorialOpen]);
 
 	if (isHidden) {
 		return null;

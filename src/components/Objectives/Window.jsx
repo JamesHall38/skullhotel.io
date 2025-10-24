@@ -222,6 +222,33 @@ export default function Window() {
 	const isInit = useRef(false);
 
 	useEffect(() => {
+		if (isTutorialOpen) {
+			const tutorialCompleted = tutorialObjectives[2] === true;
+			if (!tutorialCompleted) {
+				Object.values(actions).forEach((action) => {
+					if (action) {
+						action.stop();
+						action.reset();
+						action.time = 0;
+					}
+				});
+			} else {
+				Object.values(actions).forEach((action) => {
+					if (!action.isRunning()) {
+						if (action && action.time !== action.getClip().duration) {
+							action.clampWhenFinished = true;
+							action.timeScale = 2;
+							action.loop = THREE.LoopOnce;
+							action.repetitions = 1;
+							action.play();
+							action.time = action.getClip().duration;
+						}
+					}
+				});
+			}
+			return;
+		}
+
 		if (objective === false && isInit.current === true) {
 			Object.values(actions).forEach((action) => {
 				if (action) {
@@ -247,7 +274,7 @@ export default function Window() {
 				});
 			}
 		}
-	}, [objective, actions]);
+	}, [objective, actions, isTutorialOpen, tutorialObjectives]);
 
 	useEffect(() => {
 		if (deviceMode !== 'gamepad') return;
@@ -280,6 +307,18 @@ export default function Window() {
 		const interval = setInterval(checkGamepad, 16);
 		return () => clearInterval(interval);
 	}, [deviceMode, gamepadControlsRef, isDetected]);
+
+	useEffect(() => {
+		if (tutorialObjectives[2] === false && isTutorialOpen) {
+			Object.values(actions).forEach((action) => {
+				if (action) {
+					action.stop();
+					action.reset();
+					action.time = 0;
+				}
+			});
+		}
+	}, [tutorialObjectives, actions, isTutorialOpen]);
 
 	return (
 		<group

@@ -2,7 +2,6 @@ const levelData = {
 	// HIDEOUT
 	underBed: {
 		type: 'hideout',
-		deathReason: 'It was hiding under the bed',
 		position: [1.9, 0, 1.8],
 		scale: [2, 1, 1],
 		monsterPosition: [1.5, 0, -0.5],
@@ -15,7 +14,6 @@ const levelData = {
 	},
 	underBedsheets: {
 		type: 'hideout',
-		deathReason: 'It was hiding under the bedsheets',
 		position: [1.9, 0, 1.8],
 		scale: [2, 1, 1],
 		monsterPosition: [1.5, 0, -0.5],
@@ -28,7 +26,6 @@ const levelData = {
 	},
 	bathroomVent: {
 		type: 'hideout',
-		deathReason: 'It was hiding in the bathroom vent',
 		position: [2.5, 0, -2.2],
 		scale: [2, 1, 2],
 		monsterPosition: [2.5, 0, -2.25],
@@ -38,7 +35,6 @@ const levelData = {
 
 	roomVent: {
 		type: 'hideout',
-		deathReason: 'It was hiding in the room vent',
 		position: [1.5, 0, 4.5],
 		scale: [4, 1, 2],
 		monsterPosition: [3, 0, 4.6],
@@ -48,7 +44,6 @@ const levelData = {
 
 	bedBasket: {
 		type: 'hideout',
-		deathReason: 'It was hiding in the laundry basket near the bed',
 		position: [1.9, 0, 1.15],
 		scale: [2, 1, 1],
 		monsterPosition: [-0.15, 0, 1.25],
@@ -64,7 +59,6 @@ const levelData = {
 
 	windowBasket: {
 		type: 'hideout',
-		deathReason: 'It was hiding in the TV stand compartment',
 		position: [0, 0, 2.2],
 		scale: [6, 1, 2],
 		monsterPosition: [-0.6, 0, 2.4],
@@ -80,7 +74,6 @@ const levelData = {
 
 	hideoutMirror: {
 		type: 'hideout',
-		deathReason: 'If you see it in the mirror, run away immediately',
 		position: [2.5, 0, -2.2],
 		scale: [2, 1, 2],
 		monsterPosition: [2.5, 0, -2.25],
@@ -92,7 +85,6 @@ const levelData = {
 
 	behindDoor: {
 		type: 'hideout',
-		deathReason: 'It was hiding behind the door',
 		position: [2.5, 0, -1],
 		scale: [3, 1, 1],
 		monsterPosition: [4.81, 0, -2.4],
@@ -106,7 +98,6 @@ const levelData = {
 
 	footWindow: {
 		type: 'hideout',
-		deathReason: 'Its feet were visible under the curtain',
 		monsterPosition: [1.35, 0, 4.85],
 		monsterInitialPosition: [1.45, 0, 5.5],
 		monsterInitialRotation: [0, Math.PI, 0],
@@ -116,7 +107,6 @@ const levelData = {
 
 	bathCeiling: {
 		type: 'hideout',
-		deathReason: 'It was hiding on the ceiling',
 		monsterPosition: [-0.59, 4, -4.18],
 		monsterInitialPosition: [-0.59, 0, -4.18],
 		monsterInitialRotation: [0, Math.PI / 2, 0],
@@ -130,7 +120,6 @@ const levelData = {
 
 	servingCart: {
 		type: 'hideout',
-		deathReason: 'It was hiding in the serving cart',
 		monsterPosition: [2.24, 0, 3.1],
 		monsterInitialPosition: [2.24, 0, 3.1],
 		monsterInitialRotation: [0, Math.PI, 0],
@@ -145,7 +134,6 @@ const levelData = {
 
 	belowTV: {
 		type: 'hideout',
-		deathReason: 'It was hiding below the TV ( an opening was visible )',
 		position: [-1.19, 0, 3.85],
 		scale: [1, 1, 1],
 		monsterPosition: [-1.19, 0, 3.85],
@@ -161,7 +149,6 @@ const levelData = {
 
 	landmineMirror: {
 		type: 'landmine',
-		deathReason: 'It was hiding in the mirror',
 		position: [0.5, 0, -2.8],
 		scale: [2, 1, 1],
 		monsterPosition: [-3, -0.3, -3.3],
@@ -174,7 +161,6 @@ const levelData = {
 
 	nearWindow: {
 		type: 'landmine',
-		deathReason: 'It was hiding next to the couch',
 		monsterPosition: [3.2, 0, 2],
 		monsterInitialPosition: [3.2, 0, 2],
 		animation: 'BehindDoor',
@@ -187,7 +173,6 @@ const levelData = {
 
 	ceilingCornerCouch: {
 		type: 'landmine',
-		deathReason: 'It was on the ceiling above the couch',
 		monsterPosition: [4.35, -0.25, 2.8],
 		monsterInitialPosition: [4.25, -0.3, 1.9],
 		monsterInitialRotation: [0, 0, 0],
@@ -202,7 +187,6 @@ const levelData = {
 
 	behindCouch: {
 		type: 'landmine',
-		deathReason: 'It was hiding behind the couch',
 		position: [0, 0, 0],
 		scale: [2, 1, 1],
 		monsterPosition: [4.3, -0.2, 2.7],
@@ -219,7 +203,6 @@ const levelData = {
 
 	behindDesk: {
 		type: 'landmine',
-		deathReason: 'It was hiding behind the desk',
 		position: [1.9, 0, 0],
 		scale: [2, 1, 4],
 		monsterPosition: [3, 0, 1],
@@ -236,7 +219,6 @@ const levelData = {
 
 	insideDesk: {
 		type: 'landmine',
-		deathReason: 'It was hiding under the desk',
 		position: [1.9, 0, 0],
 		scale: [2, 1, 4],
 		monsterPosition: [4, 0, 0.2],
@@ -253,7 +235,6 @@ const levelData = {
 
 	ceilingCenter: {
 		type: 'landmine',
-		deathReason: 'It was on the ceiling at the entrance',
 		instantTriggerPosition: [2.9, 0, -1.5],
 		instantTriggerScale: [3.3, 1, 1],
 		monsterInitialPosition: [3.01, 2.02, -1.21],
@@ -263,7 +244,6 @@ const levelData = {
 	},
 	openedDesk: {
 		type: 'landmine',
-		deathReason: 'It was hiding inside the desk (an opening was visible)',
 		position: [2.85, 0, -1.08],
 		scale: [3, 1, 4],
 		monsterPosition: [0, 0, 10],
@@ -279,7 +259,6 @@ const levelData = {
 
 	behindServingCart: {
 		type: 'landmine',
-		deathReason: 'It was hiding behind the serving cart',
 		monsterPosition: [3, 0, 4],
 		monsterInitialPosition: [2.3, -0.2, 4.08],
 		monsterInitialRotation: [0, -Math.PI / 2, 0],
@@ -294,7 +273,6 @@ const levelData = {
 
 	bathroomCorner: {
 		type: 'landmine',
-		deathReason: 'It was hiding in the corner',
 		position: [1.9, 0, 0],
 		scale: [2, 1, 4],
 		monsterPosition: [1.14, 10, -3.7],
@@ -325,8 +303,6 @@ const levelData = {
 
 	sonarBathroom: {
 		type: 'sonar',
-		deathReason:
-			'Do not open the bathroom door if you hear sounds coming from inside',
 		monsterPosition: [0, 0, 10],
 		monsterInitialPosition: [0.3, 0, -2.6],
 		animation: 'Crouch',
@@ -381,7 +357,6 @@ const levelData = {
 	// CLAYMORE
 	claymoreBath: {
 		type: 'claymore',
-		deathReason: 'Close the door quickly before it attacks you',
 		monsterPosition: [0, 0, 10],
 		monsterInitialPosition: [-0.8, 0, -4.45],
 		animation: 'Crouch',
@@ -390,7 +365,6 @@ const levelData = {
 
 	claymoreDesk: {
 		type: 'claymore',
-		deathReason: 'Close the door quickly before it attacks you',
 		position: [1.9, 0, 0.43],
 		scale: [2.2, 1, 2.5],
 		monsterPosition: [0, 0, 10],
@@ -403,7 +377,6 @@ const levelData = {
 
 	claymoreNightstand: {
 		type: 'claymore',
-		deathReason: 'Close the door quickly before it attacks you',
 		position: [1.9, 0, 0.43],
 		scale: [2.2, 1, 2.5],
 		monsterPosition: [0, 0, 10],
@@ -416,7 +389,6 @@ const levelData = {
 
 	claymoreWindow: {
 		type: 'claymore',
-		deathReason: 'Close the door quickly before it attacks you',
 		monsterPosition: [0, 0, 10],
 		monsterInitialPosition: [1.52, 0, 6.3],
 		animation: 'Crouch',
@@ -456,7 +428,6 @@ const levelData = {
 	// HUNTER
 	hunterLivingRoom: {
 		type: 'hunter',
-		deathReason: 'If you see it, run away and close the door behind you',
 		position: [2.2, 0, 2.8],
 		scale: [2.5, 0.5, 2],
 		monsterPosition: [1.5, 0, 4],
@@ -467,7 +438,6 @@ const levelData = {
 
 	hunterCeilingLivingRoom: {
 		type: 'hunter',
-		deathReason: 'If you see it, run away and close the door behind you',
 		position: [2.2, 0, 2.7],
 		scale: [2.5, 0.5, 2],
 		monsterPosition: [1.5, 0, 4],
@@ -483,7 +453,6 @@ const levelData = {
 
 	hunterNightstand: {
 		type: 'hunter',
-		deathReason: 'If you see it, run away and close the door behind you',
 		position: [2.5, 0, -0.6],
 		scale: [2.5, 0.5, 2],
 		monsterPosition: [-1.4, 0, -1.2],
@@ -495,7 +464,6 @@ const levelData = {
 
 	hunterWindow: {
 		type: 'hunter',
-		deathReason: 'If you see it, run away and close the door behind you',
 		position: [2.5, 0, -0.6],
 		scale: [2.5, 0.5, 2],
 		monsterPosition: [1.5, 0, 6],
@@ -506,7 +474,6 @@ const levelData = {
 
 	firstHunter: {
 		type: 'hunter',
-		deathReason: 'If you see it, run away and close the door behind you',
 		position: [2.85, 0, -1.08],
 		scale: [3, 1, 4],
 		monsterPosition: [1.5, 0, 4],
@@ -545,7 +512,6 @@ const levelData = {
 
 	raidBottles: {
 		type: 'raid',
-		deathReason: 'If you hear knocking, hide',
 		hideObjective: 'bottles',
 		hideSpot: 'bottles',
 		lookAtPoint: [0, 0, 0],
@@ -553,7 +519,6 @@ const levelData = {
 
 	raidTV: {
 		type: 'raid',
-		deathReason: 'If the TV turns on by itself, hide',
 		signal: 'tv',
 		position: [2, 0, 4],
 		scale: [7, 0.5, 2.4],
@@ -562,7 +527,6 @@ const levelData = {
 
 	raidRadio: {
 		type: 'raid',
-		deathReason: 'If the radio turns on by itself, hide',
 		signal: 'radio',
 		position: [2.5, 0, -0.6],
 		scale: [2.5, 0.5, 2],
@@ -571,7 +535,6 @@ const levelData = {
 
 	raidInscriptions: {
 		type: 'raid',
-		deathReason: 'If you see blood inscriptions on the walls, hide',
 		signal: 'inscriptions',
 		position: [2, 0, 1.5],
 		scale: [2.5, 0.5, 2],
@@ -580,14 +543,13 @@ const levelData = {
 
 	raidFood: {
 		type: 'raid',
-		deathReason: 'If you hear knocking, hide',
 		hideObjective: 'food',
 		lookAtPoint: [0, 0, 0],
 	},
 
 	// raidMirror: {
 	// 	type: 'raid',
-	// 	deathReason: 'If you see blood inscriptions on the mirror, hide',
+	// 	deathRson: 'If you see blood inscriptions on the mirror, hide',
 	// 	hideObjective: 'mirror',
 	// 	hideSpot: 'mirror',
 	// },

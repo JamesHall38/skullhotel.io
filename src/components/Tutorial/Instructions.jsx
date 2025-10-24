@@ -1,4 +1,4 @@
-import { useMemo, useRef } from 'react';
+import { useMemo, useRef, useEffect } from 'react';
 import { Text, Svg } from '@react-three/drei';
 import * as THREE from 'three';
 import useInterfaceStore from '../../hooks/useInterface';
@@ -383,11 +383,35 @@ const instructions = [
 		type: 'svg',
 		content:
 			'M23.3711 0C25.0279 0 26.3711 1.34315 26.3711 3V84.9609L45.6289 104.217L23 126.843L0.371094 104.217L20.3711 84.2188V3C20.3711 1.34315 21.7142 0 23.3711 0ZM9.16309 104.217L23 118.052L36.8359 104.217L23 90.3818L9.16309 104.217ZM31.3418 104.076L22.8564 112.562L14.3711 104.076L22.8564 95.5908L31.3418 104.076Z',
-		position: [2.2, 1.6, 3.3],
+		position: [2.2, 1.75, 3.3],
 		rotation: [0, 0, 0],
 		scale: 0.0039,
 		isArrow: true,
 		objectiveIndex: 0,
+		category: 'arrows',
+	},
+	// food arrow
+	{
+		type: 'svg',
+		content:
+			'M23.3711 0C25.0279 0 26.3711 1.34315 26.3711 3V84.9609L45.6289 104.217L23 126.843L0.371094 104.217L20.3711 84.2188V3C20.3711 1.34315 21.7142 0 23.3711 0ZM9.16309 104.217L23 118.052L36.8359 104.217L23 90.3818L9.16309 104.217ZM31.3418 104.076L22.8564 112.562L14.3711 104.076L22.8564 95.5908L31.3418 104.076Z',
+		position: [5.35, 1.4, 11.1],
+		rotation: [0, Math.PI / 2, 0],
+		scale: 0.0039,
+		isArrow: true,
+		objectiveIndex: 3,
+		category: 'arrows',
+	},
+	// task arrow
+	{
+		type: 'svg',
+		content:
+			'M23.3711 0C25.0279 0 26.3711 1.34315 26.3711 3V84.9609L45.6289 104.217L23 126.843L0.371094 104.217L20.3711 84.2188V3C20.3711 1.34315 21.7142 0 23.3711 0ZM9.16309 104.217L23 118.052L36.8359 104.217L23 90.3818L9.16309 104.217ZM31.3418 104.076L22.8564 112.562L14.3711 104.076L22.8564 95.5908L31.3418 104.076Z',
+		position: [2.75, 0.75, 5.075],
+		rotation: [0, Math.PI / 2, 0],
+		scale: 0.0039,
+		isArrow: true,
+		objectiveIndex: 4,
 		category: 'arrows',
 	},
 ];
@@ -396,18 +420,38 @@ export default function Instructions({ stageInfo = {} }) {
 	const tutorialObjectives = useInterfaceStore(
 		(state) => state.tutorialObjectives
 	);
+	const tutorialResetTrigger = useInterfaceStore(
+		(state) => state.tutorialResetTrigger
+	);
 	const tutorial = useDoorStore((state) => state.tutorial);
 	const bathroomCurtain = useDoorStore((state) => state.bathroomCurtain);
 	const roomCurtain = useDoorStore((state) => state.roomCurtain);
-	const arrowRefs = useRef([null, null, null]);
+	const arrowRefs = useRef([null, null, null, null, null]);
 	const shownInstructions = useRef(new Set());
 	const { t } = useLocalization();
 
+	useEffect(() => {
+		if (tutorialResetTrigger > 0) {
+			shownInstructions.current.clear();
+		}
+	}, [tutorialResetTrigger]);
+
+	const arrowBaseY = useRef({});
+
+	useEffect(() => {
+		instructions
+			.filter((inst) => inst.isArrow)
+			.forEach((inst) => {
+				arrowBaseY.current[inst.objectiveIndex] = inst.position[1];
+			});
+	}, []);
+
 	useFrame((state) => {
 		const time = state.clock.elapsedTime;
-		arrowRefs.current.forEach((ref) => {
-			if (ref) {
-				ref.position.y = 1.7 + Math.sin(time * 2) * 0.1;
+		arrowRefs.current.forEach((ref, objectiveIndex) => {
+			if (ref && arrowBaseY.current[objectiveIndex] !== undefined) {
+				ref.position.y =
+					arrowBaseY.current[objectiveIndex] + Math.sin(time * 2) * 0.1;
 			}
 		});
 	});
@@ -512,6 +556,7 @@ export default function Instructions({ stageInfo = {} }) {
 			textMaterial,
 			stageInfo,
 			t,
+			tutorialResetTrigger,
 		]
 	);
 

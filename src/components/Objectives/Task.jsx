@@ -479,7 +479,7 @@ export default function Task(props) {
 
 	const selectedTask = useMemo(() => {
 		if (isTutorialOpen) {
-			return 'MirrorSplatter';
+			return 'FloorSplatter';
 		}
 		if (taskOverrideKey) {
 			return taskOverrideKey;
@@ -762,7 +762,11 @@ export default function Task(props) {
 	}, [groups]);
 
 	useEffect(() => {
-		if (cleanedTaskRooms?.[roomNumber]) {
+		const shouldBeHidden =
+			(cleanedTaskRooms?.[roomNumber] && !isTutorialOpen) ||
+			(isTutorialOpen && tutorialObjectives[4] === true);
+
+		if (shouldBeHidden) {
 			setIsHidden(true);
 			setIsFading(false);
 		} else {
@@ -788,7 +792,13 @@ export default function Task(props) {
 				});
 			});
 		}
-	}, [cleanedTaskRooms, roomNumber, groups]);
+	}, [
+		cleanedTaskRooms,
+		roomNumber,
+		groups,
+		isTutorialOpen,
+		tutorialObjectives,
+	]);
 
 	useEffect(() => {
 		if (isHidden) {
@@ -857,6 +867,13 @@ export default function Task(props) {
 			}
 		};
 	}, [selectedTask, roomNumber]);
+
+	useEffect(() => {
+		if (tutorialObjectives[4] === false && isTutorialOpen) {
+			setIsHidden(false);
+			setIsFading(false);
+		}
+	}, [tutorialObjectives, isTutorialOpen]);
 
 	const handleDetection = useCallback(() => {
 		if (isHidden || isFading) return;

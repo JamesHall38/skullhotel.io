@@ -1,6 +1,9 @@
 import { create } from 'zustand';
 import { subscribeWithSelector } from 'zustand/middleware';
 import { roomNumber } from '../utils/config';
+import useDoor from './useDoor';
+import useGame from './useGame';
+import useHiding from './useHiding';
 
 const useInterfaceStore = create(
 	subscribeWithSelector((set, get) => ({
@@ -90,6 +93,25 @@ const useInterfaceStore = create(
 		setIsTutorialCompleted: (completed) =>
 			set(() => ({ isTutorialCompleted: completed })),
 
+		hasEverCompletedTutorial: (() => {
+			try {
+				return localStorage.getItem('hasEverCompletedTutorial') === 'true';
+			} catch (e) {
+				return false;
+			}
+		})(),
+		setHasEverCompletedTutorial: (value) => {
+			try {
+				localStorage.setItem(
+					'hasEverCompletedTutorial',
+					value ? 'true' : 'false'
+				);
+			} catch (e) {}
+			set(() => ({ hasEverCompletedTutorial: value }));
+		},
+
+		tutorialResetTrigger: 0,
+
 		setAllObjectivesCompleted: () => {
 			set(() => ({
 				tutorialObjectives: [true, true, true, true, true],
@@ -129,6 +151,23 @@ const useInterfaceStore = create(
 				completedAnimations: 0,
 				isSettingsOpen: false,
 			}));
+		},
+
+		resetTutorial: () => {
+			set((state) => ({
+				tutorialObjectives: [false, false, false, false, false],
+				recentlyChangedObjectives: [false, false, false, false, false],
+				customTutorialObjectives: null,
+				isTutorialCompleted: false,
+				currentDialogueIndex: null,
+				tutorialResetTrigger: state.tutorialResetTrigger + 1,
+			}));
+
+			useDoor.getState().resetTutorial();
+
+			useGame.getState().resetTutorial();
+
+			useHiding.getState().restart();
 		},
 	}))
 );

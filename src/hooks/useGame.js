@@ -270,6 +270,16 @@ const useGameStore = create(
 			useHiding.getState().restart();
 		},
 
+		resetTutorial: () => {
+			set(() => ({
+				alternateTutorialRoom: false,
+				isListening: false,
+				playIntro: false,
+				mannequinHidden: true,
+				mannequinTaskStatus: null,
+			}));
+		},
+
 		isRunning: false,
 		setIsRunning: (value) => set({ isRunning: value }),
 

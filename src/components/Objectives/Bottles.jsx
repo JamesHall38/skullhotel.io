@@ -212,6 +212,32 @@ export default function Bottles() {
 	const isInit = useRef(false);
 
 	useEffect(() => {
+		if (isTutorialOpen) {
+			const tutorialCompleted = tutorialObjectives[0] === true;
+			if (!tutorialCompleted) {
+				Object.values(actions).forEach((action) => {
+					if (action) {
+						action.stop();
+						action.reset();
+						action.time = 0;
+					}
+				});
+			} else {
+				Object.values(actions).forEach((action) => {
+					if (!action.isRunning()) {
+						if (action && action.time !== action.getClip().duration) {
+							action.clampWhenFinished = true;
+							action.loop = THREE.LoopOnce;
+							action.repetitions = 1;
+							action.play();
+							action.time = action.getClip().duration;
+						}
+					}
+				});
+			}
+			return;
+		}
+
 		if (objective === false && isInit.current === true) {
 			Object.values(actions).forEach((action) => {
 				if (action) {
@@ -236,7 +262,7 @@ export default function Bottles() {
 				});
 			}
 		}
-	}, [objective, actions]);
+	}, [objective, actions, isTutorialOpen, tutorialObjectives]);
 
 	useEffect(() => {
 		if (tutorialObjectives[0] === false && isInit.current === true) {

@@ -103,6 +103,7 @@ export default function ReceptionDoors() {
 	const setCorridorHandle = useDoor((state) => state.setCorridorHandle);
 
 	const setPlayerPositionRoom = useGame((state) => state.setPlayerPositionRoom);
+	const isTutorialOpen = useGame((state) => state.isTutorialOpen);
 	const setIsTutorialOpen = useGame((state) => state.setIsTutorialOpen);
 	const setEndAnimationPlaying = useGame(
 		(state) => state.setEndAnimationPlaying
@@ -118,6 +119,14 @@ export default function ReceptionDoors() {
 	const isTutorialCompleted = useInterface(
 		(state) => state.isTutorialCompleted
 	);
+	const setIsTutorialCompleted = useInterface(
+		(state) => state.setIsTutorialCompleted
+	);
+	const resetTutorial = useInterface((state) => state.resetTutorial);
+	const hasEverCompletedTutorial = useInterface(
+		(state) => state.hasEverCompletedTutorial
+	);
+	const tutorialObjectives = useInterface((state) => state.tutorialObjectives);
 	const objectives = useInterface((state) => state.interfaceObjectives);
 	const doneObjectives = useMemo(() => {
 		return objectives.filter((subArray) =>
@@ -143,15 +152,28 @@ export default function ReceptionDoors() {
 				isOpen={corridorDoor}
 				setHandlePressed={setCorridorHandle}
 				setOpen={(value) => {
-					if (isTutorialCompleted || window.location.hash.includes('#debug')) {
-						setCorridorDoor(value);
-						setPlayerPositionRoom(initialPosition);
-					} else {
-						if (currentDialogueIndex !== 0) {
-							setCurrentDialogueIndex(0);
-							setTimeout(() => setCurrentDialogueIndex(null), 3000);
+					if (value) {
+						const allTutorialObjectivesCompleted = tutorialObjectives.every(
+							(obj) => obj === true
+						);
+
+						const canOpen =
+							hasEverCompletedTutorial || allTutorialObjectivesCompleted;
+
+						if (!canOpen) {
+							if (currentDialogueIndex !== 0) {
+								setCurrentDialogueIndex(0);
+								setTimeout(() => setCurrentDialogueIndex(null), 3000);
+							}
+							return;
+						}
+
+						if (!isTutorialCompleted) {
+							setIsTutorialCompleted(true);
 						}
 					}
+					setCorridorDoor(value);
+					setPlayerPositionRoom(initialPosition);
 				}}
 				doubleRotate
 				isReceptionDoor={true}
@@ -164,6 +186,9 @@ export default function ReceptionDoors() {
 					isOpen={tutorialDoor}
 					setHandlePressed={setTutorialHandle}
 					setOpen={(value) => {
+						if (value && hasEverCompletedTutorial && !isTutorialOpen) {
+							resetTutorial();
+						}
 						setTutorialDoor(value);
 						setPlayerPositionRoom(initialPosition);
 					}}

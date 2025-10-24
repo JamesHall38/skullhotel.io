@@ -10,6 +10,7 @@ const dialogues = [
 	'game.dialogues.wellDone',
 	'game.dialogues.turnBack',
 	'game.dialogues.infested',
+	'game.dialogues.bathroomTasks',
 ];
 
 export default dialogues;

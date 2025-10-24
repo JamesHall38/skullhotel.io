@@ -189,6 +189,19 @@ const useDoorStore = create(
 				bathroomDoorHandle: false,
 			}));
 		},
+
+		resetTutorial: () => {
+			set(() => ({
+				tutorial: false,
+				tutorialHandle: false,
+				bathroomDoor: false,
+				bathroomCurtain: false,
+				desk: false,
+				nightStand: false,
+				roomCurtain: false,
+				bathroomDoorHandle: false,
+			}));
+		},
 	}))
 );
 

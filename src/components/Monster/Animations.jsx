@@ -358,7 +358,9 @@ export default function Animations({ group, animations }) {
 			const onAttackFinished = () => {
 				setOpenDeathScreen(true);
 				resetAnimations(actions);
-				resetGame();
+				setTimeout(() => {
+					resetGame();
+				}, 100);
 			};
 
 			attackAction.getMixer().addEventListener('finished', onAttackFinished);
