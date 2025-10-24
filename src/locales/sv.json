@@ -67,6 +67,8 @@
 		"endGameScreen": {
 			"thankYouForPlaying": "TACK FÖR ATT DU SPELADE",
 			"yourTime": "Din tid:",
+			"death": "dödsfall",
+			"deaths": "dödsfall",
 			"enterYourName": "Ange ditt namn",
 			"signGuestBook": "Skriv under gästboken",
 			"saving": "Sparar...",
@@ -97,8 +99,13 @@
 			"guestBook": "Gästbok",
 			"informations": "Information",
 			"guestBookSubtitle": "Slutför spelet för att registrera ditt namn",
-			"searchPlaceholder": "Ange ett sidnummer eller sök efter ett namn"
-		}
+			"searchPlaceholder": "Ange ett sidnummer eller sök efter ett namn",
+			"completionTime": "Sluttid",
+			"time": "Tid",
+			"deaths": "Dödsfall",
+			"date": "Datum"
+		},
+		"close": "Stäng"
 	},
 	"game": {
 		"dialogues": {

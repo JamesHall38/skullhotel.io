@@ -67,6 +67,8 @@
 		"endGameScreen": {
 			"thankYouForPlaying": "DĚKUJEME ZA HRANÍ",
 			"yourTime": "Váš čas:",
+			"death": "úmrtí",
+			"deaths": "úmrtí",
 			"enterYourName": "Zadejte své jméno",
 			"signGuestBook": "Podepište knihu hostů",
 			"saving": "Ukládání...",
@@ -97,8 +99,13 @@
 			"guestBook": "Kniha hostů",
 			"informations": "Informace",
 			"guestBookSubtitle": "Dokončete hru pro registraci svého jména",
-			"searchPlaceholder": "Zadejte číslo stránky nebo vyhledejte jméno"
-		}
+			"searchPlaceholder": "Zadejte číslo stránky nebo vyhledejte jméno",
+			"completionTime": "Čas dokončení",
+			"time": "Čas",
+			"deaths": "Smrti",
+			"date": "Datum"
+		},
+		"close": "Zavřít"
 	},
 	"game": {
 		"dialogues": {

@@ -251,11 +251,23 @@
 	background-color: transparent;
 }
 
+.guestbook-entry-row {
+	display: flex;
+	gap: 1rem;
+	width: 100%;
+}
+
 .guestbook-entry {
 	cursor: pointer;
 	transition: background-color 0.2s ease;
 	word-break: break-all;
 	background-color: transparent;
+	padding: 10px;
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	width: 50%;
+	border-radius: 6px;
 }
 
 .guestbook-entry:hover {
@@ -266,32 +278,64 @@
 	color: #efd89b;
 }
 
-.guestbook-entry td {
-	padding: 10px;
-	line-height: 1.2;
+.guestbook-entry-left {
+	margin-right: 0.5rem;
 }
 
-.guestbook-entry td:first-child {
-	border-top-left-radius: 6px;
-	border-bottom-left-radius: 6px;
+.guestbook-entry-right {
+	margin-left: 0.5rem;
 }
 
-.guestbook-entry td:last-child {
-	border-top-right-radius: 6px;
-	border-bottom-right-radius: 6px;
+.guestbook-entry-empty {
+	width: 50%;
 }
 
 .guestbook-rank {
 	text-align: center;
-	width: 50px;
+	min-width: 50px;
 	white-space: nowrap;
 	word-break: normal;
 	transition: color 0.2s ease;
 }
 
-.guestbook-time {
-	text-align: right;
-	width: 5rem;
+.guestbook-name {
+	flex: 1;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+/* Entry Details Tooltip */
+.entry-details-tooltip {
+	position: absolute;
+	background: rgba(0, 0, 0, 0.9);
+	border: 1px solid rgba(239, 216, 155, 0.3);
+	border-radius: 0.25rem;
+	padding: 0.5rem 0.75rem;
+	color: #f8f8f8;
+	font-family: 'Lincoln Road', serif;
+	font-size: 0.85rem;
+	z-index: 100;
+	pointer-events: none;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+}
+
+.tooltip-row {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.15rem 0;
+	white-space: nowrap;
+}
+
+.tooltip-label {
+	font-size: 0.85rem;
+	opacity: 0.7;
+	min-width: 50px;
+}
+
+.tooltip-value {
+	color: #efd89b;
+	font-size: 0.85rem;
 }
 
 /* Guest Book Pagination */

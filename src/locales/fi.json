@@ -67,6 +67,8 @@
 		"endGameScreen": {
 			"thankYouForPlaying": "KIITOS PELAAMISESTA",
 			"yourTime": "Aikasi:",
+			"death": "kuolema",
+			"deaths": "kuolemat",
 			"enterYourName": "Syötä nimesi",
 			"signGuestBook": "Allekirjoita vieraskirja",
 			"saving": "Tallennetaan...",
@@ -97,8 +99,13 @@
 			"guestBook": "Vieraskirja",
 			"informations": "Tiedot",
 			"guestBookSubtitle": "Suorita peli loppuun rekisteröidäksesi nimesi",
-			"searchPlaceholder": "Syötä sivunumero tai etsi nimeä"
-		}
+			"searchPlaceholder": "Syötä sivunumero tai etsi nimeä",
+			"completionTime": "Suoritusaika",
+			"time": "Aika",
+			"deaths": "Kuolemat",
+			"date": "Päivämäärä"
+		},
+		"close": "Sulje"
 	},
 	"game": {
 		"dialogues": {

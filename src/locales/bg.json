@@ -67,6 +67,8 @@
 		"endGameScreen": {
 			"thankYouForPlaying": "БЛАГОДАРИМ ЗА ИГРАТА",
 			"yourTime": "Твоето време:",
+			"death": "смърт",
+			"deaths": "смърти",
 			"enterYourName": "Въведи името си",
 			"signGuestBook": "Подпиши книгата за гости",
 			"saving": "Запазване...",
@@ -97,8 +99,13 @@
 			"guestBook": "Книга за гости",
 			"informations": "Информация",
 			"guestBookSubtitle": "Завършете играта, за да регистрирате името си",
-			"searchPlaceholder": "Въведете номер на страница или търсете име"
-		}
+			"searchPlaceholder": "Въведете номер на страница или търсете име",
+			"completionTime": "Време за завършване",
+			"time": "Време",
+			"deaths": "Смърти",
+			"date": "Дата"
+		},
+		"close": "Затвори"
 	},
 	"game": {
 		"dialogues": {

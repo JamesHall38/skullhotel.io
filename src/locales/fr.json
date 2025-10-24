@@ -67,6 +67,8 @@
 		"endGameScreen": {
 			"thankYouForPlaying": "MERCI D'AVOIR JOUÉ",
 			"yourTime": "Votre temps :",
+			"death": "mort",
+			"deaths": "morts",
 			"enterYourName": "Entrez votre nom",
 			"signGuestBook": "Signer le livre d'or",
 			"saving": "Sauvegarde...",
@@ -97,8 +99,13 @@
 			"guestBook": "Livre d'or",
 			"informations": "Informations",
 			"guestBookSubtitle": "Terminez le jeu pour y inscrire votre nom",
-			"searchPlaceholder": "Entrez un numéro de page ou recherchez un nom"
-		}
+			"searchPlaceholder": "Entrez un numéro de page ou recherchez un nom",
+			"completionTime": "Temps de complétion",
+			"time": "Temps",
+			"deaths": "Morts",
+			"date": "Date"
+		},
+		"close": "Fermer"
 	},
 	"game": {
 		"dialogues": {

@@ -67,6 +67,8 @@
 		"endGameScreen": {
 			"thankYouForPlaying": "プレイしていただきありがとうございます",
 			"yourTime": "あなたの時間:",
+			"death": "死亡回数",
+			"deaths": "死亡回数",
 			"enterYourName": "名前を入力してください",
 			"signGuestBook": "ゲストブックにサインする",
 			"saving": "保存中...",
@@ -97,8 +99,13 @@
 			"guestBook": "ゲストブック",
 			"informations": "情報",
 			"guestBookSubtitle": "ゲームをクリアして名前を登録してください",
-			"searchPlaceholder": "ページ番号を入力するか名前を検索してください"
-		}
+			"searchPlaceholder": "ページ番号を入力するか名前を検索してください",
+			"completionTime": "クリアタイム",
+			"time": "タイム",
+			"deaths": "死亡回数",
+			"date": "日付"
+		},
+		"close": "閉じる"
 	},
 	"game": {
 		"dialogues": {

@@ -67,6 +67,8 @@
 		"endGameScreen": {
 			"thankYouForPlaying": "BEDANKT VOOR HET SPELEN",
 			"yourTime": "Jouw tijd:",
+			"death": "dood",
+			"deaths": "doden",
 			"enterYourName": "Voer je naam in",
 			"signGuestBook": "Teken het gastenboek",
 			"saving": "Opslaan...",
@@ -97,8 +99,13 @@
 			"guestBook": "Gastenboek",
 			"informations": "Informatie",
 			"guestBookSubtitle": "Voltooi het spel om je naam te registreren",
-			"searchPlaceholder": "Voer een paginanummer in of zoek een naam"
-		}
+			"searchPlaceholder": "Voer een paginanummer in of zoek een naam",
+			"completionTime": "Voltooiingstijd",
+			"time": "Tijd",
+			"deaths": "Doden",
+			"date": "Datum"
+		},
+		"close": "Sluiten"
 	},
 	"game": {
 		"dialogues": {

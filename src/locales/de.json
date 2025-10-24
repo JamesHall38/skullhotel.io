@@ -67,6 +67,8 @@
 		"endGameScreen": {
 			"thankYouForPlaying": "DANKE FÜRS SPIELEN",
 			"yourTime": "Deine Zeit:",
+			"death": "Tod",
+			"deaths": "Tode",
 			"enterYourName": "Gib deinen Namen ein",
 			"signGuestBook": "Gästebuch unterschreiben",
 			"saving": "Speichern...",
@@ -97,8 +99,13 @@
 			"guestBook": "Gästebuch",
 			"informations": "Informationen",
 			"guestBookSubtitle": "Beende das Spiel, um deinen Namen einzutragen",
-			"searchPlaceholder": "Gib eine Seitenzahl ein oder suche einen Namen"
-		}
+			"searchPlaceholder": "Gib eine Seitenzahl ein oder suche einen Namen",
+			"completionTime": "Abschlusszeit",
+			"time": "Zeit",
+			"deaths": "Tode",
+			"date": "Datum"
+		},
+		"close": "Schließen"
 	},
 	"game": {
 		"dialogues": {

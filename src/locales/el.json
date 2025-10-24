@@ -67,6 +67,8 @@
 		"endGameScreen": {
 			"thankYouForPlaying": "ΕΥΧΑΡΙΣΤΟΥΜΕ ΠΟΥ ΕΠΑΙΞΕΣ",
 			"yourTime": "Ο χρόνος σου:",
+			"death": "θάνατος",
+			"deaths": "θάνατοι",
 			"enterYourName": "Εισάγαγε το όνομά σου",
 			"signGuestBook": "Υπόγραψε το βιβλίο επισκεπτών",
 			"saving": "Αποθήκευση...",
@@ -97,8 +99,13 @@
 			"guestBook": "Βιβλίο επισκεπτών",
 			"informations": "Πληροφορίες",
 			"guestBookSubtitle": "Ολοκληρώστε το παιχνίδι για να καταχωρήσετε το όνομά σας",
-			"searchPlaceholder": "Εισάγετε αριθμό σελίδας ή αναζητήστε όνομα"
-		}
+			"searchPlaceholder": "Εισάγετε αριθμό σελίδας ή αναζητήστε όνομα",
+			"completionTime": "Χρόνος ολοκλήρωσης",
+			"time": "Χρόνος",
+			"deaths": "Θάνατοι",
+			"date": "Ημερομηνία"
+		},
+		"close": "Κλείσιμο"
 	},
 	"game": {
 		"dialogues": {

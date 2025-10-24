@@ -67,6 +67,8 @@
 		"endGameScreen": {
 			"thankYouForPlaying": "플레이해 주셔서 감사합니다",
 			"yourTime": "당신의 시간:",
+			"death": "사망 횟수",
+			"deaths": "사망 횟수",
 			"enterYourName": "이름을 입력하세요",
 			"signGuestBook": "방명록에 서명하기",
 			"saving": "저장 중...",
@@ -97,8 +99,13 @@
 			"guestBook": "방명록",
 			"informations": "정보",
 			"guestBookSubtitle": "게임을 완료하여 이름을 등록하세요",
-			"searchPlaceholder": "페이지 번호를 입력하거나 이름을 검색하세요"
-		}
+			"searchPlaceholder": "페이지 번호를 입력하거나 이름을 검색하세요",
+			"completionTime": "완료 시간",
+			"time": "시간",
+			"deaths": "사망 횟수",
+			"date": "날짜"
+		},
+		"close": "닫기"
 	},
 	"game": {
 		"dialogues": {

@@ -67,6 +67,8 @@
 		"endGameScreen": {
 			"thankYouForPlaying": "感谢您的游戏",
 			"yourTime": "您的时间：",
+			"death": "死亡次数",
+			"deaths": "死亡次数",
 			"enterYourName": "输入您的姓名",
 			"signGuestBook": "签署客人留言簿",
 			"saving": "保存中...",
@@ -97,8 +99,13 @@
 			"guestBook": "留言簿",
 			"informations": "信息",
 			"guestBookSubtitle": "完成游戏以注册您的姓名",
-			"searchPlaceholder": "输入页码或搜索姓名"
-		}
+			"searchPlaceholder": "输入页码或搜索姓名",
+			"completionTime": "完成时间",
+			"time": "时间",
+			"deaths": "死亡次数",
+			"date": "日期"
+		},
+		"close": "关闭"
 	},
 	"game": {
 		"dialogues": {

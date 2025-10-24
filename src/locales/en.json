@@ -67,6 +67,8 @@
 		"endGameScreen": {
 			"thankYouForPlaying": "THANK YOU FOR PLAYING",
 			"yourTime": "Your time:",
+			"death": "death",
+			"deaths": "deaths",
 			"enterYourName": "Enter your name",
 			"signGuestBook": "Sign the Guest Book",
 			"saving": "Saving...",
@@ -97,8 +99,13 @@
 			"guestBook": "Guest Book",
 			"informations": "Informations",
 			"guestBookSubtitle": "Complete the game to register your name",
-			"searchPlaceholder": "Enter a page number or search a name"
-		}
+			"searchPlaceholder": "Enter a page number or search a name",
+			"completionTime": "Completion Time",
+			"time": "Time",
+			"deaths": "Deaths",
+			"date": "Date"
+		},
+		"close": "Close"
 	},
 	"game": {
 		"dialogues": {

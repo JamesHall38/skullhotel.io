@@ -67,6 +67,8 @@
 		"endGameScreen": {
 			"thankYouForPlaying": "شكراً لك على اللعب",
 			"yourTime": "وقتك:",
+			"death": "وفاة",
+			"deaths": "وفيات",
 			"enterYourName": "أدخل اسمك",
 			"signGuestBook": "وقع في دفتر الضيوف",
 			"saving": "جاري الحفظ...",
@@ -97,8 +99,13 @@
 			"guestBook": "كتاب الضيوف",
 			"informations": "معلومات",
 			"guestBookSubtitle": "أكمل اللعبة لتسجيل اسمك",
-			"searchPlaceholder": "أدخل رقم الصفحة أو ابحث عن اسم"
-		}
+			"searchPlaceholder": "أدخل رقم الصفحة أو ابحث عن اسم",
+			"completionTime": "وقت الإنجاز",
+			"time": "الوقت",
+			"deaths": "الوفيات",
+			"date": "التاريخ"
+		},
+		"close": "إغلاق"
 	},
 	"game": {
 		"dialogues": {

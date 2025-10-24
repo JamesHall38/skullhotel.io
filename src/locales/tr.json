@@ -67,6 +67,8 @@
 		"endGameScreen": {
 			"thankYouForPlaying": "OYNADIĞIN İÇİN TEŞEKKÜRLER",
 			"yourTime": "Süren:",
+			"death": "ölüm",
+			"deaths": "ölümler",
 			"enterYourName": "Adını gir",
 			"signGuestBook": "Misafir defterini imzala",
 			"saving": "Kaydediliyor...",
@@ -97,8 +99,13 @@
 			"guestBook": "Misafir Defteri",
 			"informations": "Bilgiler",
 			"guestBookSubtitle": "Adınızı kaydetmek için oyunu tamamlayın",
-			"searchPlaceholder": "Sayfa numarası girin veya isim arayın"
-		}
+			"searchPlaceholder": "Sayfa numarası girin veya isim arayın",
+			"completionTime": "Tamamlanma Süresi",
+			"time": "Süre",
+			"deaths": "Ölümler",
+			"date": "Tarih"
+		},
+		"close": "Kapat"
 	},
 	"game": {
 		"dialogues": {

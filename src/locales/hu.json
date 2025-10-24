@@ -67,6 +67,8 @@
 		"endGameScreen": {
 			"thankYouForPlaying": "KÖSZÖNJÜK, HOGY JÁTSZOTTÁL",
 			"yourTime": "Az időd:",
+			"death": "halál",
+			"deaths": "halálok",
 			"enterYourName": "Add meg a neved",
 			"signGuestBook": "Írd alá a vendégkönyvet",
 			"saving": "Mentés...",
@@ -97,8 +99,13 @@
 			"guestBook": "Vendégkönyv",
 			"informations": "Információk",
 			"guestBookSubtitle": "Fejezd be a játékot, hogy regisztrálhasd a neved",
-			"searchPlaceholder": "Adj meg egy oldalszámot vagy keress egy nevet"
-		}
+			"searchPlaceholder": "Adj meg egy oldalszámot vagy keress egy nevet",
+			"completionTime": "Befejezési idő",
+			"time": "Idő",
+			"deaths": "Halálok",
+			"date": "Dátum"
+		},
+		"close": "Bezár"
 	},
 	"game": {
 		"dialogues": {

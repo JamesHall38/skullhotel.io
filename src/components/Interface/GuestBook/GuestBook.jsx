@@ -21,6 +21,8 @@ function GuestBookContent({ onClose }) {
 	const [currentPage, setCurrentPage] = useState(1);
 	const [totalPages, setTotalPages] = useState(1);
 	const [searchInput, setSearchInput] = useState('');
+	const [selectedEntry, setSelectedEntry] = useState(null);
+	const [popupPosition, setPopupPosition] = useState({ x: 0, y: 0 });
 	const deviceMode = useGame((state) => state.deviceMode);
 	const guestBookRef = useRef(null);
 	const isDebugMode = window.location.hash.includes('#debug');
@@ -200,6 +202,51 @@ function GuestBookContent({ onClose }) {
 		}
 	};
 
+	const handleEntryClick = (entry, event, isRightColumn = false) => {
+		const rect = event.currentTarget.getBoundingClientRect();
+		const scrollContainer =
+			guestBookRef.current?.querySelector('.guestbook-entries');
+		const containerRect = scrollContainer?.getBoundingClientRect() || {
+			left: 0,
+			top: 0,
+		};
+
+		const rem = parseFloat(getComputedStyle(document.documentElement).fontSize);
+
+		const tooltipWidth = 11.25 * rem; // ~180px (11.25rem)
+		const spacing = 0.625 * rem; // ~10px (0.625rem)
+
+		const xPosition = isRightColumn
+			? rect.left - tooltipWidth - spacing - containerRect.left
+			: rect.right + spacing - containerRect.left;
+
+		setPopupPosition({
+			x: xPosition,
+			y: rect.top + (scrollContainer?.scrollTop || 0) - containerRect.top,
+		});
+		setSelectedEntry(entry);
+	};
+
+	useEffect(() => {
+		if (!selectedEntry) return;
+
+		const handleClickOutside = (event) => {
+			if (event.target.closest('.guestbook-entry')) {
+				return;
+			}
+			setSelectedEntry(null);
+		};
+
+		const rafId = requestAnimationFrame(() => {
+			document.addEventListener('click', handleClickOutside, true);
+		});
+
+		return () => {
+			cancelAnimationFrame(rafId);
+			document.removeEventListener('click', handleClickOutside, true);
+		};
+	}, [selectedEntry]);
+
 	return (
 		<div className="guestbook-content" ref={guestBookRef}>
 			<img src={headerSvg} alt={t('ui.reception.guestBook')} />
@@ -236,17 +283,105 @@ function GuestBookContent({ onClose }) {
 					) : (
 						<table className="guestbook-table">
 							<tbody>
-								{entries.map((entry, index) => (
-									<tr key={entry.id} className="guestbook-entry">
-										<td className="guestbook-rank">
-											#{(currentPage - 1) * PAGE_SIZE + index + 1}
-										</td>
-										<td className="guestbook-name">{entry.playerName}</td>
-										<td className="guestbook-time">{entry.formattedTime}</td>
-									</tr>
-								))}
+								{Array.from({ length: Math.ceil(entries.length / 2) }).map(
+									(_, rowIndex) => {
+										const leftEntry = entries[rowIndex];
+										const rightEntry =
+											entries[rowIndex + Math.ceil(entries.length / 2)];
+										const baseRank = (currentPage - 1) * PAGE_SIZE;
+
+										return (
+											<tr
+												key={leftEntry?.id || `row-${rowIndex}`}
+												className="guestbook-entry-row"
+											>
+												{leftEntry ? (
+													<td
+														className="guestbook-entry guestbook-entry-left"
+														onClick={(e) =>
+															handleEntryClick(leftEntry, e, false)
+														}
+													>
+														<span className="guestbook-rank">
+															#{baseRank + rowIndex + 1}
+														</span>
+														<span className="guestbook-name">
+															{leftEntry.playerName}
+														</span>
+													</td>
+												) : (
+													<td className="guestbook-entry-empty"></td>
+												)}
+												{rightEntry ? (
+													<td
+														className="guestbook-entry guestbook-entry-right"
+														onClick={(e) =>
+															handleEntryClick(rightEntry, e, true)
+														}
+													>
+														<span className="guestbook-rank">
+															#
+															{baseRank +
+																rowIndex +
+																Math.ceil(entries.length / 2) +
+																1}
+														</span>
+														<span className="guestbook-name">
+															{rightEntry.playerName}
+														</span>
+													</td>
+												) : (
+													<td className="guestbook-entry-empty"></td>
+												)}
+											</tr>
+										);
+									}
+								)}
 							</tbody>
 						</table>
+					)}
+
+					{selectedEntry && (
+						<div
+							className="entry-details-tooltip"
+							style={{
+								left: `${popupPosition.x}px`,
+								top: `${popupPosition.y}px`,
+							}}
+						>
+							<div className="tooltip-row">
+								<span className="tooltip-label">{t('ui.reception.time')}:</span>
+								<span className="tooltip-value">
+									{selectedEntry.formattedTime}
+								</span>
+							</div>
+							<div className="tooltip-row">
+								<span className="tooltip-label">
+									{t('ui.reception.deaths')}:
+								</span>
+								<span className="tooltip-value">
+									{selectedEntry.deaths || 0}
+								</span>
+							</div>
+							<div className="tooltip-row">
+								<span className="tooltip-label">{t('ui.reception.date')}:</span>
+								<span className="tooltip-value">
+									{selectedEntry.createdAt || selectedEntry.timestamp
+										? new Date(
+												selectedEntry.createdAt?.seconds ||
+												selectedEntry.timestamp?.seconds
+													? (selectedEntry.createdAt?.seconds ||
+															selectedEntry.timestamp?.seconds) * 1000
+													: selectedEntry.createdAt || selectedEntry.timestamp
+										  ).toLocaleDateString(undefined, {
+												year: 'numeric',
+												month: 'short',
+												day: 'numeric',
+										  })
+										: 'N/A'}
+								</span>
+							</div>
+						</div>
 					)}
 				</div>
 

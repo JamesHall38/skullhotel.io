@@ -67,6 +67,8 @@
 		"endGameScreen": {
 			"thankYouForPlaying": "DZIĘKUJEMY ZA GRĘ",
 			"yourTime": "Twój czas:",
+			"death": "śmierć",
+			"deaths": "śmierci",
 			"enterYourName": "Wprowadź swoje imię",
 			"signGuestBook": "Podpisz księgę gości",
 			"saving": "Zapisywanie...",
@@ -97,8 +99,13 @@
 			"guestBook": "Księga gości",
 			"informations": "Informacje",
 			"guestBookSubtitle": "Ukończ grę, aby zapisać swoje imię",
-			"searchPlaceholder": "Wprowadź numer strony lub wyszukaj imię"
-		}
+			"searchPlaceholder": "Wprowadź numer strony lub wyszukaj imię",
+			"completionTime": "Czas ukończenia",
+			"time": "Czas",
+			"deaths": "Śmierci",
+			"date": "Data"
+		},
+		"close": "Zamknij"
 	},
 	"game": {
 		"dialogues": {

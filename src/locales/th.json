@@ -67,6 +67,8 @@
 		"endGameScreen": {
 			"thankYouForPlaying": "ขอบคุณที่เล่น",
 			"yourTime": "เวลาของคุณ:",
+			"death": "จำนวนครั้งที่ตาย",
+			"deaths": "จำนวนครั้งที่ตาย",
 			"enterYourName": "ใส่ชื่อของคุณ",
 			"signGuestBook": "เซ็นสมุดแขก",
 			"saving": "กำลังบันทึก...",
@@ -97,8 +99,13 @@
 			"guestBook": "สมุดแขก",
 			"informations": "ข้อมูล",
 			"guestBookSubtitle": "เล่นเกมให้จบเพื่อลงทะเบียนชื่อของคุณ",
-			"searchPlaceholder": "ใส่หมายเลขหน้าหรือค้นหาชื่อ"
-		}
+			"searchPlaceholder": "ใส่หมายเลขหน้าหรือค้นหาชื่อ",
+			"completionTime": "เวลาที่ใช้",
+			"time": "เวลา",
+			"deaths": "จำนวนครั้งที่ตาย",
+			"date": "วันที่"
+		},
+		"close": "ปิด"
 	},
 	"game": {
 		"dialogues": {

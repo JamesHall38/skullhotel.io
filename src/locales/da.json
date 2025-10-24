@@ -67,6 +67,8 @@
 		"endGameScreen": {
 			"thankYouForPlaying": "TAK FOR AT SPILLE",
 			"yourTime": "Din tid:",
+			"death": "dødsfald",
+			"deaths": "dødsfald",
 			"enterYourName": "Indtast dit navn",
 			"signGuestBook": "Underskriv gæstebogen",
 			"saving": "Gemmer...",
@@ -97,8 +99,13 @@
 			"guestBook": "Gæstebog",
 			"informations": "Informationer",
 			"guestBookSubtitle": "Gennemfør spillet for at registrere dit navn",
-			"searchPlaceholder": "Indtast et sidenummer eller søg efter et navn"
-		}
+			"searchPlaceholder": "Indtast et sidenummer eller søg efter et navn",
+			"completionTime": "Gennemførelsestid",
+			"time": "Tid",
+			"deaths": "Dødsfald",
+			"date": "Dato"
+		},
+		"close": "Luk"
 	},
 	"game": {
 		"dialogues": {

@@ -446,6 +446,14 @@ const EndGameScreen = () => {
 				<div className="completion-time">
 					{t('ui.endGameScreen.yourTime')} {formatTime(completionTime)}
 				</div>
+				<div className="death-count">
+					{realDeaths}{' '}
+					{t(
+						realDeaths === 1
+							? 'ui.endGameScreen.death'
+							: 'ui.endGameScreen.deaths'
+					)}
+				</div>
 			</div>
 
 			{!submitted ? (

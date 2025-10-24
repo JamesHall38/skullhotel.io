@@ -67,6 +67,8 @@
 		"endGameScreen": {
 			"thankYouForPlaying": "MULȚUMIM CĂ AI JUCAT",
 			"yourTime": "Timpul tău:",
+			"death": "moarte",
+			"deaths": "morți",
 			"enterYourName": "Introdu numele tău",
 			"signGuestBook": "Semnează cartea de oaspeți",
 			"saving": "Se salvează...",
@@ -97,8 +99,13 @@
 			"guestBook": "Cartea oaspeților",
 			"informations": "Informații",
 			"guestBookSubtitle": "Completează jocul pentru a-ți înregistra numele",
-			"searchPlaceholder": "Introdu un număr de pagină sau caută un nume"
-		}
+			"searchPlaceholder": "Introdu un număr de pagină sau caută un nume",
+			"completionTime": "Timp de finalizare",
+			"time": "Timp",
+			"deaths": "Morți",
+			"date": "Data"
+		},
+		"close": "Închide"
 	},
 	"game": {
 		"dialogues": {

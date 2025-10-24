@@ -16,7 +16,7 @@ import {
 
 const COLLECTION_NAME = 'guestbook';
 const DEBUG_COLLECTION_NAME = 'guestbook_debug';
-export const PAGE_SIZE = 10;
+export const PAGE_SIZE = 20;
 const MIN_VALID_GAME_DURATION = 0;
 const MAX_VALID_GAME_DURATION = 604800;
 
