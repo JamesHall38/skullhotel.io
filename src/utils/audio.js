@@ -71,6 +71,7 @@ const BASE_SOUNDS = {
 	breathing: {
 		mp3: '/sounds/breathing.mp3',
 		settings: 'ambient',
+		volume: 1,
 	},
 	whiteNoise: {
 		mp3: '/sounds/white_noise.mp3',
@@ -257,6 +258,39 @@ export const SOUNDS = BASE_SOUNDS;
 
 const audioInstances = {};
 let soundsLoaded = false;
+let masterVolume = 1.0;
+
+export function setMasterVolume(volume) {
+	masterVolume = Math.max(0, Math.min(1, volume));
+
+	Object.entries(audioInstances).forEach(([key, instance]) => {
+		if (key === 'keyPool' && Array.isArray(instance)) {
+			instance.forEach((audio) => {
+				if (audio) {
+					const baseVolume = 0.25;
+					audio.volume = Math.min(1, baseVolume * masterVolume);
+				}
+			});
+		} else if (instance && instance.volume !== undefined) {
+			const sound = SOUNDS[key];
+			if (sound) {
+				const settings =
+					SOUND_SETTINGS[sound.settings] || SOUND_SETTINGS.default;
+				const baseVolume =
+					sound.volume !== undefined ? sound.volume : settings.volume || 0.5;
+				instance.volume = Math.min(1, baseVolume * masterVolume);
+			}
+		}
+	});
+}
+
+export function getMasterVolume() {
+	return masterVolume;
+}
+
+export function applyMasterVolume(baseVolume) {
+	return Math.min(1, Math.max(0, baseVolume * masterVolume));
+}
 
 async function loadAudioFile(url) {
 	try {
@@ -282,8 +316,9 @@ export async function preloadSounds(onSoundLoaded) {
 
 				const settings =
 					SOUND_SETTINGS[sound.settings] || SOUND_SETTINGS.default;
-				audio.volume =
+				const baseVolume =
 					sound.volume !== undefined ? sound.volume : settings.volume || 0.5;
+				audio.volume = Math.min(1, baseVolume * masterVolume);
 
 				audioInstances[key] = audio;
 
@@ -314,7 +349,7 @@ export async function preloadSounds(onSoundLoaded) {
 			.fill(null)
 			.map(() => {
 				const audio = new Audio(keyBlobUrl);
-				audio.volume = 0.25;
+				audio.volume = Math.min(1, 0.25 * masterVolume);
 				audio.preload = 'auto';
 				if (typeof onSoundLoaded === 'function') {
 					audio.addEventListener(
@@ -356,7 +391,16 @@ export function getAudioInstance(key) {
 	if (!instance.paused) {
 		try {
 			const newInstance = new Audio(instance.src);
-			newInstance.volume = instance.volume;
+			const sound = SOUNDS[key];
+			if (sound) {
+				const settings =
+					SOUND_SETTINGS[sound.settings] || SOUND_SETTINGS.default;
+				const baseVolume =
+					sound.volume !== undefined ? sound.volume : settings.volume || 0.5;
+				newInstance.volume = Math.min(1, baseVolume * masterVolume);
+			} else {
+				newInstance.volume = Math.min(1, instance.volume);
+			}
 			return newInstance;
 		} catch (error) {
 			console.error(`Error creating new audio instance for ${key}:`, error);
@@ -381,7 +425,7 @@ export const getSoundUrl = (soundName) => {
 	return sound.mp3 || null;
 };
 
-export const usePositionalSound = (soundName) => {
+export const getPositionalSoundConfig = (soundName) => {
 	const sound = SOUNDS[soundName];
 	if (!sound) {
 		console.warn(`Sound ${soundName} not found`);
@@ -389,6 +433,8 @@ export const usePositionalSound = (soundName) => {
 	}
 
 	const settings = SOUND_SETTINGS[sound.settings] || SOUND_SETTINGS.default;
+	const baseVolume =
+		sound.volume !== undefined ? sound.volume : settings.volume || 0.5;
 
 	return {
 		url: sound.mp3,
@@ -396,6 +442,6 @@ export const usePositionalSound = (soundName) => {
 		distance: settings.distance || 0.4,
 		refDistance: settings.refDistance || 1,
 		rolloffFactor: settings.rolloffFactor || 1,
-		volume: settings.volume || 0.5,
+		baseVolume,
 	};
 };

@@ -2,13 +2,13 @@ import { useEffect, useMemo, useRef } from 'react';
 import useGame from '../../../hooks/useGame';
 import useMonster from '../../../hooks/useMonster';
 import * as THREE from 'three';
-import { PositionalAudio } from '@react-three/drei';
 import TriggersConditions from './TriggersConditions';
 import { getMonsterInitialPosition } from './triggersUtils';
 import { useControls } from 'leva';
 import { useFrame } from '@react-three/fiber';
-import { usePositionalSound } from '../../../utils/audio';
+import usePositionalSound from '../../../hooks/usePositionalSound';
 import useGameplaySettings from '../../../hooks/useGameplaySettings';
+import VolumeAwarePositionalAudio from '../../VolumeAwarePositionalAudio';
 
 const boxGeometry = new THREE.BoxGeometry(1, 1, 1);
 const CORRIDORLENGTH = 5.95;
@@ -351,10 +351,9 @@ export default function Triggers() {
 				<group
 					rotation={[0, playerPositionRoom >= roomCount / 2 ? Math.PI : 0, 0]}
 				>
-					<PositionalAudio
+					<VolumeAwarePositionalAudio
 						ref={monsterSoundRef}
 						{...breathingSound}
-						volume={10}
 						position={[
 							position[0] + controls.monsterInitialPosition[0],
 							position[1] + controls.monsterInitialPosition[1],

@@ -4,14 +4,17 @@ import useGame from '../../../hooks/useGame';
 import useInterface from '../../../hooks/useInterface';
 import useGamepadControls from '../../../hooks/useGamepadControls';
 import DetectionZone from '../../DetectionZone';
-import { PositionalAudio, useKTX2 } from '@react-three/drei';
-import { usePositionalSound } from '../../../utils/audio';
+import { useKTX2 } from '@react-three/drei';
+import usePositionalSound from '../../../hooks/usePositionalSound';
+import useSettings from '../../../hooks/useSettings';
 import useLight from '../../../hooks/useLight';
+import VolumeAwarePositionalAudio from '../../VolumeAwarePositionalAudio';
 
 const Radio = () => {
 	const meshRef = useRef();
 	const [isDetected, setIsDetected] = useState(false);
 	const radio = useGame((state) => state.radio);
+	const masterVolume = useSettings((state) => state.masterVolume);
 	const setRadio = useGame((state) => state.setRadio);
 	const isMobile = useGame((state) => state.isMobile);
 	const setMobileClick = useGame((state) => state.setMobileClick);
@@ -57,7 +60,7 @@ const Radio = () => {
 	useEffect(() => {
 		if (radio) {
 			radioSoundRef.current.play();
-			radioSoundRef.current.volume = 1;
+			radioSoundRef.current.volume = masterVolume;
 			setRadioLight('#fff0be', 0.1);
 
 			if (playHideSound) {
@@ -152,13 +155,17 @@ const Radio = () => {
 					<meshStandardMaterial map={textureOff} />
 				)}
 			</mesh>
-			<PositionalAudio
+			<VolumeAwarePositionalAudio
 				ref={radioSoundRef}
 				{...radioSound}
 				distance={2}
 				loop={true}
 			/>
-			<PositionalAudio ref={hideSoundRef} {...hideSound} loop={true} />
+			<VolumeAwarePositionalAudio
+				ref={hideSoundRef}
+				{...hideSound}
+				loop={true}
+			/>
 		</group>
 	);
 };

@@ -13,9 +13,14 @@ import useLight from '../hooks/useLight';
 import { useFrame } from '@react-three/fiber';
 // import { useControls } from 'leva';
 import useGame from '../hooks/useGame';
+import useSettings from '../hooks/useSettings';
 import useInterface from '../hooks/useInterface';
 import * as THREE from 'three';
-import { getAudioInstance, areSoundsLoaded } from '../utils/audio';
+import {
+	getAudioInstance,
+	areSoundsLoaded,
+	applyMasterVolume,
+} from '../utils/audio';
 import { vibrateControllers } from '../hooks/useGamepadControls';
 
 const DISTORTION_SPEED = 5;
@@ -232,9 +237,10 @@ const Saturation = ({ isListening }) => {
 };
 
 const PostProcessing = () => {
-	// const monsterState = useMonster((state) => state.monsterState);
+	// const monsterState = useMonster ((state) => state.monsterState);
 	// const performanceMode = useGame((state) => state.performanceMode);
 	const { playIntro } = useGame();
+	const masterVolume = useSettings((state) => state.masterVolume);
 	const [isNeonFlickering, setIsNeonFlickering] = useState(false);
 	const [isDistorting, setIsDistorting] = useState(false);
 	const [soundsReady, setSoundsReady] = useState(false);
@@ -317,7 +323,7 @@ const PostProcessing = () => {
 			(targetVolume - currentVolume) * Math.min(delta * LERP_FACTOR, 1);
 
 		currentVolumeRef.current = newVolume;
-		jumpScareAmbianceRef.current.volume = newVolume;
+		jumpScareAmbianceRef.current.volume = applyMasterVolume(newVolume);
 
 		// Fade out white noise gradually
 		if (whiteNoiseVolumeRef.current > 0) {
@@ -325,7 +331,9 @@ const PostProcessing = () => {
 				0,
 				whiteNoiseVolumeRef.current - delta * 0.2
 			);
-			whiteNoiseRef.current.volume = whiteNoiseVolumeRef.current;
+			whiteNoiseRef.current.volume = applyMasterVolume(
+				whiteNoiseVolumeRef.current
+			);
 		}
 
 		if (newVolume > 0 && jumpScareAmbianceRef.current.paused) {
@@ -374,7 +382,9 @@ const PostProcessing = () => {
 				whiteNoiseRef.current.play().catch(() => {});
 				whiteNoiseRef.current.currentTime = 0.2;
 				whiteNoiseVolumeRef.current = 0.5;
-				whiteNoiseRef.current.volume = whiteNoiseVolumeRef.current;
+				whiteNoiseRef.current.volume = applyMasterVolume(
+					whiteNoiseVolumeRef.current
+				);
 
 				await new Promise((resolve) => setTimeout(resolve, 200));
 				setIsDistorting(false);

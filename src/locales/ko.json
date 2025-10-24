@@ -2,11 +2,13 @@
 	"ui": {
 		"settings": {
 			"title": "설정",
+			"general": "일반",
 			"visuals": "비주얼",
 			"sensitivity": "감도",
 			"controls": "조작",
 			"progress": "진행률",
 			"language": "언어",
+			"masterVolume": "마스터 볼륨",
 			"fullscreen": "전체화면",
 			"shadows": "그림자",
 			"verticalSensitivity": "수직 감도",
@@ -17,7 +19,8 @@
 			"crouch": "웅크리기",
 			"jump": "점프",
 			"resetProgress": "진행률 재설정",
-			"reportBug": "버그 신고"
+			"reportBug": "버그 신고",
+			"exitGame": "게임 종료"
 		},
 		"bugReport": {
 			"title": "버그 신고",

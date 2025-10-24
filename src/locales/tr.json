@@ -2,11 +2,13 @@
 	"ui": {
 		"settings": {
 			"title": "AYARLAR",
+			"general": "GENEL",
 			"visuals": "GÖRSEL",
 			"sensitivity": "HASSASLIK",
 			"controls": "KONTROLLER",
 			"progress": "İLERLEME",
-			"language": "DİL",
+			"language": "Dil",
+			"masterVolume": "Ana ses seviyesi",
 			"fullscreen": "Tam ekran",
 			"shadows": "Gölgeler",
 			"verticalSensitivity": "Dikey hassaslık",
@@ -17,7 +19,8 @@
 			"crouch": "Çömel",
 			"jump": "Zıpla",
 			"resetProgress": "İlerlemeyi sıfırla",
-			"reportBug": "Hata bildir"
+			"reportBug": "Hata bildir",
+			"exitGame": "OYUNDAN ÇIK"
 		},
 		"bugReport": {
 			"title": "HATA BİLDİR",

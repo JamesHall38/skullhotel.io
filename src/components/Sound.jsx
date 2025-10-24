@@ -1,8 +1,13 @@
 import { useRef, useMemo, useEffect, useState } from 'react';
 import useInterface from '../hooks/useInterface';
 import useGame from '../hooks/useGame';
+import useSettings from '../hooks/useSettings';
 import KnockingSound from './KnockingSound';
-import { getAudioInstance, areSoundsLoaded } from '../utils/audio';
+import {
+	getAudioInstance,
+	areSoundsLoaded,
+	getMasterVolume,
+} from '../utils/audio';
 import useGameplaySettings from '../hooks/useGameplaySettings';
 
 const Sound = () => {
@@ -12,6 +17,7 @@ const Sound = () => {
 	const isListening = useGame((state) => state.isListening);
 	const endAnimationPlaying = useGame((state) => state.endAnimationPlaying);
 	const roomCount = useGameplaySettings((state) => state.roomCount);
+	const masterVolume = useSettings((state) => state.masterVolume);
 
 	const [soundsReady, setSoundsReady] = useState(false);
 	const ambiant1Ref = useRef(null);
@@ -19,7 +25,7 @@ const Sound = () => {
 	const ambiant2Ref = useRef(null);
 	const tenseRef = useRef(null);
 
-	const defaultVolumes = useRef({
+	const baseVolumes = useRef({
 		ambiant1: 0.7,
 		boom: 1,
 		ambiant2: 0.4,
@@ -74,17 +80,17 @@ const Sound = () => {
 
 		const setupAudio = (audioRef, volume, loop = true) => {
 			if (!audioRef.current) return;
-			audioRef.current.volume = volume;
+			audioRef.current.volume = volume * getMasterVolume();
 			audioRef.current.loop = loop;
 			if (audioRef === boomRef) {
 				audioRef.current.playbackRate = 0.9;
 			}
 		};
 
-		setupAudio(ambiant1Ref, defaultVolumes.current.ambiant1);
-		setupAudio(boomRef, defaultVolumes.current.boom);
-		setupAudio(ambiant2Ref, defaultVolumes.current.ambiant2);
-		setupAudio(tenseRef, defaultVolumes.current.tense);
+		setupAudio(ambiant1Ref, baseVolumes.current.ambiant1);
+		setupAudio(boomRef, baseVolumes.current.boom);
+		setupAudio(ambiant2Ref, baseVolumes.current.ambiant2);
+		setupAudio(tenseRef, baseVolumes.current.tense);
 
 		return () => {
 			[ambiant1Ref, boomRef, ambiant2Ref, tenseRef].forEach((ref) => {
@@ -95,6 +101,21 @@ const Sound = () => {
 			});
 		};
 	}, [soundsReady]);
+
+	useEffect(() => {
+		if (!soundsReady) return;
+
+		[
+			{ ref: ambiant1Ref, volume: baseVolumes.current.ambiant1 },
+			{ ref: boomRef, volume: baseVolumes.current.boom },
+			{ ref: ambiant2Ref, volume: baseVolumes.current.ambiant2 },
+			{ ref: tenseRef, volume: baseVolumes.current.tense },
+		].forEach(({ ref, volume }) => {
+			if (ref.current && !isListening) {
+				ref.current.volume = volume * masterVolume;
+			}
+		});
+	}, [masterVolume, soundsReady, isListening]);
 
 	useEffect(() => {
 		if (!soundsReady) return;
@@ -136,25 +157,31 @@ const Sound = () => {
 		if (isListening) {
 			fadeInterval = setInterval(() => {
 				[ambiant1Ref, boomRef, ambiant2Ref, tenseRef].forEach((ref) => {
-					if (ref.current && ref.current.volume > 0.1) {
-						ref.current.volume = Math.max(0.1, ref.current.volume - 0.1);
+					if (ref.current && ref.current.volume > 0.1 * masterVolume) {
+						ref.current.volume = Math.max(
+							0.1 * masterVolume,
+							ref.current.volume - 0.1 * masterVolume
+						);
 					}
 				});
 			}, 100);
 		} else {
 			if (ambiant1Ref.current)
-				ambiant1Ref.current.volume = defaultVolumes.current.ambiant1;
-			if (boomRef.current) boomRef.current.volume = defaultVolumes.current.boom;
+				ambiant1Ref.current.volume =
+					baseVolumes.current.ambiant1 * masterVolume;
+			if (boomRef.current)
+				boomRef.current.volume = baseVolumes.current.boom * masterVolume;
 			if (ambiant2Ref.current)
-				ambiant2Ref.current.volume = defaultVolumes.current.ambiant2;
+				ambiant2Ref.current.volume =
+					baseVolumes.current.ambiant2 * masterVolume;
 			if (tenseRef.current)
-				tenseRef.current.volume = defaultVolumes.current.tense;
+				tenseRef.current.volume = baseVolumes.current.tense * masterVolume;
 		}
 
 		return () => {
 			if (fadeInterval) clearInterval(fadeInterval);
 		};
-	}, [isListening, soundsReady]);
+	}, [isListening, soundsReady, masterVolume]);
 
 	return <KnockingSound />;
 };

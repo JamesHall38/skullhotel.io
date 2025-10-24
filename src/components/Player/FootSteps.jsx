@@ -3,7 +3,11 @@ import { useFrame } from '@react-three/fiber';
 import useGame from '../../hooks/useGame';
 import { useKeyboardControls } from '@react-three/drei';
 import * as THREE from 'three';
-import { getAudioInstance, areSoundsLoaded } from '../../utils/audio';
+import {
+	getAudioInstance,
+	areSoundsLoaded,
+	applyMasterVolume,
+} from '../../utils/audio';
 import useJoysticksStore from '../../hooks/useJoysticks';
 import useGamepadControls from '../../hooks/useGamepadControls';
 import useEndGameAnimation from '../../hooks/useEndGameAnimation';
@@ -144,7 +148,9 @@ export default function FootSteps({
 			if (isMoving && !wasMovingRef.current) {
 				const sound = footstepRefs.current[footstepIndexRef.current];
 				if (sound && currentTime - lastStepTime.current > STEP_INTERVAL.run) {
-					sound.volume = isPlayerRunning ? VOLUMES.run : VOLUMES.walk;
+					sound.volume = applyMasterVolume(
+						isPlayerRunning ? VOLUMES.run : VOLUMES.walk
+					);
 					sound.currentTime = 0;
 					if (!resetFootstepSound) {
 						sound.play().catch(() => {});
@@ -162,7 +168,9 @@ export default function FootSteps({
 				if (currentTime - lastStepTime.current > interval) {
 					const sound = footstepRefs.current[footstepIndexRef.current];
 					if (sound) {
-						sound.volume = isPlayerRunning ? VOLUMES.run : VOLUMES.walk;
+						sound.volume = applyMasterVolume(
+							isPlayerRunning ? VOLUMES.run : VOLUMES.walk
+						);
 						sound.currentTime = 0;
 						if (!resetFootstepSound) {
 							sound.play().catch(() => {});

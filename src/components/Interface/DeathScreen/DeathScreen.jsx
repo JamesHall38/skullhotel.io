@@ -6,6 +6,7 @@ import useDoor from '../../../hooks/useDoor';
 import useMonster from '../../../hooks/useMonster';
 import useLight from '../../../hooks/useLight';
 import useLocalization from '../../../hooks/useLocalization';
+import levelData from '../../../components/Monster/Triggers/levelData';
 import { regenerateData } from '../../../utils/config';
 import {
 	isPointerLocked,
@@ -44,7 +45,6 @@ const DeathScreen = () => {
 	const seenLevels = useGame((state) => state.seenLevels);
 	const totalLevelTypes = useGame((state) => state.totalLevelTypes);
 	const addSeenLevel = useGame((state) => state.addSeenLevel);
-	const realDeaths = useGame((state) => state.realDeaths);
 
 	useEffect(() => {
 		if (openDeathScreen) {
@@ -100,16 +100,27 @@ const DeathScreen = () => {
 				if (baseKey) {
 					const translationKey = `game.deathReasons.${baseKey}`;
 					message = t(translationKey);
-					addSeenLevel(baseKey);
 				}
 			}
 
 			setLastDeathMessage(message);
 		}
-	}, [capturedDeathData, addSeenLevel, t]);
+	}, [capturedDeathData, t]);
 
 	useEffect(() => {
-		if (seenLevels.size === 28 && totalLevelTypes === 28) {
+		if (playerPositionRoom !== null && playerPositionRoom >= 0) {
+			const currentRoom = Object.values(seedData)[playerPositionRoom];
+			if (currentRoom?.baseKey) {
+				addSeenLevel(currentRoom.baseKey);
+			}
+		}
+	}, [playerPositionRoom, seedData, addSeenLevel]);
+
+	useEffect(() => {
+		if (
+			seenLevels.size === Object.keys(levelData).length &&
+			totalLevelTypes === Object.keys(levelData).length
+		) {
 			if (window.steamAPI && window.steamAPI.allHideoutsFound) {
 				window.steamAPI.allHideoutsFound();
 			}

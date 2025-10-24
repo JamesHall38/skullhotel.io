@@ -2,11 +2,13 @@
 	"ui": {
 		"settings": {
 			"title": "ΡΥΘΜΙΣΕΙΣ",
+			"general": "ΓΕΝΙΚΑ",
 			"visuals": "ΓΡΑΦΙΚΑ",
 			"sensitivity": "ΕΥΑΙΣΘΗΣΙΑ",
 			"controls": "ΧΕΙΡΙΣΜΟΣ",
 			"progress": "ΠΡΟΟΔΟΣ",
-			"language": "ΓΛΩΣΣΑ",
+			"language": "Γλώσσα",
+			"masterVolume": "Κύρια ένταση ήχου",
 			"fullscreen": "Πλήρης οθόνη",
 			"shadows": "Σκιές",
 			"verticalSensitivity": "Κάθετη ευαισθησία",
@@ -17,7 +19,8 @@
 			"crouch": "Σκύψιμο",
 			"jump": "Άλμα",
 			"resetProgress": "Επαναφορά προόδου",
-			"reportBug": "Αναφορά σφάλματος"
+			"reportBug": "Αναφορά σφάλματος",
+			"exitGame": "ΕΞΟΔΟΣ ΑΠΟ ΤΟ ΠΑΙΧΝΙΔΙ"
 		},
 		"bugReport": {
 			"title": "ΑΝΑΦΟΡΑ ΣΦΑΛΜΑΤΟΣ",

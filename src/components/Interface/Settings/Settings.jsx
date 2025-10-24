@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { MdBugReport, MdRefresh } from 'react-icons/md';
 
 import closeIcon from './close.svg';
 import fullScreenIcon from './fullscreen.svg';
@@ -28,7 +29,8 @@ import {
 	exitPointerLock,
 	requestPointerLock,
 } from '../../../utils/pointerLock';
-import { getAudioInstance } from '../../../utils/audio';
+import { getAudioInstance, setMasterVolume } from '../../../utils/audio';
+import { isElectron } from '../../../utils/platform';
 import BugReport from '../BugReport/BugReport';
 import './Settings.css';
 
@@ -48,6 +50,8 @@ export default function Settings({ loading }) {
 	);
 	const shadows = useSettings((state) => state.shadows);
 	const setShadows = useSettings((state) => state.setShadows);
+	const masterVolume = useSettings((state) => state.masterVolume);
+	const setMasterVolumeState = useSettings((state) => state.setMasterVolume);
 	const deviceMode = useGame((state) => state.deviceMode);
 	const setIsAnyPopupOpen = useInterface((state) => state.setIsAnyPopupOpen);
 	const isAnyPopupOpen = useInterface((state) => state.isAnyPopupOpen);
@@ -62,9 +66,7 @@ export default function Settings({ loading }) {
 	const { t, currentLanguage, setLanguage } = useLocalization();
 
 	const [focusedElement, setFocusedElement] = useState(0);
-	const [isFullscreen, setIsFullscreen] = useState(
-		!!document.fullscreenElement
-	);
+	const [isFullscreen, setIsFullscreen] = useState(false);
 	const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 	const [dropdownSelectedIndex, setDropdownSelectedIndex] = useState(0);
 	const [showBugReport, setShowBugReport] = useState(false);
@@ -72,23 +74,13 @@ export default function Settings({ loading }) {
 	const lastInputTime = useRef(Date.now());
 	const horizontalSensitivitySliderRef = useRef(null);
 	const verticalSensitivitySliderRef = useRef(null);
+	const masterVolumeSliderRef = useRef(null);
 	const sensitivityStep = 0.05;
+	const volumeStep = 0.05;
 	const lastStartButtonState = useRef(false);
 	const lastFocusedElement = useRef(0);
 	const lastMenuSoundTime = useRef(0);
 	const prevIsSettingsOpen = useRef(isSettingsOpen);
-
-	useEffect(() => {
-		const handleKeyDown = (e) => {
-			if (e.key === 'Escape' && isSettingsOpen) {
-				setIsSettingsOpen(false);
-				setIsAnyPopupOpen(false);
-			}
-		};
-
-		window.addEventListener('keydown', handleKeyDown);
-		return () => window.removeEventListener('keydown', handleKeyDown);
-	}, [isSettingsOpen, setIsSettingsOpen, setIsAnyPopupOpen]);
 
 	useEffect(() => {
 		if (!prevIsSettingsOpen.current && isSettingsOpen) {
@@ -358,6 +350,20 @@ export default function Settings({ loading }) {
 					playMenuSound();
 					lastInputTime.current = now;
 				}
+			} else if (focusedEl && focusedEl.id === 'masterVolume') {
+				if (left) {
+					const newValue = Math.max(0, masterVolume - volumeStep);
+					setMasterVolumeState(newValue);
+					setMasterVolume(newValue);
+					playMenuSound();
+					lastInputTime.current = now;
+				} else if (right) {
+					const newValue = Math.min(1, masterVolume + volumeStep);
+					setMasterVolumeState(newValue);
+					setMasterVolume(newValue);
+					playMenuSound();
+					lastInputTime.current = now;
+				}
 			}
 
 			const aButtonPressed = gamepad.buttons[0]?.pressed;
@@ -417,8 +423,10 @@ export default function Settings({ loading }) {
 		focusedElement,
 		horizontalSensitivity,
 		verticalSensitivity,
+		masterVolume,
 		setHorizontalSensitivity,
 		setVerticalSensitivity,
+		setMasterVolumeState,
 		setShadows,
 		setIsSettingsOpen,
 		setIsAnyPopupOpen,
@@ -431,42 +439,71 @@ export default function Settings({ loading }) {
 	]);
 
 	useEffect(() => {
-		const handleFullscreenChange = () => {
-			setIsFullscreen(!!document.fullscreenElement);
+		const updateFullscreenState = async () => {
+			if (isElectron() && window.electronAPI) {
+				const fullscreenState = await window.electronAPI.isFullscreen();
+				setIsFullscreen(fullscreenState);
+			} else {
+				setIsFullscreen(!!document.fullscreenElement);
+			}
 		};
 
-		document.addEventListener('fullscreenchange', handleFullscreenChange);
-		return () =>
-			document.removeEventListener('fullscreenchange', handleFullscreenChange);
+		updateFullscreenState();
+
+		const handleFullscreenChange = () => {
+			updateFullscreenState();
+		};
+
+		if (!isElectron()) {
+			document.addEventListener('fullscreenchange', handleFullscreenChange);
+		}
+
+		const interval = setInterval(updateFullscreenState, 500);
+
+		return () => {
+			if (!isElectron()) {
+				document.removeEventListener(
+					'fullscreenchange',
+					handleFullscreenChange
+				);
+			}
+			clearInterval(interval);
+		};
 	}, []);
 
-	const fullScreenHandler = (e) => {
+	const fullScreenHandler = async (e) => {
 		e.stopPropagation();
-		if (!document.fullscreenElement) {
-			if (document.documentElement.requestFullscreen) {
-				document.documentElement.requestFullscreen();
-			} else if (document.documentElement.mozRequestFullScreen) {
-				// Firefox
-				document.documentElement.mozRequestFullScreen();
-			} else if (document.documentElement.webkitRequestFullscreen) {
-				// Chrome, Safari and Opera
-				document.documentElement.webkitRequestFullscreen();
-			} else if (document.documentElement.msRequestFullscreen) {
-				// IE/Edge
-				document.documentElement.msRequestFullscreen();
-			}
+
+		if (isElectron() && window.electronAPI) {
+			const newState = await window.electronAPI.toggleFullscreen();
+			setIsFullscreen(newState);
 		} else {
-			if (document.exitFullscreen) {
-				document.exitFullscreen();
-			} else if (document.mozCancelFullScreen) {
-				// Firefox
-				document.mozCancelFullScreen();
-			} else if (document.webkitExitFullscreen) {
-				// Chrome, Safari and Opera
-				document.webkitExitFullscreen();
-			} else if (document.msExitFullscreen) {
-				// IE/Edge
-				document.msExitFullscreen();
+			if (!document.fullscreenElement) {
+				if (document.documentElement.requestFullscreen) {
+					document.documentElement.requestFullscreen();
+				} else if (document.documentElement.mozRequestFullScreen) {
+					// Firefox
+					document.documentElement.mozRequestFullScreen();
+				} else if (document.documentElement.webkitRequestFullscreen) {
+					// Chrome, Safari and Opera
+					document.documentElement.webkitRequestFullscreen();
+				} else if (document.documentElement.msRequestFullscreen) {
+					// IE/Edge
+					document.documentElement.msRequestFullscreen();
+				}
+			} else {
+				if (document.exitFullscreen) {
+					document.exitFullscreen();
+				} else if (document.mozCancelFullScreen) {
+					// Firefox
+					document.mozCancelFullScreen();
+				} else if (document.webkitExitFullscreen) {
+					// Chrome, Safari and Opera
+					document.webkitExitFullscreen();
+				} else if (document.msExitFullscreen) {
+					// IE/Edge
+					document.msExitFullscreen();
+				}
 			}
 		}
 	};
@@ -539,6 +576,13 @@ export default function Settings({ loading }) {
 		playMenuSound();
 	};
 
+	const handleQuitGame = () => {
+		playMenuSound();
+		if (isElectron()) {
+			window.close();
+		}
+	};
+
 	if (!isSettingsOpen) {
 		if (loading || openDeathScreen || isEndScreen || end) {
 			return null;
@@ -554,8 +598,7 @@ export default function Settings({ loading }) {
 				}}
 			>
 				<div className="control-keys">
-					<img src={keyboardTab} alt="Settings" />
-					/
+					<img src={keyboardTab} alt="Tab" />/
 					<img src={gamepadStart} alt="Settings" />
 				</div>
 			</button>
@@ -577,17 +620,53 @@ export default function Settings({ loading }) {
 			onClick={(e) => e.stopPropagation()}
 		>
 			<div className="settings-layout">
-				<button
-					className="settings-close"
-					onClick={handleSettingsClose}
-					onMouseEnter={handleMouseEnter}
-				>
-					{t('ui.settings.title')}
-					<img src={closeIcon} alt="Close" />
-				</button>
+				<div className="settings-sidebar">
+					<button
+						className="settings-close"
+						onClick={handleSettingsClose}
+						onMouseEnter={handleMouseEnter}
+					>
+						{t('ui.settings.title')}
+						<img src={closeIcon} alt="Close" />
+					</button>
+
+					{isElectron() && (
+						<button
+							className="settings-quit"
+							onClick={handleQuitGame}
+							onMouseEnter={handleMouseEnter}
+						>
+							{t('ui.settings.exitGame')}
+						</button>
+					)}
+				</div>
 
 				<section className="settings-content">
-					<h2 className="settings-title">{t('ui.settings.visuals')}</h2>
+					<h2 className="settings-title">{t('ui.settings.general')}</h2>
+					<div className="settings-item">
+						<div className="setting-label">{t('ui.settings.masterVolume')}</div>
+						<div className="slider-container">
+							<input
+								type="range"
+								id="masterVolume"
+								min="0"
+								max="1"
+								step="0.01"
+								value={masterVolume}
+								ref={masterVolumeSliderRef}
+								onChange={(e) => {
+									const newValue = parseFloat(e.target.value);
+									setMasterVolumeState(newValue);
+									setMasterVolume(newValue);
+									playMenuSound();
+								}}
+								onMouseEnter={handleMouseEnter}
+							/>
+							<span className="sensitivity-value">
+								{Math.round(masterVolume * 100)}
+							</span>
+						</div>
+					</div>
 					<div className="settings-item">
 						<div className="setting-label">{t('ui.settings.language')}</div>
 						<div
@@ -616,6 +695,8 @@ export default function Settings({ loading }) {
 							</div>
 						)}
 					</div>
+
+					<h2 className="settings-title">{t('ui.settings.visuals')}</h2>
 					<button
 						className="settings-item settings-hover-effect"
 						onClick={(e) => {
@@ -767,7 +848,7 @@ export default function Settings({ loading }) {
 						</div>
 					</div>
 
-					<div>
+					<div className="settings-buttons-container">
 						{seenLevels.size === totalLevelTypes && (
 							<button
 								className="settings-reset-button settings-hover-effect"
@@ -777,6 +858,7 @@ export default function Settings({ loading }) {
 								}}
 								onMouseEnter={handleMouseEnter}
 							>
+								<MdRefresh />
 								{t('ui.settings.resetProgress')}
 							</button>
 						)}
@@ -789,6 +871,7 @@ export default function Settings({ loading }) {
 							}}
 							onMouseEnter={handleMouseEnter}
 						>
+							<MdBugReport />
 							{t('ui.settings.reportBug')}
 						</button>
 					</div>

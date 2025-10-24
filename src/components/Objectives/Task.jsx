@@ -5,7 +5,7 @@ import React, {
 	useEffect,
 	useCallback,
 } from 'react';
-import { useGLTF, PositionalAudio } from '@react-three/drei';
+import { useGLTF } from '@react-three/drei';
 import { useThree } from '@react-three/fiber';
 import { useControls } from 'leva';
 import useProgressiveLoad from '../../hooks/useProgressiveLoad';
@@ -13,16 +13,14 @@ import useGame from '../../hooks/useGame';
 import useInterface from '../../hooks/useInterface';
 import DetectionZone from '../DetectionZone';
 import useGamepadControls from '../../hooks/useGamepadControls';
+import VolumeAwarePositionalAudio from '../VolumeAwarePositionalAudio';
 import useDoor from '../../hooks/useDoor';
 import useInterfaceStore from '../../hooks/useInterface';
 import useHiding from '../../hooks/useHiding';
 import useGameplaySettings from '../../hooks/useGameplaySettings';
 import * as THREE from 'three';
-import {
-	usePositionalSound,
-	getAudioInstance,
-	areSoundsLoaded,
-} from '../../utils/audio';
+import usePositionalSound from '../../hooks/usePositionalSound';
+import { getAudioInstance, areSoundsLoaded } from '../../utils/audio';
 import {
 	VISIBLE_POS,
 	HIDDEN_POS,
@@ -1199,7 +1197,7 @@ export default function Task(props) {
 										{(key === 'Bath' ||
 											key === 'Sink' ||
 											key === 'Toilets') && (
-											<PositionalAudio
+											<VolumeAwarePositionalAudio
 												ref={fliesSoundRef}
 												{...fliesSound}
 												loop={true}
@@ -1207,7 +1205,7 @@ export default function Task(props) {
 											/>
 										)}
 										{(key === 'BathWater' || key === 'SinkWater') && (
-											<PositionalAudio
+											<VolumeAwarePositionalAudio
 												ref={faucetSoundRef}
 												{...faucetSound}
 												loop={true}

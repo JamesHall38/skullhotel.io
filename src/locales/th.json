@@ -2,11 +2,13 @@
 	"ui": {
 		"settings": {
 			"title": "ตั้งค่า",
+			"general": "ทั่วไป",
 			"visuals": "กราฟิก",
 			"sensitivity": "ความไว",
 			"controls": "การควบคุม",
 			"progress": "ความคืบหน้า",
 			"language": "ภาษา",
+			"masterVolume": "ระดับเสียงหลัก",
 			"fullscreen": "เต็มจอ",
 			"shadows": "เงา",
 			"verticalSensitivity": "ความไวแนวตั้ง",
@@ -17,7 +19,8 @@
 			"crouch": "ย่อตัว",
 			"jump": "กระโดด",
 			"resetProgress": "รีเซ็ตความคืบหน้า",
-			"reportBug": "รายงานข้อผิดพลาด"
+			"reportBug": "รายงานข้อผิดพลาด",
+			"exitGame": "ออกจากเกม"
 		},
 		"bugReport": {
 			"title": "รายงานข้อผิดพลาด",

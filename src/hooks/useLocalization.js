@@ -1,5 +1,5 @@
-import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { useCallback, useMemo } from 'react';
+import useSettings from './useSettings';
 
 import en from '../locales/en.json';
 import zh from '../locales/zh.json';
@@ -87,76 +87,70 @@ export const languages = [
 	{ code: 'ar', name: 'Arabic', nativeName: 'العربية' },
 ];
 
-const detectBrowserLanguage = () => {
-	const browserLang = navigator.language || navigator.languages[0];
-	const langCode = browserLang.split('-')[0];
+export default function useLocalization() {
+	const currentLanguage = useSettings((state) => state.currentLanguage);
+	const setCurrentLanguage = useSettings((state) => state.setCurrentLanguage);
 
-	if (translations[langCode]) {
-		return langCode;
-	}
+	const setLanguage = useCallback(
+		(languageCode) => {
+			if (translations[languageCode]) {
+				setCurrentLanguage(languageCode);
+			}
+		},
+		[setCurrentLanguage]
+	);
 
-	return 'en';
-};
+	const getCurrentLanguage = useCallback(() => {
+		return currentLanguage;
+	}, [currentLanguage]);
 
-const useLocalization = create(
-	persist(
-		(set, get) => ({
-			currentLanguage: detectBrowserLanguage(),
+	const t = useCallback(
+		(key, params = {}) => {
+			const translation = translations[currentLanguage];
 
-			setLanguage: (languageCode) => {
-				if (translations[languageCode]) {
-					set({ currentLanguage: languageCode });
-				}
-			},
+			if (!translation) {
+				console.warn(`Translation not found for language: ${currentLanguage}`);
+				return key;
+			}
 
-			getCurrentLanguage: () => {
-				return get().currentLanguage;
-			},
+			const keys = key.split('.');
+			let value = translation;
 
-			t: (key, params = {}) => {
-				const currentLanguage = get().currentLanguage;
-				const translation = translations[currentLanguage];
-
-				if (!translation) {
+			for (const k of keys) {
+				if (value && typeof value === 'object' && k in value) {
+					value = value[k];
+				} else {
 					console.warn(
-						`Translation not found for language: ${currentLanguage}`
+						`Translation key not found: ${key} in ${currentLanguage}`
 					);
 					return key;
 				}
+			}
 
-				const keys = key.split('.');
-				let value = translation;
+			if (typeof value === 'string' && Object.keys(params).length > 0) {
+				return value.replace(/\{\{(\w+)\}\}/g, (match, paramKey) => {
+					return params[paramKey] !== undefined ? params[paramKey] : match;
+				});
+			}
 
-				for (const k of keys) {
-					if (value && typeof value === 'object' && k in value) {
-						value = value[k];
-					} else {
-						console.warn(
-							`Translation key not found: ${key} in ${currentLanguage}`
-						);
-						return key;
-					}
-				}
+			return value;
+		},
+		[currentLanguage]
+	);
 
-				if (typeof value === 'string' && Object.keys(params).length > 0) {
-					return value.replace(/\{\{(\w+)\}\}/g, (match, paramKey) => {
-						return params[paramKey] !== undefined ? params[paramKey] : match;
-					});
-				}
+	const getLanguageName = useCallback((code) => {
+		const lang = languages.find((l) => l.code === code);
+		return lang ? lang.nativeName : code;
+	}, []);
 
-				return value;
-			},
-
-			getLanguageName: (code) => {
-				const lang = languages.find((l) => l.code === code);
-				return lang ? lang.nativeName : code;
-			},
+	return useMemo(
+		() => ({
+			currentLanguage,
+			setLanguage,
+			getCurrentLanguage,
+			t,
+			getLanguageName,
 		}),
-		{
-			name: 'skull-hotel-language',
-			partialize: (state) => ({ currentLanguage: state.currentLanguage }),
-		}
-	)
-);
-
-export default useLocalization;
+		[currentLanguage, setLanguage, getCurrentLanguage, t, getLanguageName]
+	);
+}

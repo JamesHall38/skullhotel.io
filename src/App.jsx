@@ -55,7 +55,7 @@ import { regenerateData } from './utils/config';
 import generateSeedData from './utils/generateSeedData';
 import ListeningMode from './components/Player/ListeningMode';
 import levelData from './components/Monster/Triggers/levelData';
-import { preloadSounds } from './utils/audio';
+import { preloadSounds, setMasterVolume } from './utils/audio';
 import useGameplaySettings from './hooks/useGameplaySettings';
 import useSettings from './hooks/useSettings';
 import ShadowManager from './components/ShadowManager';
@@ -131,6 +131,15 @@ function App() {
 	} = useGameplaySettings();
 	const introIsPlaying = useGame((state) => state.introIsPlaying);
 	const hasIntroBeenPlayedRef = useRef(false);
+	const masterVolume = useSettings((state) => state.masterVolume);
+
+	useEffect(() => {
+		setMasterVolume(masterVolume);
+	}, []);
+
+	useEffect(() => {
+		setMasterVolume(masterVolume);
+	}, [masterVolume]);
 
 	useEffect(() => {
 		const audioContext = new (window.AudioContext ||

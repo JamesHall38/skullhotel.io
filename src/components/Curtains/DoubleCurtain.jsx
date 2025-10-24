@@ -1,10 +1,11 @@
 import { useRef, useMemo, useEffect, useCallback } from 'react';
-import { PositionalAudio, useGLTF } from '@react-three/drei';
+import { useGLTF } from '@react-three/drei';
 import { useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import useInterface from '../../hooks/useInterface';
 import useGame from '../../hooks/useGame';
-import { usePositionalSound } from '../../utils/audio';
+import usePositionalSound from '../../hooks/usePositionalSound';
+import VolumeAwarePositionalAudio from '../VolumeAwarePositionalAudio';
 import useDoor from '../../hooks/useDoor';
 import useGamepadControls from '../../hooks/useGamepadControls';
 
@@ -425,7 +426,7 @@ export default function DoubleCurtain({
 					}}
 				/>
 			</group>
-			<PositionalAudio
+			<VolumeAwarePositionalAudio
 				ref={curtainSoundRef}
 				{...curtainSound}
 				loop={false}

@@ -2,11 +2,13 @@
 	"ui": {
 		"settings": {
 			"title": "НАЛАШТУВАННЯ",
+			"general": "ЗАГАЛЬНЕ",
 			"visuals": "ГРАФІКА",
 			"sensitivity": "ЧУТЛИВІСТЬ",
 			"controls": "КЕРУВАННЯ",
 			"progress": "ПРОГРЕС",
-			"language": "МОВА",
+			"language": "Мова",
+			"masterVolume": "Головна гучність",
 			"fullscreen": "Повний екран",
 			"shadows": "Тіні",
 			"verticalSensitivity": "Вертикальна чутливість",
@@ -17,7 +19,8 @@
 			"crouch": "Присісти",
 			"jump": "Стрибок",
 			"resetProgress": "Скинути прогрес",
-			"reportBug": "Повідомити про помилку"
+			"reportBug": "Повідомити про помилку",
+			"exitGame": "ВИЙТИ З ГРИ"
 		},
 		"bugReport": {
 			"title": "ПОВІДОМИТИ ПРО ПОМИЛКУ",

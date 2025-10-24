@@ -2,11 +2,13 @@
 	"ui": {
 		"settings": {
 			"title": "INNSTILLINGER",
+			"general": "GENERELT",
 			"visuals": "GRAFIKK",
 			"sensitivity": "FØLSOMHET",
 			"controls": "KONTROLLER",
 			"progress": "FREMGANG",
-			"language": "SPRÅK",
+			"language": "Språk",
+			"masterVolume": "Hovedvolum",
 			"fullscreen": "Fullskjerm",
 			"shadows": "Skygger",
 			"verticalSensitivity": "Vertikal følsomhet",
@@ -17,7 +19,8 @@
 			"crouch": "Krype",
 			"jump": "Hoppe",
 			"resetProgress": "Nullstill fremgang",
-			"reportBug": "Rapporter feil"
+			"reportBug": "Rapporter feil",
+			"exitGame": "AVSLUTT SPILL"
 		},
 		"bugReport": {
 			"title": "RAPPORTER FEIL",

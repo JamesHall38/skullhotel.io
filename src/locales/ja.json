@@ -2,11 +2,13 @@
 	"ui": {
 		"settings": {
 			"title": "設定",
+			"general": "一般",
 			"visuals": "グラフィック",
 			"sensitivity": "感度",
 			"controls": "操作",
 			"progress": "進行状況",
 			"language": "言語",
+			"masterVolume": "マスター音量",
 			"fullscreen": "フルスクリーン",
 			"shadows": "影",
 			"verticalSensitivity": "垂直感度",
@@ -17,7 +19,8 @@
 			"crouch": "しゃがむ",
 			"jump": "ジャンプ",
 			"resetProgress": "進行状況をリセット",
-			"reportBug": "バグを報告"
+			"reportBug": "バグを報告",
+			"exitGame": "ゲームを終了"
 		},
 		"bugReport": {
 			"title": "バグ報告",

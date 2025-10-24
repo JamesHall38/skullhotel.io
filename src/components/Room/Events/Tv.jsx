@@ -4,9 +4,10 @@ import useGame from '../../../hooks/useGame';
 import useInterface from '../../../hooks/useInterface';
 import useGamepadControls from '../../../hooks/useGamepadControls';
 import DetectionZone from '../../DetectionZone';
-import { PositionalAudio, Text } from '@react-three/drei';
-import { usePositionalSound } from '../../../utils/audio';
+import { Text } from '@react-three/drei';
+import usePositionalSound from '../../../hooks/usePositionalSound';
 import useLight from '../../../hooks/useLight';
+import VolumeAwarePositionalAudio from '../../VolumeAwarePositionalAudio';
 import * as THREE from 'three';
 
 export default function Tv() {
@@ -181,7 +182,7 @@ export default function Tv() {
 					</Text>
 				</group>
 			)}
-			<PositionalAudio
+			<VolumeAwarePositionalAudio
 				ref={tvSoundRef}
 				{...whiteNoiseSound}
 				distance={0.6}

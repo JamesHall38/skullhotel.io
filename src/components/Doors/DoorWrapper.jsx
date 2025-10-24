@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState, useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
-import { PositionalAudio } from '@react-three/drei';
 import useGame from '../../hooks/useGame';
 import useInterface from '../../hooks/useInterface';
-import { usePositionalSound } from '../../utils/audio';
+import usePositionalSound from '../../hooks/usePositionalSound';
+import VolumeAwarePositionalAudio from '../VolumeAwarePositionalAudio';
 import * as THREE from 'three';
 import useGameplaySettings from '../../hooks/useGameplaySettings';
 import useGamepadControls from '../../hooks/useGamepadControls';
@@ -299,8 +299,16 @@ export default function DoorWrapper({
 			<group ref={doorRef}>
 				{hasInitialized && (
 					<group>
-						<PositionalAudio ref={openRef} {...openSound} loop={false} />
-						<PositionalAudio ref={closeRef} {...closeSound} loop={false} />
+						<VolumeAwarePositionalAudio
+							ref={openRef}
+							{...openSound}
+							loop={false}
+						/>
+						<VolumeAwarePositionalAudio
+							ref={closeRef}
+							{...closeSound}
+							loop={false}
+						/>
 					</group>
 				)}
 				<group ref={group} dispose={null}>

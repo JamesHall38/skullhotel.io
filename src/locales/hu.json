@@ -2,11 +2,13 @@
 	"ui": {
 		"settings": {
 			"title": "BEÁLLÍTÁSOK",
+			"general": "ÁLTALÁNOS",
 			"visuals": "GRAFIKA",
 			"sensitivity": "ÉRZÉKENYSÉG",
 			"controls": "IRÁNYÍTÁS",
 			"progress": "HALADÁS",
-			"language": "NYELV",
+			"language": "Nyelv",
+			"masterVolume": "Fő hangerő",
 			"fullscreen": "Teljes képernyő",
 			"shadows": "Árnyékok",
 			"verticalSensitivity": "Függőleges érzékenység",
@@ -17,7 +19,8 @@
 			"crouch": "Guggolás",
 			"jump": "Ugrás",
 			"resetProgress": "Haladás visszaállítása",
-			"reportBug": "Hiba jelentése"
+			"reportBug": "Hiba jelentése",
+			"exitGame": "KILÉPÉS A JÁTÉKBÓL"
 		},
 		"bugReport": {
 			"title": "HIBA JELENTÉSE",

@@ -2,11 +2,13 @@
 	"ui": {
 		"settings": {
 			"title": "ASETUKSET",
+			"general": "YLEINEN",
 			"visuals": "GRAFIIKKA",
 			"sensitivity": "HERKKYYS",
 			"controls": "OHJAUS",
 			"progress": "EDISTYMINEN",
-			"language": "KIELI",
+			"language": "Kieli",
+			"masterVolume": "Päääänen voimakkuus",
 			"fullscreen": "Koko näyttö",
 			"shadows": "Varjot",
 			"verticalSensitivity": "Pystyherkkyys",
@@ -17,7 +19,8 @@
 			"crouch": "Kyykisty",
 			"jump": "Hyppää",
 			"resetProgress": "Nollaa edistyminen",
-			"reportBug": "Ilmoita virheestä"
+			"reportBug": "Ilmoita virheestä",
+			"exitGame": "POISTU PELISTÄ"
 		},
 		"bugReport": {
 			"title": "ILMOITA VIRHEESTÄ",

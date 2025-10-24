@@ -2,11 +2,13 @@
 	"ui": {
 		"settings": {
 			"title": "PARAMÈTRES",
+			"general": "GÉNÉRAL",
 			"visuals": "VISUELS",
 			"sensitivity": "SENSIBILITÉ",
 			"controls": "CONTRÔLES",
 			"progress": "PROGRESSION",
-			"language": "LANGUE",
+			"language": "Langue",
+			"masterVolume": "Volume général",
 			"fullscreen": "Plein écran",
 			"shadows": "Ombres",
 			"verticalSensitivity": "Sensibilité verticale",
@@ -17,7 +19,8 @@
 			"crouch": "S'accroupir",
 			"jump": "Sauter",
 			"resetProgress": "Réinitialiser la progression",
-			"reportBug": "Signaler un bug"
+			"reportBug": "Signaler un bug",
+			"exitGame": "QUITTER LE JEU"
 		},
 		"bugReport": {
 			"title": "SIGNALER UN BUG",

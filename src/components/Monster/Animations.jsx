@@ -5,7 +5,11 @@ import useMonster from '../../hooks/useMonster';
 import useGame from '../../hooks/useGame';
 import useInterface from '../../hooks/useInterface';
 import useDoor from '../../hooks/useDoor';
-import { getAudioInstance, areSoundsLoaded } from '../../utils/audio';
+import {
+	getAudioInstance,
+	areSoundsLoaded,
+	applyMasterVolume,
+} from '../../utils/audio';
 import * as THREE from 'three';
 
 const VOLUMES = {
@@ -336,7 +340,9 @@ export default function Animations({ group, animations }) {
 				);
 				const sound = monsterStepSounds[randomIndex];
 				if (sound) {
-					sound.volume = animationName === 'Run' ? VOLUMES.run : VOLUMES.walk;
+					sound.volume = applyMasterVolume(
+						animationName === 'Run' ? VOLUMES.run : VOLUMES.walk
+					);
 
 					if (!sound.paused) {
 						sound.currentTime = 0;

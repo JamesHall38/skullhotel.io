@@ -4,7 +4,11 @@ import useMonster from '../../hooks/useMonster';
 import useLight from '../../hooks/useLight';
 import useHiding from '../../hooks/useHiding';
 import { useFrame, useThree } from '@react-three/fiber';
-import { getAudioInstance, areSoundsLoaded } from '../../utils/audio';
+import {
+	getAudioInstance,
+	areSoundsLoaded,
+	applyMasterVolume,
+} from '../../utils/audio';
 import useInterface from '../../hooks/useInterface';
 import useGameplaySettings from '../../hooks/useGameplaySettings';
 import useGame from '../../hooks/useGame';
@@ -354,7 +358,7 @@ export default function Flashlight({ playerRef, crouchProgressRef }) {
 
 		audio.pause();
 		audio.currentTime = 0;
-		audio.volume = volume;
+		audio.volume = applyMasterVolume(volume);
 
 		setTimeout(() => {
 			audio.play().catch(() => {});

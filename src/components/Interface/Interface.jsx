@@ -685,7 +685,7 @@ export default function Interface() {
 
 	useEffect(() => {
 		const handleKeyDown = (event) => {
-			if (event.key === 'Tab') {
+			if (event.key === 'Escape' || event.key === 'Tab') {
 				event.preventDefault();
 				if (isSettingsOpen) {
 					setIsSettingsOpen(false);

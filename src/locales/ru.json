@@ -2,11 +2,13 @@
 	"ui": {
 		"settings": {
 			"title": "НАСТРОЙКИ",
+			"general": "ОСНОВНОЕ",
 			"visuals": "ГРАФИКА",
 			"sensitivity": "ЧУВСТВИТЕЛЬНОСТЬ",
 			"controls": "УПРАВЛЕНИЕ",
 			"progress": "ПРОГРЕСС",
-			"language": "ЯЗЫК",
+			"language": "Язык",
+			"masterVolume": "Общая громкость",
 			"fullscreen": "Полный экран",
 			"shadows": "Тени",
 			"verticalSensitivity": "Вертикальная чувствительность",
@@ -17,7 +19,8 @@
 			"crouch": "Присесть",
 			"jump": "Прыжок",
 			"resetProgress": "Сбросить прогресс",
-			"reportBug": "Сообщить об ошибке"
+			"reportBug": "Сообщить об ошибке",
+			"exitGame": "ВЫЙТИ ИЗ ИГРЫ"
 		},
 		"bugReport": {
 			"title": "СООБЩИТЬ ОБ ОШИБКЕ",

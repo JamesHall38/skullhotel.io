@@ -1,5 +1,12 @@
 /* eslint-disable no-undef */
-const { app, BrowserWindow, protocol, Menu, ipcMain } = require('electron');
+const {
+	app,
+	BrowserWindow,
+	protocol,
+	Menu,
+	ipcMain,
+	screen,
+} = require('electron');
 const path = require('path');
 const fs = require('fs');
 const process = require('process');
@@ -106,9 +113,11 @@ function createWindow() {
 		}
 	});
 
+	const { width, height } = screen.getPrimaryDisplay().workAreaSize;
+
 	mainWindow = new BrowserWindow({
-		width: 1280,
-		height: 720,
+		width: width,
+		height: height,
 		title: 'Skull Hotel',
 		icon: path.join(
 			process.cwd(),
@@ -123,6 +132,7 @@ function createWindow() {
 			preload: path.join(__dirname, 'preload.js'),
 		},
 		autoHideMenuBar: true,
+		fullscreen: true,
 	});
 
 	const template = [
@@ -135,15 +145,6 @@ function createWindow() {
 					click: () => {
 						const isFullScreen = mainWindow.isFullScreen();
 						mainWindow.setFullScreen(!isFullScreen);
-					},
-				},
-				{
-					label: 'Exit Fullscreen',
-					accelerator: 'Escape',
-					click: () => {
-						if (mainWindow.isFullScreen()) {
-							mainWindow.setFullScreen(false);
-						}
 					},
 				},
 				{ type: 'separator' },
@@ -177,6 +178,10 @@ function createWindow() {
 	const startUrl = `file://${indexPath}`;
 
 	mainWindow.loadURL(startUrl);
+
+	mainWindow.once('ready-to-show', () => {
+		mainWindow.setFullScreen(true);
+	});
 
 	if (!isPackaged) {
 		mainWindow.webContents.openDevTools();
@@ -238,6 +243,22 @@ ipcMain.handle('steam-reset-achievement', (event, achievementId) => {
 			console.error('Failed to reset achievement:', error);
 			return false;
 		}
+	}
+	return false;
+});
+
+ipcMain.handle('toggle-fullscreen', () => {
+	if (mainWindow) {
+		const isFullScreen = mainWindow.isFullScreen();
+		mainWindow.setFullScreen(!isFullScreen);
+		return !isFullScreen;
+	}
+	return false;
+});
+
+ipcMain.handle('is-fullscreen', () => {
+	if (mainWindow) {
+		return mainWindow.isFullScreen();
 	}
 	return false;
 });

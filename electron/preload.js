@@ -8,3 +8,8 @@ contextBridge.exposeInMainWorld('steamAPI', {
 	resetAchievement: (achievementId) =>
 		ipcRenderer.invoke('steam-reset-achievement', achievementId),
 });
+
+contextBridge.exposeInMainWorld('electronAPI', {
+	toggleFullscreen: () => ipcRenderer.invoke('toggle-fullscreen'),
+	isFullscreen: () => ipcRenderer.invoke('is-fullscreen'),
+});

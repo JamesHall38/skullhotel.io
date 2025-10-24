@@ -1,12 +1,13 @@
 import { useRef, useMemo, useEffect, useCallback, useState } from 'react';
-import { useGLTF, useAnimations, PositionalAudio } from '@react-three/drei';
+import { useGLTF, useAnimations } from '@react-three/drei';
 import { useThree } from '@react-three/fiber';
 import useGame from '../../hooks/useGame';
 import useInterface from '../../hooks/useInterface';
 import useDoor from '../../hooks/useDoor';
 import * as THREE from 'three';
 import DetectionZone from '../DetectionZone';
-import { usePositionalSound } from '../../utils/audio';
+import usePositionalSound from '../../hooks/usePositionalSound';
+import VolumeAwarePositionalAudio from '../VolumeAwarePositionalAudio';
 import useGameplaySettings from '../../hooks/useGameplaySettings';
 import useGamepadControls from '../../hooks/useGamepadControls';
 
@@ -368,7 +369,7 @@ export default function Bottles() {
 					/>
 				</group>
 			</group>
-			<PositionalAudio
+			<VolumeAwarePositionalAudio
 				ref={bottleSoundRef}
 				{...usePositionalSound('bottles')}
 				loop={false}

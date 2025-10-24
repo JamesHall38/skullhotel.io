@@ -1,9 +1,10 @@
 import { useRef, useMemo, useEffect, useState, useCallback } from 'react';
-import { useGLTF, PositionalAudio } from '@react-three/drei';
+import { useGLTF } from '@react-three/drei';
 import { useFrame, useThree } from '@react-three/fiber';
 import useGame from '../../hooks/useGame';
 import useInterface from '../../hooks/useInterface';
-import { usePositionalSound } from '../../utils/audio';
+import usePositionalSound from '../../hooks/usePositionalSound';
+import VolumeAwarePositionalAudio from '../VolumeAwarePositionalAudio';
 import * as THREE from 'three';
 import DetectionZone from '../DetectionZone';
 import FabricMaterial from '../materials/FabricMaterial';
@@ -331,7 +332,7 @@ export default function Bedsheets() {
 					doubleSided={true}
 				/>
 			</group>
-			<PositionalAudio
+			<VolumeAwarePositionalAudio
 				ref={bedsheetsSoundRef}
 				{...usePositionalSound('bedsheets')}
 				loop={false}

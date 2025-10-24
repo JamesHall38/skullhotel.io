@@ -2,11 +2,13 @@
 	"ui": {
 		"settings": {
 			"title": "SETĂRI",
+			"general": "GENERAL",
 			"visuals": "GRAFICĂ",
 			"sensitivity": "SENSIBILITATE",
 			"controls": "CONTROALE",
 			"progress": "PROGRES",
-			"language": "LIMBĂ",
+			"language": "Limbă",
+			"masterVolume": "Volum general",
 			"fullscreen": "Ecran complet",
 			"shadows": "Umbre",
 			"verticalSensitivity": "Sensibilitate verticală",
@@ -17,7 +19,8 @@
 			"crouch": "Ghemuire",
 			"jump": "Salt",
 			"resetProgress": "Resetare progres",
-			"reportBug": "Raportează o eroare"
+			"reportBug": "Raportează o eroare",
+			"exitGame": "IEȘIRE DIN JOC"
 		},
 		"bugReport": {
 			"title": "RAPORTEAZĂ O EROARE",

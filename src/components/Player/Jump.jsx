@@ -9,7 +9,11 @@ import useMonster from '../../hooks/useMonster';
 import useJoysticks from '../../hooks/useJoysticks';
 import useGameplaySettings from '../../hooks/useGameplaySettings';
 import useGamepadControls from '../../hooks/useGamepadControls';
-import { getAudioInstance, areSoundsLoaded } from '../../utils/audio';
+import {
+	getAudioInstance,
+	areSoundsLoaded,
+	applyMasterVolume,
+} from '../../utils/audio';
 
 const GRID_OFFSET_Z = 150;
 const RAISED_AREA_LOW_HEIGHT = 0.5;
@@ -456,7 +460,7 @@ export default function Jump({
 							soundsReady &&
 							landingSoundRef.current
 						) {
-							landingSoundRef.current.volume = 0.5;
+							landingSoundRef.current.volume = applyMasterVolume(0.5);
 							landingSoundRef.current.currentTime = 0;
 							landingSoundRef.current.play().catch(() => {});
 						}

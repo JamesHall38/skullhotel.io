@@ -2,11 +2,13 @@
 	"ui": {
 		"settings": {
 			"title": "INSTELLINGEN",
+			"general": "ALGEMEEN",
 			"visuals": "VISUEEL",
 			"sensitivity": "GEVOELIGHEID",
 			"controls": "BESTURING",
 			"progress": "VOORTGANG",
-			"language": "TAAL",
+			"language": "Taal",
+			"masterVolume": "Hoofdvolume",
 			"fullscreen": "Volledig scherm",
 			"shadows": "Schaduwen",
 			"verticalSensitivity": "Verticale gevoeligheid",
@@ -17,7 +19,8 @@
 			"crouch": "Hurken",
 			"jump": "Springen",
 			"resetProgress": "Voortgang resetten",
-			"reportBug": "Bug melden"
+			"reportBug": "Bug melden",
+			"exitGame": "SPEL AFSLUITEN"
 		},
 		"bugReport": {
 			"title": "BUG MELDEN",

@@ -2,11 +2,13 @@
 	"ui": {
 		"settings": {
 			"title": "INSTÄLLNINGAR",
+			"general": "ALLMÄNT",
 			"visuals": "GRAFIK",
 			"sensitivity": "KÄNSLIGHET",
 			"controls": "KONTROLLER",
 			"progress": "FRAMSTEG",
-			"language": "SPRÅK",
+			"language": "Språk",
+			"masterVolume": "Huvudvolym",
 			"fullscreen": "Fullskärm",
 			"shadows": "Skuggor",
 			"verticalSensitivity": "Vertikal känslighet",
@@ -17,7 +19,8 @@
 			"crouch": "Huka",
 			"jump": "Hoppa",
 			"resetProgress": "Återställ framsteg",
-			"reportBug": "Rapportera fel"
+			"reportBug": "Rapportera fel",
+			"exitGame": "AVSLUTA SPEL"
 		},
 		"bugReport": {
 			"title": "RAPPORTERA FEL",

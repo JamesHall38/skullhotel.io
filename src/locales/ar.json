@@ -2,11 +2,13 @@
 	"ui": {
 		"settings": {
 			"title": "الإعدادات",
+			"general": "عام",
 			"visuals": "المرئيات",
 			"sensitivity": "الحساسية",
 			"controls": "التحكم",
 			"progress": "التقدم",
 			"language": "اللغة",
+			"masterVolume": "مستوى الصوت الرئيسي",
 			"fullscreen": "ملء الشاشة",
 			"shadows": "الظلال",
 			"verticalSensitivity": "الحساسية العمودية",
@@ -17,7 +19,8 @@
 			"crouch": "الانحناء",
 			"jump": "القفز",
 			"resetProgress": "إعادة تعيين التقدم",
-			"reportBug": "الإبلاغ عن خطأ"
+			"reportBug": "الإبلاغ عن خطأ",
+			"exitGame": "الخروج من اللعبة"
 		},
 		"bugReport": {
 			"title": "الإبلاغ عن خطأ",

@@ -6,7 +6,11 @@ import useGame from './useGame';
 import useDoor from './useDoor';
 import useHiding from './useHiding';
 import useSimplePathfinding from './useSimplePathfinding';
-import { getAudioInstance, areSoundsLoaded } from '../utils/audio';
+import {
+	getAudioInstance,
+	areSoundsLoaded,
+	applyMasterVolume,
+} from '../utils/audio';
 import useGameplaySettings from './useGameplaySettings';
 import useGamepadControls, { vibrateControllers } from './useGamepadControls';
 
@@ -142,7 +146,7 @@ export default function useMonsterLogic() {
 				const sound = getAudioInstance('jumpScare');
 				if (sound) {
 					jumpScareSoundRef.current = sound;
-					jumpScareSoundRef.current.volume = 1;
+					jumpScareSoundRef.current.volume = applyMasterVolume(1);
 					jumpScareSoundRef.current.loop = false;
 					setSoundsReady(true);
 				}

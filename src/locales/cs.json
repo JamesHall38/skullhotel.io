@@ -2,11 +2,13 @@
 	"ui": {
 		"settings": {
 			"title": "NASTAVENÍ",
+			"general": "OBECNÉ",
 			"visuals": "GRAFIKA",
 			"sensitivity": "CITLIVOST",
 			"controls": "OVLÁDÁNÍ",
 			"progress": "POSTUP",
-			"language": "JAZYK",
+			"language": "Jazyk",
+			"masterVolume": "Hlavní hlasitost",
 			"fullscreen": "Celá obrazovka",
 			"shadows": "Stíny",
 			"verticalSensitivity": "Vertikální citlivost",
@@ -17,7 +19,8 @@
 			"crouch": "Přikrčit se",
 			"jump": "Skočit",
 			"resetProgress": "Resetovat postup",
-			"reportBug": "Nahlásit chybu"
+			"reportBug": "Nahlásit chybu",
+			"exitGame": "UKONČIT HRU"
 		},
 		"bugReport": {
 			"title": "NAHLÁSIT CHYBU",
