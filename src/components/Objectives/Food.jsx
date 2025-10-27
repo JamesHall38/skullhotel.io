@@ -195,7 +195,12 @@ export default function Food(props) {
 				materialRef.current.needsUpdate = true;
 			}
 		}
-	}, [cleanedFoodRooms, roomNumber, isTutorialOpen, tutorialObjectives]);
+	}, [
+		cleanedFoodRooms,
+		roomNumber,
+		isTutorialOpen,
+		// , tutorialObjectives
+	]);
 
 	loadedItems.forEach((item) => {
 		const texture = item.texture;
@@ -232,6 +237,8 @@ export default function Food(props) {
 	}, [setCursor]);
 
 	useEffect(() => {
+		let timeoutId = null;
+
 		const handleProgressComplete = () => {
 			const saved = progressConditionsRef.current;
 			const currentCursor = useInterface.getState().cursor;
@@ -251,6 +258,10 @@ export default function Food(props) {
 				// 	}
 				// } catch (e) {}
 
+				timeoutId = setTimeout(() => {
+					setInterfaceObjectives(3, roomNumber);
+				}, 1000);
+
 				if (tutorialObjectives[3] === false && !recentlyChangedObjectives[3]) {
 					setTutorialObjectives([
 						tutorialObjectives[0],
@@ -259,16 +270,15 @@ export default function Food(props) {
 						true,
 						tutorialObjectives[4],
 					]);
-				} else {
-					setInterfaceObjectives(3, roomNumber);
-					const currentRoom = Object.values(useGame.getState().seedData)[
-						roomNumber
-					];
-					if (currentRoom?.hideObjective === 'food') {
-						useGame
-							.getState()
-							.checkObjectiveCompletion('food', roomNumber, camera);
-					}
+				}
+
+				const currentRoom = Object.values(useGame.getState().seedData)[
+					roomNumber
+				];
+				if (currentRoom?.hideObjective === 'food') {
+					useGame
+						.getState()
+						.checkObjectiveCompletion('food', roomNumber, camera);
 				}
 
 				try {
@@ -280,10 +290,11 @@ export default function Food(props) {
 		document.addEventListener('progressComplete', handleProgressComplete);
 		return () => {
 			document.removeEventListener('progressComplete', handleProgressComplete);
+			if (timeoutId) clearTimeout(timeoutId);
 		};
 	}, [
 		setCursor,
-		tutorialObjectives,
+		// tutorialObjectives,
 		recentlyChangedObjectives,
 		setTutorialObjectives,
 		setInterfaceObjectives,

@@ -795,7 +795,7 @@ export default function Task(props) {
 		roomNumber,
 		groups,
 		isTutorialOpen,
-		tutorialObjectives,
+		// tutorialObjectives,
 	]);
 
 	useEffect(() => {
@@ -973,6 +973,8 @@ export default function Task(props) {
 				setIsFading(true);
 				progressConditionsRef.current = null;
 
+				setInterfaceObjectives(4, roomNumber);
+
 				if (tutorialObjectives[4] === false && !recentlyChangedObjectives[4]) {
 					setTutorialObjectives([
 						tutorialObjectives[0],
@@ -981,16 +983,15 @@ export default function Task(props) {
 						tutorialObjectives[3],
 						true,
 					]);
-				} else {
-					setInterfaceObjectives(4, roomNumber);
-					const currentRoom = Object.values(useGame.getState().seedData)[
-						roomNumber
-					];
-					if (currentRoom?.hideObjective === 'task') {
-						useGame
-							.getState()
-							.checkObjectiveCompletion('task', roomNumber, camera);
-					}
+				}
+
+				const currentRoom = Object.values(useGame.getState().seedData)[
+					roomNumber
+				];
+				if (currentRoom?.hideObjective === 'task') {
+					useGame
+						.getState()
+						.checkObjectiveCompletion('task', roomNumber, camera);
 				}
 
 				try {

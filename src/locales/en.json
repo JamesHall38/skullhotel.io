@@ -117,6 +117,7 @@
 			"welcomeHousekeeper": "Welcome. You must be the new housekeeper.",
 			"closeDoors": "Always close doors behind you or they might enter while you clean the room.",
 			"bathroomWarning": "If you hear sounds from the bathroom, do not open the door.",
+			"hideImmediately": "If you hear knocking or notice the TV or radio turning on, hide.",
 			"checkRoom": "Check the entire room carefully. They might be hiding anywhere.",
 			"spotWarning": "If you spot one of them, quickly close the door and exit the room.",
 			"wellDone": "Well done! Now clean 8 rooms to call it a day.",

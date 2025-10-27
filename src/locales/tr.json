@@ -117,6 +117,7 @@
 			"welcomeHousekeeper": "Hoş geldin. Yeni temizlik görevlisi olmalısın.",
 			"closeDoors": "Odayı temizlerken onlar girebilir, bu yüzden arkandan kapıları her zaman kapat.",
 			"bathroomWarning": "Banyodan ses duyarsan kapıyı açma.",
+			"hideImmediately": "Kapı çalma sesi duyarsan veya TV ya da radyonun açıldığını fark edersen saklan.",
 			"checkRoom": "Tüm odayı dikkatli kontrol et. Her yerde saklanıyor olabilirler.",
 			"spotWarning": "Onlardan birini görürsen hızlıca kapıyı kapat ve odadan çık.",
 			"wellDone": "Aferin! Şimdi günü bitirmek için 8 oda temizle.",

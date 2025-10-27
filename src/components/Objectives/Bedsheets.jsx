@@ -140,7 +140,7 @@ export default function Bedsheets() {
 		animationMeshClone,
 		visibleMesh,
 		roomNumber,
-		tutorialObjectives,
+		// tutorialObjectives,
 		recentlyChangedObjectives,
 		setTutorialObjectives,
 		setInterfaceObjectives,
@@ -180,7 +180,12 @@ export default function Bedsheets() {
 				setVisibleMesh('End');
 			}
 		}
-	}, [objective, roomNumber, isTutorialOpen, tutorialObjectives]);
+	}, [
+		objective,
+		roomNumber,
+		isTutorialOpen,
+		// tutorialObjectives
+	]);
 
 	useEffect(() => {
 		if (mobileClick && isDetected && visibleMesh === 'Start') {
@@ -197,7 +202,6 @@ export default function Bedsheets() {
 				);
 				if (action && action.time >= action.getClip().duration - 0.1) {
 					setVisibleMesh('End');
-					if (!tutorialObjectives[1]) return;
 					setInterfaceObjectives(1, roomNumber);
 					const currentRoom = Object.values(seedData)[roomNumber];
 					if (currentRoom?.hideObjective === 'bedsheets') {
@@ -220,18 +224,6 @@ export default function Bedsheets() {
 			return;
 		}
 
-		if (tutorialObjectives[1] === false) {
-			setCursor('clean-bedsheets');
-			setIsDetected(true);
-			progressConditionsRef.current = {
-				isDetected: true,
-				objective,
-				visibleMesh,
-				cameraZ: camera.position.z,
-			};
-			return;
-		}
-
 		if (!objective && visibleMesh === 'Start') {
 			setCursor('clean-bedsheets');
 			setIsDetected(true);
@@ -242,7 +234,7 @@ export default function Bedsheets() {
 				cameraZ: camera.position.z,
 			};
 		}
-	}, [setCursor, objective, tutorialObjectives, visibleMesh, camera]);
+	}, [setCursor, objective, visibleMesh, camera]);
 
 	const handleDetectionEnd = useCallback(() => {
 		setCursor(null);

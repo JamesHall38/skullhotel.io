@@ -105,36 +105,17 @@ export default function Window() {
 
 	const handleDetection = useCallback(() => {
 		if (camera.position.x > 1.8 && camera.position.z > 3) {
-			if (roomCurtain && tutorialObjectives[2] === false) {
+			if (roomCurtain && !objective && tutorialObjectives[2] === false) {
 				setCursor('clean-window');
 				setIsDetected(true);
-				progressConditionsRef.current = {
-					isDetected: true,
-					delayedRoomCurtain: roomCurtain,
-					type,
-					number,
-				};
+				progressConditionsRef.current = { isDetected: true };
 			}
 		} else if (!objective && roomCurtain) {
 			setCursor('clean-window');
 			setIsDetected(true);
-			progressConditionsRef.current = {
-				isDetected: true,
-				delayedRoomCurtain: roomCurtain,
-				type,
-				number,
-			};
+			progressConditionsRef.current = { isDetected: true };
 		}
-	}, [
-		setCursor,
-		camera,
-		roomCurtain,
-		objective,
-		tutorialObjectives,
-		delayedRoomCurtain,
-		type,
-		number,
-	]);
+	}, [setCursor, camera, roomCurtain, objective, tutorialObjectives]);
 
 	const handleDetectionEnd = useCallback(() => {
 		setCursor(null);
@@ -147,55 +128,48 @@ export default function Window() {
 			const currentCursor = useInterface.getState().cursor;
 
 			if (savedConditions && currentCursor === 'clean-window') {
-				if (
-					savedConditions.isDetected &&
-					savedConditions.delayedRoomCurtain &&
-					!(savedConditions.type === 3 && savedConditions.number === 0)
-				) {
-					setCursor(null);
+				setCursor(null);
 
-					Object.values(actions).forEach((action) => {
-						if (!action.isRunning()) {
-							if (action && action.time !== action.getClip().duration) {
-								action.clampWhenFinished = true;
-								action.timeScale = 2;
-								action.loop = THREE.LoopOnce;
-								action.repetitions = 1;
+				Object.values(actions).forEach((action) => {
+					if (!action.isRunning()) {
+						if (action && action.time !== action.getClip().duration) {
+							action.clampWhenFinished = true;
+							action.timeScale = 2;
+							action.loop = THREE.LoopOnce;
+							action.repetitions = 1;
 
-								if (windowSoundRef.current) {
-									windowSoundRef.current.play();
-								}
-
-								action.play();
-								if (
-									tutorialObjectives[2] === false &&
-									!recentlyChangedObjectives[2]
-								) {
-									setTutorialObjectives([
-										tutorialObjectives[0],
-										tutorialObjectives[1],
-										true,
-										tutorialObjectives[3] ?? false,
-										tutorialObjectives[4] ?? false,
-									]);
-								} else {
-									setInterfaceObjectives(2, roomNumber);
-									const currentRoom = Object.values(
-										useGame.getState().seedData
-									)[roomNumber];
-									if (currentRoom?.hideObjective === 'window') {
-										useGame
-											.getState()
-											.checkObjectiveCompletion('window', roomNumber, camera);
-									}
-								}
+							if (windowSoundRef.current) {
+								windowSoundRef.current.play();
 							}
-						}
-					});
 
-					setCursor(null);
-					setIsDetected(false);
+							action.play();
+						}
+					}
+				});
+
+				setInterfaceObjectives(2, roomNumber);
+
+				if (tutorialObjectives[2] === false && !recentlyChangedObjectives[2]) {
+					setTutorialObjectives([
+						tutorialObjectives[0],
+						tutorialObjectives[1],
+						true,
+						tutorialObjectives[3] ?? false,
+						tutorialObjectives[4] ?? false,
+					]);
 				}
+
+				const currentRoom = Object.values(useGame.getState().seedData)[
+					roomNumber
+				];
+				if (currentRoom?.hideObjective === 'window') {
+					useGame
+						.getState()
+						.checkObjectiveCompletion('window', roomNumber, camera);
+				}
+
+				setCursor(null);
+				setIsDetected(false);
 				progressConditionsRef.current = null;
 			}
 		};
@@ -207,14 +181,10 @@ export default function Window() {
 		};
 	}, [
 		camera,
-		isDetected,
-		delayedRoomCurtain,
-		type,
-		number,
 		actions,
 		setInterfaceObjectives,
 		roomNumber,
-		tutorialObjectives,
+		// tutorialObjectives,
 		recentlyChangedObjectives,
 		setTutorialObjectives,
 		setCursor,
@@ -275,7 +245,12 @@ export default function Window() {
 				});
 			}
 		}
-	}, [objective, actions, isTutorialOpen, tutorialObjectives]);
+	}, [
+		objective,
+		actions,
+		isTutorialOpen,
+		// tutorialObjectives
+	]);
 
 	useEffect(() => {
 		if (deviceMode !== 'gamepad') return;

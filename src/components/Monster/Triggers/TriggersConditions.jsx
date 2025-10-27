@@ -112,6 +112,7 @@ export default function TriggersConditions({
 	const hunterTriggeredRoomsRef = useRef({});
 	const hunterDoorClosedFromOutsideRef = useRef({});
 	const openedDeskTriggeredRef = useRef({});
+	const openedDeskAnimatingRef = useRef({});
 
 	const claymoreDoorsRef = useRef({});
 
@@ -577,6 +578,7 @@ export default function TriggersConditions({
 		hunterDoorClosedFromOutsideRef.current = {};
 		claymoreDoorsRef.current = {};
 		openedDeskTriggeredRef.current = {};
+		openedDeskAnimatingRef.current = {};
 	}, [seedData]);
 
 	useFrame(({ camera, raycaster, clock }) => {
@@ -620,6 +622,7 @@ export default function TriggersConditions({
 				basicHiding(clock, camera, raycaster, 'underBed', 2);
 				break;
 			case 'bathCeiling': {
+				setMonsterState('hidden');
 				if (interfaceObjectives[playerPositionRoom]?.[0]) {
 					monsterLandmineAttack();
 					break;
@@ -785,9 +788,11 @@ export default function TriggersConditions({
 
 				if (
 					playerIsInsideZone(zoneBox, raycaster, camera) &&
-					!openedDeskTriggeredRef.current[playerPositionRoom]
+					!openedDeskTriggeredRef.current[playerPositionRoom] &&
+					!openedDeskAnimatingRef.current[playerPositionRoom]
 				) {
 					openedDeskTriggeredRef.current[playerPositionRoom] = true;
+					openedDeskAnimatingRef.current[playerPositionRoom] = true;
 
 					setUseSmoothDeskTransition(true);
 					setAnimationMixSpeed(1.25);
@@ -797,17 +802,58 @@ export default function TriggersConditions({
 					setTimeout(() => {
 						setUseSmoothDeskTransition(false);
 						setAnimationMixSpeed(5);
+						openedDeskTriggeredRef.current[playerPositionRoom] = true;
 					}, 3000);
 				}
 
-				doNotGetAnyCloser(
-					'hidden',
-					raycaster,
-					camera,
-					clock,
-					shakeIntensity,
-					true
-				);
+				const isBottomRow = playerPositionRoom >= roomCount / 2;
+				const CORRIDOR_LENGTH = 5.95;
+				const idxInRow = isBottomRow
+					? playerPositionRoom - Math.floor(roomCount / 2)
+					: playerPositionRoom;
+				const OFFSET_X = 7.5;
+				const splitX = isBottomRow
+					? OFFSET_X - CORRIDOR_LENGTH - idxInRow * CORRIDOR_LENGTH
+					: -(OFFSET_X - 5.91 + idxInRow * CORRIDOR_LENGTH);
+				const wallX = splitX;
+				const camX = camera.position.x;
+				const camZ = camera.position.z;
+				const inRoomZ = Math.abs(camZ) <= 4.5 && Math.abs(camZ) > 2;
+				const playerInBathroomX = isBottomRow ? camX > wallX : camX < wallX;
+				const isInBathroom = inRoomZ && playerInBathroomX;
+				const isBathroomDoorOpen = bathroomDoors[playerPositionRoom];
+				const isDeskAnimationDone =
+					openedDeskTriggeredRef.current[playerPositionRoom];
+
+				if (isInBathroom && isBathroomDoorOpen) {
+					if (
+						shakeCamera(
+							clock,
+							playerIsInsideZone(cameraShakingBox, raycaster, camera) &&
+								playerIsLookingAtBox(monsterBox, camera),
+							setShakeIntensity,
+							shakeIntensity,
+							true
+						) ||
+						playerIsInsideZone(instantBox, raycaster, camera)
+					) {
+						monsterLandmineAttack();
+					}
+				} else if (isDeskAnimationDone) {
+					if (
+						shakeCamera(
+							clock,
+							playerIsInsideZone(zoneBox, raycaster, camera) &&
+								playerIsLookingAtBox(monsterBox, camera),
+							setShakeIntensity,
+							shakeIntensity,
+							true
+						) ||
+						playerIsInsideZone(instantBox, raycaster, camera)
+					) {
+						monsterLandmineAttack();
+					}
+				}
 				break;
 			}
 			case 'landmineMirror':

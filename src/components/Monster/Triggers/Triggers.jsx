@@ -19,6 +19,7 @@ const BOXES_CONFIG = {
 		getInitialPosition: (seedData, room) =>
 			seedData[room]?.position || [0, 0, 0],
 		getInitialScale: (seedData, room) => seedData[room]?.scale || [1, 1, 1],
+		getInitialRotation: () => [0, 0, 0],
 		label: 'Green',
 		ref: 'zoneBox',
 	},
@@ -26,6 +27,7 @@ const BOXES_CONFIG = {
 		getInitialPosition: (seedData, room) =>
 			seedData[room]?.monsterPosition || [0, 0, 0],
 		getInitialScale: () => [2.5, 2.5, 2.5],
+		getInitialRotation: () => [0, 0, 0],
 		label: 'Red',
 		ref: 'monsterBox',
 	},
@@ -34,6 +36,7 @@ const BOXES_CONFIG = {
 			seedData[room]?.instantTriggerPosition || [0, 0, 0],
 		getInitialScale: (seedData, room) =>
 			seedData[room]?.instantTriggerScale || [1, 1, 1],
+		getInitialRotation: () => [0, 0, 0],
 		label: 'Blue',
 		ref: 'instantBox',
 	},
@@ -42,6 +45,8 @@ const BOXES_CONFIG = {
 			seedData[room]?.cameraShakingPosition || [0, 0, 0],
 		getInitialScale: (seedData, room) =>
 			seedData[room]?.cameraShakingScale || [0, 0, 0],
+		getInitialRotation: (seedData, room) =>
+			seedData[room]?.cameraShakingRotation || [0, 0, 0],
 		label: 'Yellow',
 		ref: 'cameraShakingBox',
 	},
@@ -120,6 +125,13 @@ export default function Triggers() {
 						),
 						label: `${config.label} Scale`,
 					},
+					[`${color}Rotation`]: {
+						value: config.getInitialRotation(
+							Object.values(seedData),
+							playerPositionRoom
+						),
+						label: `${config.label} Rotation`,
+					},
 				}),
 				{}
 			),
@@ -165,6 +177,10 @@ export default function Triggers() {
 						playerPositionRoom
 					),
 					[`${color}Scale`]: config.getInitialScale(
+						Object.values(seedData),
+						playerPositionRoom
+					),
+					[`${color}Rotation`]: config.getInitialRotation(
 						Object.values(seedData),
 						playerPositionRoom
 					),
@@ -337,6 +353,7 @@ export default function Triggers() {
 								position[2] + controls[`${color}Position`][2],
 							]}
 							scale={controls[`${color}Scale`]}
+							rotation={controls[`${color}Rotation`]}
 						>
 							<meshBasicMaterial
 								color={color}

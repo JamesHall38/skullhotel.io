@@ -379,18 +379,12 @@ export default function Tutorial() {
 		if (!isTutorialOpen) return;
 		if (
 			tutorialObjectives[4] === true &&
-			!bathroomTasksDialogueShownRef.current &&
-			tutorialStage === TUTORIAL_STAGE.CLOSE_NIGHTSTAND
+			!bathroomTasksDialogueShownRef.current
 		) {
 			bathroomTasksDialogueShownRef.current = true;
 			setCurrentDialogueIndex(BATHROOM_TASKS_DIALOGUE);
 		}
-	}, [
-		tutorialObjectives,
-		tutorialStage,
-		setCurrentDialogueIndex,
-		isTutorialOpen,
-	]);
+	}, [tutorialObjectives, setCurrentDialogueIndex, isTutorialOpen]);
 
 	// ===========================
 	// STEP 11: WELL_DONE - Completion of objectives
