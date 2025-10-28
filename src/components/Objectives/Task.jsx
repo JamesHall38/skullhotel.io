@@ -382,6 +382,7 @@ export default function Task(props) {
 
 	const visiblePosition = VISIBLE_POS;
 	const hiddenPosition = HIDDEN_POS;
+	const initialLoadPosition = [14.5, 0, 14.5];
 
 	const shuffleVersion = useGame((state) => state.shuffleVersion);
 	const objectives = useInterfaceStore((state) => state.interfaceObjectives);
@@ -1137,13 +1138,15 @@ export default function Task(props) {
 		return () => raf && cancelAnimationFrame(raf);
 	}, [isFading, selectedTask, groups, roomNumber, setCleanedTaskRoom, camera]);
 
+	const isInitialLoad = camera.position.x > 8;
+
 	if (isHidden) {
 		return null;
 	}
 
 	return (
 		<group ref={group} {...props} dispose={null}>
-			{!isFading && !isHidden && (
+			{!isFading && !isHidden && !isInitialLoad && (
 				<DetectionZone
 					// visible={true}
 					position={detectionZonePosition}
@@ -1162,27 +1165,43 @@ export default function Task(props) {
 						specialTransforms[key]?.position ?? visiblePosition;
 					const specialRot = specialTransforms[key]?.rotation;
 					const specialScale = specialTransforms[key]?.scale;
+
+					let groupPosition;
+					if (isInitialLoad) {
+						groupPosition = initialLoadPosition;
+					} else if (isSelected) {
+						if (specialTransforms[key]) {
+							if (key === 'Rope' && ropeDropYRef.current != null) {
+								groupPosition = [
+									specialTransforms.Rope.position[0],
+									ropeDropYRef.current,
+									specialTransforms.Rope.position[2],
+								];
+							} else {
+								groupPosition = specialPos;
+							}
+						} else {
+							groupPosition = visiblePosition;
+						}
+					} else {
+						groupPosition = hiddenPosition;
+					}
+
 					return (
 						<group
 							key={key}
 							ref={isSelected ? movingGroupRef : null}
-							position={
-								isSelected
-									? specialTransforms[key]
-										? key === 'Rope' && ropeDropYRef.current != null
-											? [
-													specialTransforms.Rope.position[0],
-													ropeDropYRef.current,
-													specialTransforms.Rope.position[2],
-											  ]
-											: specialPos
-										: visiblePosition
-									: hiddenPosition
-							}
+							position={groupPosition}
 							rotation={
-								isSelected && !isFading && specialRot ? specialRot : undefined
+								isSelected && !isFading && !isInitialLoad && specialRot
+									? specialRot
+									: undefined
 							}
-							scale={isSelected && specialScale ? specialScale : undefined}
+							scale={
+								isSelected && !isInitialLoad && specialScale
+									? specialScale
+									: undefined
+							}
 						>
 							{items.map((item, idx) => (
 								<mesh
@@ -1192,7 +1211,7 @@ export default function Task(props) {
 									material={item.material}
 								/>
 							))}
-							{isSelected && (
+							{isSelected && !isInitialLoad && (
 								<>
 									<group position={detectionZonePosition}>
 										{(key === 'Bath' ||

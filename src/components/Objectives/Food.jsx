@@ -155,6 +155,7 @@ export default function Food(props) {
 
 	const visiblePosition = [2.28, 0.615, 3.1];
 	const hiddenPosition = [0, 1000, 0];
+	const initialLoadPosition = [14.5, 0, 14.5];
 
 	const textureParts = [
 		{
@@ -237,8 +238,6 @@ export default function Food(props) {
 	}, [setCursor]);
 
 	useEffect(() => {
-		let timeoutId = null;
-
 		const handleProgressComplete = () => {
 			const saved = progressConditionsRef.current;
 			const currentCursor = useInterface.getState().cursor;
@@ -258,9 +257,7 @@ export default function Food(props) {
 				// 	}
 				// } catch (e) {}
 
-				timeoutId = setTimeout(() => {
-					setInterfaceObjectives(3, roomNumber);
-				}, 1000);
+				setInterfaceObjectives(3, roomNumber);
 
 				if (tutorialObjectives[3] === false && !recentlyChangedObjectives[3]) {
 					setTutorialObjectives([
@@ -290,7 +287,6 @@ export default function Food(props) {
 		document.addEventListener('progressComplete', handleProgressComplete);
 		return () => {
 			document.removeEventListener('progressComplete', handleProgressComplete);
-			if (timeoutId) clearTimeout(timeoutId);
 		};
 	}, [
 		setCursor,
@@ -367,13 +363,15 @@ export default function Food(props) {
 		}
 	}, [tutorialObjectives, isTutorialOpen]);
 
+	const isInitialLoad = camera.position.x > 8;
+
 	if (isHidden) {
 		return null;
 	}
 
 	return (
 		<group ref={group} {...props} dispose={null}>
-			{!isFading && !isHidden && (
+			{!isFading && !isHidden && !isInitialLoad && (
 				<DetectionZone
 					position={[
 						visiblePosition[0],
@@ -390,17 +388,26 @@ export default function Food(props) {
 			)}
 			{meshes
 				.filter((name) => nodes?.[name]?.geometry)
-				.map((name) => (
-					<mesh
-						key={name}
-						name={name}
-						// castShadow
-						receiveShadow
-						position={selectedFood === name ? visiblePosition : hiddenPosition}
-						geometry={nodes[name].geometry}
-						material={materialRef.current}
-					/>
-				))}
+				.map((name) => {
+					let position;
+					if (isInitialLoad) {
+						position = initialLoadPosition;
+					} else {
+						position = selectedFood === name ? visiblePosition : hiddenPosition;
+					}
+
+					return (
+						<mesh
+							key={name}
+							name={name}
+							// castShadow
+							receiveShadow
+							position={position}
+							geometry={nodes[name].geometry}
+							material={materialRef.current}
+						/>
+					);
+				})}
 		</group>
 	);
 }
