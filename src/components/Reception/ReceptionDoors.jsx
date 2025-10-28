@@ -177,6 +177,7 @@ export default function ReceptionDoors() {
 				}}
 				doubleRotate
 				isReceptionDoor={true}
+				preventPlayerTrapping={true}
 			>
 				<Door isHandlePressed={corridorHandle} />
 			</DoorWrapper>
@@ -192,6 +193,7 @@ export default function ReceptionDoors() {
 						setTutorialDoor(value);
 						setPlayerPositionRoom(initialPosition);
 					}}
+					preventPlayerTrapping={true}
 				>
 					<Door isHandlePressed={tutorialHandle} />
 				</DoorWrapper>

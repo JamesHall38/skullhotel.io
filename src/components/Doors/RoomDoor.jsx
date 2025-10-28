@@ -18,6 +18,7 @@ export default function RoomDoor({ roomNumber }) {
 	const isHandlePressed = useDoor((state) => state.roomDoorHandle[roomNumber]);
 	const setHandlePressed = useDoor((state) => state.setRoomDoorHandle);
 	const setPlayerPositionRoom = useGame((state) => state.setPlayerPositionRoom);
+	const isTutorialOpen = useGame((state) => state.isTutorialOpen);
 	const woodMaterial = WoodMaterial();
 	const textRef = useRef();
 
@@ -78,6 +79,9 @@ export default function RoomDoor({ roomNumber }) {
 			offset={[5.28, 0.97, 1.51]}
 			isOpen={isOpen}
 			setOpen={(value) => {
+				if (isTutorialOpen) {
+					return;
+				}
 				setOpen(roomNumber, value);
 				setPlayerPositionRoom(roomNumber);
 			}}

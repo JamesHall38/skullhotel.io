@@ -26,6 +26,7 @@ export default function DoorWrapper({
 	doubleRotate = false,
 	isNightstand = false,
 	partialOpenAngle = 0,
+	preventPlayerTrapping = false,
 }) {
 	const doorRef = useRef();
 	const group = useRef();
@@ -49,6 +50,7 @@ export default function DoorWrapper({
 	const deviceMode = useGame((state) => state.deviceMode);
 	const gamepadControlsRef = useGamepadControls();
 	const wasActionPressedRef = useRef(false);
+	const previousIsOpenRef = useRef(isOpen);
 
 	useEffect(() => {
 		endAnimationPlayingRef.current = endAnimationPlaying;
@@ -218,6 +220,17 @@ export default function DoorWrapper({
 			doorPosition.y,
 			doorPosition.z
 		).distanceTo(camera.position);
+
+		if (
+			preventPlayerTrapping &&
+			previousIsOpenRef.current &&
+			!isOpen &&
+			distance < 1.075
+		) {
+			setOpen(true);
+		}
+
+		previousIsOpenRef.current = isOpen;
 
 		if (distance < 3) {
 			if (
