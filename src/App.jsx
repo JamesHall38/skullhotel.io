@@ -21,6 +21,8 @@ import PostProcessing from './components/PostProcessing';
 import { Leva, useControls, button } from 'leva';
 
 import CustomPointerLockControls from './components/CustomPointerLockControls';
+import UnsupportedGPU from './components/Interface/UnsupportedGPU';
+import { checkGPUSupport } from './utils/gpuDetection';
 
 // Models
 import Reception from './components/Reception/Reception';
@@ -542,6 +544,8 @@ export default function AppCanvas() {
 	const setMonsterState = useMonster((state) => state.setMonsterState);
 	const playAnimation = useMonster((state) => state.playAnimation);
 
+	const gpuCheck = useMemo(() => checkGPUSupport(), []);
+
 	useEffect(() => {
 		if (isElectron()) {
 			setShadows(true);
@@ -577,6 +581,22 @@ export default function AppCanvas() {
 	);
 
 	const isDebugMode = window.location.hash.includes('#debug');
+
+	const forceGPUError = window.location.hash.includes('#test-gpu-error');
+	if (forceGPUError) {
+		return (
+			<UnsupportedGPU
+				reason="tooOld"
+				gpuInfo="Intel(R) HD Graphics 3000 (Test Mode)"
+			/>
+		);
+	}
+
+	if (!gpuCheck.isSupported) {
+		return (
+			<UnsupportedGPU reason={gpuCheck.reason} gpuInfo={gpuCheck.gpuInfo} />
+		);
+	}
 
 	return (
 		<>

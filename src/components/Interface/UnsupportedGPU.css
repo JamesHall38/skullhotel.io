@@ -1,0 +1,142 @@
+.unsupported-gpu-overlay {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background: linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: 10000;
+	padding: 20px;
+	box-sizing: border-box;
+}
+
+.unsupported-gpu-container {
+	max-width: 600px;
+	width: 100%;
+	background: rgba(30, 30, 30, 0.95);
+	border: 2px solid #ff4444;
+	border-radius: 12px;
+	padding: 40px;
+	text-align: center;
+	color: white;
+	animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+	from {
+		opacity: 0;
+		transform: translateY(-20px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+.unsupported-gpu-container h1 {
+	font-size: 28px;
+	margin: 0 0 20px 0;
+	color: #ff4444;
+	font-weight: bold;
+}
+
+.unsupported-gpu-message {
+	font-size: 18px;
+	line-height: 1.6;
+	margin: 0 0 30px 0;
+	color: #e0e0e0;
+}
+
+.unsupported-gpu-recommendations {
+	text-align: left;
+	background: rgba(0, 0, 0, 0.3);
+	padding: 20px;
+	border-radius: 8px;
+	margin-bottom: 20px;
+}
+
+.unsupported-gpu-recommendations p {
+	margin: 0 0 10px 0;
+	font-size: 16px;
+}
+
+.unsupported-gpu-recommendations ul {
+	margin: 10px 0 0 0;
+	padding-left: 20px;
+}
+
+.unsupported-gpu-recommendations li {
+	margin: 8px 0;
+	line-height: 1.5;
+}
+
+.unsupported-gpu-recommendations a {
+	color: #66b3ff;
+	text-decoration: none;
+	transition: color 0.2s;
+}
+
+.unsupported-gpu-recommendations a:hover {
+	color: #99ccff;
+	text-decoration: underline;
+}
+
+.unsupported-gpu-recommendations strong {
+	color: #ff4444;
+}
+
+.unsupported-gpu-details-toggle {
+	padding: 10px 20px;
+	background: rgba(255, 255, 255, 0.1);
+	color: white;
+	border: 1px solid rgba(255, 255, 255, 0.3);
+	border-radius: 6px;
+	cursor: pointer;
+	font-size: 14px;
+	transition: all 0.2s;
+	margin-bottom: 15px;
+}
+
+.unsupported-gpu-details-toggle:hover {
+	background: rgba(255, 255, 255, 0.15);
+	border-color: rgba(255, 255, 255, 0.5);
+}
+
+.unsupported-gpu-details {
+	text-align: left;
+	background: rgba(0, 0, 0, 0.4);
+	padding: 15px;
+	border-radius: 6px;
+	margin-top: 15px;
+	font-size: 13px;
+	font-family: 'Courier New', monospace;
+	color: #b0b0b0;
+	overflow-x: auto;
+}
+
+.unsupported-gpu-details p {
+	margin: 8px 0;
+	word-break: break-word;
+}
+
+/* Mobile responsive */
+@media (max-width: 600px) {
+	.unsupported-gpu-container {
+		padding: 30px 20px;
+	}
+
+	.unsupported-gpu-container h1 {
+		font-size: 24px;
+	}
+
+	.unsupported-gpu-message {
+		font-size: 16px;
+	}
+
+	.unsupported-gpu-icon {
+		font-size: 48px;
+	}
+}
