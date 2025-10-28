@@ -593,10 +593,10 @@ export default function AppCanvas() {
 					gl={{
 						powerPreference: 'high-performance',
 						antialias: false,
-						depth: false,
+						depth: true,
 						stencil: false,
 					}}
-					dpr={[1, 1.5]}
+					dpr={1}
 					performance={{ min: 0.5 }}
 					shadows={shadows}
 				>
