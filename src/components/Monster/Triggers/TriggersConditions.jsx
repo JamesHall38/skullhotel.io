@@ -115,6 +115,8 @@ export default function TriggersConditions({
 	const openedDeskAnimatingRef = useRef({});
 
 	const claymoreDoorsRef = useRef({});
+	const previousRoomRef = useRef(null);
+	const lastRoomKeyRef = useRef(null);
 
 	const triggerRAID = useCallback(
 		(room) => {
@@ -571,7 +573,42 @@ export default function TriggersConditions({
 		raidAttackStartedRef.current = false;
 
 		claymoreDoorsRef.current = {};
-	}, [playerPositionRoom]);
+		if (
+			previousRoomRef.current !== null &&
+			previousRoomRef.current !== playerPositionRoom &&
+			lastRoomKeyRef.current
+		) {
+			const wasHunterRoom =
+				lastRoomKeyRef.current.includes('hunter') ||
+				lastRoomKeyRef.current.includes('Hunter');
+
+			if (
+				wasHunterRoom &&
+				(monsterState === 'chase' ||
+					animationName === 'Walk' ||
+					animationName === 'CeilingCrawl')
+			) {
+				setMonsterState('hidden');
+				playAnimation('Idle');
+				setMonsterPosition([monsterPosition[0], 10, monsterPosition[2]]);
+			}
+		}
+
+		previousRoomRef.current = playerPositionRoom;
+		const currentRoomKey =
+			Object.values(seedData)[playerPositionRoom]?.baseKey ||
+			Object.keys(seedData)[playerPositionRoom];
+		lastRoomKeyRef.current = currentRoomKey;
+	}, [
+		playerPositionRoom,
+		monsterState,
+		animationName,
+		setMonsterState,
+		playAnimation,
+		setMonsterPosition,
+		monsterPosition,
+		seedData,
+	]);
 
 	useEffect(() => {
 		hunterTriggeredRoomsRef.current = {};

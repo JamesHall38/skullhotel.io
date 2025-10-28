@@ -36,7 +36,7 @@ import {
 export default function Task(props) {
 	const group = useRef();
 	const { gl } = useThree();
-	
+
 	const { nodes, materials } = useGLTF(
 		'/models/objectives/tasks.glb',
 		undefined,
@@ -50,7 +50,7 @@ export default function Task(props) {
 			loader.setKTX2Loader(ktxLoader);
 		}
 	);
-	
+
 	const { camera } = useThree();
 	const roomNumber = useGame((state) => state.playerPositionRoom);
 	const roomCount = useGameplaySettings((state) => state.roomCount);
@@ -526,14 +526,17 @@ export default function Task(props) {
 
 	const fliesSoundRef = useRef();
 	const faucetSoundRef = useRef();
+	const fliesFadingRef = useRef(false);
+	const faucetFadingRef = useRef(false);
+
+	const AUDIO_FADE_DURATION_MS = 1000;
+	const AUDIO_FADE_INTERVAL_MS = 30;
+	const AUDIO_FADE_STEPS = AUDIO_FADE_DURATION_MS / AUDIO_FADE_INTERVAL_MS;
+	const AUDIO_FADE_STEP_SIZE = 1 / AUDIO_FADE_STEPS;
 
 	// Non-positional HTML audio refs
 	const cleaningHtmlRef = useRef(null);
 	const closingFaucetHtmlRef = useRef(null);
-	const faucetDefaultVolumeRef = useRef(1);
-	const fliesDefaultVolumeRef = useRef(1);
-	const fliesFadeRafRef = useRef(null);
-	const faucetFadeRafRef = useRef(null);
 
 	const fliesSound = usePositionalSound('flies');
 	const faucetSound = usePositionalSound('faucet');
@@ -626,8 +629,7 @@ export default function Task(props) {
 
 			const bathCondition =
 				inRoomZ && playerInBathroomX && (curtainOpen || isPlayerHidden);
-			const sinkLikeCondition =
-				(inRoomZ && playerInBathroomX) || (doorOpen && playerInRoomCorridor);
+			const sinkLikeCondition = inRoomZ && playerInBathroomX;
 
 			const faucetAllowed =
 				!isHidden &&
@@ -636,36 +638,39 @@ export default function Task(props) {
 					(selectedTask === 'SinkWater' && sinkLikeCondition));
 			if (faucetSoundRef.current) {
 				const a = faucetSoundRef.current;
-				if (a.setVolume && a.getVolume) {
-					if (!faucetDefaultVolumeRef.current) {
-						faucetDefaultVolumeRef.current = a.getVolume();
+				a.loop = true;
+				if (faucetAllowed) {
+					faucetFadingRef.current = false;
+					if (!a.isPlaying && a.play) {
+						a.play();
+						if (a.setRefDistance) {
+							a.setRefDistance(0.01);
+							let dist = 0.01;
+							const fadeIn = setInterval(() => {
+								dist += AUDIO_FADE_STEP_SIZE;
+								if (dist >= 1) {
+									dist = 1;
+									clearInterval(fadeIn);
+								}
+								if (a.setRefDistance) a.setRefDistance(dist);
+							}, AUDIO_FADE_INTERVAL_MS);
+						}
 					}
-					const targetVol = faucetAllowed ? faucetDefaultVolumeRef.current : 0;
-					const step = () => {
-						try {
-							const current = a.getVolume();
-							const diff = targetVol - current;
-							const delta = Math.sign(diff) * Math.min(Math.abs(diff), 0.02);
-							const next = Math.max(0, Math.min(1, current + delta));
-							a.setVolume(next);
-							if (faucetAllowed) {
-								if (!a.isPlaying && a.play) a.play();
-							} else if (next <= 0.001 && a.isPlaying && a.stop) {
-								a.stop();
+				} else if (a.isPlaying && a.stop && !faucetFadingRef.current) {
+					faucetFadingRef.current = true;
+					if (a.setRefDistance) {
+						let dist = 1;
+						const fadeOut = setInterval(() => {
+							dist -= AUDIO_FADE_STEP_SIZE;
+							if (dist <= 0.01) {
+								dist = 0.01;
+								clearInterval(fadeOut);
+								if (a.stop) a.stop();
+								faucetFadingRef.current = false;
 							}
-							if (Math.abs(diff) > 0.005) {
-								faucetFadeRafRef.current = requestAnimationFrame(step);
-							}
-						} catch (e) {}
-					};
-					if (faucetFadeRafRef.current)
-						cancelAnimationFrame(faucetFadeRafRef.current);
-					faucetFadeRafRef.current = requestAnimationFrame(step);
-				} else {
-					a.loop = true;
-					if (faucetAllowed) {
-						if (!a.isPlaying && a.play) a.play();
-					} else if (a.isPlaying && a.stop) {
+							if (a.setRefDistance) a.setRefDistance(dist);
+						}, AUDIO_FADE_INTERVAL_MS);
+					} else {
 						a.stop();
 					}
 				}
@@ -679,36 +684,39 @@ export default function Task(props) {
 						sinkLikeCondition));
 			if (fliesSoundRef.current) {
 				const a = fliesSoundRef.current;
-				if (a.setVolume && a.getVolume) {
-					if (!fliesDefaultVolumeRef.current) {
-						fliesDefaultVolumeRef.current = a.getVolume();
+				a.loop = true;
+				if (fliesAllowed) {
+					fliesFadingRef.current = false;
+					if (!a.isPlaying && a.play) {
+						a.play();
+						if (a.setRefDistance) {
+							a.setRefDistance(0.01);
+							let dist = 0.01;
+							const fadeIn = setInterval(() => {
+								dist += AUDIO_FADE_STEP_SIZE;
+								if (dist >= 1) {
+									dist = 1;
+									clearInterval(fadeIn);
+								}
+								if (a.setRefDistance) a.setRefDistance(dist);
+							}, AUDIO_FADE_INTERVAL_MS);
+						}
 					}
-					const targetVol = fliesAllowed ? fliesDefaultVolumeRef.current : 0;
-					const step = () => {
-						try {
-							const current = a.getVolume();
-							const diff = targetVol - current;
-							const delta = Math.sign(diff) * Math.min(Math.abs(diff), 0.02);
-							const next = Math.max(0, Math.min(1, current + delta));
-							a.setVolume(next);
-							if (fliesAllowed) {
-								if (!a.isPlaying && a.play) a.play();
-							} else if (next <= 0.001 && a.isPlaying && a.stop) {
-								a.stop();
+				} else if (a.isPlaying && a.stop && !fliesFadingRef.current) {
+					fliesFadingRef.current = true;
+					if (a.setRefDistance) {
+						let dist = 1;
+						const fadeOut = setInterval(() => {
+							dist -= AUDIO_FADE_STEP_SIZE;
+							if (dist <= 0.01) {
+								dist = 0.01;
+								clearInterval(fadeOut);
+								if (a.stop) a.stop();
+								fliesFadingRef.current = false;
 							}
-							if (Math.abs(diff) > 0.005) {
-								fliesFadeRafRef.current = requestAnimationFrame(step);
-							}
-						} catch (e) {}
-					};
-					if (fliesFadeRafRef.current)
-						cancelAnimationFrame(fliesFadeRafRef.current);
-					fliesFadeRafRef.current = requestAnimationFrame(step);
-				} else {
-					a.loop = true;
-					if (fliesAllowed) {
-						if (!a.isPlaying && a.play) a.play();
-					} else if (a.isPlaying && a.stop) {
+							if (a.setRefDistance) a.setRefDistance(dist);
+						}, AUDIO_FADE_INTERVAL_MS);
+					} else {
 						a.stop();
 					}
 				}
@@ -823,8 +831,8 @@ export default function Task(props) {
 					if (a.isPlaying && a.stop) {
 						a.stop();
 					}
-					if (a.setVolume) {
-						a.setVolume(0);
+					if (a.gain && a.gain.gain) {
+						a.gain.gain.value = 0;
 					}
 				} catch (e) {}
 			}
@@ -835,19 +843,10 @@ export default function Task(props) {
 					if (a.isPlaying && a.stop) {
 						a.stop();
 					}
-					if (a.setVolume) {
-						a.setVolume(0);
+					if (a.gain && a.gain.gain) {
+						a.gain.gain.value = 0;
 					}
 				} catch (e) {}
-			}
-
-			if (fliesFadeRafRef.current) {
-				cancelAnimationFrame(fliesFadeRafRef.current);
-				fliesFadeRafRef.current = null;
-			}
-			if (faucetFadeRafRef.current) {
-				cancelAnimationFrame(faucetFadeRafRef.current);
-				faucetFadeRafRef.current = null;
 			}
 		}
 	}, [isHidden]);
@@ -870,15 +869,6 @@ export default function Task(props) {
 						a.stop();
 					}
 				} catch (e) {}
-			}
-
-			if (fliesFadeRafRef.current) {
-				cancelAnimationFrame(fliesFadeRafRef.current);
-				fliesFadeRafRef.current = null;
-			}
-			if (faucetFadeRafRef.current) {
-				cancelAnimationFrame(faucetFadeRafRef.current);
-				faucetFadeRafRef.current = null;
 			}
 		};
 	}, [selectedTask, roomNumber]);
@@ -962,24 +952,9 @@ export default function Task(props) {
 					try {
 						if (faucetSoundRef.current) {
 							const a = faucetSoundRef.current;
-							const targetVol = 0;
-							const step = () => {
-								try {
-									const current = a.getVolume ? a.getVolume() : 0;
-									const diff = targetVol - current;
-									const delta = Math.sign(diff) * Math.min(Math.abs(diff), 0.1);
-									const next = Math.max(0, Math.min(1, current + delta));
-									if (a.setVolume) a.setVolume(next);
-									if (Math.abs(diff) > 0.001) {
-										faucetFadeRafRef.current = requestAnimationFrame(step);
-									} else if (a.isPlaying && a.stop) {
-										a.stop();
-									}
-								} catch (e) {}
-							};
-							if (faucetFadeRafRef.current)
-								cancelAnimationFrame(faucetFadeRafRef.current);
-							faucetFadeRafRef.current = requestAnimationFrame(step);
+							if (a.isPlaying && a.stop) {
+								a.stop();
+							}
 						}
 						closingFaucetHtmlRef.current && closingFaucetHtmlRef.current.play();
 					} catch (e) {}
