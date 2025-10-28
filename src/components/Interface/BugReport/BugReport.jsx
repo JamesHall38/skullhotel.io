@@ -45,6 +45,10 @@ export default function BugReport({ onClose }) {
 				isMobile: /Mobi|Android|iPhone/i.test(navigator.userAgent),
 			};
 
+			if (!isElectronEnvironment()) {
+				deviceInfo.url = window.location.href;
+			}
+
 			await addBugReport(description, getConsoleMessages(), deviceInfo);
 			setSubmitSuccess(true);
 			playMenuSound();
@@ -67,15 +71,37 @@ export default function BugReport({ onClose }) {
 		}
 	};
 
+	const isElectronEnvironment = () => {
+		if (window.electron && window.electron.isElectron) {
+			return true;
+		}
+
+		const consoleLogs = getConsoleMessages();
+		const hasFileProtocolErrors = consoleLogs.some((log) =>
+			log.includes('file:///')
+		);
+
+		return hasFileProtocolErrors;
+	};
+
 	const getPlatformInfo = () => {
-		if (window.electron) {
+		if (isElectronEnvironment() && window.electron) {
 			return {
-				type: 'Desktop',
-				environment: 'Electron',
-				version: window.electron.versions.electron,
-				chrome: window.electron.versions.chrome,
+				type: 'Electron',
+				environment: 'Electron/Steam',
+				electronVersion: window.electron.versions.electron,
+				chromeVersion: window.electron.versions.chrome,
+				nodeVersion: window.electron.versions.node,
 				platform: window.electron.platform,
 				arch: window.electron.arch,
+			};
+		}
+
+		if (isElectronEnvironment()) {
+			return {
+				type: 'Electron',
+				environment: 'Electron/Steam (legacy detection)',
+				note: 'Detected via file:/// protocol in console logs',
 			};
 		}
 

@@ -12,7 +12,10 @@ service cloud.firestore {
         request.resource.data.consoleLogs is list &&
         
         request.resource.data.deviceInfo is map &&
-        request.resource.data.deviceInfo.type in ['Desktop', 'Browser'] &&
+        request.resource.data.deviceInfo.type in ['Desktop', 'Browser', 'Electron'] &&
+        
+        (!('url' in request.resource.data.deviceInfo) || 
+         request.resource.data.deviceInfo.url is string) &&
         
         request.resource.data.createdAt == request.time;
         
