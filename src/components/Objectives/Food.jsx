@@ -411,5 +411,3 @@ export default function Food(props) {
 		</group>
 	);
 }
-
-useGLTF.preload('/models/objectives/food.glb');
