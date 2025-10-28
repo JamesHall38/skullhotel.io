@@ -7,6 +7,7 @@ import React, {
 } from 'react';
 import { useGLTF } from '@react-three/drei';
 import { useThree } from '@react-three/fiber';
+import { KTX2Loader } from 'three/examples/jsm/loaders/KTX2Loader';
 import { useControls } from 'leva';
 import useProgressiveLoad from '../../hooks/useProgressiveLoad';
 import useGame from '../../hooks/useGame';
@@ -34,7 +35,22 @@ import {
 
 export default function Task(props) {
 	const group = useRef();
-	const { nodes, materials } = useGLTF('/models/objectives/tasks.glb');
+	const { gl } = useThree();
+	
+	const { nodes, materials } = useGLTF(
+		'/models/objectives/tasks.glb',
+		undefined,
+		undefined,
+		(loader) => {
+			const ktxLoader = new KTX2Loader();
+			ktxLoader.setTranscoderPath(
+				'https://cdn.jsdelivr.net/gh/pmndrs/drei-assets/basis/'
+			);
+			ktxLoader.detectSupport(gl);
+			loader.setKTX2Loader(ktxLoader);
+		}
+	);
+	
 	const { camera } = useThree();
 	const roomNumber = useGame((state) => state.playerPositionRoom);
 	const roomCount = useGameplaySettings((state) => state.roomCount);

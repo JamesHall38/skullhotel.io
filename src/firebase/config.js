@@ -14,6 +14,14 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
-const analytics = getAnalytics(app);
+
+let analytics = null;
+if (typeof window !== 'undefined' && firebaseConfig.measurementId) {
+	try {
+		analytics = getAnalytics(app);
+	} catch (error) {
+		console.warn('Analytics initialization failed:', error);
+	}
+}
 
 export { db, analytics };

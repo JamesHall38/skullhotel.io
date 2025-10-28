@@ -18,7 +18,6 @@ import useGridStore from './hooks/useGrid';
 import useLight from './hooks/useLight';
 import PostProcessing from './components/PostProcessing';
 
-import { Perf } from 'r3f-perf';
 import { Leva, useControls, button } from 'leva';
 
 import CustomPointerLockControls from './components/CustomPointerLockControls';
@@ -556,9 +555,8 @@ export default function AppCanvas() {
 		playAnimation('Run');
 	}, [setMonsterState, playAnimation]);
 
-	const { perfVisible } = useControls(
+	useControls(
 		{
-			perfVisible: { value: false, label: 'Show performances' },
 			'Reset game': button(() => {
 				regenerateData();
 				resetGame();
@@ -602,7 +600,6 @@ export default function AppCanvas() {
 					performance={{ min: 0.5 }}
 					shadows={shadows}
 				>
-					{perfVisible ? <Perf position="top-left" /> : null}
 					<ShadowManager />
 					<App />
 					<PostProcessing />
