@@ -132,12 +132,23 @@ export default function Food(props) {
 		return choose(preferUnseen(groupArr), `food-g${groupIndex}`);
 	}, [seededIndex, foodGroups, getFoodGroup]);
 
-	const selectedFood = useMemo(() => {
+	const computedFood = useMemo(() => {
 		if (foodOverrideName) {
 			return foodOverrideName;
 		}
 		return autoSelectedFood;
-	}, [roomNumber, foodOverrideName, autoSelectedFood]);
+	}, [foodOverrideName, autoSelectedFood]);
+
+	const [selectedFood, setSelectedFood] = useState(computedFood);
+	const computedFoodRef = useRef(computedFood);
+
+	useEffect(() => {
+		computedFoodRef.current = computedFood;
+	}, [computedFood]);
+
+	useEffect(() => {
+		setSelectedFood(computedFoodRef.current);
+	}, [roomNumber]);
 
 	useEffect(() => {
 		if (!bakedTexture) return;

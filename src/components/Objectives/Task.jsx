@@ -492,7 +492,7 @@ export default function Task(props) {
 		return choose(preferUnseen(group3Keys), 'task-g3');
 	}, [seededIndex, options, getTaskGroup]);
 
-	const selectedTask = useMemo(() => {
+	const computedTask = useMemo(() => {
 		if (isTutorialOpen) {
 			return 'FloorSplatter';
 		}
@@ -500,7 +500,18 @@ export default function Task(props) {
 			return taskOverrideKey;
 		}
 		return autoSelectedTask;
-	}, [roomNumber, taskOverrideKey, autoSelectedTask, isTutorialOpen]);
+	}, [taskOverrideKey, autoSelectedTask, isTutorialOpen]);
+
+	const [selectedTask, setSelectedTask] = useState(computedTask);
+	const computedTaskRef = useRef(computedTask);
+
+	useEffect(() => {
+		computedTaskRef.current = computedTask;
+	}, [computedTask]);
+
+	useEffect(() => {
+		setSelectedTask(computedTaskRef.current);
+	}, [roomNumber]);
 
 	const detectionZonePosition = useMemo(() => {
 		if (selectedTask && specialTransforms[selectedTask]) {
