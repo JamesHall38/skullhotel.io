@@ -392,6 +392,7 @@ const levelData = {
 		type: 'claymore',
 		monsterPosition: [0, 0, 10],
 		monsterInitialPosition: [1.52, 0, 6.3],
+		monsterInitialRotation: [0, 0, 0],
 		animation: 'Crouch',
 		lookAtPoint: [1.52, 0, 6.3],
 	},

@@ -924,6 +924,7 @@ export default function TriggersConditions({
 				if (monsterState !== 'facingCamera') {
 					setMonsterState('facingCamera');
 				}
+				setMonsterPosition([monsterPosition[0], 0, monsterPosition[2]]);
 				closeTheDoorQuickly(roomCurtains[playerPositionRoom], clock);
 				break;
 			case 'claymoreBath':
@@ -974,6 +975,7 @@ export default function TriggersConditions({
 				if (monsterState !== 'facingCamera') {
 					setMonsterState('facingCamera');
 				}
+				setMonsterPosition([monsterPosition[0], 0, monsterPosition[2]]);
 				closeTheDoorQuickly(bathroomDoors[playerPositionRoom], clock, roomKey);
 				break;
 			case 'hunterLivingRoom':
