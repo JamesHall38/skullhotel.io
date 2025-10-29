@@ -420,21 +420,14 @@ export default function Instructions({ stageInfo = {} }) {
 	const tutorialObjectives = useInterfaceStore(
 		(state) => state.tutorialObjectives
 	);
-	const tutorialResetTrigger = useInterfaceStore(
-		(state) => state.tutorialResetTrigger
+	const hasEverCompletedTutorial = useInterfaceStore(
+		(state) => state.hasEverCompletedTutorial
 	);
 	const tutorial = useDoorStore((state) => state.tutorial);
 	const bathroomCurtain = useDoorStore((state) => state.bathroomCurtain);
 	const roomCurtain = useDoorStore((state) => state.roomCurtain);
 	const arrowRefs = useRef([null, null, null, null, null]);
-	const shownInstructions = useRef(new Set());
 	const { t } = useLocalization();
-
-	useEffect(() => {
-		if (tutorialResetTrigger > 0) {
-			shownInstructions.current.clear();
-		}
-	}, [tutorialResetTrigger]);
 
 	const arrowBaseY = useRef({});
 
@@ -470,16 +463,21 @@ export default function Instructions({ stageInfo = {} }) {
 						.toUpperCase()}${instruction.category?.slice(1)}`
 				];
 
-			if (instruction.category && !shouldShowCategory) {
-				return null;
-			}
+			if (instruction.category === 'movement' && instruction.isTutorial) {
+				if (hasEverCompletedTutorial) {
+					return null;
+				}
+				if (tutorial) {
+					return null;
+				}
+			} else {
+				if (instruction.category && !shouldShowCategory) {
+					return null;
+				}
 
-			if (
-				instruction.isTutorial &&
-				(tutorial || shownInstructions.current.has(index))
-			) {
-				shownInstructions.current.add(index);
-				return null;
+				if (instruction.isTutorial && tutorial) {
+					return null;
+				}
 			}
 
 			if (
@@ -498,7 +496,6 @@ export default function Instructions({ stageInfo = {} }) {
 			}
 
 			if (instruction.type === 'text') {
-				// Get the text content - either translated or raw
 				const textContent = instruction.isTranslatable
 					? t(instruction.content)
 					: instruction.content;
@@ -556,7 +553,7 @@ export default function Instructions({ stageInfo = {} }) {
 			textMaterial,
 			stageInfo,
 			t,
-			tutorialResetTrigger,
+			hasEverCompletedTutorial,
 		]
 	);
 

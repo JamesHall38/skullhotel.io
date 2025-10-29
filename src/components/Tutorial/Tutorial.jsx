@@ -167,7 +167,6 @@ export default function Tutorial() {
 	// ===========================
 	const TRIGGER_X_POSITION = 7.5;
 	useFrame(({ camera }) => {
-		if (!isTutorialOpen) return;
 		if (hasTriggered.current || tutorialStage !== TUTORIAL_STAGE.INTRO) {
 			return;
 		}
@@ -179,11 +178,10 @@ export default function Tutorial() {
 	});
 
 	useEffect(() => {
-		if (!isTutorialOpen) return;
 		if (triggerStep2 && tutorialStage === TUTORIAL_STAGE.INTRO) {
 			setTutorialStage(TUTORIAL_STAGE.INTERACT);
 		}
-	}, [triggerStep2, tutorialStage, isTutorialOpen]);
+	}, [triggerStep2, tutorialStage]);
 
 	// ===========================
 	// STEP 3: CLOSE_DOOR - Close the door behind you
