@@ -1,5 +1,4 @@
 const { contextBridge, ipcRenderer } = require('electron');
-const os = require('os');
 
 contextBridge.exposeInMainWorld('steamAPI', {
 	gameCompleted: () => ipcRenderer.invoke('steam-game-completed'),
@@ -13,6 +12,14 @@ contextBridge.exposeInMainWorld('steamAPI', {
 contextBridge.exposeInMainWorld('electronAPI', {
 	toggleFullscreen: () => ipcRenderer.invoke('toggle-fullscreen'),
 	isFullscreen: () => ipcRenderer.invoke('is-fullscreen'),
+	onFullscreenChanged: (callback) => {
+		ipcRenderer.on('fullscreen-changed', (event, isFullscreen) => {
+			callback(isFullscreen);
+		});
+	},
+	removeFullscreenListener: () => {
+		ipcRenderer.removeAllListeners('fullscreen-changed');
+	},
 });
 
 contextBridge.exposeInMainWorld('electron', {
@@ -23,6 +30,6 @@ contextBridge.exposeInMainWorld('electron', {
 		node: process.versions.node,
 		v8: process.versions.v8,
 	},
-	platform: os.platform(),
-	arch: os.arch(),
+	platform: process.platform,
+	arch: process.arch,
 });

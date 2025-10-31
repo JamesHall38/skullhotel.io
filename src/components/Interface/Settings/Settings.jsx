@@ -66,7 +66,10 @@ export default function Settings({ loading }) {
 	const { t, currentLanguage, setLanguage } = useLocalization();
 
 	const [focusedElement, setFocusedElement] = useState(0);
-	const [isFullscreen, setIsFullscreen] = useState(false);
+	const [isFullscreen, setIsFullscreen] = useState(() => {
+		const electronDetected = isElectron();
+		return electronDetected ? true : false;
+	});
 	const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 	const [dropdownSelectedIndex, setDropdownSelectedIndex] = useState(0);
 	const [showBugReport, setShowBugReport] = useState(false);
@@ -439,35 +442,34 @@ export default function Settings({ loading }) {
 	]);
 
 	useEffect(() => {
-		const updateFullscreenState = async () => {
-			if (isElectron() && window.electronAPI) {
-				const fullscreenState = await window.electronAPI.isFullscreen();
+		if (isElectron() && window.electronAPI?.onFullscreenChanged) {
+			window.electronAPI.onFullscreenChanged((fullscreenState) => {
 				setIsFullscreen(fullscreenState);
-			} else {
+			});
+		} else {
+			const updateFullscreenState = () => {
 				setIsFullscreen(!!document.fullscreenElement);
-			}
-		};
+			};
 
-		updateFullscreenState();
-
-		const handleFullscreenChange = () => {
 			updateFullscreenState();
-		};
 
-		if (!isElectron()) {
+			const handleFullscreenChange = () => {
+				setIsFullscreen(!!document.fullscreenElement);
+			};
 			document.addEventListener('fullscreenchange', handleFullscreenChange);
-		}
 
-		const interval = setInterval(updateFullscreenState, 500);
-
-		return () => {
-			if (!isElectron()) {
+			return () => {
 				document.removeEventListener(
 					'fullscreenchange',
 					handleFullscreenChange
 				);
+			};
+		}
+
+		return () => {
+			if (isElectron() && window.electronAPI?.removeFullscreenListener) {
+				window.electronAPI.removeFullscreenListener();
 			}
-			clearInterval(interval);
 		};
 	}, []);
 

@@ -31,6 +31,12 @@ try {
 	steamworks = require('steamworks.js');
 	steamworks.electronEnableSteamOverlay(true);
 	steamClient = steamworks.init(3739730);
+
+	setInterval(() => {
+		if (steamClient && steamClient.runCallbacks) {
+			steamClient.runCallbacks();
+		}
+	}, 100);
 } catch (e) {
 	console.warn('Steamworks initialization failed:', e);
 }
@@ -166,11 +172,17 @@ function createWindow() {
 
 	mainWindow.on('enter-full-screen', () => {
 		mainWindow.setMenuBarVisibility(false);
+		if (mainWindow && mainWindow.webContents) {
+			mainWindow.webContents.send('fullscreen-changed', true);
+		}
 	});
 
 	mainWindow.on('leave-full-screen', () => {
 		mainWindow.setAutoHideMenuBar(true);
 		mainWindow.setMenuBarVisibility(false);
+		if (mainWindow && mainWindow.webContents) {
+			mainWindow.webContents.send('fullscreen-changed', false);
+		}
 	});
 
 	const indexPath = path.join(getBasePath(), 'index.html');
@@ -180,7 +192,14 @@ function createWindow() {
 	mainWindow.loadURL(startUrl);
 
 	mainWindow.once('ready-to-show', () => {
-		mainWindow.setFullScreen(true);
+		if (!mainWindow.isFullScreen()) {
+			mainWindow.setFullScreen(true);
+		}
+		setTimeout(() => {
+			if (mainWindow && mainWindow.webContents) {
+				mainWindow.webContents.send('fullscreen-changed', true);
+			}
+		}, 100);
 	});
 
 	if (!isPackaged) {
@@ -200,6 +219,9 @@ const unlockAchievement = (achievementId) => {
 	) {
 		try {
 			steamClient.achievement.activate(achievementId);
+			if (steamClient.runCallbacks) {
+				steamClient.runCallbacks();
+			}
 			return true;
 		} catch (error) {
 			console.error('Failed to unlock achievement:', error);
@@ -231,9 +253,15 @@ ipcMain.handle('steam-reset-achievement', (event, achievementId) => {
 		try {
 			if (steamClient.achievement && steamClient.achievement.clear) {
 				steamClient.achievement.clear(achievementId);
+				if (steamClient.runCallbacks) {
+					steamClient.runCallbacks();
+				}
 				return true;
 			} else if (steamClient.clearAchievement) {
 				steamClient.clearAchievement(achievementId);
+				if (steamClient.runCallbacks) {
+					steamClient.runCallbacks();
+				}
 				return true;
 			} else {
 				console.warn('No reset methods found in steam client');
