@@ -68,6 +68,8 @@ export default function Reception(props) {
 		const time = state.clock.elapsedTime;
 		const { camera } = state;
 
+		if (!camera || !camera.position || !camera.getWorldDirection) return;
+
 		if (guestBookArrowRef.current) {
 			guestBookArrowRef.current.position.y = 1.2 + Math.sin(time * 2) * 0.05;
 		}

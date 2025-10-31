@@ -25,6 +25,9 @@ export default function DetectionZone(props) {
 	);
 
 	const checkProximityAndVisibility = (camera) => {
+		if (!camera || !camera.getWorldPosition || !camera.getWorldDirection) {
+			return 0;
+		}
 		const cameraPosition = new THREE.Vector3();
 		camera.getWorldPosition(cameraPosition);
 		const raycaster = new THREE.Raycaster();
@@ -39,6 +42,8 @@ export default function DetectionZone(props) {
 	let frameCount = 0;
 
 	useFrame(() => {
+		if (!camera) return;
+
 		frameCount++;
 		if (frameCount % 10 === 0) {
 			const detected = checkProximityAndVisibility(camera);

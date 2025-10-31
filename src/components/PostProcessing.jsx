@@ -342,6 +342,8 @@ const PostProcessing = () => {
 	});
 
 	useFrame(({ camera }, delta) => {
+		if (!camera || !camera.quaternion || !camera.lookAt) return;
+
 		if (useGame.getState().isCameraLocked) {
 			const targetLookAt = new THREE.Vector3(10.77, 1.5, 100);
 

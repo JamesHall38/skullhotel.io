@@ -211,6 +211,9 @@ export default function DoubleCurtain({
 
 	const checkProximityAndVisibility = useCallback(
 		(camera) => {
+			if (!camera || !camera.getWorldPosition || !camera.getWorldDirection) {
+				return false;
+			}
 			const cameraPosition = new THREE.Vector3();
 			camera.getWorldPosition(cameraPosition);
 			const raycaster = new THREE.Raycaster();
@@ -228,6 +231,8 @@ export default function DoubleCurtain({
 	);
 
 	useFrame(() => {
+		if (!camera || !camera.position) return;
+
 		instantChangeRef.current =
 			Math.abs(camera.position.x) < 1 || isJustAfterDoorChangeRef.current;
 

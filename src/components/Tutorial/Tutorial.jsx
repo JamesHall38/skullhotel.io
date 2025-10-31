@@ -167,6 +167,8 @@ export default function Tutorial() {
 	// ===========================
 	const TRIGGER_X_POSITION = 7.5;
 	useFrame(({ camera }) => {
+		if (!camera || !camera.position) return;
+
 		if (hasTriggered.current || tutorialStage !== TUTORIAL_STAGE.INTRO) {
 			return;
 		}
@@ -188,6 +190,7 @@ export default function Tutorial() {
 	// ===========================
 	const TRIGGER_Z_POSITION = 3;
 	useFrame(({ camera }) => {
+		if (!camera || !camera.position) return;
 		if (!isTutorialOpen) return;
 		if (
 			tutorialStage === TUTORIAL_STAGE.INTERACT &&
@@ -208,6 +211,7 @@ export default function Tutorial() {
 	// STEP 4: DOOR_CLOSED - Confirmation after door is closed
 	// ===========================
 	useFrame(({ camera }) => {
+		if (!camera || !camera.position) return;
 		if (!isTutorialOpen) return;
 		if (
 			tutorialStage === TUTORIAL_STAGE.CLOSE_DOOR &&

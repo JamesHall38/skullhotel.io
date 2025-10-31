@@ -135,7 +135,6 @@ const CustomPointerLockControls = forwardRef((props, ref) => {
 		};
 
 		const handlePointerLockError = (event) => {
-			console.error('Pointer lock error:', event);
 			isRequestingLockRef.current = false;
 			emitEvent('error');
 		};

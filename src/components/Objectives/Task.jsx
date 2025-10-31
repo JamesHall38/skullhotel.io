@@ -1057,11 +1057,14 @@ export default function Task(props) {
 		if (isSpider) {
 			let raf;
 			const obj = movingGroupRef.current;
-			if (!obj || !obj.parent) return;
+			if (!obj || !obj.parent || !camera || !camera.getWorldPosition) return;
 			const previousShake = shakeIntensity;
 			setShakeIntensity(Math.max(previousShake, 2));
 
 			const step = () => {
+				if (!camera || !camera.getWorldPosition) {
+					return;
+				}
 				const currentWorld = new THREE.Vector3();
 				obj.getWorldPosition(currentWorld);
 				const cameraWorld = new THREE.Vector3();

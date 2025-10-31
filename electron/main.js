@@ -191,6 +191,10 @@ function createWindow() {
 
 	mainWindow.loadURL(startUrl);
 
+	mainWindow.webContents.on('did-finish-load', () => {
+		mainWindow.webContents.setZoomFactor(1.0);
+	});
+
 	mainWindow.once('ready-to-show', () => {
 		if (!mainWindow.isFullScreen()) {
 			mainWindow.setFullScreen(true);

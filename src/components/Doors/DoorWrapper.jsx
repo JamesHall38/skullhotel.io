@@ -210,6 +210,7 @@ export default function DoorWrapper({
 	}, [position]);
 
 	useFrame(({ camera }, delta) => {
+		if (!camera || !camera.position) return;
 		if (!doorRef.current) return;
 
 		setIsInRoom(Math.abs(camera.position.z) > 1.3);

@@ -57,6 +57,10 @@ window.onerror = function (message, source, lineno, colno, error) {
 };
 
 window.onunhandledrejection = function (event) {
+	const reason = String(event.reason);
+	if (reason.includes('Pointer Lock') || reason.includes('NotAllowedError')) {
+		return;
+	}
 	addLog(`[PROMISE ERROR] ${event.reason}`);
 };
 

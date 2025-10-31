@@ -11,7 +11,7 @@ const checkIfPlayerIsHidden = (camera) => {
 	const roomCount = useGameplaySettings.getState().roomCount;
 	const gridOffsetX = roomCount * 29.5 + 10;
 
-	if (!camera) return false;
+	if (!camera || !camera.position) return false;
 
 	const GRID_OFFSET_Z = 150;
 	const playerX = Math.round(camera.position.x * 10 + gridOffsetX);
