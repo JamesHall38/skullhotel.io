@@ -262,15 +262,15 @@ export default function Task(props) {
 				],
 			},
 			// Mannequin
-			{
-				key: 'MannequinSkull',
-				items: [
-					{
-						geometry: nodes?.MannequinSkull?.geometry,
-						material: materials?.FleshSkull,
-					},
-				],
-			},
+			// {
+			// 	key: 'MannequinSkull',
+			// 	items: [
+			// 		{
+			// 			geometry: nodes?.MannequinSkull?.geometry,
+			// 			material: materials?.FleshSkull,
+			// 		},
+			// 	],
+			// },
 			// Toilets group
 			{
 				key: 'Toilets',
@@ -344,15 +344,15 @@ export default function Task(props) {
 					},
 				],
 			},
-			{
-				key: 'Spider2',
-				items: [
-					{
-						geometry: nodes?.Spider?.geometry,
-						material: materials?.SpiderMat,
-					},
-				],
-			},
+			// {
+			// 	key: 'Spider2',
+			// 	items: [
+			// 		{
+			// 			geometry: nodes?.Spider?.geometry,
+			// 			material: materials?.SpiderMat,
+			// 		},
+			// 	],
+			// },
 			{
 				key: 'Spider3',
 				items: [
@@ -467,12 +467,12 @@ export default function Task(props) {
 			'Pentagram',
 			'Rope',
 			'Hangman',
-			'MannequinSkull',
+			// 'MannequinSkull',
 			'ToiletsSkull',
 			'SinkSkull',
 			'BathSkull',
 			'Spider1',
-			'Spider2',
+			// 'Spider2',
 			'Spider3',
 		];
 
