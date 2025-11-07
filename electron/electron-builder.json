@@ -5,6 +5,7 @@
 		"output": "dist"
 	},
 	"files": ["build/**/*", "electron/**/*", "package.json"],
+	"extraResources": [{ "from": "build", "to": "app/build" }],
 	"win": {
 		"target": "nsis",
 		"icon": null,

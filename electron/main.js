@@ -51,12 +51,18 @@ const isPackaged = app.isPackaged;
 function getBasePath() {
 	if (isPackaged) {
 		const externalBuild = path.join(process.resourcesPath, 'app', 'build');
+		const externalMain = path.join(externalBuild, 'assets', 'main.js');
 		try {
-			if (fs.existsSync(externalBuild)) return externalBuild;
+			if (fs.existsSync(externalMain)) return externalBuild;
 		} catch (e) {}
+
 		try {
 			const appPath = app.getAppPath();
 			const asarBuild = path.join(appPath, 'build');
+			const asarMain = path.join(asarBuild, 'assets', 'main.js');
+			if (fs.existsSync(asarMain)) return asarBuild;
+			// fallback to whichever exists
+			if (fs.existsSync(externalBuild)) return externalBuild;
 			return asarBuild;
 		} catch (e) {
 			return externalBuild;
