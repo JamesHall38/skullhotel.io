@@ -27,9 +27,7 @@ const Monster = (props) => {
 		undefined,
 		(loader) => {
 			const ktxLoader = new KTX2Loader();
-			ktxLoader.setTranscoderPath(
-				'https://cdn.jsdelivr.net/gh/pmndrs/drei-assets/basis/'
-			);
+			ktxLoader.setTranscoderPath('basis/');
 			ktxLoader.detectSupport(gl);
 			loader.setKTX2Loader(ktxLoader);
 		}

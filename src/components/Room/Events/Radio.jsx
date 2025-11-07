@@ -4,7 +4,7 @@ import useGame from '../../../hooks/useGame';
 import useInterface from '../../../hooks/useInterface';
 import useGamepadControls from '../../../hooks/useGamepadControls';
 import DetectionZone from '../../DetectionZone';
-import { useKTX2 } from '@react-three/drei';
+import useKTX2 from '../../../hooks/useKTX2Local';
 import usePositionalSound from '../../../hooks/usePositionalSound';
 import useSettings from '../../../hooks/useSettings';
 import useLight from '../../../hooks/useLight';

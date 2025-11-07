@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
-import { useGLTF, useKTX2 } from '@react-three/drei';
+import { useGLTF } from '@react-three/drei';
+import useKTX2 from '../../hooks/useKTX2Local';
 import * as THREE from 'three';
 import useGame from '../../hooks/useGame';
 import { useControls } from 'leva';

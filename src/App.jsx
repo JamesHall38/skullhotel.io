@@ -22,6 +22,7 @@ import { Leva, useControls, button } from 'leva';
 
 import CustomPointerLockControls from './components/CustomPointerLockControls';
 import UnsupportedGPU from './components/Interface/UnsupportedGPU';
+import IntegratedGPUWarning from './components/Interface/IntegratedGPUWarning';
 import { checkGPUSupport } from './utils/gpuDetection';
 
 // Models
@@ -545,6 +546,25 @@ export default function AppCanvas() {
 	const playAnimation = useMonster((state) => state.playAnimation);
 
 	const gpuCheck = useMemo(() => checkGPUSupport(), []);
+	const [integratedGPUInfo, setIntegratedGPUInfo] = useState(null);
+	const [showGPUWarning, setShowGPUWarning] = useState(false);
+
+	useEffect(() => {
+		// Listen for GPU detection from Electron
+		if (typeof window.gpuAPI !== 'undefined') {
+			window.gpuAPI.onGPUDetected((gpuInfo) => {
+				console.log('GPU Info received from Electron:', gpuInfo);
+				if (gpuInfo.isIntelIntegrated) {
+					setIntegratedGPUInfo(gpuInfo);
+					setShowGPUWarning(true);
+				}
+			});
+
+			return () => {
+				window.gpuAPI.removeGPUListener();
+			};
+		}
+	}, []);
 
 	useEffect(() => {
 		if (isElectron()) {
@@ -600,6 +620,12 @@ export default function AppCanvas() {
 
 	return (
 		<>
+			{showGPUWarning && integratedGPUInfo && (
+				<IntegratedGPUWarning
+					gpuInfo={integratedGPUInfo}
+					onDismiss={() => setShowGPUWarning(false)}
+				/>
+			)}
 			<div onClick={(e) => e.stopPropagation()}>
 				<Leva collapsed hidden={!isDebugMode} />
 			</div>

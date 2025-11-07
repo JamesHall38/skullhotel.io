@@ -11,6 +11,11 @@ const path = require('path');
 const fs = require('fs');
 const process = require('process');
 
+app.commandLine.appendSwitch('force_high_performance_gpu');
+app.commandLine.appendSwitch('ignore-gpu-blocklist');
+app.commandLine.appendSwitch('enable-gpu-rasterization');
+app.commandLine.appendSwitch('enable-zero-copy');
+
 app.commandLine.appendSwitch('no-sandbox');
 app.commandLine.appendSwitch('disable-web-security');
 app.commandLine.appendSwitch(
@@ -70,6 +75,8 @@ function fixPaths() {
 			{ from: "'/sounds/", to: "'sounds/" },
 			{ from: '"/textures/', to: '"textures/' },
 			{ from: "'/textures/", to: "'textures/" },
+			{ from: '"/basis/', to: '"basis/' },
+			{ from: "'/basis/", to: "'basis/" },
 			{ from: '"/Redrum.otf', to: '"Redrum.otf' },
 			{ from: "'/Redrum.otf", to: "'Redrum.otf" },
 			{ from: '"/Futura.ttf', to: '"Futura.ttf' },
@@ -193,6 +200,51 @@ function createWindow() {
 
 	mainWindow.webContents.on('did-finish-load', () => {
 		mainWindow.webContents.setZoomFactor(1.0);
+
+		mainWindow.webContents
+			.executeJavaScript(
+				`
+			(async () => {
+				if (navigator.gpu) {
+					const adapter = await navigator.gpu.requestAdapter();
+					console.log('🎮 GPU WebGPU:', adapter);
+				}
+				const canvas = document.createElement('canvas');
+				const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+				if (gl) {
+					const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
+					if (debugInfo) {
+						const renderer = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL);
+						const vendor = gl.getParameter(debugInfo.UNMASKED_VENDOR_WEBGL);
+						console.log('🎮 GPU Detected:', renderer);
+						console.log('🏭 GPU Vendor:', vendor);
+						
+						const gpuInfo = {
+							renderer: renderer,
+							vendor: vendor,
+							isIntelIntegrated: renderer.includes('Intel') && (renderer.includes('UHD') || renderer.includes('Iris')),
+							isDiscrete: renderer.includes('NVIDIA') || renderer.includes('AMD') || renderer.includes('Radeon')
+						};
+						
+						if (gpuInfo.isIntelIntegrated) {
+							console.warn('⚠️ ATTENTION: Integrated Intel GPU detected! The discrete GPU may not be used.');
+							console.warn('⚠️ The user may need to configure manually in Windows settings.');
+						} else if (gpuInfo.isDiscrete) {
+							console.log('✅ Discrete GPU detected! Optimal performance.');
+						}
+						
+						return gpuInfo;
+					}
+				}
+				return null;
+			})();
+		`
+			)
+			.then((gpuInfo) => {
+				if (gpuInfo && mainWindow && mainWindow.webContents) {
+					mainWindow.webContents.send('gpu-detected', gpuInfo);
+				}
+			});
 	});
 
 	mainWindow.once('ready-to-show', () => {
@@ -296,6 +348,32 @@ ipcMain.handle('is-fullscreen', () => {
 });
 
 app.whenReady().then(() => {
+	app
+		.getGPUInfo('complete')
+		.then((gpuInfo) => {
+			console.log('=== GPU INFORMATION ===');
+			console.log('GPU Actif:', JSON.stringify(gpuInfo, null, 2));
+
+			const gpuDevices = gpuInfo.gpuDevice || [];
+			const hasDiscreteGPU = gpuDevices.some(
+				(device) =>
+					device.vendorId &&
+					(device.vendorId === 4318 || // NVIDIA (0x10DE)
+						device.vendorId === 4098 || // AMD (0x1002)
+						device.vendorId === 32902) // AMD (0x1022)
+			);
+
+			if (hasDiscreteGPU) {
+				console.log('✅ Discrete GPU detected');
+			} else {
+				console.log('⚠️ No discrete GPU detected - using integrated GPU');
+			}
+			console.log('========================');
+		})
+		.catch((err) => {
+			console.error('Error retrieving GPU information:', err);
+		});
+
 	createWindow();
 
 	app.on('activate', function () {

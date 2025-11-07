@@ -1,6 +1,6 @@
 import React from 'react';
 import { useEffect, useRef } from 'react';
-import { useKTX2 } from '@react-three/drei';
+import useKTX2 from '../../hooks/useKTX2Local';
 import useGame from '../../hooks/useGame';
 import * as THREE from 'three';
 

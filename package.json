@@ -66,7 +66,8 @@
 		],
 		"win": {
 			"target": "nsis",
-			"icon": "public/images/web-app-manifest-512x512.png"
+			"icon": "public/images/web-app-manifest-512x512.png",
+			"requestedExecutionLevel": "asInvoker"
 		},
 		"nsis": {
 			"oneClick": false,

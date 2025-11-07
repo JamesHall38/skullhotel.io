@@ -7,7 +7,9 @@
 	"files": ["build/**/*", "electron/**/*", "package.json"],
 	"win": {
 		"target": "nsis",
-		"icon": null
+		"icon": null,
+		"requestedExecutionLevel": "asInvoker",
+		"applicationManifest": "electron/app.manifest"
 	},
 	"nsis": {
 		"oneClick": false,

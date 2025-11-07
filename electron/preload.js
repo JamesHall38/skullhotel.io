@@ -33,3 +33,14 @@ contextBridge.exposeInMainWorld('electron', {
 	platform: process.platform,
 	arch: process.arch,
 });
+
+contextBridge.exposeInMainWorld('gpuAPI', {
+	onGPUDetected: (callback) => {
+		ipcRenderer.on('gpu-detected', (event, gpuInfo) => {
+			callback(gpuInfo);
+		});
+	},
+	removeGPUListener: () => {
+		ipcRenderer.removeAllListeners('gpu-detected');
+	},
+});

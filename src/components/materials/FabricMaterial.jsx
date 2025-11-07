@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { useKTX2 } from '@react-three/drei';
+import useKTX2 from '../../hooks/useKTX2Local';
 import * as THREE from 'three';
 
 export default function FabricMaterial({ isGrayscale = false }) {
