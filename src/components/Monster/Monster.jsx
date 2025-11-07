@@ -5,7 +5,7 @@ import Animations from './Animations';
 import useMonsterLogic from '../../hooks/useMonsterLogic';
 import useProgressiveLoad from '../../hooks/useProgressiveLoad';
 import useMonster from '../../hooks/useMonster';
-import { KTX2Loader } from 'three/examples/jsm/loaders/KTX2Loader';
+import { getKTX2Loader } from '@/utils/getKTX2Loader';
 
 const Monster = (props) => {
 	const { gl } = useThree();
@@ -26,10 +26,8 @@ const Monster = (props) => {
 		undefined,
 		undefined,
 		(loader) => {
-			const ktxLoader = new KTX2Loader();
-			ktxLoader.setTranscoderPath('basis/');
-			ktxLoader.detectSupport(gl);
-			loader.setKTX2Loader(ktxLoader);
+			const ktx = getKTX2Loader(gl);
+			loader.setKTX2Loader(ktx);
 		}
 	);
 

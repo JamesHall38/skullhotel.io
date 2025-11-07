@@ -7,7 +7,7 @@ import React, {
 } from 'react';
 import { useGLTF } from '@react-three/drei';
 import { useThree } from '@react-three/fiber';
-import { KTX2Loader } from 'three/examples/jsm/loaders/KTX2Loader';
+import { getKTX2Loader } from '@/utils/getKTX2Loader';
 import { useControls } from 'leva';
 import useProgressiveLoad from '../../hooks/useProgressiveLoad';
 import useGame from '../../hooks/useGame';
@@ -42,10 +42,8 @@ export default function Task(props) {
 		undefined,
 		undefined,
 		(loader) => {
-			const ktxLoader = new KTX2Loader();
-			ktxLoader.setTranscoderPath('basis/');
-			ktxLoader.detectSupport(gl);
-			loader.setKTX2Loader(ktxLoader);
+			const ktx = getKTX2Loader(gl);
+			loader.setKTX2Loader(ktx);
 		}
 	);
 

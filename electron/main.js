@@ -50,7 +50,17 @@ const isPackaged = app.isPackaged;
 
 function getBasePath() {
 	if (isPackaged) {
-		return path.join(process.resourcesPath, 'app', 'build');
+		const externalBuild = path.join(process.resourcesPath, 'app', 'build');
+		try {
+			if (fs.existsSync(externalBuild)) return externalBuild;
+		} catch (e) {}
+		try {
+			const appPath = app.getAppPath();
+			const asarBuild = path.join(appPath, 'build');
+			return asarBuild;
+		} catch (e) {
+			return externalBuild;
+		}
 	} else {
 		return path.join(process.cwd(), 'build');
 	}

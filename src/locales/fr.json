@@ -122,7 +122,7 @@
 			"spotWarning": "Si vous en apercevez un, fermez rapidement la porte et sortez de la chambre.",
 			"wellDone": "Bien joué ! Maintenant nettoyez 8 chambres pour finir la journée.",
 			"turnBack": "Rappelez-vous : si vous en voyez un dans une chambre, faites demi-tour immédiatement.",
-			"infested": "La moitié de ces chambres sont infectées aléatoirement. Procédez avec prudence.",
+			"infested": "La moitié de ces chambres sont infestées aléatoirement. Procédez avec prudence.",
 			"bathroomTasks": "Dans la salle de bain, la tâche varie : nettoyer une tache, jeter un déchet, éliminer des araignées..."
 		},
 		"deathReasons": {
