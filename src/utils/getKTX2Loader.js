@@ -21,7 +21,10 @@ export function getKTX2Loader(gl) {
 		sharedLoader.setTranscoderPath('basis/');
 	}
 	if (typeof sharedLoader.setWorkerLimit === 'function') {
-		sharedLoader.setWorkerLimit(2);
+		const isElectron = !!(
+			typeof process !== 'undefined' && process?.versions?.electron
+		);
+		sharedLoader.setWorkerLimit(isElectron ? 2 : 1);
 	}
 	if (gl && typeof sharedLoader.detectSupport === 'function') {
 		sharedLoader.detectSupport(gl);
