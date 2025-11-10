@@ -116,14 +116,14 @@
 			"welcomeBack": "Üdvözlünk vissza.",
 			"welcomeHousekeeper": "Üdvözlünk. Te vagy az új takarítónő.",
 			"closeDoors": "Mindig zárd be magad mögött az ajtókat, különben bejöhetnek, amíg takarítod a szobát.",
-			"bathroomWarning": "Ha hangokat hallasz a fürdőszobából, ne nyisd ki az ajtót.",
+			"bathroomWarning": "Ha hallasz valamit, ne nyiss ajtót. De ne hagyatkozz csak erre: néha teljesen csendben vannak.",
 			"hideImmediately": "Ha kopogást hallasz, vagy észreveszed, hogy a TV vagy a rádió bekapcsol, bújj el.",
 			"checkRoom": "Ellenőrizd az egész szobát gondosan. Bárhol elbújhatnak.",
 			"spotWarning": "Ha meglátod egyiküket, gyorsan zárd be az ajtót és menj ki a szobából.",
 			"wellDone": "Szuper! Most takarítsd ki 8 szobát, hogy befejezd a napot.",
 			"turnBack": "Emlékezz: ha meglátod egyiküket egy szobában, azonnal fordulj vissza.",
 			"infested": "Ezeknek a szobáknak a fele véletlenszerűen fertőzött. Óvatosan haladj.",
-			"bathroomTasks": "A fürdőszobában a feladat változik: tisztíts meg egy foltot, dobd ki a szemetet, távolítsd el a pókokat..."
+			"bathroomTasks": "A fürdőben változatos feladatok vannak (foltok, szemét, pókok...). Néhányat nehéz észrevenni."
 		},
 		"deathReasons": {
 			"underBed": "Az ágy alatt bújt el.",

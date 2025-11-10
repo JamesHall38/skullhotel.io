@@ -15,6 +15,7 @@ const LoadingScreen = ({ onStart }) => {
 	const [displayProgress, setDisplayProgress] = useState(0);
 	const [animationsComplete, setAnimationsComplete] = useState(false);
 	const [animationProgress, setAnimationProgress] = useState(0);
+	const [isStuck, setIsStuck] = useState(false);
 	const setShouldRenderThreeJs = useGame(
 		(state) => state.setShouldRenderThreeJs
 	);
@@ -31,6 +32,7 @@ const LoadingScreen = ({ onStart }) => {
 	const setIsSettingsOpen = useInterface((state) => state.setIsSettingsOpen);
 	const audioInitialized = useRef(false);
 	const animationTimerRef = useRef(null);
+	const lastProgressChangeRef = useRef(Date.now());
 	const { t } = useLocalization();
 
 	const completedAnimations = useInterface(
@@ -82,6 +84,23 @@ const LoadingScreen = ({ onStart }) => {
 	}, [queue]);
 
 	useEffect(() => {
+		const STUCK_TIMEOUT_MS = 20000;
+		const interval = setInterval(() => {
+			const now = Date.now();
+			if (
+				displayProgress < 100 &&
+				now - lastProgressChangeRef.current > STUCK_TIMEOUT_MS
+			) {
+				setIsStuck(true);
+				setDisplayProgress(100);
+				setAnimationsComplete(true);
+				setShouldRenderThreeJs(true);
+			}
+		}, 1000);
+		return () => clearInterval(interval);
+	}, [displayProgress, setShouldRenderThreeJs]);
+
+	useEffect(() => {
 		if (!audioInitialized.current) {
 			audioInitialized.current = true;
 			const initAudio = async () => {
@@ -117,7 +136,12 @@ const LoadingScreen = ({ onStart }) => {
 		const adjustedProgress =
 			totalProgress <= 20 ? 0 : ((totalProgress - 20) / 80) * 100;
 
-		setDisplayProgress(Math.max(adjustedProgress, displayProgress));
+		const nextProgress = Math.max(adjustedProgress, displayProgress);
+		if (nextProgress > displayProgress + 0.1) {
+			lastProgressChangeRef.current = Date.now();
+			setIsStuck(false);
+		}
+		setDisplayProgress(nextProgress);
 	}, [
 		loadedTextureNumber,
 		progress,
@@ -215,6 +239,19 @@ const LoadingScreen = ({ onStart }) => {
 							? `${t('ui.loading.loading')}: ${displayProgress.toFixed(0)}%`
 							: t('ui.loading.clickToStart')}
 					</div>
+					{displayProgress !== 100 && isStuck && (
+						<div
+							className="start lincoln-regular"
+							onClick={(e) => {
+								e.stopPropagation();
+								setDisplayProgress(100);
+								setAnimationsComplete(true);
+								setShouldRenderThreeJs(true);
+							}}
+						>
+							{t('ui.loading.clickToStart')}
+						</div>
+					)}
 					<div
 						className="settings lincoln-regular"
 						onClick={handleSettingsClick}

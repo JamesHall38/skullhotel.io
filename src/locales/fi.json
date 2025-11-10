@@ -116,14 +116,14 @@
 			"welcomeBack": "Tervetuloa takaisin.",
 			"welcomeHousekeeper": "Tervetuloa. Sinun täytyy olla uusi siivooja.",
 			"closeDoors": "Sulje aina ovet takanasi tai ne voivat tulla sisään kun siivoat huonetta.",
-			"bathroomWarning": "Jos kuulet ääniä kylpyhuoneesta, älä avaa ovea.",
+			"bathroomWarning": "Jos kuulet jotain, älä avaa. Mutta älä luota vain siihen: he voivat olla täysin äänettömiäkin.",
 			"hideImmediately": "Jos kuulet koputusta tai huomaat TV:n tai radion käynnistyvän, piilota.",
 			"checkRoom": "Tarkista koko huone huolellisesti. Ne voivat piilossa missä tahansa.",
 			"spotWarning": "Jos näet yhden niistä, sulje nopeasti ovi ja poistu huoneesta.",
 			"wellDone": "Hyvin tehty! Nyt siivoa 8 huonetta päättääksesi päivän.",
 			"turnBack": "Muista: jos näet yhden niistä huoneessa, käänny heti takaisin.",
 			"infested": "Puolet näistä huoneista on satunnaisesti saastuneita. Etene varovasti.",
-			"bathroomTasks": "Kylpyhuoneessa tehtävä vaihtelee: puhdista tahra, heit roskia pois, poista hämähäkkejä..."
+			"bathroomTasks": "Kylpyhuoneessa tehtävät vaihtelevat (tahrat, roskat, hämähäkit...). Osa on vaikea huomata."
 		},
 		"deathReasons": {
 			"underBed": "Se piilossa sängyn alla.",

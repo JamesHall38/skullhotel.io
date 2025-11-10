@@ -116,14 +116,14 @@
 			"welcomeBack": "Velkommen tilbage.",
 			"welcomeHousekeeper": "Velkommen. Du må være den nye husholderske.",
 			"closeDoors": "Luk altid døre bag dig, ellers kan de komme ind mens du rengør rummet.",
-			"bathroomWarning": "Hvis du hører lyde fra badeværelset, åbn ikke døren.",
+			"bathroomWarning": "Hvis du hører noget, så åbn ikke. Men stol ikke kun på det: de kan også være helt stille.",
 			"hideImmediately": "Hvis du hører banking eller bemærker at TV'et eller radioen tænder, gem dig.",
 			"checkRoom": "Tjek hele rummet omhyggeligt. De kan gemme sig hvor som helst.",
 			"spotWarning": "Hvis du ser en af dem, luk hurtigt døren og forlad rummet.",
 			"wellDone": "Godt klaret! Rengør nu 8 rum for at afslutte dagen.",
 			"turnBack": "Husk: hvis du ser en af dem i et rum, vend om med det samme.",
 			"infested": "Halvdelen af disse rum er tilfældigt inficerede. Fortsæt forsigtigt.",
-			"bathroomTasks": "I badeværelset varierer opgaven: rengør en plet, smid affald ud, fjern edderkopper..."
+			"bathroomTasks": "På badeværelset varierer opgaverne (pletter, affald, edderkopper...). Nogle er svære at få øje på."
 		},
 		"deathReasons": {
 			"underBed": "Den gemte sig under sengen.",

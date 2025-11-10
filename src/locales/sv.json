@@ -116,14 +116,14 @@
 			"welcomeBack": "Välkommen tillbaka.",
 			"welcomeHousekeeper": "Välkommen. Du måste vara den nya städerskan.",
 			"closeDoors": "Stäng alltid dörrar bakom dig annars kan de komma in medan du städar rummet.",
-			"bathroomWarning": "Om du hör ljud från badrummet, öppna inte dörren.",
+			"bathroomWarning": "Om du hör något, öppna inte. Men lita inte bara på det: de kan också vara helt tysta.",
 			"hideImmediately": "Om du hör knackning eller märker att TV:n eller radion slår på sig, göm dig.",
 			"checkRoom": "Kontrollera hela rummet noggrant. De kan gömma sig var som helst.",
 			"spotWarning": "Om du ser en av dem, stäng snabbt dörren och lämna rummet.",
 			"wellDone": "Bra gjort! Städa nu 8 rum för att avsluta dagen.",
 			"turnBack": "Kom ihåg: om du ser en av dem i ett rum, vänd omedelbart.",
 			"infested": "Hälften av dessa rum är slumpmässigt infekterade. Fortsätt försiktigt.",
-			"bathroomTasks": "I badrummet varierar uppgiften: rengöra en fläck, slänga sopor, ta bort spindlar..."
+			"bathroomTasks": "I badrummet varierar uppgifterna (fläckar, skräp, spindlar...). Vissa är svåra att upptäcka."
 		},
 		"deathReasons": {
 			"underBed": "Den gömde sig under sängen.",

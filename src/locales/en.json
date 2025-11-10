@@ -116,14 +116,14 @@
 			"welcomeBack": "Welcome back.",
 			"welcomeHousekeeper": "Welcome. You must be the new housekeeper.",
 			"closeDoors": "Always close doors behind you or they might enter while you clean the room.",
-			"bathroomWarning": "If you hear sounds from the bathroom, do not open the door.",
+			"bathroomWarning": "If you hear something, don't open. But don't rely on that: they can be silent too.",
 			"hideImmediately": "If you hear knocking or notice the TV or radio turning on, hide.",
 			"checkRoom": "Check the entire room carefully. They might be hiding anywhere.",
 			"spotWarning": "If you spot one of them, quickly close the door and exit the room.",
 			"wellDone": "Well done! Now clean 8 rooms to call it a day.",
 			"turnBack": "Remember: if you see one of them in a room, turn back immediately.",
 			"infested": "Half of these rooms are randomly infested. Proceed with caution.",
-			"bathroomTasks": "In the bathroom, the task varies: clean a stain, throw away trash, remove spiders..."
+			"bathroomTasks": "In the bathroom, tasks vary (stains, trash, spiders...). Some are hard to spot."
 		},
 		"deathReasons": {
 			"underBed": "It was hiding under the bed.",

@@ -101,17 +101,17 @@ const useGamepadControls = () => {
 			if (!gamepad || !gamepad.connected) continue;
 
 			const gamepadActive =
-				gamepad.buttons.some((button) => button.pressed) ||
-				gamepad.axes.some((axis) => Math.abs(axis) > 0.2);
+				(gamepad.buttons?.some((button) => button?.pressed) ?? false) ||
+				(gamepad.axes?.some((axis) => Math.abs(axis) > 0.2) ?? false);
 
 			if (gamepadActive) {
 				anyGamepadActive = true;
 			}
 
-			const leftStickX = gamepad.axes[0];
-			const leftStickY = gamepad.axes[1];
-			const rightStickX = gamepad.axes[2];
-			const rightStickY = gamepad.axes[3];
+			const leftStickX = Number(gamepad.axes?.[0] ?? 0);
+			const leftStickY = Number(gamepad.axes?.[1] ?? 0);
+			const rightStickX = Number(gamepad.axes?.[2] ?? 0);
+			const rightStickY = Number(gamepad.axes?.[3] ?? 0);
 
 			const DEADZONE = 0.15;
 
@@ -138,9 +138,9 @@ const useGamepadControls = () => {
 					Math.abs(rightStickY) > DEADZONE ? rightStickY : 0;
 			}
 
-			controls.jump = controls.jump || gamepad.buttons[0].pressed; // A
+			controls.jump = controls.jump || !!gamepad.buttons?.[0]?.pressed; // A
 
-			const bButtonPressed = gamepad.buttons[1].pressed;
+			const bButtonPressed = !!gamepad.buttons?.[1]?.pressed;
 
 			buttonStateHistoryRef.current.push(bButtonPressed);
 			if (buttonStateHistoryRef.current.length > MAX_HISTORY) {
@@ -149,15 +149,16 @@ const useGamepadControls = () => {
 
 			controls.crouch = bButtonPressed;
 
-			const xButtonPressed = gamepad.buttons[2].pressed;
-			const leftTriggerPressed = gamepad.buttons[6].pressed; // L2/LT
-			const rightTriggerPressed = gamepad.buttons[7].pressed; // R2/RT
+			const xButtonPressed = !!gamepad.buttons?.[2]?.pressed;
+			const leftTriggerPressed = !!gamepad.buttons?.[6]?.pressed; // L2/LT
+			const rightTriggerPressed = !!gamepad.buttons?.[7]?.pressed; // R2/RT
 			const actionButtonPressed =
 				xButtonPressed || leftTriggerPressed || rightTriggerPressed;
 
 			controls.action = controls.action || actionButtonPressed; // X ou L2/LT ou R2/RT
-			controls.rightClick = controls.rightClick || gamepad.buttons[3].pressed; // Y
-			controls.run = controls.run || gamepad.buttons[10].pressed; // L3
+			controls.rightClick =
+				controls.rightClick || !!gamepad.buttons?.[3]?.pressed; // Y
+			controls.run = controls.run || !!gamepad.buttons?.[10]?.pressed; // L3
 		}
 
 		if (anyGamepadActive && deviceMode !== 'gamepad') {

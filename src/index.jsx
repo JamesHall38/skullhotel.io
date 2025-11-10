@@ -9,6 +9,29 @@ import UnsupportedGPU from './components/Interface/UnsupportedGPU';
 import { checkGPUSupport, isWebGLError } from './utils/gpuDetection';
 import { getConsoleMessages } from './utils/consoleLogger';
 
+function tryAutoCompatOnce() {
+	try {
+		const compat = window.compat;
+		const mode =
+			compat && typeof compat.getMode === 'function'
+				? compat.getMode()
+				: 'default';
+		if (!compat || typeof compat.relaunchGL !== 'function') return;
+		if (mode === 'gl') return; // already in compat
+		if (localStorage.getItem('compatAutoTried') === '1') return;
+		localStorage.setItem('compatAutoTried', '1');
+		compat.relaunchGL();
+	} catch (_e) {}
+}
+
+window.addEventListener(
+	'webglcontextlost',
+	() => {
+		tryAutoCompatOnce();
+	},
+	true
+);
+
 class ErrorBoundary extends React.Component {
 	constructor(props) {
 		super(props);
@@ -17,6 +40,7 @@ class ErrorBoundary extends React.Component {
 			showBugReport: false,
 			isGPUError: false,
 			gpuInfo: null,
+			lastErrorMessage: null,
 		};
 	}
 
@@ -27,6 +51,7 @@ class ErrorBoundary extends React.Component {
 	componentDidCatch(error, errorInfo) {
 		console.error('[REACT_ERROR]', error);
 		console.error('[REACT_ERROR_INFO]', errorInfo);
+		this.setState({ lastErrorMessage: error?.message || String(error) });
 
 		const consoleLogs = getConsoleMessages();
 		const hasWebGLError = consoleLogs.some(
@@ -39,6 +64,7 @@ class ErrorBoundary extends React.Component {
 		const isErrorWebGL = isWebGLError(error);
 
 		if (hasWebGLError || isErrorWebGL) {
+			tryAutoCompatOnce();
 			const gpuCheck = checkGPUSupport();
 			if (!gpuCheck.isSupported) {
 				this.setState({
@@ -63,7 +89,12 @@ class ErrorBoundary extends React.Component {
 			return (
 				<div style={{ padding: '20px', color: 'white', textAlign: 'center' }}>
 					<h1>Something went wrong</h1>
-					<p>Please refresh the page or report this issue.</p>
+					{this.state.lastErrorMessage && (
+						<p style={{ opacity: 0.8, fontSize: '0.9rem' }}>
+							{this.state.lastErrorMessage}
+						</p>
+					)}
+					<p>Please refresh the app or report this issue.</p>
 					<button
 						onClick={() => this.setState({ showBugReport: true })}
 						style={{

@@ -25,17 +25,26 @@ const originalConsole = {
 	debug: console.debug,
 };
 
+const serializeArg = (arg) => {
+	try {
+		if (arg instanceof Error) {
+			return `${arg.name}: ${arg.message}${arg.stack ? '\n' + arg.stack : ''}`;
+		}
+		if (arg && typeof arg === 'object') {
+			if (arg.stack && arg.message) {
+				return `${arg.message}\n${arg.stack}`;
+			}
+			return JSON.stringify(arg);
+		}
+		return String(arg);
+	} catch (_e) {
+		return String(arg);
+	}
+};
+
 Object.keys(originalConsole).forEach((method) => {
 	console[method] = (...args) => {
-		const message = args
-			.map((arg) => {
-				try {
-					return typeof arg === 'object' ? JSON.stringify(arg) : String(arg);
-				} catch (e) {
-					return String(arg);
-				}
-			})
-			.join(' ');
+		const message = args.map(serializeArg).join(' ');
 
 		if (method === 'error' || message.includes('ERR_FILE_NOT_FOUND')) {
 			addLog(`[CONSOLE ${method.toUpperCase()}] ${message}`);
@@ -50,18 +59,29 @@ Object.keys(originalConsole).forEach((method) => {
 });
 
 window.onerror = function (message, source, lineno, colno, error) {
-	addLog(`[GLOBAL ERROR] ${message}`);
+	const extra =
+		error instanceof Error
+			? `\n${error.name}: ${error.message}${
+					error.stack ? '\n' + error.stack : ''
+			  }`
+			: '';
+	addLog(`[GLOBAL ERROR] ${message}${extra}`);
 	if (source && source.startsWith('file:///')) {
 		captureFileError(source);
 	}
 };
 
 window.onunhandledrejection = function (event) {
-	const reason = String(event.reason);
+	const reason =
+		event.reason instanceof Error
+			? `${event.reason.name}: ${event.reason.message}${
+					event.reason.stack ? '\n' + event.reason.stack : ''
+			  }`
+			: String(event.reason);
 	if (reason.includes('Pointer Lock') || reason.includes('NotAllowedError')) {
 		return;
 	}
-	addLog(`[PROMISE ERROR] ${event.reason}`);
+	addLog(`[PROMISE ERROR] ${reason}`);
 };
 
 window.addEventListener(

@@ -116,14 +116,14 @@
 			"welcomeBack": "Bienvenido de vuelta.",
 			"welcomeHousekeeper": "Bienvenido. Debes ser la nueva ama de llaves.",
 			"closeDoors": "Siempre cierra las puertas detrás de ti o podrían entrar mientras limpias la habitación.",
-			"bathroomWarning": "Si escuchas ruidos del baño, no abras la puerta.",
+			"bathroomWarning": "Si oyes algo, no abras. Pero no te fíes solo de eso: también pueden ser silenciosos.",
 			"hideImmediately": "Si escuchas golpes o notas que la TV o la radio se encienden, escóndete.",
 			"checkRoom": "Revisa toda la habitación cuidadosamente. Podrían estar escondidos en cualquier lugar.",
 			"spotWarning": "Si ves a uno de ellos, cierra rápidamente la puerta y sal de la habitación.",
 			"wellDone": "¡Bien hecho! Ahora limpia 8 habitaciones para terminar el día.",
 			"turnBack": "Recuerda: si ves a uno de ellos en una habitación, da la vuelta inmediatamente.",
 			"infested": "La mitad de estas habitaciones están infectadas aleatoriamente. Procede con precaución.",
-			"bathroomTasks": "En el baño, la tarea varía: limpiar una mancha, tirar la basura, eliminar arañas..."
+			"bathroomTasks": "En el baño, las tareas varían (manchas, basura, arañas...). Algunas son difíciles de detectar."
 		},
 		"deathReasons": {
 			"underBed": "Se escondía debajo de la cama.",

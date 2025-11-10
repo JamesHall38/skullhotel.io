@@ -116,14 +116,14 @@
 			"welcomeBack": "Bon retour parmi nous.",
 			"welcomeHousekeeper": "Bienvenue. Vous devez être la nouvelle femme de ménage.",
 			"closeDoors": "Fermez toujours les portes derrière vous ou ils pourraient entrer pendant que vous nettoyez la chambre.",
-			"bathroomWarning": "Si vous entendez des bruits venant de la salle de bain, n'ouvrez pas la porte.",
+			"bathroomWarning": "Si vous entendez du bruit, n'ouvrez pas. Mais ne vous fiez pas trop à ça : ils peuvent aussi être silencieux.",
 			"hideImmediately": "Si vous entendez des coups ou remarquez que la télé ou la radio s'allume, cachez-vous.",
 			"checkRoom": "Vérifiez toute la chambre attentivement. Ils pourraient se cacher n'importe où.",
 			"spotWarning": "Si vous en apercevez un, fermez rapidement la porte et sortez de la chambre.",
 			"wellDone": "Bien joué ! Maintenant nettoyez 8 chambres pour finir la journée.",
 			"turnBack": "Rappelez-vous : si vous en voyez un dans une chambre, faites demi-tour immédiatement.",
 			"infested": "La moitié de ces chambres sont infestées aléatoirement. Procédez avec prudence.",
-			"bathroomTasks": "Dans la salle de bain, la tâche varie : nettoyer une tache, jeter un déchet, éliminer des araignées..."
+			"bathroomTasks": "Dans la salle de bain, les tâches varient (taches, déchets, araignées...). Certaines sont difficiles à repérer."
 		},
 		"deathReasons": {
 			"underBed": "Il se cachait sous le lit.",

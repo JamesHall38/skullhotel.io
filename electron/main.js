@@ -6,15 +6,29 @@ const {
 	Menu,
 	ipcMain,
 	screen,
+	session,
 } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const process = require('process');
 
+const compatArg = (process.argv || []).find((a) => a.startsWith('--compat='));
+const compatMode = compatArg ? compatArg.split('=')[1] : null;
+const isCompatGL = compatMode === 'gl';
+
 app.commandLine.appendSwitch('force_high_performance_gpu');
-app.commandLine.appendSwitch('ignore-gpu-blocklist');
-app.commandLine.appendSwitch('enable-gpu-rasterization');
-app.commandLine.appendSwitch('enable-zero-copy');
+if (isCompatGL) {
+	app.commandLine.appendSwitch('use-angle', 'gl');
+	app.commandLine.appendSwitch('disable-direct-composition');
+} else {
+	app.commandLine.appendSwitch('use-angle', 'd3d11');
+}
+
+if (!app.isPackaged) {
+	app.commandLine.appendSwitch('ignore-gpu-blocklist');
+	app.commandLine.appendSwitch('enable-gpu-rasterization');
+	app.commandLine.appendSwitch('enable-zero-copy');
+}
 
 app.commandLine.appendSwitch('no-sandbox');
 app.commandLine.appendSwitch('disable-web-security');
@@ -52,21 +66,30 @@ function getBasePath() {
 	if (isPackaged) {
 		const externalBuild = path.join(process.resourcesPath, 'app', 'build');
 		const externalMain = path.join(externalBuild, 'assets', 'main.js');
+
+		let appPath = null;
 		try {
-			if (fs.existsSync(externalMain)) return externalBuild;
+			appPath = app.getAppPath();
 		} catch (e) {}
+		const asarBuild = appPath ? path.join(appPath, 'build') : null;
+		const asarMain = asarBuild
+			? path.join(asarBuild, 'assets', 'main.js')
+			: null;
 
 		try {
-			const appPath = app.getAppPath();
-			const asarBuild = path.join(appPath, 'build');
-			const asarMain = path.join(asarBuild, 'assets', 'main.js');
-			if (fs.existsSync(asarMain)) return asarBuild;
-			// fallback to whichever exists
-			if (fs.existsSync(externalBuild)) return externalBuild;
-			return asarBuild;
+			if (!fs.existsSync(externalMain) && asarMain && fs.existsSync(asarMain)) {
+				fs.mkdirSync(externalBuild, { recursive: true });
+				fs.cpSync(asarBuild, externalBuild, { recursive: true, force: true });
+			}
 		} catch (e) {
-			return externalBuild;
+			// ignore copy errors; we'll fall back to asar if needed
 		}
+
+		if (fs.existsSync(externalMain)) return externalBuild;
+		if (asarMain && fs.existsSync(asarMain)) return asarBuild;
+		if (fs.existsSync(externalBuild)) return externalBuild;
+		if (asarBuild && fs.existsSync(asarBuild)) return asarBuild;
+		return externalBuild;
 	} else {
 		return path.join(process.cwd(), 'build');
 	}
@@ -80,8 +103,10 @@ function fixPaths() {
 		return;
 	}
 
+	const isAsar = buildDir.includes('app.asar');
+
 	const mainJsPath = path.join(buildDir, 'assets', 'main.js');
-	if (fs.existsSync(mainJsPath)) {
+	if (fs.existsSync(mainJsPath) && !isAsar) {
 		let content = fs.readFileSync(mainJsPath, 'utf8');
 
 		const replacements = [
@@ -110,12 +135,12 @@ function fixPaths() {
 		}
 
 		fs.writeFileSync(mainJsPath, content);
-	} else {
+	} else if (!fs.existsSync(mainJsPath)) {
 		console.error('Could not find main.js at:', mainJsPath);
 	}
 
 	const indexHtmlPath = path.join(buildDir, 'index.html');
-	if (fs.existsSync(indexHtmlPath)) {
+	if (fs.existsSync(indexHtmlPath) && !isAsar) {
 		let content = fs.readFileSync(indexHtmlPath, 'utf8');
 
 		content = content.split('href="/').join('href="');
@@ -124,7 +149,7 @@ function fixPaths() {
 		content = content.split('src="./').join('src="');
 
 		fs.writeFileSync(indexHtmlPath, content);
-	} else {
+	} else if (!fs.existsSync(indexHtmlPath)) {
 		console.error('Could not find index.html at:', indexHtmlPath);
 	}
 }
@@ -213,6 +238,14 @@ function createWindow() {
 	const startUrl = `file://${indexPath}`;
 
 	mainWindow.loadURL(startUrl);
+
+	if (isCompatGL) {
+		mainWindow.webContents.on('did-finish-load', () => {
+			console.warn(
+				'[COMPAT] Relaunched in GL compatibility mode with DirectComposition disabled.'
+			);
+		});
+	}
 
 	mainWindow.webContents.on('did-finish-load', () => {
 		mainWindow.webContents.setZoomFactor(1.0);
@@ -361,6 +394,21 @@ ipcMain.handle('is-fullscreen', () => {
 		return mainWindow.isFullScreen();
 	}
 	return false;
+});
+
+ipcMain.handle('compat-relaunch', (_event, { mode }) => {
+	const nextArgs = (process.argv || [])
+		.slice(1)
+		.filter((a) => !a.startsWith('--compat='));
+	nextArgs.push(`--compat=${mode || 'gl'}`);
+	try {
+		app.relaunch({ args: nextArgs });
+		app.exit(0);
+		return true;
+	} catch (e) {
+		console.error('Failed to relaunch in compat mode:', e);
+		return false;
+	}
 });
 
 app.whenReady().then(() => {

@@ -116,14 +116,14 @@
 			"welcomeBack": "欢迎回来。",
 			"welcomeHousekeeper": "欢迎。您一定是新来的管家。",
 			"closeDoors": "总是在身后关门，否则它们可能会在您清洁房间时进入。",
-			"bathroomWarning": "如果听到浴室里有声音，不要开门。",
+			"bathroomWarning": "如果你听到什么声音，不要打开。但也别只依赖这一点：它们也可能一声不响。",
 			"hideImmediately": "如果听到敲门声或注意到电视或收音机打开，请躲起来。",
 			"checkRoom": "仔细检查整个房间。它们可能躲在任何地方。",
 			"spotWarning": "如果发现其中一个，快速关门并离开房间。",
 			"wellDone": "做得好！现在清洁8个房间来结束这一天。",
 			"turnBack": "记住：如果在房间里看到其中一个，立即转身。",
 			"infested": "这些房间中有一半是随机感染的。小心行事。",
-			"bathroomTasks": "在浴室中，任务各不相同：清洁污渍、扔垃圾、清除蜘蛛..."
+			"bathroomTasks": "在浴室里，任务各不相同（污渍、垃圾、蜘蛛等）。有些很难发现。"
 		},
 		"deathReasons": {
 			"underBed": "它躲在床下。",

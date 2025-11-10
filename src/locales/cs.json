@@ -116,14 +116,14 @@
 			"welcomeBack": "Vítejte zpět.",
 			"welcomeHousekeeper": "Vítejte. Musíte být nová pokojská.",
 			"closeDoors": "Vždy za sebou zavírejte dveře, jinak by mohli vstoupit, zatímco uklízíte pokoj.",
-			"bathroomWarning": "Pokud uslyšíte zvuky z koupelny, neotvírejte dveře.",
+			"bathroomWarning": "Když něco uslyšíte, neotvírejte. Ale nespoléhejte se na to: mohou být i zcela tiší.",
 			"hideImmediately": "Pokud uslyšíte klepání nebo zpozorujete, že se zapíná televize nebo rádio, schovat se.",
 			"checkRoom": "Pečlivě zkontrolujte celý pokoj. Mohou se skrývat kdekoli.",
 			"spotWarning": "Pokud jednoho z nich uvidíte, rychle zavřete dveře a opusťte pokoj.",
 			"wellDone": "Výborně! Nyní ukliďte 8 pokojů, abyste ukončili den.",
 			"turnBack": "Pamatujte: pokud jednoho z nich uvidíte v pokoji, okamžitě se vraťte.",
 			"infested": "Polovina těchto pokojů je náhodně nakažena. Postupujte opatrně.",
-			"bathroomTasks": "V koupelně se úkoly liší: vyčistit skvrnu, vyhodit odpadky, odstranit pavouky..."
+			"bathroomTasks": "V koupelně se úkoly liší (skvrny, odpadky, pavouci...). Některých je těžké si všimnout."
 		},
 		"deathReasons": {
 			"underBed": "Skrývalo se pod postelí.",

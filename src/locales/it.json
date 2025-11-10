@@ -116,14 +116,14 @@
 			"welcomeBack": "Bentornato.",
 			"welcomeHousekeeper": "Benvenuto. Devi essere la nuova governante.",
 			"closeDoors": "Chiudi sempre le porte dietro di te o potrebbero entrare mentre pulisci la stanza.",
-			"bathroomWarning": "Se senti rumori dal bagno, non aprire la porta.",
+			"bathroomWarning": "Se senti qualcosa, non aprire. Ma non fare affidamento solo su questo: possono essere anche silenziosi.",
 			"hideImmediately": "Se senti bussare o noti che la TV o la radio si accendono, nasconditi.",
 			"checkRoom": "Controlla tutta la stanza attentamente. Potrebbero nascondersi ovunque.",
 			"spotWarning": "Se ne vedi uno, chiudi rapidamente la porta ed esci dalla stanza.",
 			"wellDone": "Ben fatto! Ora pulisci 8 stanze per finire la giornata.",
 			"turnBack": "Ricorda: se ne vedi uno in una stanza, torna indietro immediatamente.",
 			"infested": "Metà di queste stanze sono infestate casualmente. Procedi con cautela.",
-			"bathroomTasks": "Nel bagno, il compito varia: pulire una macchia, buttare la spazzatura, rimuovere ragni..."
+			"bathroomTasks": "In bagno, i compiti variano (macchie, spazzatura, ragni...). Alcuni sono difficili da notare."
 		},
 		"deathReasons": {
 			"underBed": "Si nascondeva sotto il letto.",

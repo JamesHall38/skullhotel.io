@@ -116,14 +116,14 @@
 			"welcomeBack": "Bine ai revenit.",
 			"welcomeHousekeeper": "Bine ai venit. Trebuie să fii noua menajeră.",
 			"closeDoors": "Închide întotdeauna ușile în urma ta sau ar putea intra în timp ce curăți camera.",
-			"bathroomWarning": "Dacă auzi sunete din baie, nu deschide ușa.",
+			"bathroomWarning": "Dacă auzi ceva, nu deschide. Dar nu te baza doar pe asta: pot fi și tăcuți.",
 			"hideImmediately": "Dacă auzi bătăi în ușă sau observi că televizorul sau radioul se aprind, ascunde-te.",
 			"checkRoom": "Verifică întreaga cameră cu atenție. S-ar putea să se ascundă oriunde.",
 			"spotWarning": "Dacă vezi unul dintre ei, închide rapid ușa și ieși din cameră.",
 			"wellDone": "Bine făcut! Acum curăță 8 camere pentru a termina ziua.",
 			"turnBack": "Amintește-ți: dacă vezi unul dintre ei într-o cameră, întoarce-te imediat.",
 			"infested": "Jumătate din aceste camere sunt infectate aleatoriu. Continuă cu prudență.",
-			"bathroomTasks": "În baie, sarcina variază: curăță o pată, aruncă gunoiul, elimină păianjenii..."
+			"bathroomTasks": "În baie, sarcinile variază (pete, gunoi, păianjeni...). Unele sunt greu de observat."
 		},
 		"deathReasons": {
 			"underBed": "Se ascundea sub pat.",

@@ -116,14 +116,14 @@
 			"welcomeBack": "Tekrar hoş geldin.",
 			"welcomeHousekeeper": "Hoş geldin. Yeni temizlik görevlisi olmalısın.",
 			"closeDoors": "Odayı temizlerken onlar girebilir, bu yüzden arkandan kapıları her zaman kapat.",
-			"bathroomWarning": "Banyodan ses duyarsan kapıyı açma.",
+			"bathroomWarning": "Bir şey duyarsan açma. Ama buna güvenme: tamamen sessiz de olabilirler.",
 			"hideImmediately": "Kapı çalma sesi duyarsan veya TV ya da radyonun açıldığını fark edersen saklan.",
 			"checkRoom": "Tüm odayı dikkatli kontrol et. Her yerde saklanıyor olabilirler.",
 			"spotWarning": "Onlardan birini görürsen hızlıca kapıyı kapat ve odadan çık.",
 			"wellDone": "Aferin! Şimdi günü bitirmek için 8 oda temizle.",
 			"turnBack": "Unutma: bir odada onlardan birini görürsen hemen geri dön.",
 			"infested": "Bu odaların yarısı rastgele enfekte. Dikkatli ilerle.",
-			"bathroomTasks": "Banyoda görev değişir: bir lekeyi temizle, çöpü at, örümcekleri kaldır..."
+			"bathroomTasks": "Banyoda görevler değişir (lekeler, çöp, örümcekler...). Bazılarını fark etmek zordur."
 		},
 		"deathReasons": {
 			"underBed": "Yatağın altında saklanıyordu.",

@@ -116,14 +116,14 @@
 			"welcomeBack": "Witaj z powrotem.",
 			"welcomeHousekeeper": "Witaj. Musisz być nową pokojówką.",
 			"closeDoors": "Zawsze zamykaj drzwi za sobą, bo mogą wejść podczas sprzątania pokoju.",
-			"bathroomWarning": "Jeśli usłyszysz dźwięki z łazienki, nie otwieraj drzwi.",
+			"bathroomWarning": "Jeśli coś usłyszysz, nie otwieraj. Ale nie polegaj tylko na tym: potrafią być też całkiem cisi.",
 			"hideImmediately": "Jeśli usłyszysz pukanie lub zauważysz, że telewizor lub radio się włącza, schowaj się.",
 			"checkRoom": "Sprawdź cały pokój uważnie. Mogą się ukrywać wszędzie.",
 			"spotWarning": "Jeśli zobaczysz jednego z nich, szybko zamknij drzwi i wyjdź z pokoju.",
 			"wellDone": "Dobrze zrobione! Teraz posprzątaj 8 pokoi, aby skończyć dzień.",
 			"turnBack": "Pamiętaj: jeśli zobaczysz jednego z nich w pokoju, natychmiast się wycofaj.",
 			"infested": "Połowa tych pokoi jest losowo zainfekowana. Postępuj ostrożnie.",
-			"bathroomTasks": "W łazience zadania są różne: wyczyścić plamę, wyrzucić śmieci, usunąć pająki..."
+			"bathroomTasks": "W łazience zadania są różne (plamy, śmieci, pająki...). Niektóre są trudne do dostrzeżenia."
 		},
 		"deathReasons": {
 			"underBed": "Ukrywało się pod łóżkiem.",

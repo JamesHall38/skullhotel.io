@@ -116,14 +116,14 @@
 			"welcomeBack": "Bem-vindo de volta.",
 			"welcomeHousekeeper": "Bem-vindo. Você deve ser a nova governanta.",
 			"closeDoors": "Sempre feche as portas atrás de você ou eles podem entrar enquanto você limpa o quarto.",
-			"bathroomWarning": "Se ouvir sons do banheiro, não abra a porta.",
+			"bathroomWarning": "Se ouvir algo, não abra. Mas não confie só nisso: eles também podem ficar em silêncio.",
 			"hideImmediately": "Se ouvir batidas ou notar a TV ou rádio ligando, esconda-se.",
 			"checkRoom": "Verifique todo o quarto cuidadosamente. Eles podem estar se escondendo em qualquer lugar.",
 			"spotWarning": "Se avistar um deles, feche rapidamente a porta e saia do quarto.",
 			"wellDone": "Muito bem! Agora limpe 8 quartos para terminar o dia.",
 			"turnBack": "Lembre-se: se vir um deles em um quarto, volte imediatamente.",
 			"infested": "Metade desses quartos está aleatoriamente infestada. Proceda com cautela.",
-			"bathroomTasks": "No banheiro, a tarefa varia: limpar uma mancha, jogar o lixo fora, remover aranhas..."
+			"bathroomTasks": "No banheiro, as tarefas variam (manchas, lixo, aranhas...). Algumas são difíceis de perceber."
 		},
 		"deathReasons": {
 			"underBed": "Estava se escondendo embaixo da cama.",

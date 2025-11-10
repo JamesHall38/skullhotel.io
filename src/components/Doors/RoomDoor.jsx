@@ -3,6 +3,7 @@ import { useGLTF } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
 import useDoor from '../../hooks/useDoor';
 import useGame from '../../hooks/useGame';
+import useInterface from '../../hooks/useInterface';
 import DoorWrapper from './DoorWrapper';
 import * as THREE from 'three';
 import WoodMaterial from '../materials/WoodMaterial';
@@ -24,10 +25,17 @@ export default function RoomDoor({ roomNumber }) {
 
 	const fontUrl = '/EB_Garamond_Regular.json';
 
+	const isRoomClean = useInterface((state) => {
+		const objectives = state.interfaceObjectives[roomNumber];
+		return Array.isArray(objectives) && objectives.every(Boolean);
+	});
+
 	const lockMaterial = useMemo(
 		() =>
-			new THREE.MeshBasicMaterial({ color: isOpen ? '#00ff00' : '#ff0000' }),
-		[isOpen]
+			new THREE.MeshBasicMaterial({
+				color: isRoomClean ? '#00ff00' : '#ff0000',
+			}),
+		[isRoomClean]
 	);
 
 	useEffect(() => {

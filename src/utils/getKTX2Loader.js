@@ -24,7 +24,7 @@ export function getKTX2Loader(gl) {
 		const isElectron = !!(
 			typeof process !== 'undefined' && process?.versions?.electron
 		);
-		sharedLoader.setWorkerLimit(isElectron ? 2 : 1);
+		sharedLoader.setWorkerLimit(1);
 	}
 	if (gl && typeof sharedLoader.detectSupport === 'function') {
 		sharedLoader.detectSupport(gl);

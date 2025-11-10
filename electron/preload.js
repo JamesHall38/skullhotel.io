@@ -9,6 +9,20 @@ contextBridge.exposeInMainWorld('steamAPI', {
 		ipcRenderer.invoke('steam-reset-achievement', achievementId),
 });
 
+contextBridge.exposeInMainWorld('compat', {
+	relaunchGL: () => ipcRenderer.invoke('compat-relaunch', { mode: 'gl' }),
+	getMode: () => {
+		try {
+			const isCompat = (process.argv || []).some((a) =>
+				String(a).startsWith('--compat=gl')
+			);
+			return isCompat ? 'gl' : 'default';
+		} catch (_e) {
+			return 'default';
+		}
+	},
+});
+
 contextBridge.exposeInMainWorld('electronAPI', {
 	toggleFullscreen: () => ipcRenderer.invoke('toggle-fullscreen'),
 	isFullscreen: () => ipcRenderer.invoke('is-fullscreen'),
