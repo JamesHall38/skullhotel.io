@@ -18,12 +18,12 @@ export function getKTX2Loader(gl) {
 
 	sharedLoader = new KTX2Loader();
 	if (typeof sharedLoader.setTranscoderPath === 'function') {
-		sharedLoader.setTranscoderPath('basis/');
-	}
-	if (typeof sharedLoader.setWorkerLimit === 'function') {
 		const isElectron = !!(
 			typeof process !== 'undefined' && process?.versions?.electron
 		);
+		sharedLoader.setTranscoderPath(isElectron ? 'basis/' : '/basis/');
+	}
+	if (typeof sharedLoader.setWorkerLimit === 'function') {
 		sharedLoader.setWorkerLimit(1);
 	}
 	if (gl && typeof sharedLoader.detectSupport === 'function') {
