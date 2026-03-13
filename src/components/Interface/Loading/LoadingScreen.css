@@ -214,6 +214,147 @@
 	gap: 0.5rem;
 }
 
+.cross-promo-link {
+	opacity: 0;
+	animation: loadingAppear 1s ease calc(var(--animation-delay) + 0.2s) forwards;
+	z-index: 2;
+	color: #777d90;
+	font-size: 0.9rem;
+	text-decoration: none;
+	text-align: center;
+	max-width: 500px;
+	line-height: 1.4;
+	cursor: pointer;
+	transition: all 0.2s ease;
+}
+
+.cross-promo-link:hover {
+	color: #9da5c0;
+}
+
+.cross-promo-link span {
+	color: #efd89b;
+	text-decoration: underline;
+}
+
+.cross-promo-link:hover span {
+	color: #fff;
+}
+
+/* Cross-promo popup */
+@keyframes promoFadeIn {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
+}
+
+@keyframes promoSlideIn {
+	from {
+		opacity: 0;
+		transform: scale(0.9) translateY(20px);
+	}
+	to {
+		opacity: 1;
+		transform: scale(1) translateY(0);
+	}
+}
+
+.cross-promo-overlay {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background: rgba(0, 0, 0, 0.7);
+	z-index: 100;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	animation: promoFadeIn 0.3s ease forwards;
+}
+
+.cross-promo-popup {
+	position: relative;
+	background: #0e0e0d;
+	border: 1px solid #efd89b;
+	padding: 2.5rem 3rem;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 1rem;
+	max-width: 420px;
+	width: 90%;
+	animation: promoSlideIn 0.4s ease forwards;
+}
+
+.cross-promo-close {
+	position: absolute;
+	top: 0.5rem;
+	right: 0.75rem;
+	background: none;
+	border: none;
+	color: #777d90;
+	font-size: 1.75rem;
+	cursor: pointer;
+	line-height: 1;
+	transition: color 0.2s ease;
+	padding: 0.25rem;
+}
+
+.cross-promo-close:hover {
+	color: #fff;
+}
+
+.cross-promo-header {
+	color: #777d90;
+	font-size: 0.85rem;
+	letter-spacing: 2px;
+	text-transform: uppercase;
+}
+
+.cross-promo-capsule {
+	width: 100%;
+	border-radius: 4px;
+}
+
+.cross-promo-description {
+	color: #c1c1c1;
+	font-size: 1.1rem;
+	text-align: center;
+	line-height: 1.4;
+}
+
+.cross-promo-cta {
+	display: inline-block;
+	margin-top: 0.5rem;
+	padding: 0.75rem 2rem;
+	background: #efd89b;
+	color: #080807;
+	font-size: 1rem;
+	font-weight: 600;
+	letter-spacing: 1px;
+	text-decoration: none;
+	transition: all 0.2s ease;
+	cursor: pointer;
+}
+
+.cross-promo-cta:hover {
+	background: #fff;
+}
+
+@media (max-width: 500px) {
+	.cross-promo-popup {
+		padding: 2rem 1.5rem;
+	}
+
+	.cross-promo-game-name {
+		font-size: 1.8rem;
+	}
+}
+
 .lincoln-regular {
 	font-family: 'Lincoln Road Regular', sans-serif;
 }

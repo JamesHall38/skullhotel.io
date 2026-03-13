@@ -108,6 +108,13 @@
 			"deaths": "Smrti",
 			"date": "Datum"
 		},
+		"crossPromo": {
+			"title": "OD TVŮRCŮ SKULL HOTEL",
+			"description": "Stejný koncept, posunutý na další úroveň. Co-op a náhodné mapy v každém kole.",
+			"cta": "PŘIDAT NA SEZNAM PŘÁNÍ NA STEAMU",
+			"message": "Líbí se vám Skull Hotel? Vyzkoušejte Sly Apes, naši další hru. Stejný koncept, posunutý na další úroveň.",
+			"ctaSmall": "Přidat na seznam přání"
+		},
 		"close": "Zavřít"
 	},
 	"game": {

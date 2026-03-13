@@ -16,6 +16,16 @@ const LoadingScreen = ({ onStart }) => {
 	const [animationsComplete, setAnimationsComplete] = useState(false);
 	const [animationProgress, setAnimationProgress] = useState(0);
 	const [isStuck, setIsStuck] = useState(false);
+	const promoPopupDone = useRef(() => {
+		const count = parseInt(localStorage.getItem('skullhotel_promo_count') || '0', 10);
+		const lastShown = localStorage.getItem('skullhotel_promo_last_shown');
+		const today = new Date().toDateString();
+		if (count >= 3) return true;
+		if (lastShown === today) return true;
+		return false;
+	});
+	const popupShownThisSession = useRef(!promoPopupDone.current());
+	const [showPromoPopup, setShowPromoPopup] = useState(false);
 	const setShouldRenderThreeJs = useGame(
 		(state) => state.setShouldRenderThreeJs
 	);
@@ -51,6 +61,12 @@ const LoadingScreen = ({ onStart }) => {
 	useEffect(() => {
 		resetAnimationsCount();
 	}, [resetAnimationsCount]);
+
+	useEffect(() => {
+		if (!popupShownThisSession.current) return;
+		const timer = setTimeout(() => setShowPromoPopup(true), 5500);
+		return () => clearTimeout(timer);
+	}, []);
 
 	useEffect(() => {
 		if (isAllAnimationsComplete()) {
@@ -160,6 +176,14 @@ const LoadingScreen = ({ onStart }) => {
 		};
 	}, []);
 
+	const handleClosePromo = (e) => {
+		e.stopPropagation();
+		setShowPromoPopup(false);
+		const count = parseInt(localStorage.getItem('skullhotel_promo_count') || '0', 10);
+		localStorage.setItem('skullhotel_promo_count', String(count + 1));
+		localStorage.setItem('skullhotel_promo_last_shown', new Date().toDateString());
+	};
+
 	const handleStartClick = (e) => {
 		if (displayProgress !== 100 || !animationsComplete) {
 			e.stopPropagation();
@@ -258,8 +282,50 @@ const LoadingScreen = ({ onStart }) => {
 					>
 						{t('ui.loading.settings')}
 					</div>
+					{!popupShownThisSession.current && (
+						<a
+							className="cross-promo-link lincoln-regular"
+							href="https://store.steampowered.com/app/4506220/Sly_Apes/?utm_source=skull_hotel&utm_medium=main_menu&utm_campaign=cross_promo"
+							target="_blank"
+							rel="noopener noreferrer"
+							onClick={(e) => {
+								e.stopPropagation();
+							}}
+						>
+							{t('ui.crossPromo.message')}{' '}
+							<span>{t('ui.crossPromo.ctaSmall')}</span>
+						</a>
+					)}
 				</div>
 			</div>
+			{showPromoPopup && (
+				<div className="cross-promo-overlay" onClick={handleClosePromo}>
+					<div className="cross-promo-popup" onClick={(e) => e.stopPropagation()}>
+						<button className="cross-promo-close" onClick={handleClosePromo}>&times;</button>
+						<div className="cross-promo-header lincoln-regular">
+							{t('ui.crossPromo.title')}
+						</div>
+						<img
+							className="cross-promo-capsule"
+							src="/sly-apes-capsule.webp"
+							alt="Sly Apes"
+							loading="eager"
+						/>
+						<div className="cross-promo-description lincoln-regular">
+							{t('ui.crossPromo.description')}
+						</div>
+						<a
+							className="cross-promo-cta lincoln-regular"
+							href="https://store.steampowered.com/app/4506220/Sly_Apes/?utm_source=skull_hotel&utm_medium=launch_popup&utm_campaign=cross_promo"
+							target="_blank"
+							rel="noopener noreferrer"
+							onClick={(e) => e.stopPropagation()}
+						>
+							{t('ui.crossPromo.cta')}
+						</a>
+					</div>
+				</div>
+			)}
 		</>
 	);
 };

@@ -108,6 +108,13 @@
 			"deaths": "死亡次数",
 			"date": "日期"
 		},
+		"crossPromo": {
+			"title": "来自SKULL HOTEL的制作者",
+			"description": "同样的概念，更上一层楼。合作模式和每次随机生成的地图。",
+			"cta": "在STEAM上加入愿望单",
+			"message": "喜欢Skull Hotel？试试我们的新作Sly Apes。同样的概念，更上一层楼。",
+			"ctaSmall": "加入愿望单"
+		},
 		"close": "关闭"
 	},
 	"game": {

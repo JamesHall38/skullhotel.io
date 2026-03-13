@@ -91,6 +91,7 @@ const EndGameScreen = () => {
 	const [focusedElement, setFocusedElement] = useState(0);
 	const interactiveElements = useRef([]);
 	const [isRestarting, setIsRestarting] = useState(false);
+	const [showPromoPopup, setShowPromoPopup] = useState(false);
 
 	const { t } = useLocalization();
 	const restart = useGame((state) => state.restart);
@@ -135,6 +136,8 @@ const EndGameScreen = () => {
 				? Math.floor((gameEndTime - gameStartTime) / 1000)
 				: 0;
 			setCompletionTime(timeTaken);
+			setShowPromoPopup(false);
+			const promoTimer = setTimeout(() => setShowPromoPopup(true), 5000);
 
 			setTimeout(() => {
 				const canvas = document.querySelector('canvas');
@@ -150,6 +153,7 @@ const EndGameScreen = () => {
 			}, 200);
 		} else {
 			setIsAnyPopupOpen(false);
+			setShowPromoPopup(false);
 		}
 	}, [
 		isEndScreen,
@@ -492,6 +496,7 @@ const EndGameScreen = () => {
 				</div>
 			)}
 
+
 			<button
 				className="restart-button lincoln-regular"
 				onClick={(e) => {
@@ -503,6 +508,35 @@ const EndGameScreen = () => {
 					? t('ui.endGameScreen.restarting')
 					: t('ui.endGameScreen.playAgain')}
 			</button>
+
+			{showPromoPopup && (
+				<div className="cross-promo-overlay" onClick={() => setShowPromoPopup(false)}>
+					<div className="cross-promo-popup" onClick={(e) => e.stopPropagation()}>
+						<button className="cross-promo-close" onClick={() => setShowPromoPopup(false)}>&times;</button>
+						<div className="cross-promo-header lincoln-regular">
+							{t('ui.crossPromo.title')}
+						</div>
+						<img
+							className="cross-promo-capsule"
+							src="/sly-apes-capsule.webp"
+							alt="Sly Apes"
+							loading="eager"
+						/>
+						<div className="cross-promo-description lincoln-regular">
+							{t('ui.crossPromo.description')}
+						</div>
+						<a
+							className="cross-promo-cta lincoln-regular"
+							href="https://store.steampowered.com/app/4506220/Sly_Apes/?utm_source=skull_hotel&utm_medium=end_screen&utm_campaign=cross_promo"
+							target="_blank"
+							rel="noopener noreferrer"
+							onClick={(e) => e.stopPropagation()}
+						>
+							{t('ui.crossPromo.cta')}
+						</a>
+					</div>
+				</div>
+			)}
 		</div>
 	);
 };

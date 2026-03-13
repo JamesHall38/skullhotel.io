@@ -9,3 +9,5 @@ node_modules/
 /steamcontent/
 
 .env
+
+500_first_bug_reports.md

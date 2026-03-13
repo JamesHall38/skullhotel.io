@@ -108,6 +108,13 @@
 			"deaths": "Dødsfall",
 			"date": "Dato"
 		},
+		"crossPromo": {
+			"title": "FRA SKAPERNE AV SKULL HOTEL",
+			"description": "Samme konsept, tatt til neste nivå. Co-op og tilfeldige kart hver runde.",
+			"cta": "LEGG TIL I ØNSKELISTEN PÅ STEAM",
+			"message": "Liker du Skull Hotel? Prøv Sly Apes, vårt neste spill. Samme konsept, tatt til neste nivå.",
+			"ctaSmall": "Legg til i ønskelisten"
+		},
 		"close": "Lukk"
 	},
 	"game": {

@@ -108,6 +108,13 @@
 			"deaths": "Ölümler",
 			"date": "Tarih"
 		},
+		"crossPromo": {
+			"title": "SKULL HOTEL'İN YARATICILARINDAN",
+			"description": "Aynı konsept, bir üst seviyeye taşındı. Co-op ve her oyunda rastgele haritalar.",
+			"cta": "STEAM İSTEK LİSTESİNE EKLE",
+			"message": "Skull Hotel hoşunuza mı gitti? Bir sonraki oyunumuz Sly Apes'i deneyin. Aynı konsept, bir üst seviyeye taşındı.",
+			"ctaSmall": "İstek listesine ekle"
+		},
 		"close": "Kapat"
 	},
 	"game": {

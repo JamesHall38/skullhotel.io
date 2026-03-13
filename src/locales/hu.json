@@ -108,6 +108,13 @@
 			"deaths": "Halálok",
 			"date": "Dátum"
 		},
+		"crossPromo": {
+			"title": "A SKULL HOTEL KÉSZÍTŐITŐL",
+			"description": "Ugyanaz a koncepció, magasabb szintre emelve. Co-op és véletlenszerű pályák minden körben.",
+			"cta": "HOZZÁADÁS A KÍVÁNSÁGLISTÁHOZ A STEAMEN",
+			"message": "Tetszik a Skull Hotel? Próbáld ki a Sly Apes-t, a következő játékunkat. Ugyanaz a koncepció, magasabb szintre emelve.",
+			"ctaSmall": "Kívánságlistához adás"
+		},
 		"close": "Bezár"
 	},
 	"game": {

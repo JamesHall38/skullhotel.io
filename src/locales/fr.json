@@ -108,6 +108,13 @@
 			"deaths": "Morts",
 			"date": "Date"
 		},
+		"crossPromo": {
+			"title": "PAR LES CRÉATEURS DE SKULL HOTEL",
+			"description": "Même concept, passé à l'étape supérieure. Co-op et maps aléatoires à chaque partie.",
+			"cta": "AJOUTER À LA WISHLIST",
+			"message": "Vous aimez Skull Hotel ? Essayez Sly Apes, notre prochain jeu. Même concept, passé à l'étape supérieure.",
+			"ctaSmall": "Ajouter à la wishlist"
+		},
 		"close": "Fermer"
 	},
 	"game": {

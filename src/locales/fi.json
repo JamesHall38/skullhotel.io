@@ -108,6 +108,13 @@
 			"deaths": "Kuolemat",
 			"date": "Päivämäärä"
 		},
+		"crossPromo": {
+			"title": "SKULL HOTELIN TEKIJÖILTÄ",
+			"description": "Sama konsepti, vietynä seuraavalle tasolle. Co-op ja satunnaiset kartat joka kierroksella.",
+			"cta": "LISÄÄ TOIVELISTALLE STEAMISSA",
+			"message": "Pidätkö Skull Hotelista? Kokeile Sly Apesia, seuraavaa peliämme. Sama konsepti, vietynä seuraavalle tasolle.",
+			"ctaSmall": "Lisää toivelistalle"
+		},
 		"close": "Sulje"
 	},
 	"game": {

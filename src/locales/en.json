@@ -108,6 +108,13 @@
 			"deaths": "Deaths",
 			"date": "Date"
 		},
+		"crossPromo": {
+			"title": "FROM THE CREATORS OF SKULL HOTEL",
+			"description": "Same concept, taken to the next level. Co-op and random maps every run.",
+			"cta": "WISHLIST ON STEAM",
+			"message": "Enjoy Skull Hotel? Try Sly Apes, our next game. Same concept, taken to the next level.",
+			"ctaSmall": "Wishlist now"
+		},
 		"close": "Close"
 	},
 	"game": {

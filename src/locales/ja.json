@@ -108,6 +108,13 @@
 			"deaths": "死亡回数",
 			"date": "日付"
 		},
+		"crossPromo": {
+			"title": "SKULL HOTELの制作者より",
+			"description": "同じコンセプトを次のレベルへ。Co-opとランダムマップで毎回新鮮なプレイ。",
+			"cta": "STEAMでウィッシュリストに追加",
+			"message": "Skull Hotelが気に入りましたか？次回作Sly Apesをお試しください。同じコンセプトを次のレベルへ。",
+			"ctaSmall": "ウィッシュリストに追加"
+		},
 		"close": "閉じる"
 	},
 	"game": {

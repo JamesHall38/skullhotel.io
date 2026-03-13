@@ -108,6 +108,13 @@
 			"deaths": "사망 횟수",
 			"date": "날짜"
 		},
+		"crossPromo": {
+			"title": "SKULL HOTEL 제작자의 새로운 게임",
+			"description": "같은 컨셉, 한 단계 업그레이드. 코옵과 매번 랜덤 맵.",
+			"cta": "STEAM 위시리스트에 추가",
+			"message": "Skull Hotel이 마음에 드셨나요? 차기작 Sly Apes를 만나보세요. 같은 컨셉, 한 단계 업그레이드.",
+			"ctaSmall": "위시리스트에 추가"
+		},
 		"close": "닫기"
 	},
 	"game": {
