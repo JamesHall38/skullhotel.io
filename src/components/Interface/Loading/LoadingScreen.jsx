@@ -307,7 +307,7 @@ const LoadingScreen = ({ onStart }) => {
 						</div>
 						<img
 							className="cross-promo-capsule"
-							src="/sly-apes-capsule.webp"
+							src="./sly_apes_capsule.webp"
 							alt="Sly Apes"
 							loading="eager"
 						/>
