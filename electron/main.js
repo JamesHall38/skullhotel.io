@@ -7,6 +7,7 @@ const {
 	ipcMain,
 	screen,
 	session,
+	shell,
 } = require('electron');
 const path = require('path');
 const fs = require('fs');
@@ -310,6 +311,13 @@ function createWindow() {
 	if (!isPackaged) {
 		mainWindow.webContents.openDevTools();
 	}
+
+	mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+		if (url.startsWith('https://')) {
+			shell.openExternal(url);
+		}
+		return { action: 'deny' };
+	});
 
 	mainWindow.on('closed', function () {
 		mainWindow = null;

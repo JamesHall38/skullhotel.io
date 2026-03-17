@@ -153,24 +153,30 @@ export default function ReceptionDoors() {
 				setHandlePressed={setCorridorHandle}
 				setOpen={(value) => {
 					if (value) {
-						const allTutorialObjectivesCompleted = tutorialObjectives.every(
-							(obj) => obj === true
-						);
+						const objectivesCompleted = doneObjectives >= roomCount / 2;
 
-						const canOpen =
-							hasEverCompletedTutorial || allTutorialObjectivesCompleted;
+						if (!objectivesCompleted) {
+							const allTutorialObjectivesCompleted = tutorialObjectives.every(
+								(obj) => obj === true
+							);
 
-						if (!canOpen) {
-							if (currentDialogueIndex !== 0) {
-								setCurrentDialogueIndex(0);
-								setTimeout(() => setCurrentDialogueIndex(null), 3000);
+							const canOpen =
+								hasEverCompletedTutorial || allTutorialObjectivesCompleted;
+
+							if (!canOpen) {
+								if (currentDialogueIndex !== 0) {
+									setCurrentDialogueIndex(0);
+									setTimeout(() => setCurrentDialogueIndex(null), 3000);
+								}
+								return;
 							}
-							return;
 						}
 
 						if (!isTutorialCompleted) {
 							setIsTutorialCompleted(true);
 						}
+					} else if (doneObjectives >= roomCount / 2) {
+						return;
 					}
 					setCorridorDoor(value);
 					setPlayerPositionRoom(initialPosition);
@@ -201,13 +207,15 @@ export default function ReceptionDoors() {
 					offset={[10.025, 0.965, -3.85]}
 					isOpen={exitDoor}
 					setHandlePressed={setExitHandle}
-					setOpen={() => {
-						if (doneObjectives >= roomCount / 2) {
-							setEndAnimationPlaying(true);
-						} else {
-							if (currentDialogueIndex !== 0) {
-								setCurrentDialogueIndex(0);
-								setTimeout(() => setCurrentDialogueIndex(null), 3000);
+					setOpen={(value) => {
+						if (value) {
+							if (doneObjectives >= roomCount / 2) {
+								setEndAnimationPlaying(true);
+							} else {
+								if (currentDialogueIndex !== 0) {
+									setCurrentDialogueIndex(0);
+									setTimeout(() => setCurrentDialogueIndex(null), 3000);
+								}
 							}
 						}
 					}}

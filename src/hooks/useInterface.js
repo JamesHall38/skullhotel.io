@@ -77,10 +77,11 @@ const useInterfaceStore = create(
 		]),
 		setInterfaceObjectives: (objective, number) => {
 			set((state) => {
-				const newObjectives = [...state.interfaceObjectives];
-				if (newObjectives[number]) {
-					newObjectives[number][objective] = true;
-				}
+				const newObjectives = state.interfaceObjectives.map((subArray, index) =>
+					index === number
+						? subArray.map((val, i) => (i === objective ? true : val))
+						: subArray
+				);
 				return { interfaceObjectives: newObjectives };
 			});
 		},
