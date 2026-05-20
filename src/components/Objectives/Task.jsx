@@ -5,7 +5,7 @@ import React, {
 	useEffect,
 	useCallback,
 } from 'react';
-import { useGLTF } from '@react-three/drei';
+import { useGLTF } from '../../utils/useGLTFLocal';
 import { useThree } from '@react-three/fiber';
 import { getKTX2Loader } from '@/utils/getKTX2Loader';
 import { useControls } from 'leva';

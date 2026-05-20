@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { useGLTF } from '@react-three/drei';
+import { useGLTF } from '../../utils/useGLTFLocal';
 import { useSpring, a } from '@react-spring/three';
 import useGame from '../../hooks/useGame';
 import useDoor from '../../hooks/useDoor';

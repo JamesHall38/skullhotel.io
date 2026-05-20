@@ -1,5 +1,6 @@
 import { useRef, useMemo, useEffect, useCallback, useState } from 'react';
-import { useGLTF, useAnimations } from '@react-three/drei';
+import { useAnimations } from '@react-three/drei';
+import { useGLTF } from '../../utils/useGLTFLocal';
 import { useThree } from '@react-three/fiber';
 import useGame from '../../hooks/useGame';
 import useInterface from '../../hooks/useInterface';

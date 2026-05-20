@@ -142,9 +142,17 @@ export default function Crouch({
 		};
 
 		const preventCtrlCombinations = (event) => {
-			if (event.ctrlKey) {
-				event.preventDefault();
+			if (!event.ctrlKey) return;
+			const target = event.target;
+			const tag = target?.tagName;
+			if (
+				tag === 'INPUT' ||
+				tag === 'TEXTAREA' ||
+				target?.isContentEditable
+			) {
+				return;
 			}
+			event.preventDefault();
 		};
 
 		window.addEventListener('keydown', handleKeyDown);

@@ -35,24 +35,27 @@ function GuestBookContent({ onClose }) {
 		}
 	})();
 
-	const { t } = useLocalization();
+	const { t, currentLanguage } = useLocalization();
 
 	const debouncedSearch = useDebounce(searchInput, 300);
 
-	const loadSpecificPage = useCallback(async (pageNumber) => {
-		try {
-			setLoading(true);
-			const result = await getSpecificPage(pageNumber);
-			setEntries(result.entries);
-			setLastVisible(result.lastVisible);
-			setCurrentPage(result.currentPage);
-			setTotalPages(result.totalPages);
-		} catch (err) {
-			console.error(`Error loading page ${pageNumber}:`, err);
-		} finally {
-			setLoading(false);
-		}
-	}, []);
+	const loadSpecificPage = useCallback(
+		async (pageNumber) => {
+			try {
+				setLoading(true);
+				const result = await getSpecificPage(pageNumber, currentLanguage);
+				setEntries(result.entries);
+				setLastVisible(result.lastVisible);
+				setCurrentPage(result.currentPage);
+				setTotalPages(result.totalPages);
+			} catch (err) {
+				console.error(`Error loading page ${pageNumber}:`, err);
+			} finally {
+				setLoading(false);
+			}
+		},
+		[currentLanguage]
+	);
 
 	useEffect(() => {
 		const savedPlayerName = localStorage.getItem(STORAGE_KEY);
@@ -79,7 +82,10 @@ function GuestBookContent({ onClose }) {
 						await loadInitialData();
 					}
 				} else {
-					const result = await findPageByPlayerName(debouncedSearch);
+					const result = await findPageByPlayerName(
+						debouncedSearch,
+						currentLanguage
+					);
 					if (result) {
 						await loadSpecificPage(result.pageNumber);
 					} else {
@@ -95,7 +101,7 @@ function GuestBookContent({ onClose }) {
 		};
 
 		handleSearch();
-	}, [debouncedSearch, totalPages, loadSpecificPage]);
+	}, [debouncedSearch, totalPages, loadSpecificPage, currentLanguage]);
 
 	const loadInitialData = async () => {
 		try {
@@ -106,7 +112,7 @@ function GuestBookContent({ onClose }) {
 				lastVisible: lastDoc,
 				currentPage: page,
 				totalPages: total,
-			} = await getFirstGuestBookPage();
+			} = await getFirstGuestBookPage(currentLanguage);
 
 			setEntries(initialEntries);
 			setLastVisible(lastDoc);
@@ -121,7 +127,8 @@ function GuestBookContent({ onClose }) {
 
 	useEffect(() => {
 		loadInitialData();
-	}, []);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [currentLanguage]);
 
 	useEffect(() => {
 		if (deviceMode === 'gamepad' && guestBookRef.current) {
@@ -168,7 +175,7 @@ function GuestBookContent({ onClose }) {
 				entries: nextEntries,
 				lastVisible: newLastDoc,
 				currentPage: newPage,
-			} = await getNextGuestBookPage(lastVisible, currentPage);
+			} = await getNextGuestBookPage(lastVisible, currentPage, currentLanguage);
 
 			setEntries(nextEntries);
 			setLastVisible(newLastDoc);
@@ -190,7 +197,7 @@ function GuestBookContent({ onClose }) {
 				entries: prevEntries,
 				lastVisible: prevLastDoc,
 				currentPage: newPage,
-			} = await getSpecificPage(prevPage);
+			} = await getSpecificPage(prevPage, currentLanguage);
 
 			setEntries(prevEntries);
 			setLastVisible(prevLastDoc);

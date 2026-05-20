@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef, useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
-import { useGLTF } from '@react-three/drei';
+import { useGLTF } from '../../utils/useGLTFLocal';
 import DoorWrapper from './DoorWrapper';
 import useDoor from '../../hooks/useDoor';
 import useGame from '../../hooks/useGame';

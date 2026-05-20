@@ -7,6 +7,7 @@ contextBridge.exposeInMainWorld('steamAPI', {
 	unnecessaryFear: () => ipcRenderer.invoke('steam-unnecessary-fear'),
 	resetAchievement: (achievementId) =>
 		ipcRenderer.invoke('steam-reset-achievement', achievementId),
+	openOverlayURL: (url) => ipcRenderer.invoke('steam-open-overlay-url', url),
 });
 
 contextBridge.exposeInMainWorld('compat', {

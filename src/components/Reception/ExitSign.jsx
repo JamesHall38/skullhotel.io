@@ -1,5 +1,5 @@
 import React from 'react';
-import { useGLTF } from '@react-three/drei';
+import { useGLTF } from '../../utils/useGLTFLocal';
 
 export default function ExitSign(props) {
 	const { nodes, materials } = useGLTF('/models/reception/exit_sign.glb');

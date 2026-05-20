@@ -14,26 +14,46 @@ import {
 	endAt,
 } from 'firebase/firestore';
 
-const COLLECTION_NAME = 'guestbook';
-const DEBUG_COLLECTION_NAME = 'guestbook_debug';
+const BASE_COLLECTION_NAME = 'guestbook';
+const DEBUG_SUFFIX = '_debug';
 export const PAGE_SIZE = 20;
 const MIN_VALID_GAME_DURATION = 0;
 const MAX_VALID_GAME_DURATION = 604800;
 
-export const NAME_VALIDATION_RULES = {
+const DEFAULT_VALIDATION_RULES = {
 	minLength: 2,
 	maxLength: 30,
 	pattern: /^[a-zA-Z0-9\s._-]+$/,
-	patternMessage: 'Use only letters, numbers, spaces, and common symbols (._-)',
+	patternMessageKey: 'ui.guestbook.invalidName',
 };
 
-export const isValidPlayerName = (name) => {
+const ZH_VALIDATION_RULES = {
+	minLength: 2,
+	maxLength: 30,
+	pattern: /^[\p{L}\p{N}\p{P}\p{S}\p{Zs}]+$/u,
+	patternMessageKey: 'ui.guestbook.invalidNameZh',
+};
+
+export const NAME_VALIDATION_RULES = DEFAULT_VALIDATION_RULES;
+
+export const getValidationRules = (language) => {
+	if (language === 'zh') return ZH_VALIDATION_RULES;
+	return DEFAULT_VALIDATION_RULES;
+};
+
+const getLanguageSuffix = (language) => {
+	if (language === 'zh') return '_zh';
+	return '';
+};
+
+export const isValidPlayerName = (name, language) => {
 	if (!name || typeof name !== 'string') return false;
+	const rules = getValidationRules(language);
 	const trimmed = name.trim();
 	return (
-		trimmed.length >= NAME_VALIDATION_RULES.minLength &&
-		trimmed.length <= NAME_VALIDATION_RULES.maxLength &&
-		NAME_VALIDATION_RULES.pattern.test(trimmed)
+		trimmed.length >= rules.minLength &&
+		trimmed.length <= rules.maxLength &&
+		rules.pattern.test(trimmed)
 	);
 };
 
@@ -52,25 +72,23 @@ const isValidGameTime = (startTime, endTime) => {
 	);
 };
 
-const getCollectionName = () => {
+const getCollectionName = (language) => {
 	const isDebugMode = window.location.hash.includes('#debug');
-
-	if (isDebugMode) {
-		return DEBUG_COLLECTION_NAME;
-	} else {
-		return COLLECTION_NAME;
-	}
+	const langSuffix = getLanguageSuffix(language);
+	return `${BASE_COLLECTION_NAME}${langSuffix}${isDebugMode ? DEBUG_SUFFIX : ''}`;
 };
 
 export const addGuestBookEntry = async (
 	playerName,
 	startTime,
 	endTime,
-	deaths = 0
+	deaths = 0,
+	language
 ) => {
-	if (!isValidPlayerName(playerName)) {
+	if (!isValidPlayerName(playerName, language)) {
+		const rules = getValidationRules(language);
 		throw new Error(
-			`Invalid player name. ${NAME_VALIDATION_RULES.patternMessage} (${NAME_VALIDATION_RULES.minLength}-${NAME_VALIDATION_RULES.maxLength} characters)`
+			`Invalid player name (${rules.minLength}-${rules.maxLength} characters)`
 		);
 	}
 
@@ -79,7 +97,7 @@ export const addGuestBookEntry = async (
 	}
 
 	try {
-		const collectionToUse = getCollectionName();
+		const collectionToUse = getCollectionName(language);
 
 		const docRef = await addDoc(collection(db, collectionToUse), {
 			playerName: playerName.trim(),
@@ -97,9 +115,9 @@ export const addGuestBookEntry = async (
 	}
 };
 
-export const getTotalEntries = async () => {
+export const getTotalEntries = async (language) => {
 	try {
-		const collectionToUse = getCollectionName();
+		const collectionToUse = getCollectionName(language);
 
 		const coll = collection(db, collectionToUse);
 		const snapshot = await getCountFromServer(coll);
@@ -110,9 +128,9 @@ export const getTotalEntries = async () => {
 	}
 };
 
-export const getTotalPages = async () => {
+export const getTotalPages = async (language) => {
 	try {
-		const collectionToUse = getCollectionName();
+		const collectionToUse = getCollectionName(language);
 
 		const coll = collection(db, collectionToUse);
 		const snapshot = await getCountFromServer(coll);
@@ -125,9 +143,9 @@ export const getTotalPages = async () => {
 	}
 };
 
-export const getFirstGuestBookPage = async () => {
+export const getFirstGuestBookPage = async (language) => {
 	try {
-		const collectionToUse = getCollectionName();
+		const collectionToUse = getCollectionName(language);
 
 		const q = query(
 			collection(db, collectionToUse),
@@ -142,7 +160,7 @@ export const getFirstGuestBookPage = async () => {
 				? querySnapshot.docs[querySnapshot.docs.length - 1]
 				: null;
 
-		const totalEntries = await getTotalEntries();
+		const totalEntries = await getTotalEntries(language);
 		const totalPages = Math.ceil(totalEntries / PAGE_SIZE);
 
 		return {
@@ -157,7 +175,7 @@ export const getFirstGuestBookPage = async () => {
 	}
 };
 
-export const getNextGuestBookPage = async (lastVisible, currentPage) => {
+export const getNextGuestBookPage = async (lastVisible, currentPage, language) => {
 	if (!lastVisible) {
 		return {
 			entries: [],
@@ -168,7 +186,7 @@ export const getNextGuestBookPage = async (lastVisible, currentPage) => {
 	}
 
 	try {
-		const collectionToUse = getCollectionName();
+		const collectionToUse = getCollectionName(language);
 
 		const q = query(
 			collection(db, collectionToUse),
@@ -185,7 +203,7 @@ export const getNextGuestBookPage = async (lastVisible, currentPage) => {
 				: null;
 		const newCurrentPage = currentPage + 1;
 
-		const totalPages = await getTotalPages();
+		const totalPages = await getTotalPages(language);
 
 		return {
 			entries,
@@ -199,14 +217,14 @@ export const getNextGuestBookPage = async (lastVisible, currentPage) => {
 	}
 };
 
-export const getSpecificPage = async (pageNumber) => {
+export const getSpecificPage = async (pageNumber, language) => {
 	if (pageNumber < 1) pageNumber = 1;
 
 	try {
-		const collectionToUse = getCollectionName();
+		const collectionToUse = getCollectionName(language);
 
 		if (pageNumber === 1) {
-			return await getFirstGuestBookPage();
+			return await getFirstGuestBookPage(language);
 		}
 
 		const documentsToSkip = (pageNumber - 1) * PAGE_SIZE;
@@ -220,7 +238,7 @@ export const getSpecificPage = async (pageNumber) => {
 		const skipSnapshot = await getDocs(skipQuery);
 
 		if (skipSnapshot.empty) {
-			return await getFirstGuestBookPage();
+			return await getFirstGuestBookPage(language);
 		}
 
 		const lastDoc = skipSnapshot.docs[skipSnapshot.docs.length - 1];
@@ -238,7 +256,7 @@ export const getSpecificPage = async (pageNumber) => {
 			entries.length > 0
 				? querySnapshot.docs[querySnapshot.docs.length - 1]
 				: null;
-		const totalPages = await getTotalPages();
+		const totalPages = await getTotalPages(language);
 
 		return {
 			entries,
@@ -283,9 +301,9 @@ export const formatTime = (timeInSeconds) => {
 		.padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
 };
 
-export const findPageByPlayerName = async (playerName) => {
+export const findPageByPlayerName = async (playerName, language) => {
 	try {
-		const collectionToUse = getCollectionName();
+		const collectionToUse = getCollectionName(language);
 
 		const searchTerm = playerName.toLowerCase();
 
@@ -321,7 +339,7 @@ export const findPageByPlayerName = async (playerName) => {
 			collection(db, collectionToUse),
 			orderBy('playerName'),
 			startAt(searchTerm),
-			endAt(searchTerm + '\uf8ff'),
+			endAt(searchTerm + ''),
 			limit(1)
 		);
 

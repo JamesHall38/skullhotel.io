@@ -1,4 +1,4 @@
-import { useGLTF } from '@react-three/drei';
+import { useGLTF } from '../../utils/useGLTFLocal';
 import useGameplaySettings from '../../hooks/useGameplaySettings';
 import React, { useMemo } from 'react';
 import WoodMaterial from '../materials/WoodMaterial';

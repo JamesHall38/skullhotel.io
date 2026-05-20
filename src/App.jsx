@@ -17,6 +17,7 @@ import useMonster from './hooks/useMonster';
 import useGridStore from './hooks/useGrid';
 import useLight from './hooks/useLight';
 import PostProcessing from './components/PostProcessing';
+import { probeFirestoreReachability } from './firebase/healthCheck';
 
 import { Leva, useControls, button } from 'leva';
 
@@ -134,6 +135,18 @@ function App() {
 	const introIsPlaying = useGame((state) => state.introIsPlaying);
 	const hasIntroBeenPlayedRef = useRef(false);
 	const masterVolume = useSettings((state) => state.masterVolume);
+
+	const setFirestoreReachable = useGame((state) => state.setFirestoreReachable);
+
+	useEffect(() => {
+		let cancelled = false;
+		probeFirestoreReachability().then((ok) => {
+			if (!cancelled) setFirestoreReachable(ok);
+		});
+		return () => {
+			cancelled = true;
+		};
+	}, [setFirestoreReachable]);
 
 	useEffect(() => {
 		setMasterVolume(masterVolume);

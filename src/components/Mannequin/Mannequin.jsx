@@ -5,7 +5,8 @@ import React, {
 	useEffect,
 	useCallback,
 } from 'react';
-import { useGLTF, useAnimations } from '@react-three/drei';
+import { useAnimations } from '@react-three/drei';
+import { useGLTF } from '../../utils/useGLTFLocal';
 import useProgressiveLoad from '../../hooks/useProgressiveLoad';
 import Animations from './Animations';
 import useGame from '../../hooks/useGame';

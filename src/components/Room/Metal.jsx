@@ -1,5 +1,5 @@
 import React from 'react';
-import { useGLTF } from '@react-three/drei';
+import { useGLTF } from '../../utils/useGLTFLocal';
 
 export default function Metal(props) {
 	const { nodes, materials } = useGLTF('/models/room/metal.glb');

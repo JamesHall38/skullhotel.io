@@ -5,7 +5,7 @@ import React, {
 	useState,
 	useMemo,
 } from 'react';
-import { useGLTF } from '@react-three/drei';
+import { useGLTF } from '../../utils/useGLTFLocal';
 import useGame from '../../hooks/useGame';
 import useInterface from '../../hooks/useInterface';
 import useGameplaySettings from '../../hooks/useGameplaySettings';

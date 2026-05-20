@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
-import { useGLTF, Text, Svg } from '@react-three/drei';
+import { Text, Svg } from '@react-three/drei';
+import { useGLTF } from '../../utils/useGLTFLocal';
 import useKTX2 from '../../hooks/useKTX2Local';
 import * as THREE from 'three';
 import useGame from '../../hooks/useGame';
@@ -18,6 +19,7 @@ import './Reception.css';
 export default function Reception(props) {
 	const { scene, nodes } = useGLTF('/models/reception/reception.glb');
 	const performanceMode = useGame((state) => state.performanceMode);
+	const firestoreReachable = useGame((state) => state.firestoreReachable);
 	const materialRef = useRef();
 	const isAnyPopupOpen = useInterface((state) => state.isAnyPopupOpen);
 	const [isVisible, setIsVisible] = useState(true);
@@ -123,7 +125,7 @@ export default function Reception(props) {
 				? raycaster.intersectObject(howItsMadeBoxRef.current)
 				: [];
 
-			if (guestBookIntersects.length > 0) {
+			if (guestBookIntersects.length > 0 && firestoreReachable === true) {
 				setShowGuestBook(true);
 				if (cursor !== 'book') {
 					setCursor('book');

@@ -8,6 +8,7 @@ import useTextureQueue from '../../../hooks/useTextureQueue';
 import TrianglePattern from './TrianglePattern';
 import useInterface from '../../../hooks/useInterface';
 import useLocalization from '../../../hooks/useLocalization';
+import { openStoreLink } from '../../../utils/platform';
 import './LoadingScreen.css';
 
 const LoadingScreen = ({ onStart }) => {
@@ -290,6 +291,8 @@ const LoadingScreen = ({ onStart }) => {
 							rel="noopener noreferrer"
 							onClick={(e) => {
 								e.stopPropagation();
+								e.preventDefault();
+								openStoreLink(e.currentTarget.href);
 							}}
 						>
 							{t('ui.crossPromo.message')}{' '}
@@ -319,7 +322,11 @@ const LoadingScreen = ({ onStart }) => {
 							href="https://store.steampowered.com/app/4506220/Sly_Apes/?utm_source=skull_hotel&utm_medium=launch_popup&utm_campaign=cross_promo"
 							target="_blank"
 							rel="noopener noreferrer"
-							onClick={(e) => e.stopPropagation()}
+							onClick={(e) => {
+								e.stopPropagation();
+								e.preventDefault();
+								openStoreLink(e.currentTarget.href);
+							}}
 						>
 							{t('ui.crossPromo.cta')}
 						</a>

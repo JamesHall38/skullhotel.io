@@ -1,5 +1,5 @@
 import React, { useMemo, useRef, useEffect } from 'react';
-import { useGLTF } from '@react-three/drei';
+import { useGLTF } from '../../utils/useGLTFLocal';
 import { useFrame } from '@react-three/fiber';
 import DoorWrapper from '../Doors/DoorWrapper';
 import * as THREE from 'three';

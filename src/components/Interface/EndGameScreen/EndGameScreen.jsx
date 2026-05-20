@@ -7,6 +7,7 @@ import useLight from '../../../hooks/useLight';
 import useGridStore from '../../../hooks/useGrid';
 import useLocalization from '../../../hooks/useLocalization';
 import SkullHotelLogo from '../Logo';
+import { openStoreLink } from '../../../utils/platform';
 import './EndGameScreen.css';
 import { regenerateData } from '../../../utils/config';
 import {
@@ -93,10 +94,11 @@ const EndGameScreen = () => {
 	const [isRestarting, setIsRestarting] = useState(false);
 	const [showPromoPopup, setShowPromoPopup] = useState(false);
 
-	const { t } = useLocalization();
+	const { t, currentLanguage } = useLocalization();
 	const restart = useGame((state) => state.restart);
 	const incrementRealDeaths = useGame((state) => state.incrementRealDeaths);
 	const realDeaths = useGame((state) => state.realDeaths);
+	const firestoreReachable = useGame((state) => state.firestoreReachable);
 	const restartInterface = useInterface((state) => state.restart);
 	const restartDoor = useDoor((state) => state.restart);
 	const restartMonster = useMonster((state) => state.restart);
@@ -281,13 +283,20 @@ const EndGameScreen = () => {
 
 		setIsRestarting(true);
 
-		if (playerName.trim() && !nameError && !submitted && !isSubmitting) {
+		if (
+			firestoreReachable === true &&
+			playerName.trim() &&
+			!nameError &&
+			!submitted &&
+			!isSubmitting
+		) {
 			try {
 				await addGuestBookEntry(
 					playerName.trim(),
 					gameStartTime,
 					gameEndTime,
-					realDeaths
+					realDeaths,
+					currentLanguage
 				);
 				const isDebugMode = window.location.hash.includes('#debug');
 				const storageKey = isDebugMode
@@ -353,7 +362,7 @@ const EndGameScreen = () => {
 			return;
 		}
 
-		if (!isValidPlayerName(name)) {
+		if (!isValidPlayerName(name, currentLanguage)) {
 			if (name.trim().length < NAME_VALIDATION_RULES.minLength) {
 				setNameError(
 					t('ui.endGameScreen.nameValidation.tooShort', {
@@ -382,14 +391,20 @@ const EndGameScreen = () => {
 
 	const handleSubmit = async (e) => {
 		e.preventDefault();
-		if (playerName.trim() && !isSubmitting && !nameError) {
+		if (
+			firestoreReachable === true &&
+			playerName.trim() &&
+			!isSubmitting &&
+			!nameError
+		) {
 			setIsSubmitting(true);
 			try {
 				await addGuestBookEntry(
 					playerName.trim(),
 					gameStartTime,
 					gameEndTime,
-					realDeaths
+					realDeaths,
+					currentLanguage
 				);
 				const isDebugMode = window.location.hash.includes('#debug');
 				const storageKey = isDebugMode
@@ -460,7 +475,7 @@ const EndGameScreen = () => {
 				</div>
 			</div>
 
-			{!submitted ? (
+			{firestoreReachable !== true ? null : !submitted ? (
 				<form
 					onSubmit={handleSubmit}
 					className="name-input-container"
@@ -530,7 +545,11 @@ const EndGameScreen = () => {
 							href="https://store.steampowered.com/app/4506220/Sly_Apes/?utm_source=skull_hotel&utm_medium=end_screen&utm_campaign=cross_promo"
 							target="_blank"
 							rel="noopener noreferrer"
-							onClick={(e) => e.stopPropagation()}
+							onClick={(e) => {
+								e.stopPropagation();
+								e.preventDefault();
+								openStoreLink(e.currentTarget.href);
+							}}
 						>
 							{t('ui.crossPromo.cta')}
 						</a>

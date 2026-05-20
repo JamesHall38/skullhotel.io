@@ -1,5 +1,5 @@
 import React from 'react';
-import { useGLTF } from '@react-three/drei';
+import { useGLTF } from '../../utils/useGLTFLocal';
 import WoodMaterial from '../materials/WoodMaterial';
 import WallsMaterial from '../materials/WallsMaterial';
 import CarpetMaterial from '../materials/CarpetMaterial';

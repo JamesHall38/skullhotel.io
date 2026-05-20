@@ -81,7 +81,7 @@
 			"nameValidation": {
 				"tooShort": "姓名必须至少包含{{min}}个字符",
 				"tooLong": "姓名最多只能包含{{max}}个字符",
-				"invalidPattern": "姓名只能包含字母、数字、空格和基本标点符号",
+				"invalidPattern": "姓名不能包含控制字符或换行",
 				"submitError": "提交您的条目失败。请重试。"
 			}
 		},
@@ -99,9 +99,9 @@
 			"uiArtDirection": "用户界面和艺术指导"
 		},
 		"reception": {
-			"guestBook": "留言簿",
+			"guestBook": "中文留言簿",
 			"informations": "信息",
-			"guestBookSubtitle": "完成游戏以注册您的姓名",
+			"guestBookSubtitle": "华语社区专属 · 完成游戏以注册您的姓名",
 			"searchPlaceholder": "输入页码或搜索姓名",
 			"completionTime": "完成时间",
 			"time": "时间",

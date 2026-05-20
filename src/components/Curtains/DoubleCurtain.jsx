@@ -1,5 +1,5 @@
 import { useRef, useMemo, useEffect, useCallback } from 'react';
-import { useGLTF } from '@react-three/drei';
+import { useGLTF } from '../../utils/useGLTFLocal';
 import { useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import useInterface from '../../hooks/useInterface';

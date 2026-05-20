@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { useGLTF } from '@react-three/drei';
+import { useGLTF } from '../../utils/useGLTFLocal';
 import { useThree } from '@react-three/fiber';
 import Animations from './Animations';
 import useMonsterLogic from '../../hooks/useMonsterLogic';

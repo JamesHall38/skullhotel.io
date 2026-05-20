@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import * as THREE from 'three';
-import { useGLTF } from '@react-three/drei';
+import { useGLTF } from '../../utils/useGLTFLocal';
 import useLight from '../../hooks/useLight';
 import useProgressiveLoad from '../../hooks/useProgressiveLoad';
 

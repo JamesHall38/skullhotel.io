@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { useGLTF } from '@react-three/drei';
+import { useGLTF } from '../../utils/useGLTFLocal';
 
 export default function Album(props) {
 	const { nodes, materials } = useGLTF('/models/room/album.glb');
